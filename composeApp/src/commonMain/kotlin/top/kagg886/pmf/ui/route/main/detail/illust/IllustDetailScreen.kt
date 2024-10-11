@@ -192,7 +192,12 @@ class IllustDetailScreen : Screen, KoinComponent {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun IllustPreview(illust: Illust) {
-        val img by remember(illust) { mutableStateOf(illust.contentImages!!) }
+        val img by remember(illust) {
+            //TODO should be changed to illust.contentImages[it.Large]
+            mutableStateOf(
+                illust.metaPages.ifEmpty { listOf(illust.imageUrls) }.map { it.large ?: it.content }
+            )
+        }
         val nav = LocalNavigator.currentOrThrow
         val model = nav.koinNavigatorScreenModel<IllustDetailViewModel>()
         LazyColumn(modifier = Modifier.fillMaxSize()) {
