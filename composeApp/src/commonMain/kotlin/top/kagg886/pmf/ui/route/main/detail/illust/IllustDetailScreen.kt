@@ -46,6 +46,7 @@ import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
+import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 
@@ -204,24 +205,10 @@ class IllustDetailScreen : Screen, KoinComponent {
                 Spacer(Modifier.height(16.dp))
             }
             item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth().clickable {
-                    nav.push(AuthorScreen(illust.user.id))
-                }) {
-                    ListItem(
-                        headlineContent = {
-                            Text(illust.user.name)
-                        },
-                        supportingContent = {
-                            Text(illust.user.comment?.lines()?.first()?.takeIf { it.isNotEmpty() } ?: "没有简介")
-                        },
-                        leadingContent = {
-                            ProgressedAsyncImage(
-                                url = illust.user.profileImageUrls.content,
-                                modifier = Modifier.size(35.dp)
-                            )
-                        }
-                    )
-                }
+                AuthorCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    user = illust.user
+                )
                 Spacer(Modifier.height(16.dp))
             }
 
