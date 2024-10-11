@@ -12,6 +12,8 @@ import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.deleteBookmarkIllust
 import top.kagg886.pixko.module.illust.getIllustDetail
+import top.kagg886.pixko.module.user.followUser
+import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
@@ -109,6 +111,52 @@ class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailS
                 )
             }
             postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun followUser() = intent {
+        runOn<IllustDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.followUser(state.illust.user.id)
+            }
+            if (result.isFailure) {
+                postSideEffect(IllustDetailSideEffect.Toast("关注失败~"))
+                return@runOn
+            }
+            postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
+            reduce {
+                state.copy(
+                    illust = state.illust.copy(
+                        user = state.illust.user.copy(
+                            isFollowed = true
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun unFollowUser() = intent {
+        runOn<IllustDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.unFollowUser(state.illust.user.id)
+            }
+            if (result.isFailure) {
+                postSideEffect(IllustDetailSideEffect.Toast("取关失败~(*^▽^*)"))
+                return@runOn
+            }
+            postSideEffect(IllustDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            reduce {
+                state.copy(
+                    illust = state.illust.copy(
+                        user = state.illust.user.copy(
+                            isFollowed = false
+                        )
+                    )
+                )
+            }
         }
     }
 }

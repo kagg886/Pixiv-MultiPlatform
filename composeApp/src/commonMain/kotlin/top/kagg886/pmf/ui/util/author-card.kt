@@ -12,11 +12,13 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pixko.User
+import top.kagg886.pmf.ui.component.FavoriteButton
+import top.kagg886.pmf.ui.component.FavoriteState
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 
 @Composable
-fun AuthorCard(modifier: Modifier = Modifier, user: User) {
+fun AuthorCard(modifier: Modifier = Modifier, user: User, onFavoriteClick: suspend (Boolean) -> Unit = {}) {
     val nav = LocalNavigator.currentOrThrow
     OutlinedCard(modifier = modifier.clickable {
         nav.push(AuthorScreen(user.id))
@@ -32,6 +34,14 @@ fun AuthorCard(modifier: Modifier = Modifier, user: User) {
                 ProgressedAsyncImage(
                     url = user.profileImageUrls.content,
                     modifier = Modifier.size(35.dp)
+                )
+            },
+            trailingContent = {
+                FavoriteButton(
+                    isFavorite = user.isFollowed ?: false,
+                    onModify = {
+                        onFavoriteClick(it == FavoriteState.Favorite)
+                    }
                 )
             }
         )

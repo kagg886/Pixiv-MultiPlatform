@@ -24,6 +24,12 @@ sealed class FavoriteState {
 fun FavoriteButton(
     modifier: Modifier = Modifier,
     isFavorite: Boolean,
+    nonFavoriteIcon: @Composable () -> Unit = {
+        Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
+    },
+    favoriteIcon: @Composable () -> Unit = {
+        Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = Color.Red)
+    },
     onModify: suspend (target: FavoriteState) -> Unit
 ) {
     var loading by remember { mutableStateOf(false) }
@@ -54,7 +60,7 @@ fun FavoriteButton(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = Color.Red)
+                    favoriteIcon()
                 }
             }
 
@@ -73,7 +79,7 @@ fun FavoriteButton(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = null)
+                    nonFavoriteIcon()
                 }
             }
         }

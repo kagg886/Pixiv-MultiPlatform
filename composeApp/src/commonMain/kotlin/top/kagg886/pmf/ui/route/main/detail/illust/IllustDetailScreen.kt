@@ -208,7 +208,13 @@ class IllustDetailScreen : Screen, KoinComponent {
                 AuthorCard(
                     modifier = Modifier.fillMaxWidth(),
                     user = illust.user
-                )
+                ) {
+                    if (it) {
+                        model.followUser().join()
+                    } else {
+                        model.unFollowUser().join()
+                    }
+                }
                 Spacer(Modifier.height(16.dp))
             }
 

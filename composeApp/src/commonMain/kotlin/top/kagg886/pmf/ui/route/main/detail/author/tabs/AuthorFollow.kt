@@ -41,7 +41,9 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.User
 import top.kagg886.pixko.module.user.UserInfo
+import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.getFollowingList
+import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
@@ -49,6 +51,8 @@ import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailSideEffect
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailViewState
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
@@ -99,7 +103,13 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
                         AuthorCard(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
                             user = it
-                        )
+                        ) { isRequestFavorite ->
+                            if (isRequestFavorite) {
+                                model.followUser(it.id).join()
+                            } else {
+                                model.unFollowUser(it.id).join()
+                            }
+                        }
                     }
 
                     item {
@@ -148,7 +158,6 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
 private class AuthorFollowViewModel(val user: Int) : KoinComponent,
     ContainerHost<AuthorFollowState, AuthorFollowSideEffect>, ViewModel(), ScreenModel {
     private val storage by inject<PixivTokenStorage>()
-    private val scope = viewModelScope + Dispatchers.IO
 
     private val client = PixivAccountFactory.newAccountFromConfig {
         storage = this@AuthorFollowViewModel.storage
@@ -203,6 +212,57 @@ private class AuthorFollowViewModel(val user: Int) : KoinComponent,
             }
         }
     }
+
+    @OptIn(OrbitExperimental::class)
+    fun followUser(userId: Int) = intent {
+        runOn<AuthorFollowState.Success> {
+            val result = kotlin.runCatching {
+                client.followUser(userId)
+            }
+            if (result.isFailure) {
+                postSideEffect(AuthorFollowSideEffect.Toast("关注失败~"))
+                return@runOn
+            }
+            postSideEffect(AuthorFollowSideEffect.Toast("关注成功~"))
+            reduce {
+                state.copy(
+                    data = state.data.map {
+                        if (it.id == userId) {
+                            it.copy(isFollowed = true)
+                        } else {
+                            it
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun unFollowUser(userId: Int) = intent {
+        runOn<AuthorFollowState.Success> {
+            val result = kotlin.runCatching {
+                client.followUser(userId)
+            }
+            if (result.isFailure) {
+                postSideEffect(AuthorFollowSideEffect.Toast("取关失败~(*^▽^*)"))
+                return@runOn
+            }
+            postSideEffect(AuthorFollowSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            reduce {
+                state.copy(
+                    data = state.data.map {
+                        if (it.id == userId) {
+                            it.copy(isFollowed = false)
+                        } else {
+                            it
+                        }
+                    }
+                )
+            }
+        }
+    }
+
 }
 
 private sealed class AuthorFollowState {
