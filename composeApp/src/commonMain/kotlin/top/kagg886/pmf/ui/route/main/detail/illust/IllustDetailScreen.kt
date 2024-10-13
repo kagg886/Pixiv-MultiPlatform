@@ -1,17 +1,14 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -36,19 +33,19 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Download
-import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
-import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pixko.module.illust.get
 
 class IllustDetailScreen : Screen, KoinComponent {
     private var id: Long? = null
@@ -193,9 +190,8 @@ class IllustDetailScreen : Screen, KoinComponent {
     @Composable
     private fun IllustPreview(illust: Illust) {
         val img by remember(illust) {
-            //TODO should be changed to illust.contentImages[it.Large]
             mutableStateOf(
-                illust.metaPages.ifEmpty { listOf(illust.imageUrls) }.map { it.large ?: it.content }
+                illust.contentImages.get()!!
             )
         }
         val nav = LocalNavigator.currentOrThrow
@@ -236,18 +232,22 @@ class IllustDetailScreen : Screen, KoinComponent {
                             Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
                         },
                         trailingContent = {
-                            Row(Modifier.size(120.dp,68.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                Modifier.size(120.dp, 68.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 val downloadModel = koinScreenModel<DownloadScreenModel>()
                                 val snack = LocalSnackBarHost.current
                                 val scope = rememberCoroutineScope()
                                 IconButton(
                                     onClick = {
-                                        illust.originImages!!.map {
+                                        illust.contentImages[IllustImagesType.ORIGIN]!!.map {
                                             downloadModel.startDownload(it)
                                         }
                                         scope.launch {
                                             val result = snack.showSnackbar(
-                                                object :SnackbarVisuals {
+                                                object : SnackbarVisuals {
                                                     override val actionLabel: String?
                                                         get() = "是"
                                                     override val duration: SnackbarDuration

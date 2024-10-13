@@ -41,8 +41,7 @@ class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailS
             }
             return@intent
         }
-        reduce { IllustDetailViewState.Success(illust.getOrThrow()) }
-        saveDataBase()
+        loadByIllustBean(illust.getOrThrow())
     }
 
     fun loadByIllustBean(illust: Illust) = intent {
@@ -50,14 +49,7 @@ class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailS
             IllustDetailViewState.Loading
         }
         reduce { IllustDetailViewState.Success(illust) }
-        intent {
-            if (illust.contentImages == null) {
-                loadByIllustId(illust.id.toLong(), false)
-            }
-        }
-        if (illust.contentImages != null) {
-            saveDataBase()
-        }
+        saveDataBase()
     }
 
     private val database by inject<AppDatabase>()

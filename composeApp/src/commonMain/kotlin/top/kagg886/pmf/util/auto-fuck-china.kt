@@ -2,11 +2,11 @@ package top.kagg886.pmf.util
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import okhttp3.Call
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.InetAddress
+
 
 private val json = Json {
     ignoreUnknownKeys = true
@@ -28,7 +28,7 @@ private data class CloudFlareDNSResponse(
     @Serializable
     data class DNSAnswer(
         val TTL: Int,
-        val `data`: String,
+        val data: String,
         val name: String,
         val type: Int
     )

@@ -11,6 +11,7 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import top.kagg886.pixko.PixivAccountFactory
+import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.NovelData
@@ -20,6 +21,7 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pixko.module.illust.get
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
@@ -53,7 +55,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     fun getIllustLink(value: Long, num: Int = 0): MutableState<String> {
         val state = mutableStateOf("")
         viewModelScope.launch {
-            state.value = client.getIllustDetail(value).contentImages!!.getOrNull(num) ?: ""
+            state.value = client.getIllustDetail(value).contentImages[IllustImagesType.MEDIUM]!![0]
         }
         return state
     }
