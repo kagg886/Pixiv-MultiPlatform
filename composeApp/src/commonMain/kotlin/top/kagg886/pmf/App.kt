@@ -42,6 +42,7 @@ import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.database.AppDatabase
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.backend.rootPath
 import top.kagg886.pmf.ui.component.CheckUpdateDialog
@@ -70,6 +71,7 @@ import top.kagg886.pmf.ui.util.UpdateCheckSideEffect
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.util.bypassSNI
 import top.kagg886.pmf.util.ignoreSSL
 import java.io.File
 import kotlin.reflect.KClass
@@ -119,12 +121,11 @@ fun App() {
 @Composable
 expect fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit)
 
-@OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
 @Composable
 fun ProfileAvatar() {
     val nav = LocalNavigator.currentOrThrow
     val profile = remember {
-        SystemConfig.getConfig("pixiv_token").decodeValueOrNull<SimpleMeProfile>("pixiv_user")!!
+        PixivConfig.pixiv_user!!
     }
 
     IconButton(
@@ -163,7 +164,9 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
         httpStack(
             OkHttpStack(
                 OkHttpClient.Builder().apply {
-                    ignoreSSL()
+                    if (AppConfig.byPassSNI) {
+                        bypassSNI()
+                    }
                     addNetworkInterceptor {
                         val resp = it.proceed(it.request())
                         //防止connection leak

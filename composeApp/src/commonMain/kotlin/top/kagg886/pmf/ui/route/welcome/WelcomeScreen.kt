@@ -18,7 +18,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
-import top.kagg886.pmf.backend.PixivConfig
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.kotlin
 import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen

@@ -9,6 +9,7 @@ import org.orbitmvi.orbit.ContainerHost
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.illust.Comment
 import top.kagg886.pixko.module.illust.getIllustCommentReply
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
@@ -31,10 +32,7 @@ class IllustCommentReplyViewModel(private val commentId: Long, private val page:
             }
         }
 
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = token
-    }
+    private val client = PixivConfig.newAccountFromConfig()
 }
 
 sealed class IllustCommentReplyState {

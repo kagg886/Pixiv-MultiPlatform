@@ -10,8 +10,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.NovelData
@@ -19,9 +19,8 @@ import top.kagg886.pixko.module.novel.getNovelContent
 import top.kagg886.pixko.module.novel.getNovelDetail
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
-import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pixko.module.illust.get
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
@@ -29,10 +28,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         container(NovelDetailViewState.Loading) {
             loadByNovelId(id)
         }
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = token
-    }
+    private val client = PixivConfig.newAccountFromConfig()
 
     private val database by inject<AppDatabase>()
 

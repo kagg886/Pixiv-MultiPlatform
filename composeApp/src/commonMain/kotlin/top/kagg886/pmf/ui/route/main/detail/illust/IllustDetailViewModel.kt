@@ -16,6 +16,7 @@ import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
@@ -23,10 +24,7 @@ class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailS
     KoinComponent {
     override val container: Container<IllustDetailViewState, IllustDetailSideEffect> =
         container(IllustDetailViewState.Loading)
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = token
-    }
+    private val client = PixivConfig.newAccountFromConfig()
 
     fun loadByIllustId(id: Long, silent: Boolean = true) = intent {
         if (silent) {

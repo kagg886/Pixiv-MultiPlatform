@@ -12,14 +12,12 @@ import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.TrendingTags
 import top.kagg886.pixko.module.trending.getRecommendTags
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
-class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), ScreenModel, KoinComponent {
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        this.storage = token
-    }
+class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), ScreenModel {
+    private val client = PixivConfig.newAccountFromConfig()
 
     override val container: Container<SearchViewState, Nothing> = container(SearchViewState.NonLoading) {
         val tag = client.getRecommendTags()

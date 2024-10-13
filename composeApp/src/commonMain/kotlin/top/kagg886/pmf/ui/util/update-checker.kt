@@ -5,12 +5,12 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
-import top.kagg886.pmf.util.CloudFlareDoH
 import top.kagg886.pmf.util.ignoreSSL
 import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
+import top.kagg886.pmf.util.BypassTrustManager
 
 @Serializable
 data class Asset(
@@ -38,7 +38,6 @@ class UpdateCheckViewModel : ContainerHost<UpdateCheckState, UpdateCheckSideEffe
 
     val net = OkHttpClient.Builder().apply {
         ignoreSSL()
-        dns(CloudFlareDoH)
     }.build()
 
     private val json = Json {

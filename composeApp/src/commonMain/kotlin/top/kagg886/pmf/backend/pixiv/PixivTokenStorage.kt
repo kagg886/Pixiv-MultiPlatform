@@ -2,8 +2,8 @@ package top.kagg886.pmf.backend.pixiv
 
 import top.kagg886.pixko.TokenStorage
 import top.kagg886.pixko.TokenType
-import top.kagg886.pmf.backend.PixivConfig.accessToken
-import top.kagg886.pmf.backend.PixivConfig.refreshToken
+import top.kagg886.pmf.backend.pixiv.PixivConfig.accessToken
+import top.kagg886.pmf.backend.pixiv.PixivConfig.refreshToken
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 

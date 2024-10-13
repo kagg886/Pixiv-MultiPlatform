@@ -14,6 +14,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.b
@@ -81,6 +82,31 @@ class SettingScreen :Screen {
                                     value = it
                                 },
                                 valueRange = 10.mb.bytes.toFloat()..2048.mb.bytes.toFloat(),
+                            )
+                        }
+                    )
+                }
+
+                item {
+                    var value by remember {
+                        mutableStateOf(AppConfig.byPassSNI)
+                    }
+                    ListItem(
+                        headlineContent = {
+                            Text("SNI Bypass")
+                        },
+                        supportingContent = {
+                            Text("绕过Pixiv SNI Checker，可实现免VPN直连。若拥有梯子环境请关闭此功能以提高加载速度")
+                        },
+                        trailingContent = {
+                            LaunchedEffect(value) {
+                                AppConfig.byPassSNI = value
+                            }
+                            Switch(
+                                checked = value,
+                                onCheckedChange = {
+                                    value = it
+                                }
                             )
                         }
                     )

@@ -16,18 +16,15 @@ import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import kotlin.coroutines.CoroutineContext
 
 abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(),
-    KoinComponent,
     ScreenModel {
-    private val storage by inject<PixivTokenStorage>()
     private val scope = viewModelScope + Dispatchers.IO
 
-    protected val client = PixivAccountFactory.newAccountFromConfig {
-        storage = this@NovelFetchViewModel.storage
-    }
+    protected val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<Novel>? = null
 

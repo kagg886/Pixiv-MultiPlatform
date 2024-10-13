@@ -15,10 +15,9 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import top.kagg886.pixko.PixivVerification
 import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
-import top.kagg886.pmf.backend.PixivConfig
 import top.kagg886.pmf.backend.Platform
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 import kotlin.time.Duration.Companion.seconds

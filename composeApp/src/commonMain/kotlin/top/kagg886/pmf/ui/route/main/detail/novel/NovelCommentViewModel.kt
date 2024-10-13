@@ -16,6 +16,7 @@ import top.kagg886.pixko.module.illust.Comment
 import top.kagg886.pixko.module.novel.getNovelComment
 import top.kagg886.pixko.module.novel.sendNovelComment
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
@@ -26,10 +27,7 @@ class NovelCommentViewModel : ContainerHost<NovelDetailCommentViewState, NovelDe
     private var repo: InfinityRepository<Comment>? = null
     private val scope = viewModelScope + Dispatchers.IO
 
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = token
-    }
+    private val client = PixivConfig.newAccountFromConfig()
 
     fun init(id: Long, pullDown: Boolean = false) = intent {
         if (!pullDown) {

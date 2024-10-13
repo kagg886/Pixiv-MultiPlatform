@@ -18,8 +18,7 @@ import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.backend.PixivConfig
-import top.kagg886.pmf.backend.SystemConfig
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.util.collectAsState

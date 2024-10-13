@@ -9,6 +9,7 @@ import org.orbitmvi.orbit.ContainerHost
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserInfo
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
@@ -17,10 +18,7 @@ class AuthorScreenModel(val id:Int) : ContainerHost<AuthorScreenState, AuthorScr
     override val container: Container<AuthorScreenState, AuthorScreenSideEffect> = container(AuthorScreenState.Loading) {
         loadUserById(id)
     }
-    private val token by inject<PixivTokenStorage>()
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = token
-    }
+    private val client = PixivConfig.newAccountFromConfig()
 
     fun loadUserById(id: Int, silent: Boolean = true) = intent {
         if (silent) {

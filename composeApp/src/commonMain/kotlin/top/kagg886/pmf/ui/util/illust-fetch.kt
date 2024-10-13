@@ -6,26 +6,20 @@ import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.PixivAccountFactory
-import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.bookmarkIllust
+import top.kagg886.pixko.module.illust.deleteBookmarkIllust
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
-import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import kotlin.coroutines.CoroutineContext
 
-abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(),
-    KoinComponent,
-    ScreenModel {
-    private val storage by inject<PixivTokenStorage>()
+abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     private val scope = viewModelScope + Dispatchers.IO
 
-    protected val client = PixivAccountFactory.newAccountFromConfig {
-        storage = this@IllustFetchViewModel.storage
-    }
+    protected val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<Illust>? = null
 

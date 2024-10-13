@@ -47,6 +47,7 @@ import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
@@ -155,13 +156,8 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
     }
 }
 
-private class AuthorFollowViewModel(val user: Int) : KoinComponent,
-    ContainerHost<AuthorFollowState, AuthorFollowSideEffect>, ViewModel(), ScreenModel {
-    private val storage by inject<PixivTokenStorage>()
-
-    private val client = PixivAccountFactory.newAccountFromConfig {
-        storage = this@AuthorFollowViewModel.storage
-    }
+private class AuthorFollowViewModel(val user: Int) : ContainerHost<AuthorFollowState, AuthorFollowSideEffect>, ViewModel(), ScreenModel {
+    private val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<User>? = null
 
