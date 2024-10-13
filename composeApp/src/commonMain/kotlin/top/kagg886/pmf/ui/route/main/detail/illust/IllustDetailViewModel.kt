@@ -8,10 +8,7 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.PixivAccountFactory
-import top.kagg886.pixko.module.illust.Illust
-import top.kagg886.pixko.module.illust.bookmarkIllust
-import top.kagg886.pixko.module.illust.deleteBookmarkIllust
-import top.kagg886.pixko.module.illust.getIllustDetail
+import top.kagg886.pixko.module.illust.*
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.database.AppDatabase
@@ -20,37 +17,72 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.util.container
 
-class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailSideEffect>, ViewModel(), ScreenModel,
-    KoinComponent {
+class IllustDetailViewModel(private val illust: Illust) :
+    ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,
+    ViewModel(), ScreenModel, KoinComponent {
     override val container: Container<IllustDetailViewState, IllustDetailSideEffect> =
-        container(IllustDetailViewState.Loading)
+        container(IllustDetailViewState.Loading) {
+            load()
+        }
     private val client = PixivConfig.newAccountFromConfig()
-
-    fun loadByIllustId(id: Long, silent: Boolean = true) = intent {
-        if (silent) {
-            reduce { IllustDetailViewState.Loading }
-        }
-        val illust = kotlin.runCatching {
-            client.getIllustDetail(id)
-        }
-        if (illust.isFailure) {
-            if (silent) {
-                reduce { IllustDetailViewState.Error }
+    fun load(showLoading: Boolean = true) = intent {
+        if (showLoading) {
+            reduce {
+                IllustDetailViewState.Loading
             }
-            return@intent
         }
-        loadByIllustBean(illust.getOrThrow())
+        reduce {
+            IllustDetailViewState.Success(illust)
+        }
+        //先加载无原图版本的illust，然后更换为有原图版本的
+        intent a@{
+            var i = illust
+            if (illust.contentImages[IllustImagesType.ORIGIN] == null) {
+                val result = kotlin.runCatching {
+                    client.getIllustDetail(illust.id.toLong())
+                }
+                if (result.isFailure) {
+                    postSideEffect(IllustDetailSideEffect.Toast("获取原图信息失败~"))
+                    return@a
+                }
+                i = result.getOrThrow()
+                if (i.contentImages[IllustImagesType.ORIGIN] == null) {
+                    postSideEffect(IllustDetailSideEffect.Toast("无法获取原图~不知道是怎么回事捏~"))
+                }
+            }
+            reduce {
+                IllustDetailViewState.Success(i)
+            }
+        }
+
     }
 
-    fun loadByIllustBean(illust: Illust) = intent {
-        reduce {
-            IllustDetailViewState.Loading
-        }
-        reduce { IllustDetailViewState.Success(illust) }
-        saveDataBase()
-    }
+//    fun loadByIllustId(id: Long, silent: Boolean = true) = intent {
+//        if (silent) {
+//            reduce { IllustDetailViewState.Loading }
+//        }
+//        val illust = kotlin.runCatching {
+//            client.getIllustDetail(id)
+//        }
+//        if (illust.isFailure) {
+//            if (silent) {
+//                reduce { IllustDetailViewState.Error }
+//            }
+//            return@intent
+//        }
+//        loadByIllustBean(illust.getOrThrow())
+//    }
+//
+//    fun loadByIllustBean(illust: Illust) = intent {
+//        reduce {
+//            IllustDetailViewState.Loading
+//        }
+//        reduce { IllustDetailViewState.Success(illust) }
+//        saveDataBase()
+//    }
 
     private val database by inject<AppDatabase>()
+
     @OptIn(OrbitExperimental::class)
     private fun saveDataBase() = intent {
         runOn<IllustDetailViewState.Success> {
@@ -148,6 +180,10 @@ class IllustDetailViewModel : ContainerHost<IllustDetailViewState, IllustDetailS
                 )
             }
         }
+    }
+
+    fun clearStatus() = intent {
+        reduce { IllustDetailViewState.Loading }
     }
 }
 

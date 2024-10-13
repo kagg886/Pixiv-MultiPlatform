@@ -42,6 +42,9 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                     title = {
                         Text("更新：${BuildConfig.APP_VERSION_NAME} --> ${state.release.versionName}")
                     },
+                    text = {
+                      Text(state.release.body)
+                    },
                     confirmButton = {
                         val uri = state.release.assets.first {
                             File(it.name).nameWithoutExtension == currentPlatform.name
@@ -54,7 +57,6 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         ) {
                             Text("下载")
                         }
-
                     },
                     dismissButton = {
                         TextButton(

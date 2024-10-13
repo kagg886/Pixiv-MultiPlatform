@@ -212,9 +212,6 @@ fun startKoin0() {
                     RecommendIllustViewModel()
                 }
                 single {
-                    IllustDetailViewModel()
-                }
-                single {
                     IllustCommentViewModel()
                 }
                 single {

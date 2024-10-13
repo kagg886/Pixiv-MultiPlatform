@@ -24,16 +24,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
-import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
@@ -45,38 +47,18 @@ import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
-import top.kagg886.pixko.module.illust.get
 
-class IllustDetailScreen : Screen, KoinComponent {
-    private var id: Long? = null
-    private var illust: Illust? = null
+class IllustDetailScreen(private val illust0: Illust) : Screen, KoinComponent {
 
-    constructor(id: Long) {
-        this.id = id
-    }
-
-    constructor(illust: Illust) {
-        this.illust = illust
-    }
-
-    @OptIn(OrbitExperimental::class)
-    private fun loadIllust(model: IllustDetailViewModel) {
-        if (id != null) {
-            model.loadByIllustId(id!!.toLong())
-        }
-        if (illust != null) {
-            model.loadByIllustBean(illust!!)
-        }
-    }
+    override val key: ScreenKey
+        get() = "illust_detail_${illust0.id}"
 
     @Composable
     override fun Content() {
-        val nav = LocalNavigator.currentOrThrow
-        val model = nav.koinNavigatorScreenModel<IllustDetailViewModel>()
-        val state by model.collectAsState()
-        LaunchedEffect(Unit) {
-            loadIllust(model)
+        val model = rememberScreenModel(key) {
+            IllustDetailViewModel(illust0)
         }
+        val state by model.collectAsState()
         val host = LocalSnackBarHost.current
         model.collectSideEffect {
             when (it) {
@@ -88,12 +70,13 @@ class IllustDetailScreen : Screen, KoinComponent {
 
     @Composable
     private fun IllustDetailScreenContent(state: IllustDetailViewState) {
-        val nav = LocalNavigator.currentOrThrow
-        val model = nav.koinNavigatorScreenModel<IllustDetailViewModel>()
+        val model = rememberScreenModel<IllustDetailViewModel>(key) {
+            error("not provided")
+        }
         when (state) {
             IllustDetailViewState.Error -> {
                 ErrorPage(text = "加载失败") {
-                    loadIllust(model)
+                    model.load()
                 }
             }
 
@@ -189,13 +172,15 @@ class IllustDetailScreen : Screen, KoinComponent {
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun IllustPreview(illust: Illust) {
-        val img by remember(illust) {
+        val img by remember(illust.hashCode()) {
             mutableStateOf(
-                illust.contentImages.get()!!
+                illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!
             )
         }
         val nav = LocalNavigator.currentOrThrow
-        val model = nav.koinNavigatorScreenModel<IllustDetailViewModel>()
+        val model = rememberScreenModel<IllustDetailViewModel>(key) {
+            error("not provided")
+        }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(img) {
                 ProgressedAsyncImage(
@@ -264,6 +249,7 @@ class IllustDetailScreen : Screen, KoinComponent {
                                             }
                                         }
                                     },
+                                    enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
                                     modifier = Modifier.size(30.dp)
                                 ) {
                                     Icon(Download, null)

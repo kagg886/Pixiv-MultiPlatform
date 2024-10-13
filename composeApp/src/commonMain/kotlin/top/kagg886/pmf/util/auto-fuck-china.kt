@@ -104,7 +104,6 @@ internal object SNIBypassDNS : Dns {
     override fun lookup(hostname: String): List<InetAddress> {
         val host = when {
             hostname.endsWith("pixiv.net") -> {
-                println("pixiv sni prepare by pass")
                 "www.pixivision.net"
             }
 
@@ -118,12 +117,9 @@ internal object SNIBypassDNS : Dns {
                     .build()
             ).execute()
             val json = json.decodeFromString<CloudFlareDNSResponse>(resp.body!!.string())
-            println("dns query result: $json")
             json.Answer.map {
                 InetAddress.getByName(it.data)
             }
-        }.onFailure {
-            println("DNS Query failed, use system.")
         }
         val result = data.getOrElse { Dns.SYSTEM.lookup(hostname) }
         return result

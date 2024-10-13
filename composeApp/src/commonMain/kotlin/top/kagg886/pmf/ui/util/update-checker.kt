@@ -29,6 +29,7 @@ data class Release(
     @SerialName("name")
     val versionName: String,
     val assets: List<Asset>,
+    val body:String
 )
 
 class UpdateCheckViewModel : ContainerHost<UpdateCheckState, UpdateCheckSideEffect>, ViewModel() {
@@ -69,12 +70,13 @@ class UpdateCheckViewModel : ContainerHost<UpdateCheckState, UpdateCheckSideEffe
         }
         val data = result.getOrThrow()
 
-        if (BuildConfig.APP_VERSION_NAME != data.versionName) {
+        if ("v${BuildConfig.APP_VERSION_NAME}" != data.versionName) {
             reduce {
                 UpdateCheckState.HaveUpdate(data)
             }
             return@intent
         }
+        postSideEffect(UpdateCheckSideEffect.Toast("当前为最新版本"))
 
         reduce {
             UpdateCheckState.Loading

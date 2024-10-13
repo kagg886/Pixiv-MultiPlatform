@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,11 +13,13 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.koin.java.KoinJavaComponent.getKoin
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
+import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
 
@@ -111,7 +114,22 @@ class SettingScreen :Screen {
                         }
                     )
                 }
-
+                item {
+                    val model = remember {
+                        getKoin().get<UpdateCheckViewModel>()
+                    }
+                    ListItem(
+                        headlineContent = {
+                            Text("检查更新")
+                        },
+                        leadingContent = {
+                            Icon(Icons.Default.Build, "")
+                        },
+                        modifier = Modifier.clickable {
+                            model.checkUpdate()
+                        }
+                    )
+                }
                 item {
                     val nav = LocalNavigator.currentOrThrow
                     ListItem(
