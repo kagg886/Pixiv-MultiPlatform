@@ -28,7 +28,7 @@ jobs:
       - name: Build with Gradle Wrapper
         run: ./gradlew packageReleaseDistributionForCurrentOS
         env:
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: zip artifact
         run: powershell -Command "Compress-Archive -Path 'composeApp\build\compose\binaries\main-release\app\Pixiv-MultiPlatform' -DestinationPath 'composeApp\build\compose\binaries\main-release\app\windows.zip'"
@@ -63,7 +63,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew packageReleaseDistributionForCurrentOS
         env:
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: Zip artifact
         run: tar -czvf linux.tar.gz composeApp/build/compose/binaries/main-release/app/*
@@ -98,7 +98,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleRelease
         env:
-          APP_VERSION: ${{ github.ref_name }}
+          APP_VERSION_NAME: ${{ github.ref_name }}
       - name: Rename apk
         run: |
           mv composeApp/build/outputs/apk/release/composeApp-release.apk composeApp/build/outputs/apk/release/android.apk
