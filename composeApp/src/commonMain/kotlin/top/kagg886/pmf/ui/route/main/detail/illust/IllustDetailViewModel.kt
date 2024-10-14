@@ -50,6 +50,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                     postSideEffect(IllustDetailSideEffect.Toast("无法获取原图~不知道是怎么回事捏~"))
                 }
             }
+            saveDataBase(i)
             reduce {
                 IllustDetailViewState.Success(i)
             }
@@ -83,17 +84,14 @@ class IllustDetailViewModel(private val illust: Illust) :
 
     private val database by inject<AppDatabase>()
 
-    @OptIn(OrbitExperimental::class)
-    private fun saveDataBase() = intent {
-        runOn<IllustDetailViewState.Success> {
-            database.illustHistoryDAO().insert(
-                IllustHistory(
-                    id = state.illust.id,
-                    illust = state.illust,
-                    createTime = System.currentTimeMillis()
-                )
+    private fun saveDataBase(i:Illust) = intent {
+        database.illustHistoryDAO().insert(
+            IllustHistory(
+                id = i.id,
+                illust = i,
+                createTime = System.currentTimeMillis()
             )
-        }
+        )
     }
 
     @OptIn(OrbitExperimental::class)
