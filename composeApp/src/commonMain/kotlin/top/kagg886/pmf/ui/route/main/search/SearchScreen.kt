@@ -40,22 +40,17 @@ enum class SearchTab(val display: String) {
 }
 
 class SearchScreen(
-    sort: SearchSort = DATE_DESC,
-    target: SearchTarget = PARTIAL_MATCH_FOR_TAGS,
-    keyWords: String = "",
+    private val initialSort: SearchSort = DATE_DESC,
+    private val initialTarget: SearchTarget = PARTIAL_MATCH_FOR_TAGS,
+    private val initialKeyWords: String = "",
     val tab: SearchTab = SearchTab.ILLUST
 ) : Screen {
-    private var sort by mutableStateOf(sort)
-    private var target by mutableStateOf(target)
-    private var keyWords by mutableStateOf(keyWords)
-
-
     private var illust_dirty = -1
     private var novel_dirty = -1
 
 
     override val key: ScreenKey by lazy {
-        "Search_${keyWords}_${target}_${sort}_${Random(System.currentTimeMillis()).nextInt()}"
+        "Search_${initialKeyWords}_${initialTarget}_${initialSort}_${Random(System.currentTimeMillis()).nextInt()}"
     }
 
     @Composable
@@ -73,18 +68,24 @@ class SearchScreen(
         val model = nav.koinNavigatorScreenModel<SearchViewModel>()
         var active by remember { mutableStateOf(false) }
         val padding by animateDpAsState(if (active) 0.dp else 16.dp)
-        var keyWords by remember { mutableStateOf(keyWords) }
+
+        var sort by mutableStateOf(initialSort)
+        var target by mutableStateOf(initialTarget)
+        var keyWords by mutableStateOf(initialKeyWords)
+
+        var searchWords by remember { mutableStateOf(initialKeyWords) }
+
         LaunchedEffect(Unit) {
             snapshotFlow { keyWords }.debounce(1.seconds).distinctUntilChanged().collectLatest {
                 model.searchTag(keyWords.split(" ").last())
             }
         }
-        val searchNow = remember(this.keyWords) {
-            this.keyWords.isNotBlank()
+        val searchNow = remember(searchWords) {
+            searchWords.isNotBlank()
         }
 
         fun startSearch() {
-            this@SearchScreen.keyWords = keyWords
+            searchWords = keyWords
             illust_dirty = Random(System.currentTimeMillis()).nextInt()
             novel_dirty = Random(System.currentTimeMillis()).nextInt()
             active = false
@@ -248,7 +249,55 @@ class SearchScreen(
                 }
             }
             if (searchNow) {
-                SearchResult()
+                val page = rememberScreenModel {
+                    PageScreenModel(page = mutableIntStateOf(tab.ordinal))
+                }
+                TabContainer(
+                    modifier = Modifier.fillMaxSize(),
+                    state = page.page,
+                    tab = SearchTab.entries.map { it.display }
+                ) {
+                    val snackbarHostState = LocalSnackBarHost.current
+                    when (it) {
+                        0 -> {
+                            val resultModel =
+                                rememberScreenModel(tag = "search_result_illust_${keyWords}_${target}_${sort}_${illust_dirty}") {
+                                    SearchResultIllustModel(
+                                        word = keyWords,
+                                        searchTarget = target,
+                                        sort = sort
+                                    )
+                                }
+                            resultModel.collectSideEffect { effect ->
+                                when (effect) {
+                                    is IllustFetchSideEffect.Toast -> {
+                                        snackbarHostState.showSnackbar(effect.msg)
+                                    }
+                                }
+                            }
+                            IllustFetchScreen(resultModel)
+                        }
+
+                        1 -> {
+                            val resultModel =
+                                rememberScreenModel(tag = "search_result_novel_${keyWords}_${target}_${sort}_${novel_dirty}") {
+                                    SearchResultNovelModel(
+                                        word = keyWords,
+                                        searchTarget = target,
+                                        sort = sort
+                                    )
+                                }
+                            resultModel.collectSideEffect { effect ->
+                                when (effect) {
+                                    is NovelFetchSideEffect.Toast -> {
+                                        snackbarHostState.showSnackbar(effect.msg)
+                                    }
+                                }
+                            }
+                            NovelFetchScreen(resultModel)
+                        }
+                    }
+                }
                 return
             }
 
@@ -263,61 +312,5 @@ class SearchScreen(
 
     private class PageScreenModel(
         val page: MutableState<Int> = mutableIntStateOf(0)
-    ) : ScreenModel {
-    }
-
-    @Composable
-    private fun SearchResult() {
-        val page = rememberScreenModel {
-            PageScreenModel(page = mutableIntStateOf(tab.ordinal))
-        }
-        TabContainer(
-            modifier = Modifier.fillMaxSize(),
-            state = page.page,
-            tab = SearchTab.entries.map { it.display }
-        ) {
-            val snackbarHostState = LocalSnackBarHost.current
-            when (it) {
-                0 -> {
-                    val resultModel =
-                        rememberScreenModel(tag = "search_result_illust_${keyWords}_${target}_${sort}_${illust_dirty}") {
-                            SearchResultIllustModel(
-                                word = keyWords,
-                                searchTarget = target,
-                                sort = sort
-                            )
-                        }
-                    resultModel.collectSideEffect { effect ->
-                        when (effect) {
-                            is IllustFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
-                        }
-                    }
-                    IllustFetchScreen(resultModel)
-                }
-
-                1 -> {
-                    val resultModel =
-                        rememberScreenModel(tag = "search_result_novel_${keyWords}_${target}_${sort}_${novel_dirty}") {
-                            SearchResultNovelModel(
-                                word = keyWords,
-                                searchTarget = target,
-                                sort = sort
-                            )
-                        }
-                    resultModel.collectSideEffect { effect ->
-                        when (effect) {
-                            is NovelFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
-                        }
-                    }
-                    NovelFetchScreen(resultModel)
-                }
-
-            }
-        }
-
-    }
+    ) : ScreenModel
 }

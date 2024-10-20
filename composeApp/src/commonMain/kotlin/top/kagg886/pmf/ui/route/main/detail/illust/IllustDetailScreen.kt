@@ -281,7 +281,7 @@ class IllustDetailScreen(private val illust0: Illust) : Screen, KoinComponent {
                             onClick = {
                                 nav.push(
                                     SearchScreen(
-                                        keyWords = tag.name
+                                        initialKeyWords = tag.name
                                     )
                                 )
                             },

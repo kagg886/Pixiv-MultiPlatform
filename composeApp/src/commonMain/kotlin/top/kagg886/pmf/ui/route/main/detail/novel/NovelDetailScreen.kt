@@ -210,7 +210,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                 onClick = {
                                                     nav.push(
                                                         SearchScreen(
-                                                            keyWords = tag.name,
+                                                            initialKeyWords = tag.name,
                                                             tab = SearchTab.NOVEL
                                                         )
                                                     )

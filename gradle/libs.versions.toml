@@ -8,17 +8,17 @@ kotlinxSerializationJson = "1.7.3"
 multiplatformSettings = "1.2.0"
 orbitCore = "9.0.0"
 pixko = "1.5"
-room = "2.7.0-alpha09"
+room = "2.7.0-alpha10"
 sketchCompose = "4.0.0-alpha08"
-sqliteBundled = "2.5.0-alpha09"
-voyagerVersion = "1.1.0-beta02"
+sqliteBundled = "2.5.0-alpha10"
+voyagerVersion = "1.1.0-beta03"
 ksp = "2.0.20-1.0.25"
 aboutlibraries = "11.2.3"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.2" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.3" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
