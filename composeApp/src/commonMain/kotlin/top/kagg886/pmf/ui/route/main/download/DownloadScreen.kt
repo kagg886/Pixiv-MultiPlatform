@@ -1,34 +1,38 @@
 package top.kagg886.pmf.ui.route.main.download
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import okhttp3.HttpUrl.Companion.toHttpUrl
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.rootPath
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.icon.Download
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.util.zip
 
-class DownloadScreen(val isOpenInSideBar:Boolean = false) : Screen {
+class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -75,58 +79,80 @@ class DownloadScreen(val isOpenInSideBar:Boolean = false) : Screen {
                     }
                     return
                 }
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.fillMaxSize().padding(5.dp)) {
                     items(data) {
-                        val progressState by model.downloadFlow(it.id).collectAsState(-1f)
-                        ListItem(
-                            headlineContent = {
-                                Text(it.url)
-                            },
-                            trailingContent = {
-                                when {
-                                    progressState == -1f && !it.success -> {
-                                        IconButton(
-                                            onClick = {
-                                                model.startDownload(it)
-                                            }
-                                        ) {
-                                            Icon(
-                                                imageVector = Download,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
-                                    progressState == -1f && it.success -> {
-                                        IconButton(
-                                            onClick = {
-                                                shareFile(
-                                                    rootPath.resolve("download").resolve(
-                                                        it.url.toHttpUrl().encodedPathSegments.last()
+                        val nav = LocalNavigator.currentOrThrow
+                        OutlinedCard(Modifier.padding(5.dp).clickable {
+                            nav.push(IllustDetailScreen(it.illust))
+                        }) {
+                            Row(modifier = Modifier.padding(5.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                ProgressedAsyncImage(
+                                    url = it.illust.contentImages.get()!![0],
+                                    modifier = Modifier.size(75.dp, 120.dp),
+                                    contentScale = ContentScale.Inside
+                                )
+                                ListItem(
+                                    overlineContent = {
+                                        Text(it.illust.id.toString())
+                                    },
+                                    headlineContent = {
+                                        Text(it.illust.title, maxLines = 1)
+                                    },
+                                    trailingContent = {
+                                        when {
+                                            it.progress == -1f && !it.success -> {
+                                                IconButton(
+                                                    onClick = {
+                                                        model.startDownload(it.illust)
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Download,
+                                                        contentDescription = null
                                                     )
-                                                )
+                                                }
                                             }
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Share,
-                                                contentDescription = null
-                                            )
+
+                                            it.progress == -1f && it.success -> {
+                                                IconButton(
+                                                    onClick = {
+                                                        if (!it.downloadRootPath().exists()) {
+                                                            model.startDownload(it.illust)
+                                                            return@IconButton
+                                                        }
+                                                        shareFile(
+                                                            it.downloadRootPath().zip(
+                                                                target = rootPath.resolve("share").resolve("${it.id}.zip")
+                                                            )
+                                                        )
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Share,
+                                                        contentDescription = null
+                                                    )
+                                                }
+                                            }
+
+                                            else -> CircularProgressIndicator()
+                                        }
+                                    },
+                                    supportingContent = {
+                                        if (it.success) {
+                                            Text("下载完成")
+                                            return@ListItem
+                                        }
+                                        if (it.progress != -1f) {
+                                            LinearProgressIndicator(
+                                                modifier = Modifier.fillMaxWidth(0.8f),
+                                                progress = { it.progress })
                                         }
                                     }
-                                    else -> CircularProgressIndicator()
-                                }
-                            },
-                            supportingContent = {
-                                if (it.success) {
-                                    Text("下载完成")
-                                    return@ListItem
-                                }
-                                if (progressState != -1f) {
-                                    LinearProgressIndicator(
-                                        modifier = Modifier.fillMaxWidth(0.8f),
-                                        progress = { progressState })
-                                }
+                                )
                             }
-                        )
+
+                        }
+
                     }
                 }
             }

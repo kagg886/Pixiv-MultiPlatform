@@ -10,7 +10,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.room.RoomDatabase
@@ -25,22 +28,15 @@ import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.ImageData
 import com.github.panpf.sketch.request.RequestInterceptor
-import com.russhwolf.settings.ExperimentalSettingsApi
-import com.russhwolf.settings.serialization.decodeValueOrNull
 import kotlinx.coroutines.Dispatchers
-import kotlinx.serialization.ExperimentalSerializationApi
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Path.Companion.toOkioPath
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
-import org.koin.dsl.koinApplication
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
-import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
@@ -49,17 +45,17 @@ import top.kagg886.pmf.ui.component.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustCommentViewModel
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailViewModel
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelCommentViewModel
-import top.kagg886.pmf.ui.route.main.history.HistoryIllustViewModel
-import top.kagg886.pmf.ui.route.main.history.HistoryNovelViewModel
+import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
+import top.kagg886.pmf.ui.route.main.history.HistoryIllustViewModel
+import top.kagg886.pmf.ui.route.main.history.HistoryNovelViewModel
 import top.kagg886.pmf.ui.route.main.profile.ProfileScreen
 import top.kagg886.pmf.ui.route.main.rank.RankScreen
-import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendIllustViewModel
 import top.kagg886.pmf.ui.route.main.recommend.RecommendNovelViewModel
+import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchViewModel
 import top.kagg886.pmf.ui.route.main.space.NewestIllustViewModel
@@ -67,12 +63,9 @@ import top.kagg886.pmf.ui.route.main.space.SpaceIllustViewModel
 import top.kagg886.pmf.ui.route.main.space.SpaceScreen
 import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
-import top.kagg886.pmf.ui.util.UpdateCheckSideEffect
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.bypassSNI
-import top.kagg886.pmf.util.ignoreSSL
 import java.io.File
 import kotlin.reflect.KClass
 
@@ -95,10 +88,28 @@ fun App() {
                     CheckUpdateDialog()
 
                     val model by inject<DownloadScreenModel>(clazz = DownloadScreenModel::class.java)
-                    model.collectSideEffect {
-                        when (it) {
+                    model.collectSideEffect { toast ->
+                        when (toast) {
                             is DownloadScreenSideEffect.Toast -> {
-                                s.showSnackbar(it.msg)
+                                if (toast.jump) {
+                                    val result = s.showSnackbar(
+                                        object : SnackbarVisuals {
+                                            override val actionLabel: String
+                                                get() = "是"
+                                            override val duration: SnackbarDuration
+                                                get() = SnackbarDuration.Long
+                                            override val message: String
+                                                get() = toast.msg
+                                            override val withDismissAction: Boolean
+                                                get() = true
+                                        }
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        it.push(DownloadScreen())
+                                    }
+                                    return@collectSideEffect
+                                }
+                                s.showSnackbar(toast.msg, withDismissAction = true)
                             }
                         }
                     }
@@ -249,7 +260,7 @@ fun startKoin0() {
             module(createdAtStart = true) {
                 single {
                     getDataBaseBuilder()
-                        .fallbackToDestructiveMigrationOnDowngrade(true)
+                        .fallbackToDestructiveMigrationFrom(true,1)
                         .setDriver(BundledSQLiteDriver())
                         .setQueryCoroutineContext(Dispatchers.IO)
                         .build()

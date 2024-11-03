@@ -233,31 +233,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 val downloadModel = koinScreenModel<DownloadScreenModel>()
-                                val snack = LocalSnackBarHost.current
-                                val scope = rememberCoroutineScope()
                                 IconButton(
                                     onClick = {
-                                        illust.contentImages[IllustImagesType.ORIGIN]!!.map {
-                                            downloadModel.startDownload(it)
-                                        }
-                                        scope.launch {
-                                            val result = snack.showSnackbar(
-                                                object : SnackbarVisuals {
-                                                    override val actionLabel: String?
-                                                        get() = "是"
-                                                    override val duration: SnackbarDuration
-                                                        get() = SnackbarDuration.Long
-                                                    override val message: String
-                                                        get() = "下载任务已经开始，是否跳转到下载页？"
-                                                    override val withDismissAction: Boolean
-                                                        get() = true
-
-                                                }
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                nav.push(DownloadScreen())
-                                            }
-                                        }
+                                        downloadModel.startDownload(illust)
                                     },
                                     enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
                                     modifier = Modifier.size(30.dp)

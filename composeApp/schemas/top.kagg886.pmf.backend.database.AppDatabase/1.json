@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "d751fc7e43c336e72eb78bf10e6f9f0a",
+    "identityHash": "af6d1a76b1917b7c752df67161c2f103",
     "entities": [
       {
         "tableName": "IllustHistory",
@@ -66,7 +66,7 @@
       },
       {
         "tableName": "DownloadItem",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `url` TEXT NOT NULL, `success` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `illust` TEXT NOT NULL, `success` INTEGER NOT NULL, `progress` REAL NOT NULL, `createTime` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -75,8 +75,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "url",
-            "columnName": "url",
+            "fieldPath": "illust",
+            "columnName": "illust",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -85,10 +85,22 @@
             "columnName": "success",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createTime",
+            "columnName": "createTime",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "id"
           ]
@@ -97,7 +109,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd751fc7e43c336e72eb78bf10e6f9f0a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'af6d1a76b1917b7c752df67161c2f103')"
     ]
   }
 }

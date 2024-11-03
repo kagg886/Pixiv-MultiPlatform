@@ -2,6 +2,8 @@ package top.kagg886.pmf.backend.database.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pmf.backend.database.converters.IllustConverter
 
 @Dao
 interface DownloadDao {
@@ -18,13 +20,16 @@ interface DownloadDao {
     fun all(): Flow<List<DownloadItem>>
 
     @Query("SELECT * FROM DownloadItem")
-    suspend fun allSuspend():List<DownloadItem>
+    suspend fun allSuspend(): List<DownloadItem>
 }
 
 @Entity
+@TypeConverters(IllustConverter::class)
 data class DownloadItem(
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey(autoGenerate = false)
     val id: Long,
-    val url: String,
-    val success: Boolean
+    val illust: Illust,
+    val success: Boolean,
+    val progress: Float = -1f,
+    val createTime: Long = System.currentTimeMillis()
 )
