@@ -37,6 +37,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -44,6 +46,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.internal.BackHandler
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.ability.progressIndicator
 import com.github.panpf.sketch.painter.rememberRingProgressPainter
@@ -65,7 +68,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val nav = LocalNavigator.currentOrThrow
@@ -84,6 +87,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
         val state by model.collectAsState()
 
         val drawer = rememberDrawerState(DrawerValue.Closed)
+
+        val scope = rememberCoroutineScope()
+        BackHandler(drawer.isOpen) {
+            scope.launch {
+                drawer.close()
+            }
+        }
 
         SupportRTLModalNavigationDrawer(
             drawerContent = {

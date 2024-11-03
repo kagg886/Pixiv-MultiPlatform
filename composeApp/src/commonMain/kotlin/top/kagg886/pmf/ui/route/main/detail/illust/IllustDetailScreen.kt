@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
@@ -31,6 +32,7 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
@@ -125,11 +127,17 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class, InternalVoyagerApi::class)
     @Composable
     private fun IllustDetail(illust: Illust) {
         val state = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
+
+        BackHandler(state.isOpen) {
+            scope.launch {
+                state.close()
+            }
+        }
         SupportRTLModalNavigationDrawer(
             drawerContent = {
                 ModalDrawerSheet {
