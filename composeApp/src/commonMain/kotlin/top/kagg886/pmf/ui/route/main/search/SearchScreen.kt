@@ -4,8 +4,10 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,6 +47,11 @@ class SearchScreen(
     private val initialKeyWords: String = "",
     val tab: SearchTab = SearchTab.ILLUST
 ) : Screen {
+    private class PageScreenModel(
+        val page: MutableState<Int> = mutableIntStateOf(0)
+    ) : ScreenModel
+
+
     private var illust_dirty = -1
     private var novel_dirty = -1
 
@@ -66,37 +73,42 @@ class SearchScreen(
     fun SearchScreenContent(state: SearchViewState) {
         val nav = LocalNavigator.currentOrThrow
         val model = nav.koinNavigatorScreenModel<SearchViewModel>()
+
+
         var active by remember { mutableStateOf(false) }
         val padding by animateDpAsState(if (active) 0.dp else 16.dp)
 
-        var sort by mutableStateOf(initialSort)
-        var target by mutableStateOf(initialTarget)
+        var sort by remember { mutableStateOf(initialSort) }
+        var target by remember { mutableStateOf(initialTarget) }
         var keyWords by remember { mutableStateOf(initialKeyWords) }
 
         var searchWords by remember { mutableStateOf(initialKeyWords) }
-
         LaunchedEffect(Unit) {
             snapshotFlow { keyWords }.debounce(1.seconds).distinctUntilChanged().collectLatest {
+                if (keyWords.isEmpty()) {
+                    searchWords = ""
+                }
                 model.searchTag(keyWords.split(" ").last())
             }
         }
-
         fun startSearch() {
             if (keyWords.isEmpty()) {
                 return
             }
+
             with(Random(System.currentTimeMillis())) {
                 illust_dirty = nextInt()
                 novel_dirty = nextInt()
             }
             searchWords = keyWords
             active = false
+            model.saveSearchHistory(sort, target, searchWords, tab)
         }
         Column(modifier = Modifier.fillMaxSize()) {
             SearchBar(
                 query = keyWords,
                 onQueryChange = { keyWords = it },
-                onSearch = { },
+                onSearch = { startSearch() },
                 active = active,
                 onActiveChange = { active = it },
                 placeholder = { Text("搜索") },
@@ -200,6 +212,9 @@ class SearchScreen(
                                         for (tag in state.tag) {
                                             AssistChip(
                                                 onClick = {
+                                                    model.saveSearchHistory(
+                                                        sort, target, tag.tag.name, SearchTab.ILLUST
+                                                    )
                                                     nav.push(
                                                         SearchScreen(
                                                             sort, target, tag.tag.name
@@ -301,17 +316,83 @@ class SearchScreen(
                 }
                 return
             }
-
+            if (state is CanAccessHistory) {
+                val list by state.history.collectAsState(initial = listOf())
+                if (list.isNotEmpty()) {
+                    LazyColumn {
+                        items(list) {
+                            ListItem(
+                                overlineContent = {
+                                    Text(it.initialKeyWords)
+                                },
+                                trailingContent = {
+                                    IconButton(
+                                        onClick = {
+                                            model.deleteSearchHistory(it)
+                                        }
+                                    ) {
+                                        Icon(imageVector = Icons.Default.Delete, contentDescription = "")
+                                    }
+                                },
+                                headlineContent = {
+                                    FlowRow {
+                                        SuggestionChip(
+                                            onClick = {},
+                                            label = {
+                                                Text(
+                                                    when (it.initialSort) {
+                                                        DATE_DESC -> "时间倒序"
+                                                        DATE_ASC -> "时间正序"
+                                                        POPULAR_DESC -> "热门倒序"
+                                                    }
+                                                )
+                                            },
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                        SuggestionChip(
+                                            onClick = {},
+                                            label = {
+                                                Text(
+                                                    when (it.initialTarget) {
+                                                        PARTIAL_MATCH_FOR_TAGS -> "部分匹配"
+                                                        EXACT_MATCH_FOR_TAGS -> "精确匹配"
+                                                        TITLE_AND_CAPTION -> "标题简介"
+                                                    }
+                                                )
+                                            },
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                        SuggestionChip(
+                                            onClick = {},
+                                            label = {
+                                                Text(it.tab.display)
+                                            },
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.clickable {
+                                    nav.push(
+                                        SearchScreen(
+                                            initialSort = it.initialSort,
+                                            initialTarget = it.initialTarget,
+                                            initialKeyWords = it.initialKeyWords,
+                                            tab = it.tab
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                    return
+                }
+            }
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("点击搜索框以进行搜索")
-                    Text("快捷TAG放在了搜索框中")
+                    Text("暂无历史记录")
+                    Text("点击搜索框进行一次搜索吧！")
                 }
             }
         }
     }
-
-    private class PageScreenModel(
-        val page: MutableState<Int> = mutableIntStateOf(0)
-    ) : ScreenModel
 }

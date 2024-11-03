@@ -7,14 +7,15 @@ import androidx.room.RoomDatabaseConstructor
 import top.kagg886.pmf.backend.database.dao.*
 
 @Database(
-    entities = [IllustHistory::class, NovelHistory::class, DownloadItem::class],
-    version = 2
+    entities = [IllustHistory::class, NovelHistory::class, DownloadItem::class, SearchHistory::class],
+    version = 3
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun illustHistoryDAO(): IllustHistoryDAO
     abstract fun novelHistoryDAO(): NovelHistoryDAO
     abstract fun downloadDAO(): DownloadDao
+    abstract fun searchHistoryDAO(): SearchHistoryDAO
 }
 
 // The Room compiler generates the `actual` implementations.

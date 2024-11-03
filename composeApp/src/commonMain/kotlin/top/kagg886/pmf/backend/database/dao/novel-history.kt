@@ -9,7 +9,7 @@ interface NovelHistoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: NovelHistory)
 
-    @Query("SELECT * FROM NovelHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * 30;")
+    @Query("SELECT * FROM NovelHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * :size;")
     suspend fun getByPage(page: Int = 1, size: Int = 30): List<NovelHistory>
 }
 

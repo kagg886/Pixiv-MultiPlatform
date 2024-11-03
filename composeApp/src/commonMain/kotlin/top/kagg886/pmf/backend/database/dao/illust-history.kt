@@ -9,7 +9,7 @@ interface IllustHistoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: IllustHistory)
 
-    @Query("SELECT * FROM IllustHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * 30;")
+    @Query("SELECT * FROM IllustHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * :size;")
     suspend fun getByPage(page: Int = 1, size: Int = 30): List<IllustHistory>
 }
 

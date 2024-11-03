@@ -260,6 +260,8 @@ fun startKoin0() {
             module(createdAtStart = true) {
                 single {
                     getDataBaseBuilder()
+                        .fallbackToDestructiveMigrationOnDowngrade(true)
+                        .fallbackToDestructiveMigration(true)
                         .fallbackToDestructiveMigrationFrom(true,1)
                         .setDriver(BundledSQLiteDriver())
                         .setQueryCoroutineContext(Dispatchers.IO)
