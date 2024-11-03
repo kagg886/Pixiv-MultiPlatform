@@ -2,11 +2,13 @@
 
 这是一个基于`Kotlin MultiPlatform Compose`而发布的，支持`Android`，`Desktop(Windows,Linux)`两端三平台的**第三方**Pixiv客户端。
 
+![630c53942ab78d98e13d0ac9e566211c](./README.assets/630c53942ab78d98e13d0ac9e566211c.png)
+
 ## 一. 下载链接
 
 [![release](https://img.shields.io/github/v/release/kagg886/Pixiv-MultiPlatform)](https://github.com/kagg886/Pixiv-MultiPlatform/releases/latest)
 
-## 二. 功能列表
+## 三. 功能列表
 
 > 打勾的为已实现，未打钩的则在将来的版本进行实现
 >
@@ -66,6 +68,7 @@
 
 - [ ] 其他功能
   - [x] 无效插画过滤(R18，删除插画，无权限查看插画)
-  - [ ] 使用DoH实现直连
-  - [ ] 自定义pixiv-image代理
+  - [x] 使用DoH实现直连
+  - [x] 自定义pixiv-image代理
   - [ ] 自定义TAG过滤
+  - [ ] 国际化
