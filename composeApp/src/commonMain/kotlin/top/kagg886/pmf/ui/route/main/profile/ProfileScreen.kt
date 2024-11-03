@@ -29,11 +29,18 @@ import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
+import top.kagg886.pmf.ui.util.SerializableWrapper
+import top.kagg886.pmf.ui.util.wrap
 
-class ProfileScreen(private val me: SimpleMeProfile) : Screen {
+class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>) : Screen {
+    private val me by me
+
+    constructor(me: SimpleMeProfile) : this(wrap(me))
+
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
     }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -104,7 +111,7 @@ private enum class ProfileItem(
         title = "查看资料",
         icon = Icons.Default.Person,
         content = {
-            AuthorScreen(it.userId,true).Content()
+            AuthorScreen(it.userId, true).Content()
         }
     ),
     ModifyProfile(

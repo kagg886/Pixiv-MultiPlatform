@@ -71,7 +71,7 @@ class SearchScreen(
 
         var sort by mutableStateOf(initialSort)
         var target by mutableStateOf(initialTarget)
-        var keyWords by mutableStateOf(initialKeyWords)
+        var keyWords by remember { mutableStateOf(initialKeyWords) }
 
         var searchWords by remember { mutableStateOf(initialKeyWords) }
 
@@ -80,22 +80,23 @@ class SearchScreen(
                 model.searchTag(keyWords.split(" ").last())
             }
         }
-        val searchNow = remember(searchWords) {
-            searchWords.isNotBlank()
-        }
 
         fun startSearch() {
+            if (keyWords.isEmpty()) {
+                return
+            }
+            with(Random(System.currentTimeMillis())) {
+                illust_dirty = nextInt()
+                novel_dirty = nextInt()
+            }
             searchWords = keyWords
-            illust_dirty = Random(System.currentTimeMillis()).nextInt()
-            novel_dirty = Random(System.currentTimeMillis()).nextInt()
             active = false
         }
-
         Column(modifier = Modifier.fillMaxSize()) {
             SearchBar(
                 query = keyWords,
                 onQueryChange = { keyWords = it },
-                onSearch = { startSearch() },
+                onSearch = { },
                 active = active,
                 onActiveChange = { active = it },
                 placeholder = { Text("搜索") },
@@ -248,7 +249,7 @@ class SearchScreen(
                     }
                 }
             }
-            if (searchNow) {
+            if (searchWords.isNotEmpty()) {
                 val page = rememberScreenModel {
                     PageScreenModel(page = mutableIntStateOf(tab.ordinal))
                 }

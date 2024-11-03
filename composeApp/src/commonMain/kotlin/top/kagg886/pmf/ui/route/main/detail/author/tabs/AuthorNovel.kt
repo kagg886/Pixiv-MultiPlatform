@@ -35,6 +35,7 @@ class AuthorNovelViewModel(val id: Long) : NovelFetchViewModel() {
                 if (result.isFailure) {
                     return null
                 }
+                page++
                 return result.getOrThrow().ifEmpty { null }
             }
         }

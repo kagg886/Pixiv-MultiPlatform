@@ -44,11 +44,13 @@ import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.util.AuthorCard
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.*
 
-class IllustDetailScreen(private val illust0: Illust) : Screen, KoinComponent {
+//class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
+class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
+
+    constructor(illust: Illust) : this(wrap(illust))
+    private val illust0 by illust
 
     override val key: ScreenKey
         get() = "illust_detail_${illust0.id}"
