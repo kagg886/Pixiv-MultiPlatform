@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -191,12 +192,30 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         val model = rememberScreenModel<IllustDetailViewModel>(key) {
             error("not provided")
         }
+
+        var preview by remember { mutableStateOf(false) }
+        var startIndex by remember { mutableStateOf(0) }
+
+        if (preview) {
+            ImagePreviewer(
+                onDismiss = { preview = false },
+                url = img,
+                modifier = Modifier.fillMaxSize(),
+                startIndex = startIndex
+            )
+        }
+
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(img) {
                 ProgressedAsyncImage(
                     url = it,
                     contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(illust.width.toFloat() / illust.height)
+                    modifier = Modifier.fillMaxWidth()
+                        .aspectRatio(illust.width.toFloat() / illust.height)
+                        .clickable {
+                            startIndex = img.indexOf(it)
+                            preview = true
+                        }
                 )
                 Spacer(Modifier.height(16.dp))
             }

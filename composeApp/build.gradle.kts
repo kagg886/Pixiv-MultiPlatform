@@ -113,6 +113,7 @@ kotlin {
             implementation(libs.sketch.compose)
             implementation(libs.sketch.extensions.compose)
             implementation(libs.sketch.http.okhttp)
+            implementation(libs.zoomimage.compose.sketch)
 
             //room
             implementation(libs.androidx.room.runtime)

@@ -14,6 +14,7 @@ sqliteBundled = "2.5.0-alpha10"
 voyagerVersion = "1.1.0-beta03"
 ksp = "2.0.20-1.0.25"
 aboutlibraries = "11.2.3"
+zoomimageComposeSketch = "1.1.0-beta01"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
@@ -41,6 +42,7 @@ voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voy
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version = "3.5.6" }
+zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch", version.ref = "zoomimageComposeSketch" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

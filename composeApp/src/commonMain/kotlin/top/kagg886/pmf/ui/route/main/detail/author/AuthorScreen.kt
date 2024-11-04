@@ -1,16 +1,14 @@
 package top.kagg886.pmf.ui.route.main.detail.author
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -22,11 +20,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.github.panpf.sketch.AsyncImage
-import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.CollapsableColumn
@@ -94,10 +91,19 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                     topBar = {
                         CollapsableColumn(behavior = collapsableBehavior) {
                             Box(modifier = Modifier.fillMaxWidth().height(280.dp).collapse()) {
+
+                                var preview by remember { mutableStateOf(false) }
+                                if (preview && state.user.profile.backgroundImageUrl != null) {
+                                    ImagePreviewer(
+                                        url = listOf(state.user.profile.backgroundImageUrl!!),
+                                        onDismiss = { preview = false }
+                                    )
+                                }
+
                                 ProgressedAsyncImage(
                                     url = state.user.profile.backgroundImageUrl,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize().clickable { preview = true }
                                 )
                                 Card(
                                     colors = with(CardDefaults.cardColors()) {
