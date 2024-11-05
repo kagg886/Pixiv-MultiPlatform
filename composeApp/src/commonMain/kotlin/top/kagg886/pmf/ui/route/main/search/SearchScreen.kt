@@ -5,9 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -30,6 +33,7 @@ import top.kagg886.pixko.module.search.SearchSort.*
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.search.SearchTarget.*
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
@@ -151,7 +155,7 @@ class SearchScreen(
             ) {
                 when (state) {
                     is SearchViewState.EmptySearch -> {
-                        Column {
+                        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                             ListItem(
                                 headlineContent = {
                                     Text("排序方式")
@@ -182,7 +186,6 @@ class SearchScreen(
                                     containerColor = SearchBarDefaults.colors().containerColor
                                 )
                             )
-                            Spacer(Modifier.height(15.dp))
                             ListItem(
                                 headlineContent = {
                                     Text("搜索模式")
@@ -214,14 +217,35 @@ class SearchScreen(
                                     containerColor = SearchBarDefaults.colors().containerColor
                                 )
                             )
-                            Spacer(Modifier.height(15.dp))
+                            val tags by state.tag.collectAsState(null)
                             ListItem(
+                                trailingContent = {
+                                    IconButton(
+                                        onClick = {
+                                            model.refreshTag()
+                                        },
+                                        enabled = tags != null
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Refresh,
+                                            null
+                                        )
+                                    }
+                                },
                                 headlineContent = {
                                     Text("热门tag")
                                 },
                                 supportingContent = {
+                                    if (tags == null) {
+                                        LinearProgressIndicator()
+                                        return@ListItem
+                                    }
+                                    if (tags?.isFailure == true) {
+                                        Text("加载失败")
+                                        return@ListItem
+                                    }
                                     FlowRow {
-                                        for (tag in state.tag) {
+                                        for (tag in tags?.getOrThrow() ?: emptyList()) {
                                             AssistChip(
                                                 onClick = {
                                                     model.saveSearchHistory(
@@ -275,6 +299,12 @@ class SearchScreen(
                                     )
                                 }
                             }
+                        }
+                    }
+
+                    is SearchViewState.SearchFailed -> {
+                        ErrorPage(text = state.msg) {
+                            model.searchTag(keyWords.split(" ").last())
                         }
                     }
                 }

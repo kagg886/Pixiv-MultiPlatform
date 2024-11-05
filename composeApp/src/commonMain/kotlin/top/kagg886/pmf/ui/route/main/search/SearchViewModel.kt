@@ -1,9 +1,14 @@
 package top.kagg886.pmf.ui.route.main.search
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -15,7 +20,6 @@ import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.TrendingTags
 import top.kagg886.pixko.module.trending.getRecommendTags
 import top.kagg886.pmf.backend.database.AppDatabase
-import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.database.dao.SearchHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
@@ -28,14 +32,24 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
     private val history = database.searchHistoryDAO().allFlow()
 
     override val container: Container<SearchViewState, Nothing> = container(SearchViewState.NonLoading) {
-        val tag = client.getRecommendTags()
-        reduce {
-            SearchViewState.EmptySearch(tag,history)
-        }
+        refreshTag()
     }
-    private val tagCache by lazy {
-        runBlocking {
-            client.getRecommendTags()
+
+    private val flow = MutableStateFlow<Result<List<TrendingTags>>?>(null)
+
+    fun refreshTag() = intent {
+        viewModelScope.launch {
+            flow.emit(null)
+            withContext(Dispatchers.IO) {
+                flow.emit(
+                    kotlin.runCatching {
+                        client.getRecommendTags()
+                    }
+                )
+            }
+        }
+        reduce {
+            SearchViewState.EmptySearch(flow, history)
         }
     }
 
@@ -45,13 +59,27 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
         }
         if (key.isBlank()) {
             reduce {
-                SearchViewState.EmptySearch(tagCache,history)
+                SearchViewState.EmptySearch(flow, history)
             }
             return@intent
         }
-        val t = client.searchTag(key)
+        val t = kotlin.runCatching {
+            client.searchTag(key)
+        }
+        if (t.isFailure) {
+            reduce {
+                SearchViewState.SearchFailed("网络不好呢", history)
+            }
+            return@intent
+        }
+        if (t.getOrThrow().isEmpty()) {
+            reduce {
+                SearchViewState.SearchFailed("没有找到相关标签", history)
+            }
+            return@intent
+        }
         reduce {
-            SearchViewState.KeyWordSearch(t,history)
+            SearchViewState.KeyWordSearch(t.getOrThrow(), history)
         }
     }
 
@@ -78,8 +106,17 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
 
 sealed interface SearchViewState {
     data object NonLoading : SearchViewState
-    data class EmptySearch(val tag: List<TrendingTags>, override val history: Flow<List<SearchHistory>>) : SearchViewState,CanAccessHistory
-    data class KeyWordSearch(val key: List<Tag>, override val history: Flow<List<SearchHistory>>) : SearchViewState,CanAccessHistory
+    data class EmptySearch(
+        val tag: Flow<Result<List<TrendingTags>>?>,
+        override val history: Flow<List<SearchHistory>>
+    ) :
+        SearchViewState, CanAccessHistory
+
+    data class KeyWordSearch(val key: List<Tag>, override val history: Flow<List<SearchHistory>>) : SearchViewState,
+        CanAccessHistory
+
+    data class SearchFailed(val msg: String, override val history: Flow<List<SearchHistory>>) : SearchViewState,
+        CanAccessHistory
 }
 
 interface CanAccessHistory {
