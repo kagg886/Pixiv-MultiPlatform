@@ -11,28 +11,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.github.panpf.sketch.AsyncImage
-import com.github.panpf.sketch.ability.progressIndicator
-import com.github.panpf.sketch.painter.rememberRingProgressPainter
-import com.github.panpf.sketch.rememberAsyncImageState
-import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.App
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -54,25 +42,27 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
         is IllustFetchViewState.ShowIllustList -> {
             val scroll = state.scrollerState
-
-            val refreshState = rememberPullToRefreshState { true }
-
-            LaunchedEffect(refreshState.isRefreshing) {
-                if (refreshState.isRefreshing) {
-                    model.initIllust(true).join()
-                    refreshState.endRefresh()
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize().nestedScroll(refreshState.nestedScrollConnection)) {
-                val scope = rememberCoroutineScope()
+            val scope = rememberCoroutineScope()
+            var isRefresh by remember { mutableStateOf(false) }
+            PullToRefreshBox(
+                isRefreshing = isRefresh,
+                onRefresh = {
+                    isRefresh = true
+                    scope.launch {
+                        model.initIllust(true).join()
+                    }.invokeOnCompletion {
+                        isRefresh = false
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            ) {
                 if (state.illusts.isEmpty()) {
                     ErrorPage(text = "页面为空") {
                         scope.launch {
                             model.initIllust()
                         }
                     }
-                    return@Box
+                    return@PullToRefreshBox
                 }
                 LazyVerticalStaggeredGrid(
                     columns = StaggeredGridCells.Fixed(AppConfig.defaultGalleryWidth),
@@ -145,10 +135,6 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         )
                     }
                 }
-                PullToRefreshContainer(
-                    state = refreshState,
-                    modifier = Modifier.align(Alignment.TopCenter).zIndex(1f)
-                )
                 AnimatedVisibility(
                     visible = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

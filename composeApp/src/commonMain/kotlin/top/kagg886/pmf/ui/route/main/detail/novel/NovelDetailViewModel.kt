@@ -14,9 +14,10 @@ import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.Novel
-import top.kagg886.pixko.module.novel.NovelData
+import top.kagg886.pixko.module.novel.NovelImagesSize
 import top.kagg886.pixko.module.novel.getNovelContent
 import top.kagg886.pixko.module.novel.getNovelDetail
+import top.kagg886.pixko.module.novel.parser.NovelContentBlockType.*
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -44,23 +45,54 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             return@intent
         }
         val (detail, content) = result.getOrThrow()
-        reduce { NovelDetailViewState.Success(detail, content) }
-        database.novelHistoryDAO().insert(NovelHistory(id, detail, System.currentTimeMillis()))
-    }
+        val images = kotlin.runCatching { content.images }.getOrElse { emptyMap() }
 
-    fun getIllustLink(value: Long, num: Int = 0): MutableState<String> {
-        val state = mutableStateOf("")
-        viewModelScope.launch {
-            state.value = client.getIllustDetail(value).contentImages[IllustImagesType.MEDIUM]!![0]
+        var md = ""
+        for (i in content.data) {
+            when (i.novelContentBlockType) {
+                PLAIN -> {
+                    md += i.value
+                }
+
+                JUMP_URI -> {
+                    md += "[${i.value}](${i.metadata})"
+                }
+
+                NOTATION -> {
+                    md += i.value
+                }
+
+                UPLOAD_IMAGE -> {
+                    md += "\n![上传图片](${images[i.value]!![NovelImagesSize.N480Mw]})\n"
+                }
+
+                PIXIV_IMAGE -> {
+                    val url = client.getIllustDetail(i.value!!.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
+                    md += "\n![${i.value}](${url})\n"
+                }
+
+                NEW_PAGE -> {
+                    md += "\n***\n"
+                }
+
+                TITLE -> {
+                    md += "\n# ${i.value}\n"
+                }
+
+                JUMP_PAGE -> {
+                    md += "\n### 页码标记\n"
+                }
+            }
         }
-        return state
+        reduce { NovelDetailViewState.Success(detail, md) }
+        database.novelHistoryDAO().insert(NovelHistory(id, detail, System.currentTimeMillis()))
     }
 }
 
 sealed class NovelDetailViewState {
     data object Loading : NovelDetailViewState()
     data object Error : NovelDetailViewState()
-    data class Success(val novel: Novel, val content: NovelData) : NovelDetailViewState()
+    data class Success(val novel: Novel, val content: String) : NovelDetailViewState()
 }
 
 sealed class NovelDetailSideEffect {

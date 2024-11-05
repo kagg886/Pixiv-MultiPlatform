@@ -2,17 +2,18 @@
 agp = "8.2.2"
 androidx-lifecycle = "2.8.2"
 composeWebviewMultiplatform = "1.9.20"
-kotlin = "2.0.20"
-kotlinx-coroutines = "1.8.1"
+filekitCompose = "0.8.7"
+kotlin = "2.0.21"
+kotlinx-coroutines = "1.9.0"
 kotlinxSerializationJson = "1.7.3"
 multiplatformSettings = "1.2.0"
 orbitCore = "9.0.0"
-pixko = "1.5"
-room = "2.7.0-alpha10"
+pixko = "1.6"
+room = "2.7.0-alpha11"
 sketchCompose = "4.0.0-alpha08"
-sqliteBundled = "2.5.0-alpha10"
+sqliteBundled = "2.5.0-alpha11"
 voyagerVersion = "1.1.0-beta03"
-ksp = "2.0.20-1.0.25"
+ksp = "2.0.21-1.0.26"
 aboutlibraries = "11.2.3"
 zoomimageComposeSketch = "1.1.0-beta01"
 
@@ -24,6 +25,7 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
+filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
@@ -41,12 +43,12 @@ voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
-koin-core = { group = "io.insert-koin", name = "koin-core", version = "3.5.6" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version = "4.0.0" }
 zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch", version.ref = "zoomimageComposeSketch" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version = "1.6.11" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version = "1.7.0" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

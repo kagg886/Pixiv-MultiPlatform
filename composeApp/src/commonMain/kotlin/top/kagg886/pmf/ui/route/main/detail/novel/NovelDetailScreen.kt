@@ -2,15 +2,12 @@ package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -18,26 +15,16 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextIndent
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.zIndex
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -47,14 +34,18 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.ability.progressIndicator
 import com.github.panpf.sketch.painter.rememberRingProgressPainter
+import com.github.panpf.sketch.rememberAsyncImagePainter
 import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ComposableImageRequest
+import com.mikepenz.markdown.compose.Markdown
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
+import com.mikepenz.markdown.model.ImageData
+import com.mikepenz.markdown.model.ImageTransformer
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
-import top.kagg886.pixko.module.novel.parser.NovelContentBlockType.*
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
@@ -62,7 +53,7 @@ import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchTab
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
-import top.kagg886.pmf.util.splitBy
+
 
 class NovelDetailScreen(private val id: Long) : Screen {
     override val key: ScreenKey
@@ -268,7 +259,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
             is NovelDetailCommentViewState.Success -> {
                 val scroll = state.scrollerState
                 val model = LocalNavigator.currentOrThrow.koinNavigatorScreenModel<NovelCommentViewModel>()
-                val refreshState = rememberPullToRefreshState { true }
 
                 model.collectSideEffect {
                     when (it) {
@@ -280,25 +270,29 @@ class NovelDetailScreen(private val id: Long) : Screen {
                     }
                 }
 
-                LaunchedEffect(refreshState.isRefreshing) {
-                    if (refreshState.isRefreshing) {
-                        model.init(id = novel.id.toLong(), true).join()
-                        refreshState.endRefresh()
-                    }
-                }
+                var isRefreshing by remember { mutableStateOf(false) }
+                val scope = rememberCoroutineScope()
 
                 Column {
-                    Box(
-                        modifier = Modifier.weight(1f).fillMaxWidth().nestedScroll(refreshState.nestedScrollConnection)
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = {
+                            isRefreshing = true
+                            scope.launch {
+                                model.init(id = novel.id.toLong(), true).join()
+                            }.invokeOnCompletion {
+                                isRefreshing = false
+                            }
+                        },
+                        modifier = Modifier.weight(1f).fillMaxWidth()
                     ) {
-                        val scope = rememberCoroutineScope()
                         if (state.comments.isEmpty()) {
                             ErrorPage(text = "页面为空") {
                                 scope.launch {
                                     model.init(novel.id.toLong())
                                 }
                             }
-                            return@Box
+                            return@PullToRefreshBox
                         }
                         LazyColumn(state = state.scrollerState) {
                             items(state.comments) {
@@ -455,10 +449,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                 )
                             }
                         }
-                        PullToRefreshContainer(
-                            state = refreshState,
-                            modifier = Modifier.align(Alignment.TopCenter).zIndex(1f)
-                        )
 
                         this@Column.AnimatedVisibility(
                             visible = scroll.canScrollBackward,
@@ -520,158 +510,24 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
 
             is NovelDetailViewState.Success -> {
-                val content = remember {
-                    state.content.data.splitBy {
-                        it.novelContentBlockType == NEW_PAGE
-                    }
-                }
-                val images = remember {
-                    runCatching {
-                        state.content.images
-                    }.getOrElse { emptyMap() }
-                }
-                val lazy = rememberLazyListState()
-                val scope = rememberCoroutineScope()
-                SelectionContainer {
-                    LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
-                        itemsIndexed(content) { index, item ->
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                HorizontalDivider(Modifier.weight(1f))
-                                Text("Page ${index + 1}")
-                                HorizontalDivider(Modifier.weight(1f))
-                            }
-                            val content1 = remember {
-                                item.splitBy(true) { it.novelContentBlockType.blocking }
-                            }
-                            Column(modifier = Modifier.fillMaxWidth()) {
-                                for (i in content1) {
-                                    if (i.size == 1) {
-                                        val it = i[0]
-                                        when (it.novelContentBlockType) {
-                                            UPLOAD_IMAGE -> {
-                                                ProgressedAsyncImage(
-                                                    url = images[it.value]!!.urls["480mw"],
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                                                        .sizeIn(maxWidth = 480.dp)
-                                                )
-                                            }
-
-                                            PIXIV_IMAGE -> {
-                                                val url by remember {
-                                                    with(i[0].value!!.split("-")) {
-                                                        val page = if (this.size == 2) this[1].toInt() else 0
-                                                        model.getIllustLink(this[0].toLong(), page)
-                                                    }
-                                                }
-                                                ProgressedAsyncImage(
-                                                    url = url,
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier.fillMaxSize()
-                                                )
-                                            }
-
-                                            TITLE -> {
-                                                Text(it.value!!)
-                                            }
-
-                                            JUMP_PAGE -> {
-                                                TextButton(
-                                                    onClick = {
-                                                        scope.launch {
-                                                            lazy.animateScrollToItem(it.value!!.toInt())
-                                                        }
-                                                    }, modifier = Modifier.align(Alignment.CenterHorizontally)
-                                                ) {
-                                                    Text("跳转到第${it.value!!}页")
-                                                }
-                                            }
-
-                                            PLAIN -> {
-                                                Text(it.value!!)
-                                            }
-
-                                            JUMP_URI -> {
-                                                val uri = LocalUriHandler.current
-                                                ClickableText(
-                                                    text = buildAnnotatedString {
-                                                        withStyle(
-                                                            style = SpanStyle(
-                                                                color = Color.Blue.copy(alpha = 0.6f),
-                                                                textDecoration = TextDecoration.Underline
-                                                            )
-                                                        ) {
-                                                            append(it.value!!)
-                                                        }
-                                                    },
-                                                    onClick = { _ ->
-                                                        uri.openUri(it.metadata!!)
-                                                    }
-                                                )
-                                            }
-
-                                            NOTATION -> {
-                                                Text(it.value!!)
-                                            }
-
-                                            else -> error("illegal state: $i")
-                                        }
-                                        continue
-                                    }
-                                    val anno = buildAnnotatedString {
-                                        withStyle(
-                                            style = ParagraphStyle(
-                                                lineHeight = 1.5.em,
-                                                textIndent = TextIndent(firstLine = 2.em),
-                                            )
-                                        ) {
-                                            for (j in i) {
-                                                when (j.novelContentBlockType) {
-                                                    PLAIN -> {
-                                                        j.value!!.lines().forEach {
-                                                            append(it)
-                                                            appendLine()
-                                                        }
-                                                    }
-
-                                                    JUMP_URI -> {
-                                                        pushStringAnnotation("link", j.value!!)
-                                                        withStyle(
-                                                            style = SpanStyle(
-                                                                color = Color.Blue.copy(alpha = 0.6f),
-                                                                textDecoration = TextDecoration.Underline
-                                                            )
-                                                        ) {
-                                                            append(j.value!!)
-                                                        }
-                                                        pop()
-                                                    }
-
-                                                    NOTATION -> append(j.value!!)
-                                                    else -> error("illegal state: $j")
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    val uri = LocalUriHandler.current
-                                    ClickableText(
-                                        text = anno,
-                                        onClick = {
-                                            anno.getStringAnnotations(tag = "link", start = it, end = it).firstOrNull()
-                                                ?.let { range ->
-                                                    uri.openUri(range.item.trim())
-                                                }
-                                        },
-                                        modifier = Modifier.padding(vertical = 8.dp)
-                                    )
-                                }
-                            }
+                Markdown(
+                    content = state.content,
+                    colors = markdownColor(),
+                    typography = markdownTypography(),
+                    imageTransformer = object : ImageTransformer {
+                        @Composable
+                        override fun transform(link: String): ImageData {
+                            val painter = rememberAsyncImagePainter(
+                                request = ComposableImageRequest(link)
+                            )
+                            return ImageData(
+                                painter = painter,
+                                contentDescription = null,
+                            )
                         }
-
-                    }
-
-                }
+                    },
+                    modifier = modifier.padding(15.dp).verticalScroll(rememberScrollState())
+                )
             }
         }
     }

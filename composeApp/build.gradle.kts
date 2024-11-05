@@ -119,6 +119,10 @@ kotlin {
             implementation(libs.androidx.room.runtime)
             implementation(libs.androidx.sqlite.bundled)
 
+            //save file to storage
+            implementation(libs.filekit.compose)
+
+            implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.27.0")
 
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)

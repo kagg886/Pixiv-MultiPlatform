@@ -5,13 +5,13 @@ import android.app.Application
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
+import io.github.vinceglb.filekit.core.FileKit
 
 class PMFApplication : Application(), SingletonSketch.Factory {
 
     override fun onCreate() {
         super.onCreate()
         startKoin0()
-
     }
 
     override fun createSketch(context: PlatformContext): Sketch {

@@ -23,7 +23,7 @@ interface SearchHistoryDAO {
 @Entity
 data class SearchHistory(
     @PrimaryKey(autoGenerate = true)
-    val id: Long,
+    val id: Long = 0,
     val initialSort:SearchSort,
     val initialTarget:SearchTarget,
     val initialKeyWords:String,

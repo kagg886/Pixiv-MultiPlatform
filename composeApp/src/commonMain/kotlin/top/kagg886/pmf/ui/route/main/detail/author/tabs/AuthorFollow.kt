@@ -1,59 +1,41 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.plus
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.User
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.getFollowingList
-import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailSideEffect
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailViewState
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
@@ -86,18 +68,32 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
 
         is AuthorFollowState.Success -> {
             val scroll = state.scrollerState
-            val refreshState = rememberPullToRefreshState { true }
 
+            val scope = rememberCoroutineScope()
 
-            Box(modifier = Modifier.fillMaxSize().nestedScroll(refreshState.nestedScrollConnection)) {
-                val scope = rememberCoroutineScope()
+            var refresh by remember {
+                mutableStateOf(false)
+            }
+
+            PullToRefreshBox(
+                isRefreshing = refresh,
+                onRefresh = {
+                    refresh = true
+                    scope.launch {
+                        model.loading(true).join()
+                    }.invokeOnCompletion {
+                        refresh = false
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            ) {
                 if (state.data.isEmpty()) {
                     ErrorPage(text = "页面为空") {
                         scope.launch {
                             model.loading()
                         }
                     }
-                    return@Box
+                    return@PullToRefreshBox
                 }
                 LazyColumn {
                     items(state.data, key = { it.id }) {
@@ -130,10 +126,6 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
                         )
                     }
                 }
-                PullToRefreshContainer(
-                    state = refreshState,
-                    modifier = Modifier.align(Alignment.TopCenter).zIndex(1f)
-                )
                 AnimatedVisibility(
                     visible = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

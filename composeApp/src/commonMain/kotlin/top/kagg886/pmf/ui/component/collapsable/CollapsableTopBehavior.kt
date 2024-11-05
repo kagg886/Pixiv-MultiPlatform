@@ -195,13 +195,13 @@ private class DragLogic(private val behavior: CollapsableTopBehavior) : Draggabl
     override fun dispatchRawDelta(delta: Float) {
         val preScrollConsumed = dispatcher.dispatchPreScroll(
             available = Offset(x = 0f, y = delta),
-            source = NestedScrollSource.Drag,
+            source = NestedScrollSource.UserInput,
         )
         val consumed = behavior.state.drag(delta = delta - preScrollConsumed.y)
         dispatcher.dispatchPostScroll(
             consumed = Offset(x = 0f, y = consumed),
             available = Offset(x = 0f, y = delta - consumed),
-            source = NestedScrollSource.Drag,
+            source = NestedScrollSource.UserInput,
         )
     }
 

@@ -42,16 +42,14 @@ class AboutScreen : Screen {
         Scaffold(
             topBar = {
                 val nav = LocalNavigator.currentOrThrow
-                if (currentPlatform.useWideScreenMode) {
-                    TopAppBar(
-                        title = { Text("关于") },
-                        navigationIcon = {
-                            IconButton(onClick = { nav.pop() }) {
-                                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                            }
+                TopAppBar(
+                    title = { Text("关于") },
+                    navigationIcon = {
+                        IconButton(onClick = { nav.pop() }) {
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         }
-                    )
-                }
+                    }
+                )
             }
         ) {
             val uri = LocalUriHandler.current

@@ -59,7 +59,7 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
                                 nav.push(entry.screenClass.primaryConstructor!!.call())
                             },
                             icon = {
-                                Icon(imageVector = entry.icon,null)
+                                Icon(imageVector = entry.icon, null)
                             },
                             label = {
                                 Text(entry.title)
@@ -95,6 +95,6 @@ actual fun shareFile(file: File) {
         )
         intent.flags = FLAG_ACTIVITY_NEW_TASK
         intent.setType("*/*")
-        ContextCompat.startActivity(this,intent,null)
+        ContextCompat.startActivity(this, intent, null)
     }
 }

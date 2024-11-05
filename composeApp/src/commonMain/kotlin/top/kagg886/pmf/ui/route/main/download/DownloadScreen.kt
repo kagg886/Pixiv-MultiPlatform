@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,6 +20,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.github.vinceglb.filekit.core.FileKit
+import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.rootPath
@@ -28,6 +31,7 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.icon.Download
+import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.util.zip
@@ -114,23 +118,48 @@ class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
                                             }
 
                                             it.progress == -1f && it.success -> {
-                                                IconButton(
-                                                    onClick = {
-                                                        if (!it.downloadRootPath().exists()) {
-                                                            model.startDownload(it.illust)
-                                                            return@IconButton
+                                                Row {
+                                                    val scope = rememberCoroutineScope()
+                                                    IconButton(
+                                                        onClick = {
+                                                            if (!it.downloadRootPath().exists()) {
+                                                                model.startDownload(it.illust)
+                                                                return@IconButton
+                                                            }
+                                                            scope.launch {
+                                                                FileKit.saveFile(
+                                                                    bytes = it.downloadRootPath().zip(
+                                                                        target = rootPath.resolve("share").resolve("${it.id}.zip")
+                                                                    ).readBytes(),
+                                                                    baseName = "${it.illust.title}(${it.id})",
+                                                                    extension = "zip"
+                                                                )
+                                                            }
                                                         }
-                                                        shareFile(
-                                                            it.downloadRootPath().zip(
-                                                                target = rootPath.resolve("share").resolve("${it.id}.zip")
-                                                            )
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Save,
+                                                            contentDescription = null
                                                         )
                                                     }
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Share,
-                                                        contentDescription = null
-                                                    )
+                                                    IconButton(
+                                                        onClick = {
+                                                            if (!it.downloadRootPath().exists()) {
+                                                                model.startDownload(it.illust)
+                                                                return@IconButton
+                                                            }
+                                                            shareFile(
+                                                                it.downloadRootPath().zip(
+                                                                    target = rootPath.resolve("share").resolve("${it.id}.zip")
+                                                                )
+                                                            )
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.Share,
+                                                            contentDescription = null
+                                                        )
+                                                    }
                                                 }
                                             }
 

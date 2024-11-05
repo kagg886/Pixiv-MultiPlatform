@@ -52,8 +52,8 @@ class SearchScreen(
     ) : ScreenModel
 
 
-    private var illust_dirty = -1
-    private var novel_dirty = -1
+    private var illustDirty = -1
+    private var novelDirty = -1
 
 
     override val key: ScreenKey by lazy {
@@ -97,8 +97,8 @@ class SearchScreen(
             }
 
             with(Random(System.currentTimeMillis())) {
-                illust_dirty = nextInt()
-                novel_dirty = nextInt()
+                illustDirty = nextInt()
+                novelDirty = nextInt()
             }
             searchWords = keyWords
             active = false
@@ -106,42 +106,48 @@ class SearchScreen(
         }
         Column(modifier = Modifier.fillMaxSize()) {
             SearchBar(
-                query = keyWords,
-                onQueryChange = { keyWords = it },
-                onSearch = { startSearch() },
-                active = active,
-                onActiveChange = { active = it },
-                placeholder = { Text("搜索") },
-                leadingIcon = {
-                    IconButton(
-                        onClick = {
-                            if (active) {
-                                active = false
-                                return@IconButton
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = keyWords,
+                        onSearch = { startSearch() },
+                        expanded = active,
+                        onExpandedChange = { active = it },
+                        onQueryChange = { keyWords = it },
+                        leadingIcon = {
+                            IconButton(
+                                onClick = {
+                                    if (active) {
+                                        active = false
+                                        return@IconButton
+                                    }
+                                    nav.pop()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "返回"
+                                )
                             }
-                            nav.pop()
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "返回"
-                        )
-                    }
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            startSearch()
                         },
-                        enabled = keyWords.isNotBlank()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            null
-                        )
-                    }
+                        trailingIcon = {
+                            IconButton(
+                                onClick = {
+                                    startSearch()
+                                },
+                                enabled = keyWords.isNotBlank()
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    null
+                                )
+                            }
+                        },
+                        placeholder = { Text("Search...") }
+                    )
                 },
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = padding)
+                expanded = active,
+                onExpandedChange = {},
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(top = padding),
             ) {
                 when (state) {
                     is SearchViewState.EmptySearch -> {
@@ -171,7 +177,10 @@ class SearchScreen(
                                             )
                                         }
                                     }
-                                }
+                                },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = SearchBarDefaults.colors().containerColor
+                                )
                             )
                             Spacer(Modifier.height(15.dp))
                             ListItem(
@@ -200,7 +209,10 @@ class SearchScreen(
                                         }
                                     }
 
-                                }
+                                },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = SearchBarDefaults.colors().containerColor
+                                )
                             )
                             Spacer(Modifier.height(15.dp))
                             ListItem(
@@ -233,7 +245,10 @@ class SearchScreen(
                                             )
                                         }
                                     }
-                                }
+                                },
+                                colors = ListItemDefaults.colors(
+                                    containerColor = SearchBarDefaults.colors().containerColor
+                                )
                             )
                         }
                     }
@@ -263,6 +278,7 @@ class SearchScreen(
                         }
                     }
                 }
+
             }
             if (searchWords.isNotEmpty()) {
                 val page = rememberScreenModel {
@@ -277,7 +293,7 @@ class SearchScreen(
                     when (it) {
                         0 -> {
                             val resultModel =
-                                rememberScreenModel(tag = "search_result_illust_${keyWords}_${target}_${sort}_${illust_dirty}") {
+                                rememberScreenModel(tag = "search_result_illust_${keyWords}_${target}_${sort}_${illustDirty}") {
                                     SearchResultIllustModel(
                                         word = keyWords,
                                         searchTarget = target,
@@ -296,7 +312,7 @@ class SearchScreen(
 
                         1 -> {
                             val resultModel =
-                                rememberScreenModel(tag = "search_result_novel_${keyWords}_${target}_${sort}_${novel_dirty}") {
+                                rememberScreenModel(tag = "search_result_novel_${keyWords}_${target}_${sort}_${novelDirty}") {
                                     SearchResultNovelModel(
                                         word = keyWords,
                                         searchTarget = target,

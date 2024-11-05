@@ -13,18 +13,15 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -44,7 +41,6 @@ import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Download
-import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.*
@@ -329,7 +325,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             is IllustDetailCommentViewState.Success -> {
                 val scroll = state.scrollerState
                 val model = LocalNavigator.currentOrThrow.koinNavigatorScreenModel<IllustCommentViewModel>()
-                val refreshState = rememberPullToRefreshState { true }
 
                 val host = LocalSnackBarHost.current
                 model.collectSideEffect {
@@ -340,25 +335,28 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
 
-                LaunchedEffect(refreshState.isRefreshing) {
-                    if (refreshState.isRefreshing) {
-                        model.init(id = illust.id.toLong(), true).join()
-                        refreshState.endRefresh()
-                    }
-                }
-
+                val scope = rememberCoroutineScope()
+                var isRefresh by remember { mutableStateOf(false) }
                 Column {
-                    Box(
-                        modifier = Modifier.weight(1f).fillMaxWidth().nestedScroll(refreshState.nestedScrollConnection)
+                    PullToRefreshBox(
+                        isRefreshing = isRefresh,
+                        onRefresh = {
+                            isRefresh = true
+                            scope.launch {
+                                model.init(illust.id.toLong(), true).join()
+                            }.invokeOnCompletion {
+                                isRefresh = false
+                            }
+                        },
+                        modifier = Modifier.weight(1f).fillMaxWidth()
                     ) {
-                        val scope = rememberCoroutineScope()
                         if (state.comments.isEmpty()) {
                             ErrorPage(text = "页面为空") {
                                 scope.launch {
                                     model.init(illust.id.toLong())
                                 }
                             }
-                            return@Box
+                            return@PullToRefreshBox
                         }
                         LazyColumn(state = state.scrollerState) {
                             items(state.comments) {
@@ -512,11 +510,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 )
                             }
                         }
-                        PullToRefreshContainer(
-                            state = refreshState,
-                            modifier = Modifier.align(Alignment.TopCenter).zIndex(1f)
-                        )
-
                         this@Column.AnimatedVisibility(
                             visible = scroll.canScrollBackward,
                             modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

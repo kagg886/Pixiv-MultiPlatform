@@ -8,19 +8,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
@@ -33,7 +27,7 @@ fun NovelFetchScreen(model: NovelFetchViewModel) {
     NovelFetchContent0(state, model)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow
@@ -45,24 +39,33 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
         is NovelFetchViewState.ShowNovelList -> {
             val scroll = state.scrollerState
 
-            val refreshState = rememberPullToRefreshState { true }
-
-            LaunchedEffect(refreshState.isRefreshing) {
-                if (refreshState.isRefreshing) {
-                    model.initNovel(true).join()
-                    refreshState.endRefresh()
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize().nestedScroll(refreshState.nestedScrollConnection)) {
-                val scope = rememberCoroutineScope()
+//            LaunchedEffect(refreshState.isRefreshing) {
+//                if (refreshState.isRefreshing) {
+//                    model.initNovel(true).join()
+//                    refreshState.endRefresh()
+//                }
+//            }
+            var isRefresh by remember { mutableStateOf(false) }
+            val scope = rememberCoroutineScope()
+            PullToRefreshBox(
+                isRefreshing = isRefresh,
+                onRefresh = {
+                    isRefresh = true
+                    scope.launch {
+                        model.initNovel(true).join()
+                    }.invokeOnCompletion {
+                        isRefresh = false
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            ) {
                 if (state.novels.isEmpty()) {
                     ErrorPage(text = "页面为空") {
                         scope.launch {
                             model.initNovel()
                         }
                     }
-                    return@Box
+                    return@PullToRefreshBox
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
@@ -119,10 +122,6 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         )
                     }
                 }
-                PullToRefreshContainer(
-                    state = refreshState,
-                    modifier = Modifier.align(Alignment.TopCenter).zIndex(1f)
-                )
                 AnimatedVisibility(
                     visible = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

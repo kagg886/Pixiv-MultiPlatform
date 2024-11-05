@@ -63,11 +63,10 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
     ) = intent {
         database.searchHistoryDAO().insert(
             SearchHistory(
-                -1,
-                sort,
-                target,
-                key,
-                tab
+                initialSort = sort,
+                initialTarget = target,
+                initialKeyWords = key,
+                tab = tab,
             )
         )
     }

@@ -10,9 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import cafe.adriel.voyager.navigator.Navigator
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import top.kagg886.pmf.backend.database.AppDatabase
 import java.awt.Desktop
 import java.io.File
+import javax.swing.JFileChooser
 import kotlin.reflect.full.primaryConstructor
 
 @Composable
@@ -36,7 +41,7 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
                                 nav.push(entry.screenClass.primaryConstructor!!.call())
                             },
                             icon = {
-                                Icon(imageVector = entry.icon,null)
+                                Icon(imageVector = entry.icon, null)
                             },
                             label = {
                                 Text(entry.title)
