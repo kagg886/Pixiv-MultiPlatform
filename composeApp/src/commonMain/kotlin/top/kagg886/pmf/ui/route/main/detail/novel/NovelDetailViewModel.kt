@@ -1,10 +1,8 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -47,44 +45,52 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         val (detail, content) = result.getOrThrow()
         val images = kotlin.runCatching { content.images }.getOrElse { emptyMap() }
 
-        var md = ""
-        for (i in content.data) {
-            when (i.novelContentBlockType) {
-                PLAIN -> {
-                    md += i.value
-                }
+        val nodeMap = linkedMapOf<Int, String?>()
 
-                JUMP_URI -> {
-                    md += "[${i.value}](${i.metadata})"
-                }
+        //异步获取image
+        coroutineScope {
+            for ((index, i) in content.data.withIndex()) {
+                when (i.novelContentBlockType) {
+                    PLAIN -> {
+                        nodeMap[index] = i.value
+                    }
 
-                NOTATION -> {
-                    md += i.value
-                }
+                    JUMP_URI -> {
+                        nodeMap[index] = "[${i.value}](${i.metadata})"
+                    }
 
-                UPLOAD_IMAGE -> {
-                    md += "\n![上传图片](${images[i.value]!![NovelImagesSize.N480Mw]})\n"
-                }
+                    NOTATION -> {
+                        nodeMap[index] = i.value
+                    }
 
-                PIXIV_IMAGE -> {
-                    val url = client.getIllustDetail(i.value!!.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
-                    md += "\n![${i.value}](${url})\n"
-                }
+                    UPLOAD_IMAGE -> {
+                        nodeMap[index] = "\n![上传图片](${images[i.value]!![NovelImagesSize.N480Mw]})\n"
+                    }
 
-                NEW_PAGE -> {
-                    md += "\n***\n"
-                }
+                    PIXIV_IMAGE -> {
+                        launch {
+                            val url =
+                                client.getIllustDetail(i.value!!.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
+                            nodeMap[index] = "\n![${i.value}](${url})\n"
+                        }
+                    }
 
-                TITLE -> {
-                    md += "\n# ${i.value}\n"
-                }
+                    NEW_PAGE -> {
+//                    nodeMap[index] = "\n***\n# Page ${pageIndex + 1}\n"
+//                    pageIndex++
+                    }
 
-                JUMP_PAGE -> {
-                    md += "\n### 页码标记\n"
+                    TITLE -> {
+                        nodeMap[index] = "\n#### ${i.value}\n"
+                    }
+
+                    JUMP_PAGE -> {
+//                    nodeMap[index] = "[跳转到第${i.value}页](#Page ${i.value})"
+                    }
                 }
             }
         }
-        reduce { NovelDetailViewState.Success(detail, md) }
+        reduce { NovelDetailViewState.Success(detail, nodeMap.toSortedMap().values.joinToString("") { it ?: "" }) }
         database.novelHistoryDAO().insert(NovelHistory(id, detail, System.currentTimeMillis()))
     }
 }

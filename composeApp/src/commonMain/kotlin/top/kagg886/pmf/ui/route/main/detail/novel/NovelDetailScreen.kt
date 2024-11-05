@@ -12,19 +12,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -40,6 +41,8 @@ import com.github.panpf.sketch.rememberAsyncImagePainter
 import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ComposableImageRequest
 import com.mikepenz.markdown.compose.Markdown
+import com.mikepenz.markdown.compose.components.markdownComponents
+import com.mikepenz.markdown.compose.elements.MarkdownParagraph
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.ImageData
@@ -106,13 +109,12 @@ class NovelDetailScreen(private val id: Long) : Screen {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                         }
                     }, actions = {
-                        val scope = rememberCoroutineScope()
                         IconButton(onClick = {
                             scope.launch {
                                 drawer.open()
                             }
                         }) {
-                            Icon(Icons.Filled.MoreVert, null)
+                            Icon(Icons.Default.Edit, null)
                         }
                     })
                 }
@@ -128,7 +130,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         when (state) {
             NovelDetailViewState.Error -> ErrorPage(text = "加载失败惹~！") {
@@ -149,6 +151,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
                         0 -> {
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 item {
+                                    var preview by remember { mutableStateOf(false) }
+                                    if (preview) {
+                                        ImagePreviewer(
+                                            onDismiss = { preview = false },
+                                            url = listOf(state.novel.imageUrls.contentLarge),
+                                            startIndex = page.page.value
+                                        )
+                                    }
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         ProgressedAsyncImage(
                                             url = state.novel.imageUrls.content,
@@ -156,6 +166,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             modifier = Modifier
                                                 .align(Alignment.CenterHorizontally)
                                                 .height(256.dp).padding(top = 16.dp)
+                                                .clickable {
+                                                    preview = true
+                                                }
                                         )
                                         Text(
                                             text = state.novel.title,
@@ -513,16 +526,41 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 Markdown(
                     content = state.content,
                     colors = markdownColor(),
-                    typography = markdownTypography(),
+                    typography = markdownTypography(
+                        paragraph = MaterialTheme.typography.bodyLarge.copy(
+                            lineHeight = 24.sp,
+                            textIndent = TextIndent(firstLine = 24.sp, restLine = 0.sp),
+                            lineBreak = LineBreak.Heading
+                        )
+                    ),
+                    components = markdownComponents(
+                        paragraph = {
+                            MarkdownParagraph(
+                                content = it.content,
+                                node = it.node,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    ),
                     imageTransformer = object : ImageTransformer {
                         @Composable
                         override fun transform(link: String): ImageData {
                             val painter = rememberAsyncImagePainter(
                                 request = ComposableImageRequest(link)
                             )
+                            var show by remember { mutableStateOf(false) }
+                            if (show) {
+                                ImagePreviewer(
+                                    onDismiss = { show = false },
+                                    url = listOf(link)
+                                )
+                            }
                             return ImageData(
                                 painter = painter,
                                 contentDescription = null,
+                                modifier = Modifier.clickable {
+                                    show = true
+                                }
                             )
                         }
                     },
