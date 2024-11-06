@@ -130,7 +130,10 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                     )
                                 }
                             }
-                            TabRow(selectedTabIndex = pager.currentPage, modifier = Modifier.fillMaxWidth()) {
+                            ScrollableTabRow(
+                                selectedTabIndex = pager.currentPage, modifier = Modifier.fillMaxWidth(),
+                                divider = {}
+                            ) {
                                 val scope = rememberCoroutineScope()
                                 //个人简介 插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
                                 val tabList = listOf("个人简介", "插画作品", "小说作品", "插画收藏", "小说收藏", "关注")

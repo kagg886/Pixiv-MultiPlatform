@@ -11,6 +11,7 @@ import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.illust.*
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -85,6 +86,9 @@ class IllustDetailViewModel(private val illust: Illust) :
     private val database by inject<AppDatabase>()
 
     private fun saveDataBase(i:Illust) = intent {
+        if (!AppConfig.recordIllustHistory) {
+            return@intent
+        }
         database.illustHistoryDAO().insert(
             IllustHistory(
                 id = i.id,

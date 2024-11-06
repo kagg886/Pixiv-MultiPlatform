@@ -19,6 +19,7 @@ import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.TrendingTags
 import top.kagg886.pixko.module.trending.getRecommendTags
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.SearchHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -47,9 +48,6 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
                     }
                 )
             }
-        }
-        reduce {
-            SearchViewState.EmptySearch(flow, history)
         }
     }
 
@@ -89,6 +87,9 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
         key: String,
         tab: SearchTab
     ) = intent {
+        if (!AppConfig.recordSearchHistory) {
+            return@intent
+        }
         database.searchHistoryDAO().insert(
             SearchHistory(
                 initialSort = sort,

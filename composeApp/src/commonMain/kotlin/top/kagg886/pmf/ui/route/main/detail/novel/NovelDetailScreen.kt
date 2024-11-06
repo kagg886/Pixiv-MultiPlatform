@@ -50,6 +50,7 @@ import com.mikepenz.markdown.model.ImageTransformer
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
@@ -523,14 +524,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
 
             is NovelDetailViewState.Success -> {
+                val style = MaterialTheme.typography.bodyLarge
                 Markdown(
                     content = state.content,
                     colors = markdownColor(),
                     typography = markdownTypography(
-                        paragraph = MaterialTheme.typography.bodyLarge.copy(
-                            lineHeight = 24.sp,
-                            textIndent = TextIndent(firstLine = 24.sp, restLine = 0.sp),
-                            lineBreak = LineBreak.Heading
+                        paragraph = style.copy(
+                            lineHeight = if (AppConfig.autoTypo) 24.sp else style.lineHeight,
+                            textIndent = if (AppConfig.autoTypo) TextIndent(firstLine = 24.sp, restLine = 0.sp) else style.textIndent,
                         )
                     ),
                     components = markdownComponents(

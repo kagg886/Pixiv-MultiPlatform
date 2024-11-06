@@ -106,6 +106,10 @@ kotlin {
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.serialization)
 
+            //settings-ui
+            implementation(libs.compose.settings.ui)
+            implementation(libs.compose.settings.extended)
+
             //webview
             api(libs.compose.webview.multiplatform)
 
@@ -122,7 +126,8 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.27.0")
+            //markdown readaer
+            implementation(libs.multiplatform.markdown.renderer.m3)
 
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)

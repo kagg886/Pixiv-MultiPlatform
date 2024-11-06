@@ -16,6 +16,7 @@ import top.kagg886.pixko.module.novel.NovelImagesSize
 import top.kagg886.pixko.module.novel.getNovelContent
 import top.kagg886.pixko.module.novel.getNovelDetail
 import top.kagg886.pixko.module.novel.parser.NovelContentBlockType.*
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -91,7 +92,9 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             }
         }
         reduce { NovelDetailViewState.Success(detail, nodeMap.toSortedMap().values.joinToString("") { it ?: "" }) }
-        database.novelHistoryDAO().insert(NovelHistory(id, detail, System.currentTimeMillis()))
+        if (AppConfig.recordNovelHistory) {
+            database.novelHistoryDAO().insert(NovelHistory(id, detail, System.currentTimeMillis()))
+        }
     }
 }
 

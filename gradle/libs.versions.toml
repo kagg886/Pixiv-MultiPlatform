@@ -1,11 +1,12 @@
 [versions]
-agp = "8.2.2"
-androidx-lifecycle = "2.8.2"
+agp = "8.5.2"
+androidx-lifecycle = "2.8.3"
 composeWebviewMultiplatform = "1.9.20"
 filekitCompose = "0.8.7"
 kotlin = "2.0.21"
 kotlinx-coroutines = "1.9.0"
 kotlinxSerializationJson = "1.7.3"
+multiplatformMarkdownRendererM3 = "0.27.0"
 multiplatformSettings = "1.2.0"
 orbitCore = "9.0.0"
 pixko = "1.6"
@@ -16,6 +17,7 @@ voyagerVersion = "1.1.0-beta03"
 ksp = "2.0.21-1.0.26"
 aboutlibraries = "11.2.3"
 zoomimageComposeSketch = "1.1.0-beta01"
+compose-settings = "2.6.0"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
@@ -32,6 +34,7 @@ androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", nam
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRendererM3" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
@@ -45,6 +48,9 @@ voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version = "4.0.0" }
 zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch", version.ref = "zoomimageComposeSketch" }
+compose-settings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
+compose-settings-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

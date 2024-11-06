@@ -31,6 +31,7 @@ class RankScreen : Screen {
         TabContainer(
             modifier = Modifier.fillMaxSize(),
             tab = listOf("日榜", "周榜", "月榜", "男性", "女性", "原创", "新人"),
+            scrollable = true,
             state = page.page,
         ) {
             val i = RankCategory.entries[it]

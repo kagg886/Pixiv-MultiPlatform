@@ -24,10 +24,12 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.github.panpf.sketch.AsyncImage
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchSort.*
 import top.kagg886.pixko.module.search.SearchTarget
@@ -35,7 +37,10 @@ import top.kagg886.pixko.module.search.SearchTarget.*
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.TabContainer
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.util.*
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -311,55 +316,11 @@ class SearchScreen(
 
             }
             if (searchWords.isNotEmpty()) {
-                val page = rememberScreenModel {
-                    PageScreenModel(page = mutableIntStateOf(tab.ordinal))
-                }
-                TabContainer(
-                    modifier = Modifier.fillMaxSize(),
-                    state = page.page,
-                    tab = SearchTab.entries.map { it.display }
-                ) {
-                    val snackbarHostState = LocalSnackBarHost.current
-                    when (it) {
-                        0 -> {
-                            val resultModel =
-                                rememberScreenModel(tag = "search_result_illust_${keyWords}_${target}_${sort}_${illustDirty}") {
-                                    SearchResultIllustModel(
-                                        word = keyWords,
-                                        searchTarget = target,
-                                        sort = sort
-                                    )
-                                }
-                            resultModel.collectSideEffect { effect ->
-                                when (effect) {
-                                    is IllustFetchSideEffect.Toast -> {
-                                        snackbarHostState.showSnackbar(effect.msg)
-                                    }
-                                }
-                            }
-                            IllustFetchScreen(resultModel)
-                        }
-
-                        1 -> {
-                            val resultModel =
-                                rememberScreenModel(tag = "search_result_novel_${keyWords}_${target}_${sort}_${novelDirty}") {
-                                    SearchResultNovelModel(
-                                        word = keyWords,
-                                        searchTarget = target,
-                                        sort = sort
-                                    )
-                                }
-                            resultModel.collectSideEffect { effect ->
-                                when (effect) {
-                                    is NovelFetchSideEffect.Toast -> {
-                                        snackbarHostState.showSnackbar(effect.msg)
-                                    }
-                                }
-                            }
-                            NovelFetchScreen(resultModel)
-                        }
-                    }
-                }
+                SearchResultContent(
+                    searchWords,
+                    target,
+                    sort,
+                )
                 return
             }
             if (state is CanAccessHistory) {
@@ -438,6 +399,170 @@ class SearchScreen(
                     Text("暂无历史记录")
                     Text("点击搜索框进行一次搜索吧！")
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun SearchResultContent(
+        searchWords: String,
+        target: SearchTarget,
+        sort: SearchSort,
+    ) {
+        if (searchWords.toIntOrNull() != null) {
+            val model = rememberScreenModel<IdSearchViewModel>(tag = "search_exactly_${searchWords}") {
+                IdSearchViewModel(searchWords.toLong())
+            }
+            val state by model.collectAsState()
+            ExactlySearchResultContent(model, state)
+            return
+        }
+        val page = rememberScreenModel {
+            PageScreenModel(page = mutableIntStateOf(tab.ordinal))
+        }
+        TabContainer(
+            modifier = Modifier.fillMaxSize(),
+            state = page.page,
+            tab = SearchTab.entries.map { it.display }
+        ) {
+            val snackbarHostState = LocalSnackBarHost.current
+            when (it) {
+                0 -> {
+                    val resultModel =
+                        rememberScreenModel(tag = "search_result_illust_${searchWords}_${target}_${sort}_${illustDirty}") {
+                            SearchResultIllustModel(
+                                word = searchWords,
+                                searchTarget = target,
+                                sort = sort
+                            )
+                        }
+                    resultModel.collectSideEffect { effect ->
+                        when (effect) {
+                            is IllustFetchSideEffect.Toast -> {
+                                snackbarHostState.showSnackbar(effect.msg)
+                            }
+                        }
+                    }
+                    IllustFetchScreen(resultModel)
+                }
+
+                1 -> {
+                    val resultModel =
+                        rememberScreenModel(tag = "search_result_novel_${searchWords}_${target}_${sort}_${novelDirty}") {
+                            SearchResultNovelModel(
+                                word = searchWords,
+                                searchTarget = target,
+                                sort = sort
+                            )
+                        }
+                    resultModel.collectSideEffect { effect ->
+                        when (effect) {
+                            is NovelFetchSideEffect.Toast -> {
+                                snackbarHostState.showSnackbar(effect.msg)
+                            }
+                        }
+                    }
+                    NovelFetchScreen(resultModel)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun ExactlySearchResultContent(model: IdSearchViewModel, state: IdSearchViewState) {
+        when (state) {
+            is IdSearchViewState.LoadSuccess -> {
+                val nav = LocalNavigator.currentOrThrow
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item {
+                        if (state.illust != null) {
+                            ListItem(
+                                overlineContent = {
+                                    Text("找到插画")
+                                },
+                                leadingContent = {
+                                    ProgressedAsyncImage(
+                                        url = state.illust.contentImages.get()!![0],
+                                        modifier = Modifier.height(144.dp).aspectRatio(
+                                            ratio = state.illust.width / state.illust.height.toFloat()
+                                        )
+                                    )
+                                },
+                                headlineContent = {
+                                    Text(state.illust.title)
+                                },
+                                supportingContent = {
+                                    AuthorCard(
+                                        user = state.illust.user,
+                                    )
+                                },
+                                modifier = Modifier.clickable {
+                                    nav.push(IllustDetailScreen(state.illust))
+                                }
+                            )
+                        }
+                    }
+
+                    item {
+                        if (state.novel != null) {
+                            ListItem(
+                                overlineContent = {
+                                    Text("找到小说")
+                                },
+                                leadingContent = {
+                                    ProgressedAsyncImage(
+                                        url = state.novel.imageUrls.medium!!,
+                                        modifier = Modifier.height(144.dp).aspectRatio(70 / 144f)
+                                    )
+                                },
+                                headlineContent = {
+                                    Text(state.novel.title)
+                                },
+                                supportingContent = {
+                                    Text(state.novel.caption, maxLines = 3)
+                                },
+                                modifier = Modifier.clickable {
+                                    nav.push(NovelDetailScreen(state.novel.id.toLong()))
+                                }
+                            )
+                        }
+
+                    }
+
+                    item {
+                        if (state.user != null) {
+                            val toast = LocalSnackBarHost.current
+                            ListItem(
+                                overlineContent = {
+                                    Text("找到用户")
+                                },
+                                headlineContent = {},
+                                supportingContent = {
+                                    AuthorCard(
+                                        user = state.user.user,
+                                        onFavoriteClick = {
+                                            toast.showSnackbar("请前往详情页面收藏作者！")
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    item {
+                        if (state.illust == null && state.novel == null && state.user == null) {
+                            ErrorPage(
+                                text = "没有搜索结果",
+                            ) {
+                                model.search()
+                            }
+                        }
+
+                    }
+                }
+            }
+            IdSearchViewState.Loading -> {
+                Loading()
             }
         }
     }
