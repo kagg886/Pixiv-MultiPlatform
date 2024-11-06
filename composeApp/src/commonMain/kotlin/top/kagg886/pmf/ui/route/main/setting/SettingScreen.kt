@@ -19,7 +19,11 @@ import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import org.koin.java.KoinJavaComponent.getKoin
+import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
@@ -27,12 +31,15 @@ import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
+import kotlin.time.Duration.Companion.seconds
 
 
 class SettingScreen : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
     @Composable
     override fun Content() {
+
+        val snack = LocalSnackBarHost.current
         Column(Modifier.verticalScroll(rememberScrollState())) {
             if (currentPlatform.useWideScreenMode) {
                 TopAppBar(
@@ -69,11 +76,13 @@ class SettingScreen : Screen {
                     mutableStateOf(AppConfig.cacheSize.toFloat())
                 }
                 LaunchedEffect(cacheSize) {
-                    AppConfig.cacheSize = cacheSize.toLong()
+                    snapshotFlow { cacheSize }.debounce(1.seconds).collectLatest {
+                        AppConfig.cacheSize = cacheSize.toLong()
+                    }
                 }
                 SettingsSlider(
                     title = {
-                        Text("画廊本地缓存大小")
+                        Text("画廊本地缓存大小(重启生效)")
                     },
                     subtitle = {
                         Column {
@@ -183,7 +192,7 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = byPassSni,
                     title = {
-                        Text("SNI Bypass")
+                        Text("SNI Bypass(重启生效)")
                     },
                     subtitle = {
                         Text("绕过Pixiv SNI Checker，可实现免VPN直连。若拥有梯子环境请关闭此功能以提高加载速度")
