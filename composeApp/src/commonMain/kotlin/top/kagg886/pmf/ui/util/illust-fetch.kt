@@ -32,9 +32,24 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         }
 
     private fun Sequence<Illust>.filterUserCustomSettings() = this
-        .filter { !AppConfig.filterAi || it.isAI }
-        .filter { !AppConfig.filterR18 || it.isR18 }
-        .filter { !AppConfig.filterR18G || it.isR18G }
+        .filter {
+            if (AppConfig.filterAi) {
+                return@filter !it.isAI
+            }
+            return@filter true
+        }
+        .filter {
+            if (AppConfig.filterR18) {
+                return@filter !it.isR18
+            }
+            return@filter true
+        }
+        .filter {
+            if (AppConfig.filterR18G) {
+                return@filter !it.isR18G
+            }
+            return@filter true
+        }
 
     abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust>
 

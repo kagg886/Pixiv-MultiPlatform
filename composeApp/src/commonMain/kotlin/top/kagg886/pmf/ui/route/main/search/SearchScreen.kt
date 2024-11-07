@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -84,14 +85,14 @@ class SearchScreen(
         val model = nav.koinNavigatorScreenModel<SearchViewModel>()
 
 
-        var active by remember { mutableStateOf(false) }
+        var active by rememberSaveable { mutableStateOf(false) }
         val padding by animateDpAsState(if (active) 0.dp else 16.dp)
 
-        var sort by remember { mutableStateOf(initialSort) }
-        var target by remember { mutableStateOf(initialTarget) }
-        var keyWords by remember { mutableStateOf(initialKeyWords) }
+        var sort by rememberSaveable { mutableStateOf(initialSort) }
+        var target by rememberSaveable { mutableStateOf(initialTarget) }
+        var keyWords by rememberSaveable { mutableStateOf(initialKeyWords) }
 
-        var searchWords by remember { mutableStateOf(initialKeyWords) }
+        var searchWords by rememberSaveable { mutableStateOf(initialKeyWords) }
         LaunchedEffect(Unit) {
             snapshotFlow { keyWords }.debounce(1.seconds).distinctUntilChanged().collectLatest {
                 if (keyWords.isEmpty()) {

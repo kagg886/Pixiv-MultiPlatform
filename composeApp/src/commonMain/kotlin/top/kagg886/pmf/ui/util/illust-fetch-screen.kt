@@ -23,6 +23,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.icon.Disabled
+import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 
 @Composable
@@ -88,6 +90,14 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
                             Row(modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp)) {
                                 if (it.isR18) {
+                                    if (it.isR18G) {
+                                        Icon(
+                                            modifier = Modifier.padding(end = 4.dp),
+                                            imageVector = Disabled,
+                                            contentDescription = null,
+                                            tint = Color.Red
+                                        )
+                                    }
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
                                         imageVector = Icons.Default.Warning,
@@ -98,7 +108,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                 if (it.isAI) {
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
-                                        imageVector = Icons.Default.Warning,
+                                        imageVector = Robot,
                                         contentDescription = null,
                                         tint = Color.Yellow
                                     )
