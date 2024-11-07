@@ -1,7 +1,6 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -21,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
@@ -110,13 +109,39 @@ class NovelDetailScreen(private val id: Long) : Screen {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                         }
                     }, actions = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                drawer.open()
+                        Row {
+                            Column {
+                                var expanded by remember { mutableStateOf(false) }
+                                IconButton(
+                                    onClick = {
+                                        expanded = true
+                                    },
+                                ) {
+                                    Icon(Icons.Default.Menu, null)
+                                }
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("导出为epub") },
+                                        onClick = {
+                                            model.exportToEpub()
+                                        }
+                                    )
+                                }
+
                             }
-                        }) {
-                            Icon(Icons.Default.Edit, null)
+
+                            IconButton(onClick = {
+                                scope.launch {
+                                    drawer.open()
+                                }
+                            }) {
+                                Icon(Icons.Default.Edit, null)
+                            }
                         }
+
                     })
                 }
             ) {
@@ -531,7 +556,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                     typography = markdownTypography(
                         paragraph = style.copy(
                             lineHeight = if (AppConfig.autoTypo) 24.sp else style.lineHeight,
-                            textIndent = if (AppConfig.autoTypo) TextIndent(firstLine = 24.sp, restLine = 0.sp) else style.textIndent,
+                            textIndent = if (AppConfig.autoTypo) TextIndent(
+                                firstLine = 24.sp,
+                                restLine = 0.sp
+                            ) else style.textIndent,
                         )
                     ),
                     components = markdownComponents(

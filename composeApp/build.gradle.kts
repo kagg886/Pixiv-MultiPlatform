@@ -128,6 +128,9 @@ kotlin {
 
             //markdown readaer
             implementation(libs.multiplatform.markdown.renderer.m3)
+            //epub export
+            implementation(libs.epublib.core)
+            implementation(libs.jsoup)
 
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
