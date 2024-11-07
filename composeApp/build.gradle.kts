@@ -158,6 +158,12 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
 
+    configurations {
+        all {
+            exclude("net.sf.kxml","kxml2")
+        }
+    }
+
     sourceSets {
         getByName("main") {
             java.srcDirs("src/main/kotlin")

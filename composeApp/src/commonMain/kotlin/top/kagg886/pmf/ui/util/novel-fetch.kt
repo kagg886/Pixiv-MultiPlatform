@@ -32,8 +32,12 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         }
 
     private fun Sequence<Novel>.filterByUserConfig() = this
-        .filter { !AppConfig.filterAi || it.isAI }
-        .filter { !AppConfig.filterShortNovel || it.textLength < AppConfig.filterShortNovelMaxLength }
+        .filter {
+            if (AppConfig.filterShortNovel) {
+                return@filter it.textLength > AppConfig.filterShortNovelMaxLength
+            }
+            return@filter true
+        }
 
     abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel>
 
