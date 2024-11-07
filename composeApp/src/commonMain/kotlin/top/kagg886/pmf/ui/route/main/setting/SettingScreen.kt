@@ -153,7 +153,7 @@ class SettingScreen : Screen {
                     subtitle = {
                         Column {
                             Text("会过滤关于R18G的内容。")
-                            Text("仅在开启R18后可选择")
+                            Text("仅在关闭R18过滤后可选择")
                         }
                     },
                     onCheckedChange = {
