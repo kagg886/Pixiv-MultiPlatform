@@ -89,15 +89,15 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                             }
 
                             Row(modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp)) {
-                                if (it.isR18G) {
-                                    Icon(
-                                        modifier = Modifier.padding(end = 4.dp),
-                                        imageVector = Disabled,
-                                        contentDescription = null,
-                                        tint = Color.Red
-                                    )
-                                }
                                 if (it.isR18) {
+                                    if (it.isR18G) {
+                                        Icon(
+                                            modifier = Modifier.padding(end = 4.dp),
+                                            imageVector = Disabled,
+                                            contentDescription = null,
+                                            tint = Color.Red
+                                        )
+                                    }
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
                                         imageVector = Icons.Default.Warning,
