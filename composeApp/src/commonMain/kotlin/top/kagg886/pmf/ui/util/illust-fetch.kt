@@ -39,14 +39,14 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
             return@filter true
         }
         .filter {
-            if (AppConfig.filterR18) {
-                return@filter !it.isR18
+            if (AppConfig.filterR18G) {
+                return@filter !it.isR18G
             }
             return@filter true
         }
         .filter {
-            if (AppConfig.filterR18G) {
-                return@filter !it.isR18G
+            if (AppConfig.filterR18) {
+                return@filter !it.isR18
             }
             return@filter true
         }

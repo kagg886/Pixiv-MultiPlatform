@@ -125,10 +125,6 @@ class SettingScreen : Screen {
                 }
                 LaunchedEffect(filterR18) {
                     AppConfig.filterR18 = filterR18
-                    //同步关闭r18g功能ss
-                    if (!filterR18) {
-                        filterR18G = false
-                    }
                 }
                 SettingsSwitch(
                     state = filterR18,
@@ -150,7 +146,7 @@ class SettingScreen : Screen {
                 }
                 SettingsSwitch(
                     state = filterR18G,
-                    enabled = filterR18,
+                    enabled = !filterR18, //不过滤r18时启用
                     title = {
                         Text("R18G插画过滤")
                     },
