@@ -6,18 +6,15 @@ import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.plus
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import kotlin.coroutines.CoroutineContext
 
 abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(),
@@ -34,6 +31,10 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
             initNovel()
         }
 
+    private fun Sequence<Novel>.filterByUserConfig() = this
+        .filter { !AppConfig.filterAi || it.isAI }
+        .filter { !AppConfig.filterShortNovel || it.textLength < AppConfig.filterShortNovelMaxLength }
+
     abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel>
 
     fun initNovel(pullDown: Boolean = false) = intent {
@@ -45,7 +46,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         repo = initInfinityRepository(scope.coroutineContext)
         reduce {
             NovelFetchViewState.ShowNovelList(
-                repo!!.take(20).toList(),
+                repo!!.filterByUserConfig().take(20).toList(),
                 noMoreData = repo!!.noMoreData
             )
         }
@@ -56,7 +57,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         runOn<NovelFetchViewState.ShowNovelList> {
             reduce {
                 state.copy(
-                    novels = state.novels + repo!!.take(20).toList(),
+                    novels = state.novels + repo!!.filterByUserConfig().take(20).toList(),
                     noMoreData = repo!!.noMoreData
                 )
             }

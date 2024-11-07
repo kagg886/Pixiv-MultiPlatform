@@ -12,11 +12,13 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.deleteBookmarkIllust
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import kotlin.coroutines.CoroutineContext
 
-abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
+abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(),
+    ScreenModel {
     private val scope = viewModelScope + Dispatchers.IO
 
     protected val client = PixivConfig.newAccountFromConfig()
@@ -29,6 +31,11 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
             initIllust()
         }
 
+    private fun Sequence<Illust>.filterUserCustomSettings() = this
+        .filter { !AppConfig.filterAi || it.isAI }
+        .filter { !AppConfig.filterR18 || it.isR18 }
+        .filter { !AppConfig.filterR18G || it.isR18G }
+
     abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust>
 
     fun initIllust(pullDown: Boolean = false) = intent {
@@ -40,7 +47,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         repo = initInfinityRepository(scope.coroutineContext)
         reduce {
             IllustFetchViewState.ShowIllustList(
-                repo!!.take(20).toList(),
+                repo!!.filterUserCustomSettings().take(20).toList(),
                 noMoreData = repo!!.noMoreData
             )
         }
@@ -51,7 +58,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         runOn<IllustFetchViewState.ShowIllustList> {
             reduce {
                 state.copy(
-                    illusts = state.illusts + repo!!.take(20).toList(),
+                    illusts = state.illusts + repo!!.filterUserCustomSettings().take(20).toList(),
                     noMoreData = repo!!.noMoreData
                 )
             }

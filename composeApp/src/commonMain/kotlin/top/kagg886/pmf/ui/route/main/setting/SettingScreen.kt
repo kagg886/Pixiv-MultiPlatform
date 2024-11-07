@@ -31,6 +31,7 @@ import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -97,6 +98,72 @@ class SettingScreen : Screen {
                     }
                 )
 
+                var filterAi by remember {
+                    mutableStateOf(AppConfig.filterAi)
+                }
+                LaunchedEffect(filterAi) {
+                    AppConfig.filterAi = filterAi
+                }
+                SettingsSwitch(
+                    state = filterAi,
+                    title = {
+                        Text("AI插画过滤")
+                    },
+                    subtitle = {
+                        Text("若在服务端设置了过滤，则可以不用开启")
+                    },
+                    onCheckedChange = {
+                        filterAi = it
+                    }
+                )
+
+                var filterR18 by remember {
+                    mutableStateOf(AppConfig.filterR18)
+                }
+                var filterR18G by remember {
+                    mutableStateOf(AppConfig.filterR18G)
+                }
+                LaunchedEffect(filterR18) {
+                    AppConfig.filterR18 = filterR18
+                    //同步关闭r18g功能ss
+                    if (!filterR18) {
+                        filterR18G = false
+                    }
+                }
+                SettingsSwitch(
+                    state = filterR18,
+                    title = {
+                        Text("R18插画过滤")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("建议关闭官方的R18过滤功能并开启这个")
+                            Text("这样可以防止R15-R18之间的插画被误杀(暴露图片的商单仍会被过滤)")
+                        }
+                    },
+                    onCheckedChange = {
+                        filterR18 = it
+                    }
+                )
+                LaunchedEffect(filterR18G) {
+                    AppConfig.filterR18G = filterR18G
+                }
+                SettingsSwitch(
+                    state = filterR18G,
+                    enabled = filterR18,
+                    title = {
+                        Text("R18G插画过滤")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("会过滤关于R18G的内容。")
+                            Text("仅在开启R18后可选择")
+                        }
+                    },
+                    onCheckedChange = {
+                        filterR18G = it
+                    }
+                )
             }
             SettingsGroup(
                 title = { Text("小说设置") }
@@ -117,6 +184,48 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         autoTypo = it
+                    }
+                )
+                var filterShortNovel by remember {
+                    mutableStateOf(AppConfig.filterShortNovel)
+                }
+                var filterShortNovelLength by remember {
+                    mutableStateOf(AppConfig.filterShortNovelMaxLength)
+                }
+                LaunchedEffect(filterShortNovel) {
+                    AppConfig.filterShortNovel = filterShortNovel
+                    if (!filterShortNovel) {
+                        filterShortNovelLength = 100
+                    }
+                }
+                SettingsSwitch(
+                    state = filterShortNovel,
+                    title = {
+                        Text("过滤极短小说")
+                    },
+                    subtitle = {
+                        Text("这类小说内部很有可能是引流广告")
+                    },
+                    onCheckedChange = {
+                        filterShortNovel = it
+                    }
+                )
+                SettingsSlider(
+                    enabled = filterShortNovel,
+                    title = {
+                        Text("小说过滤长度")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("当小说长度小于这个值时，将不会显示")
+                            Text("当前值:$filterShortNovelLength")
+                        }
+                    },
+                    value = filterShortNovelLength.toFloat(),
+                    valueRange = 30f..1000f,
+                    steps = 968,
+                    onValueChange = {
+                        filterShortNovelLength = it.roundToInt()
                     }
                 )
             }
@@ -230,5 +339,6 @@ class SettingScreen : Screen {
             )
         }
     }
-
 }
+
+
