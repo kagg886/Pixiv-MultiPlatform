@@ -36,6 +36,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.inject
+import org.xmlpull.v1.XmlPullParser
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.pixiv.PixivConfig

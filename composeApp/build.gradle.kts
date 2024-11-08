@@ -161,6 +161,7 @@ android {
     configurations {
         all {
             exclude("net.sf.kxml","kxml2")
+            exclude("xmlpull","xmlpull")
         }
     }
 
