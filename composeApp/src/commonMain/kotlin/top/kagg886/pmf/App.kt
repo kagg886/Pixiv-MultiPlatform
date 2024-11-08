@@ -223,18 +223,12 @@ fun startKoin0() {
                     RecommendIllustViewModel()
                 }
                 single {
-                    IllustCommentViewModel()
-                }
-                single {
                     SearchViewModel()
                 }
                 single {
                     RecommendNovelViewModel()
                 }
 
-                single {
-                    NovelCommentViewModel()
-                }
                 single {
                     SpaceIllustViewModel()
                 }
