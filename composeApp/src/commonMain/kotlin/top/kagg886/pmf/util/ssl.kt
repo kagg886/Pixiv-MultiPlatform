@@ -7,7 +7,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.X509TrustManager
 
 fun OkHttpClient.Builder.ignoreSSL() {
-    val sslContext = SSLContext.getInstance("SSL");
+    val sslContext = SSLContext.getInstance("SSL")
     val trust = object : X509TrustManager {
         override fun checkClientTrusted(
             p0: Array<out X509Certificate>?,
@@ -23,7 +23,7 @@ fun OkHttpClient.Builder.ignoreSSL() {
         null, arrayOf(
             trust
         ), SecureRandom()
-    );
+    )
 
     sslSocketFactory(sslContext.socketFactory, trust)
     hostnameVerifier { _, _ -> true }

@@ -65,6 +65,4 @@ sealed interface IdSearchViewState {
     ): IdSearchViewState
 }
 
-sealed interface IdSearchSideEffect {
-
-}
+sealed interface IdSearchSideEffect

@@ -36,7 +36,6 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.inject
-import org.xmlpull.v1.XmlPullParser
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -45,8 +44,6 @@ import top.kagg886.pmf.backend.rootPath
 import top.kagg886.pmf.ui.component.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustCommentViewModel
-import top.kagg886.pmf.ui.route.main.detail.novel.NovelCommentViewModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect

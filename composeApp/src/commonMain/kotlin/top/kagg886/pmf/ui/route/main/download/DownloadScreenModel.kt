@@ -95,7 +95,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                             val download = file.resolve("$index.png").outputStream()
                             async(Dispatchers.IO) {
                                 val buf = ByteArray(1024)
-                                var len: Int;
+                                var len: Int
                                 download.use {
                                     while (source.read(buf).also { len = it } != -1) {
                                         download.write(buf, 0, len)
