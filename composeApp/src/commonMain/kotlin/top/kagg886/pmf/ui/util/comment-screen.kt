@@ -1,13 +1,13 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -18,10 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.ui.component.ErrorPage
-import top.kagg886.pmf.ui.component.FavoriteButton
-import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
+import top.kagg886.pmf.ui.component.*
 
 @Composable
 fun CommentPanel(model: CommentViewModel, modifier: Modifier = Modifier) {
@@ -179,22 +176,23 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             )
                         }
                     }
-                    this@Column.AnimatedVisibility(
-                        visible = scroll.canScrollBackward,
+                    BackToTopOrRefreshButton(
+                        isNotInTop = scroll.canScrollBackward,
                         modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                        enter = slideInVertically { it / 2 } + fadeIn(),
-                        exit = slideOutVertically { it / 2 } + fadeOut()
-                    ) {
-                        FloatingActionButton(
-                            onClick = {
-                                scope.launch {
-                                    scroll.animateScrollToItem(0)
-                                }
+                        onBackToTop = {
+                            scope.launch {
+                                scroll.animateScrollToItem(0)
                             }
-                        ) {
-                            Icon(Icons.Default.KeyboardArrowUp, null)
+                        },
+                        onRefresh = {
+                            isRefresh = true
+                            scope.launch {
+                                model.load(pullDown = true).join()
+                            }.invokeOnCompletion {
+                                isRefresh = false
+                            }
                         }
-                    }
+                    )
                 }
 
 
@@ -215,6 +213,17 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                 "回复 ${state.replyTarget.user.name} 的评论"
                             }
                         )
+                    },
+                    leadingIcon = {
+                        AnimatedVisibility(state.replyTarget != null) {
+                            IconButton(
+                                onClick = {
+                                    model.clearReply()
+                                }
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
+                            }
+                        }
                     },
                     trailingIcon = {
                         IconButton(

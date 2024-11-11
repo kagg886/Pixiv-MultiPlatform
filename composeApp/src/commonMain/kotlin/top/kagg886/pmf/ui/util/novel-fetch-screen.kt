@@ -1,13 +1,12 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -122,22 +121,23 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         )
                     }
                 }
-                AnimatedVisibility(
-                    visible = scroll.canScrollBackward,
+                BackToTopOrRefreshButton(
+                    isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                    enter = slideInVertically { it / 2 } + fadeIn(),
-                    exit = slideOutVertically { it / 2 } + fadeOut()
-                ) {
-                    FloatingActionButton(
-                        onClick = {
-                            scope.launch {
-                                scroll.animateScrollToItem(0)
-                            }
+                    onBackToTop = {
+                        scope.launch {
+                            scroll.animateScrollToItem(0)
                         }
-                    ) {
-                        Icon(Icons.Default.KeyboardArrowUp, null)
+                    },
+                    onRefresh = {
+                        isRefresh = true
+                        scope.launch {
+                            model.initNovel(true).join()
+                        }.invokeOnCompletion {
+                            isRefresh = false
+                        }
                     }
-                }
+                )
             }
         }
     }

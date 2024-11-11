@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -8,9 +7,11 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -145,22 +146,19 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         )
                     }
                 }
-                AnimatedVisibility(
-                    visible = scroll.canScrollBackward,
+                BackToTopOrRefreshButton(
+                    isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                    enter = slideInVertically { it / 2 } + fadeIn(),
-                    exit = slideOutVertically { it / 2 } + fadeOut()
-                ) {
-                    FloatingActionButton(
-                        onClick = {
-                            scope.launch {
-                                scroll.animateScrollToItem(0)
-                            }
+                    onBackToTop = {
+                        scroll.animateScrollToItem(0)
+                    },
+                    onRefresh = {
+                        isRefresh = true
+                        model.initIllust(true).invokeOnCompletion {
+                            isRefresh = false
                         }
-                    ) {
-                        Icon(Icons.Default.KeyboardArrowUp, null)
                     }
-                }
+                )
             }
         }
     }

@@ -1,17 +1,12 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -33,6 +28,7 @@ import top.kagg886.pixko.module.user.getFollowingList
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
@@ -126,24 +122,24 @@ private fun AuthorFollowScreenContent(state: AuthorFollowState, model: AuthorFol
                         )
                     }
                 }
-                AnimatedVisibility(
-                    visible = scroll.canScrollBackward,
+                BackToTopOrRefreshButton(
+                    isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-                    enter = slideInVertically { it / 2 } + fadeIn(),
-                    exit = slideOutVertically { it / 2 } + fadeOut()
-                ) {
-                    FloatingActionButton(
-                        onClick = {
-                            scope.launch {
-                                scroll.animateScrollToItem(0)
-                            }
+                    onBackToTop = {
+                        scope.launch {
+                            scroll.animateScrollToItem(0)
                         }
-                    ) {
-                        Icon(Icons.Default.KeyboardArrowUp, null)
+                    },
+                    onRefresh = {
+                        refresh = true
+                        scope.launch {
+                            model.loading(true).join()
+                        }.invokeOnCompletion {
+                            refresh = false
+                        }
                     }
-                }
+                )
             }
-
         }
     }
 }
