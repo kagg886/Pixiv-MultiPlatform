@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -29,6 +28,7 @@ import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.CollapsableColumn
 import top.kagg886.pmf.ui.component.collapsable.rememberCollapsableTopBehavior
 import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
+import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 
@@ -85,7 +85,30 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
 
             is AuthorScreenState.Success -> {
                 val collapsableBehavior = rememberCollapsableTopBehavior()
-                val pager = rememberPagerState(initialPage = state.initPage) { 6 }
+                val pager = rememberPagerState(initialPage = state.initPage) { 5 }
+
+
+                var infoDialog by remember {
+                    mutableStateOf(false)
+                }
+
+                if (infoDialog) {
+                    AlertDialog(
+                        onDismissRequest = { infoDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { infoDialog = false }) {
+                                Text("关闭")
+                            }
+                        },
+                        title = {
+                            Text("个人简介")
+                        },
+                        text = {
+                            AuthorProfile(state.user)
+                        }
+                    )
+                }
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize().nestedScroll(collapsableBehavior.nestedScrollConnection),
                     topBar = {
@@ -105,38 +128,51 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier.fillMaxSize().clickable { preview = true }
                                 )
-                                Card(
-                                    colors = with(CardDefaults.cardColors()) {
-                                        copy(containerColor = containerColor.copy(alpha = 0.6f))
-                                    },
-                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
+                                AuthorCard(
+                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                                    user = state.user.user,
+                                    onCardClick = {
+                                        infoDialog = true
+                                    }
                                 ) {
-                                    ListItem(
-                                        leadingContent = {
-                                            ProgressedAsyncImage(
-                                                modifier = Modifier.size(64.dp).padding(8.dp),
-                                                url = state.user.user.profileImageUrls.content
-                                            )
-                                        },
-                                        headlineContent = {
-                                            Text(state.user.user.name)
-                                        },
-                                        supportingContent = {
-                                            Text(
-                                                text = state.user.user.comment?.ifBlank { "没有简介" } ?: "没有简介",
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis)
-                                        }
-                                    )
+                                    if (it) {
+                                        model.followUser().join()
+                                    } else {
+                                        model.unFollowUser().join()
+                                    }
                                 }
+//                                Card(
+//                                    colors = with(CardDefaults.cardColors()) {
+//                                        copy(containerColor = containerColor.copy(alpha = 0.6f))
+//                                    },
+//                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
+//                                ) {
+//                                    ListItem(
+//                                        leadingContent = {
+//                                            ProgressedAsyncImage(
+//                                                modifier = Modifier.size(64.dp).padding(8.dp),
+//                                                url = state.user.user.profileImageUrls.content
+//                                            )
+//                                        },
+//                                        headlineContent = {
+//                                            Text(state.user.user.name)
+//                                        },
+//                                        supportingContent = {
+//                                            Text(
+//                                                text = state.user.user.comment?.ifBlank { "没有简介" } ?: "没有简介",
+//                                                maxLines = 1,
+//                                                overflow = TextOverflow.Ellipsis)
+//                                        }
+//                                    )
+//                                }
                             }
                             ScrollableTabRow(
                                 selectedTabIndex = pager.currentPage, modifier = Modifier.fillMaxWidth(),
                                 divider = {}
                             ) {
                                 val scope = rememberCoroutineScope()
-                                //个人简介 插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
-                                val tabList = listOf("个人简介", "插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
+                                //插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
+                                val tabList = listOf("插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
                                 tabList.forEachIndexed { index, s ->
                                     Tab(
                                         selected = pager.currentPage == index,
@@ -158,12 +194,11 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                         modifier = Modifier.fillMaxWidth().padding(padding)
                     ) {
                         when (it) {
-                            0 -> AuthorProfile(state.user)
-                            1 -> AuthorIllust(state.user)
-                            2 -> AuthorNovel(state.user)
-                            3 -> AuthorIllustBookmark(state.user)
-                            4 -> AuthorNovelBookmark(state.user)
-                            5 -> AuthorFollow(state.user)
+                            0 -> AuthorIllust(state.user)
+                            1 -> AuthorNovel(state.user)
+                            2 -> AuthorIllustBookmark(state.user)
+                            3 -> AuthorNovelBookmark(state.user)
+                            4 -> AuthorFollow(state.user)
                         }
                     }
                 }

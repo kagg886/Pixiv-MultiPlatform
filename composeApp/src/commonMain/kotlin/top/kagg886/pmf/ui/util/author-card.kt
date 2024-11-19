@@ -1,7 +1,6 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedCard
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pixko.User
 import top.kagg886.pmf.ui.component.FavoriteButton
@@ -18,11 +18,14 @@ import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 
 @Composable
-fun AuthorCard(modifier: Modifier = Modifier, user: User, onFavoriteClick: suspend (Boolean) -> Unit = {}) {
+fun AuthorCard(
+    modifier: Modifier = Modifier,
+    user: User,
+    onCardClick: (nav: Navigator) -> Unit = { it.push(AuthorScreen(user.id)) },
+    onFavoriteClick: suspend (Boolean) -> Unit = {}
+) {
     val nav = LocalNavigator.currentOrThrow
-    OutlinedCard(modifier = modifier.clickable {
-        nav.push(AuthorScreen(user.id))
-    }) {
+    OutlinedCard(modifier = modifier.clickable { onCardClick(nav) }) {
         ListItem(
             headlineContent = {
                 Text(user.name)

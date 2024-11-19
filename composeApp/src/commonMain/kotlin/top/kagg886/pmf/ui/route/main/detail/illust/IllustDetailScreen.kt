@@ -1,19 +1,13 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +20,6 @@ import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
-import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -49,6 +42,7 @@ import top.kagg886.pmf.ui.util.*
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
 
     constructor(illust: Illust) : this(wrap(illust))
+
     private val illust0 by illust
 
     override val key: ScreenKey
@@ -200,9 +194,18 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 startIndex = startIndex
             )
         }
+        val needExpand by remember {
+            derivedStateOf { img.size > 3 }
+        }
+        var expand by remember {
+            mutableStateOf(false)
+        }
 
+        val show = remember(expand) {
+            if (expand) img else img.take(3)
+        }
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(img) {
+            items(show) {
                 ProgressedAsyncImage(
                     url = it,
                     contentScale = ContentScale.FillWidth,
@@ -214,6 +217,18 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         }
                 )
                 Spacer(Modifier.height(16.dp))
+            }
+            if (needExpand && !expand) {
+                item {
+                    TextButton(
+                        onClick = {
+                            expand = true
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("展开更多", textAlign = TextAlign.Center)
+                    }
+                }
             }
             item {
                 AuthorCard(
