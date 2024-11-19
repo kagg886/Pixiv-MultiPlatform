@@ -4,8 +4,11 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.boolean
 import com.russhwolf.settings.int
 import com.russhwolf.settings.long
+import top.kagg886.pmf.util.enum
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
+    var darkMode by enum("dark_mode",DarkMode.System)
+
     var defaultGalleryWidth by int("default_gallery_size", if (currentPlatform.useWideScreenMode) 3 else 2)
     var cacheSize by long("cache_size", 1024 * 1024 * 1024)
 
@@ -22,4 +25,9 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordSearchHistory by boolean("record_search",true)
 
     var byPassSNI by boolean("bypass_sni", false)
+
+
+    enum class DarkMode {
+        Light,Dark,System
+    }
 }

@@ -3,6 +3,7 @@ package top.kagg886.pmf
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -10,10 +11,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.room.RoomDatabase
@@ -71,17 +69,31 @@ val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
 }
 
+val LocalThemeSaver = compositionLocalOf<MutableState<AppConfig.DarkMode>> {
+    error("not provided")
+}
+
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background
+    val darkModeValue = remember {
+        mutableStateOf(AppConfig.darkMode)
+    }
+    CompositionLocalProvider(
+        LocalThemeSaver provides darkModeValue,
+        LocalSnackBarHost provides remember { SnackbarHostState() },
+    ) {
+        MaterialTheme(
+            colorScheme = when (darkModeValue.value) {
+                AppConfig.DarkMode.System -> if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
+                AppConfig.DarkMode.Light -> lightColorScheme()
+                AppConfig.DarkMode.Dark -> darkColorScheme()
+            }
         ) {
-            Navigator(WelcomeScreen()) {
-                CompositionLocalProvider(
-                    LocalSnackBarHost provides remember { SnackbarHostState() },
-                ) {
+            Surface(
+                color = MaterialTheme.colorScheme.background
+            ) {
+                Navigator(WelcomeScreen()) {
                     val s = LocalSnackBarHost.current
                     CheckUpdateDialog()
 

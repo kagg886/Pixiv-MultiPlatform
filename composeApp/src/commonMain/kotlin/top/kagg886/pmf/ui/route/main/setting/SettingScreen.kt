@@ -1,15 +1,13 @@
 package top.kagg886.pmf.ui.route.main.setting
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
@@ -19,11 +17,12 @@ import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import org.koin.java.KoinJavaComponent.getKoin
-import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.LocalThemeSaver
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
@@ -39,8 +38,6 @@ class SettingScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
     @Composable
     override fun Content() {
-
-        val snack = LocalSnackBarHost.current
         Column(Modifier.verticalScroll(rememberScrollState())) {
             if (currentPlatform.useWideScreenMode) {
                 TopAppBar(
@@ -48,6 +45,65 @@ class SettingScreen : Screen {
                         Text("设置")
                     },
                 )
+            }
+            SettingsGroup(title = { Text("外观") }) {
+                var theme by LocalThemeSaver.current
+                var expand by remember { mutableStateOf(false) }
+                LaunchedEffect(theme) {
+                    AppConfig.darkMode = theme
+                    expand = false
+                }
+                SettingsTileScaffold(
+                    title = {
+                        Text("显示模式")
+                    },
+                    subtitle = {
+                        Text(
+                            "当前为:${
+                                when (theme) {
+                                    AppConfig.DarkMode.System -> "跟随系统"
+                                    AppConfig.DarkMode.Light -> "日间模式"
+                                    AppConfig.DarkMode.Dark -> "夜间模式"
+                                }
+                            }"
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        expand = true
+                    },
+                ) {
+                    DropdownMenu(
+                        expanded = expand,
+                        onDismissRequest = {
+                            expand = false
+                        },
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text("跟随系统")
+                            },
+                            onClick = {
+                                theme = AppConfig.DarkMode.System
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text("始终日间")
+                            },
+                            onClick = {
+                                theme = AppConfig.DarkMode.Light
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text("始终夜间")
+                            },
+                            onClick = {
+                                theme = AppConfig.DarkMode.Dark
+                            }
+                        )
+                    }
+                }
             }
             SettingsGroup(
                 title = { Text(text = "画廊设置") },
