@@ -2,7 +2,7 @@ package top.kagg886.pmf.ui.util
 
 import androidx.lifecycle.ViewModel
 import com.russhwolf.settings.Settings
-import com.russhwolf.settings.string
+import com.russhwolf.settings.nullableString
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -45,7 +45,7 @@ class UpdateCheckViewModel(
         }
     }
 
-    private var latestVersion by config.string("latest_version", "v${BuildConfig.APP_VERSION_NAME}")
+    private var skipVersion by config.nullableString("skip_version")
 
     val net = OkHttpClient.Builder().apply {
         ignoreSSL()
@@ -58,7 +58,7 @@ class UpdateCheckViewModel(
     @OptIn(OrbitExperimental::class)
     fun dismiss() = intent {
         runOn<UpdateCheckState.HaveUpdate> {
-            latestVersion = state.release.versionName
+            skipVersion = "v${BuildConfig.APP_VERSION_NAME}"
             postSideEffect(UpdateCheckSideEffect.Toast("您仍可以前往设置中检查更新"))
             reduce {
                 state.copy(dismiss = true)
@@ -66,8 +66,13 @@ class UpdateCheckViewModel(
         }
     }
 
-    fun checkUpdate(force:Boolean = false) = intent {
-        val newVersion = if (force) "v${BuildConfig.APP_VERSION_NAME}" else latestVersion
+    fun checkUpdate(force: Boolean = false) = intent {
+        if (!force && skipVersion == "v${BuildConfig.APP_VERSION_NAME}") {
+            if (AppConfig.checkSuccessToast) {
+                postSideEffect(UpdateCheckSideEffect.Toast("当前为最新版本"))
+            }
+            return@intent
+        }
         val result = kotlin.runCatching {
             json.decodeFromString<Release>(
                 net.newCall(
@@ -85,7 +90,7 @@ class UpdateCheckViewModel(
         }
         val data = result.getOrThrow()
 
-        if (newVersion != data.versionName) {
+        if ("v${BuildConfig.APP_VERSION_NAME}" != data.versionName) {
             reduce {
                 UpdateCheckState.HaveUpdate(data)
             }
