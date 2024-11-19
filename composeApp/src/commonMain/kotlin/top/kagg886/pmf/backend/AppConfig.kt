@@ -26,6 +26,10 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
     var byPassSNI by boolean("bypass_sni", false)
 
+    var checkUpdateOnStart by boolean("check_update_on_start", true)
+    var checkFailedToast by boolean("check_failed_toast", true)
+    var checkSuccessToast by boolean("check_success_toast", false)
+
 
     enum class DarkMode {
         Light,Dark,System

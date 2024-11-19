@@ -363,32 +363,94 @@ class SettingScreen : Screen {
                     }
                 )
             }
-            val model = remember {
-                getKoin().get<UpdateCheckViewModel>()
+            SettingsGroup(title = { Text("更新") }) {
+                val model = remember {
+                    getKoin().get<UpdateCheckViewModel>()
+                }
+
+                var showCheckSuccessToast by remember {
+                    mutableStateOf(AppConfig.checkSuccessToast)
+                }
+                LaunchedEffect(showCheckSuccessToast) {
+                    AppConfig.checkSuccessToast = showCheckSuccessToast
+                }
+
+                var showCheckFailedToast by remember {
+                    mutableStateOf(AppConfig.checkFailedToast)
+                }
+                LaunchedEffect(showCheckFailedToast) {
+                    AppConfig.checkFailedToast = showCheckFailedToast
+                }
+
+                var checkUpdateOnStart by remember {
+                    mutableStateOf(AppConfig.checkUpdateOnStart)
+                }
+                LaunchedEffect(checkUpdateOnStart) {
+                    AppConfig.checkUpdateOnStart = checkUpdateOnStart
+                    if (!checkUpdateOnStart) {
+                        showCheckSuccessToast = false
+                        showCheckFailedToast = true
+                    }
+                }
+                SettingsSwitch(
+                    state = checkUpdateOnStart,
+                    title = {
+                        Text("启动时检查更新")
+                    },
+                    onCheckedChange = {
+                        checkUpdateOnStart = it
+                    }
+                )
+
+                if (checkUpdateOnStart) {
+                    SettingsSwitch(
+                        enabled = checkUpdateOnStart,
+                        state = showCheckSuccessToast,
+                        title = {
+                            Text("检查为最新版本时显示Toast")
+                        },
+                        onCheckedChange = {
+                            showCheckSuccessToast = it
+                        }
+                    )
+
+                    SettingsSwitch(
+                        enabled = checkUpdateOnStart,
+                        state = showCheckFailedToast,
+                        title = {
+                            Text("检查失败时显示Toast")
+                        },
+                        onCheckedChange = {
+                            showCheckFailedToast = it
+                        }
+                    )
+                }
+
+
+                SettingsMenuLink(
+                    title = {
+                        Text("检查更新")
+                    },
+                    onClick = {
+                        model.checkUpdate(true)
+                    },
+                    icon = {
+                        Icon(Icons.Default.Build, "")
+                    }
+                )
+                val nav = LocalNavigator.currentOrThrow
+                SettingsMenuLink(
+                    title = {
+                        Text("关于")
+                    },
+                    onClick = {
+                        nav.push(AboutScreen())
+                    },
+                    icon = {
+                        Icon(Icons.Default.Info, "")
+                    }
+                )
             }
-            SettingsMenuLink(
-                title = {
-                    Text("检查更新")
-                },
-                onClick = {
-                    model.checkUpdate()
-                },
-                icon = {
-                    Icon(Icons.Default.Build, "")
-                }
-            )
-            val nav = LocalNavigator.currentOrThrow
-            SettingsMenuLink(
-                title = {
-                    Text("关于")
-                },
-                onClick = {
-                    nav.push(AboutScreen())
-                },
-                icon = {
-                    Icon(Icons.Default.Info, "")
-                }
-            )
         }
     }
 }

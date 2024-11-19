@@ -1,5 +1,6 @@
 package top.kagg886.pmf.ui.component
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,7 +44,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         Text("更新：${BuildConfig.APP_VERSION_NAME} --> ${state.release.versionName}")
                     },
                     text = {
-                      Text(state.release.body)
+                        Text(state.release.body)
                     },
                     confirmButton = {
                         val uri = state.release.assets.first {
@@ -59,12 +60,14 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         }
                     },
                     dismissButton = {
-                        TextButton(
-                            onClick = {
-                                updateModel.dismiss()
+                        Row {
+                            TextButton(
+                                onClick = {
+                                    updateModel.dismiss()
+                                }
+                            ) {
+                                Text("当前版本不再提示")
                             }
-                        ) {
-                            Text("取消")
                         }
                     }
                 )
