@@ -89,7 +89,10 @@ class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
                         OutlinedCard(Modifier.padding(5.dp).clickable {
                             nav.push(IllustDetailScreen(it.illust))
                         }) {
-                            Row(modifier = Modifier.padding(5.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier.padding(5.dp).fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 ProgressedAsyncImage(
                                     url = it.illust.contentImages.get()!![0],
                                     modifier = Modifier.size(75.dp, 120.dp),
@@ -127,9 +130,19 @@ class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
                                                                 return@IconButton
                                                             }
                                                             scope.launch {
+                                                                val listFiles = it.downloadRootPath().listFiles()!!
+                                                                if (listFiles.size == 1) {
+                                                                    FileKit.saveFile(
+                                                                        bytes = listFiles[0].readBytes(),
+                                                                        baseName = it.illust.title,
+                                                                        extension = "png"
+                                                                    )
+                                                                    return@launch
+                                                                }
                                                                 FileKit.saveFile(
                                                                     bytes = it.downloadRootPath().zip(
-                                                                        target = rootPath.resolve("share").resolve("${it.id}.zip")
+                                                                        target = rootPath.resolve("share")
+                                                                            .resolve("${it.id}.zip")
                                                                     ).readBytes(),
                                                                     baseName = "${it.illust.title}(${it.id})",
                                                                     extension = "zip"
@@ -148,9 +161,17 @@ class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
+                                                            val listFiles = it.downloadRootPath().listFiles()!!
+                                                            if (listFiles.size == 1) {
+                                                                shareFile(
+                                                                    listFiles[0]
+                                                                )
+                                                                return@IconButton
+                                                            }
                                                             shareFile(
                                                                 it.downloadRootPath().zip(
-                                                                    target = rootPath.resolve("share").resolve("${it.id}.zip")
+                                                                    target = rootPath.resolve("share")
+                                                                        .resolve("${it.id}.zip")
                                                                 )
                                                             )
                                                         }
