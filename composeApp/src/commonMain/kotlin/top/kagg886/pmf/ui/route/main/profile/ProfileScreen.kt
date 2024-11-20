@@ -32,10 +32,10 @@ import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.ui.util.SerializableWrapper
 import top.kagg886.pmf.ui.util.wrap
 
-class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>) : Screen {
+class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target: ProfileItem) : Screen {
     private val me by me
 
-    constructor(me: SimpleMeProfile) : this(wrap(me))
+    constructor(me: SimpleMeProfile, target: ProfileItem = ProfileItem.ViewProfile) : this(wrap(me), target)
 
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
@@ -44,8 +44,10 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>) : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val page = rememberScreenModel {
-            PageScreenModel()
+        val page = rememberScreenModel("initial_${target.name}") {
+            PageScreenModel().apply {
+                page.value = target.ordinal
+            }
         }
         var select by page.page
         if (currentPlatform.useWideScreenMode) {
@@ -102,7 +104,7 @@ private fun SettingDrawerContent(me: SimpleMeProfile, select: Int) {
     }
 }
 
-private enum class ProfileItem(
+enum class ProfileItem(
     val title: String,
     val icon: ImageVector,
     val content: @Composable (me: SimpleMeProfile) -> Unit
@@ -125,14 +127,14 @@ private enum class ProfileItem(
         title = "历史记录",
         icon = Icons.Default.MailOutline,
         content = {
-            HistoryScreen(true).Content()
+            HistoryScreen().Content()
         }
     ),
     Download(
         title = "下载管理",
         icon = Icons.Default.Done,
         content = {
-            DownloadScreen(true).Content()
+            DownloadScreen().Content()
         }
     ),
     Setting(
@@ -193,11 +195,12 @@ private fun SettingDrawerSheet(me: SimpleMeProfile, current: Int, onItemClick: (
 
 @Composable
 private fun SettingItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit = {}) {
-    NavigationDrawerItem(label = {
-        Text(text)
-    }, icon = {
-        Icon(icon, "")
-    }, selected = selected, onClick = onClick
+    NavigationDrawerItem(
+        label = {
+            Text(text)
+        }, icon = {
+            Icon(icon, "")
+        }, selected = selected, onClick = onClick
     )
 
 }

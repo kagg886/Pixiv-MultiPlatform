@@ -42,11 +42,11 @@ import top.kagg886.pmf.backend.rootPath
 import top.kagg886.pmf.ui.component.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
-import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
 import top.kagg886.pmf.ui.route.main.history.HistoryIllustViewModel
 import top.kagg886.pmf.ui.route.main.history.HistoryNovelViewModel
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem
 import top.kagg886.pmf.ui.route.main.profile.ProfileScreen
 import top.kagg886.pmf.ui.route.main.rank.RankScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendIllustViewModel
@@ -115,7 +115,7 @@ fun App() {
                                         }
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
-                                        it.push(DownloadScreen())
+                                        it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
                                     }
                                     return@collectSideEffect
                                 }

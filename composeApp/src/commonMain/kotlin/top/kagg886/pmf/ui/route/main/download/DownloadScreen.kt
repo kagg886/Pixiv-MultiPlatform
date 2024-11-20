@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,9 +22,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.rootPath
-import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -36,36 +33,14 @@ import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.util.zip
 
-class DownloadScreen(val isOpenInSideBar: Boolean = false) : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
+class DownloadScreen : Screen {
     @Composable
     override fun Content() {
         val model = koinScreenModel<DownloadScreenModel>()
-
         val state by model.collectAsState()
-        val nav = LocalNavigator.currentOrThrow
-        Column {
-            if (currentPlatform.useWideScreenMode) {
-                TopAppBar(
-                    title = { Text("下载列表") },
-                    navigationIcon = {
-                        if (!isOpenInSideBar) {
-                            IconButton(onClick = {
-                                nav.pop()
-                            }) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
-                )
-            }
-            DownloadContent(
-                model, state
-            )
-        }
+        DownloadContent(
+            model, state
+        )
     }
 
     @Composable

@@ -2,9 +2,10 @@ package top.kagg886.pmf.ui.route.main.history
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
@@ -21,7 +22,7 @@ import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
 
-class HistoryScreen(val isOpenInSideBar: Boolean = false) : Screen {
+class HistoryScreen : Screen {
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
     }
@@ -31,20 +32,10 @@ class HistoryScreen(val isOpenInSideBar: Boolean = false) : Screen {
     override fun Content() {
         Scaffold(
             topBar = {
-                val nav = LocalNavigator.currentOrThrow
                 if (currentPlatform.useWideScreenMode) {
                     TopAppBar(
                         title = {
                             Text("历史记录")
-                        },
-                        navigationIcon = {
-                            if (!isOpenInSideBar) {
-                                IconButton(onClick = {
-                                    nav.pop()
-                                }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                                }
-                            }
                         }
                     )
                 }
