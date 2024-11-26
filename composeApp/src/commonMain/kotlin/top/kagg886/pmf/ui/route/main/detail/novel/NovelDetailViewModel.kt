@@ -22,7 +22,7 @@ import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.loadImage
 import top.kagg886.pixko.module.novel.*
-import top.kagg886.pixko.module.novel.parser.NovelContentBlockType.*
+import top.kagg886.pixko.module.novel.parser.*
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
@@ -30,6 +30,17 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
 import java.io.ByteArrayOutputStream
 import java.util.*
+
+sealed interface NovelNodeElement {
+    data class Plain(val text: String) : NovelNodeElement
+    data class JumpUri(val text: String, val uri: String) : NovelNodeElement
+    data class Notation(val text: String, val notation: String) : NovelNodeElement
+    data class UploadImage(val url: String) : NovelNodeElement
+    data class PixivImage(val index: Int, val url: String) : NovelNodeElement
+    data class Title(val text: String) : NovelNodeElement
+    data class NewPage(val index: Int) : NovelNodeElement
+    data class JumpPage(val page: Int) : NovelNodeElement
+}
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
@@ -55,47 +66,47 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         val (detail, content) = result.getOrThrow()
         val images = kotlin.runCatching { content.images }.getOrElse { emptyMap() }
 
-        val nodeMap = linkedMapOf<Int, String?>()
+        val nodeMap = linkedMapOf<Int, NovelNodeElement>()
 
         //异步获取image
         coroutineScope {
             for ((index, i) in content.data.withIndex()) {
-                when (i.novelContentBlockType) {
-                    PLAIN -> {
-                        nodeMap[index] = i.value
+                when (i) {
+                    is PlainTextNode -> {
+                        nodeMap[index] = NovelNodeElement.Plain(i.text)
                     }
 
-                    JUMP_URI -> {
-                        nodeMap[index] = "[${i.value}](${i.metadata})"
+                    is JumpUriNode -> {
+                        nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
                     }
 
-                    NOTATION -> {
-                        nodeMap[index] = i.value
+                    is NotationNode -> {
+                        nodeMap[index] = NovelNodeElement.Notation(i.text, i.notation)
                     }
 
-                    UPLOAD_IMAGE -> {
-                        nodeMap[index] = "\n![上传图片](${images[i.value]!![NovelImagesSize.N480Mw]})\n"
+                    is UploadImageNode -> {
+                        val img = images[i.url]!![NovelImagesSize.N480Mw]
+                        nodeMap[index] = NovelNodeElement.UploadImage(img)
                     }
 
-                    PIXIV_IMAGE -> {
+                    is PixivImageNode -> {
                         launch {
                             val url =
-                                client.getIllustDetail(i.value!!.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
-                            nodeMap[index] = "\n![${i.value}](${url})\n"
+                                client.getIllustDetail(i.id.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
+                            nodeMap[index] = NovelNodeElement.PixivImage(i.id, url)
                         }
                     }
 
-                    NEW_PAGE -> {
-//                    nodeMap[index] = "\n***\n# Page ${pageIndex + 1}\n"
-//                    pageIndex++
+                    is NewPageNode -> {
+                        nodeMap[index] = NovelNodeElement.NewPage(index + 1)
                     }
 
-                    TITLE -> {
-                        nodeMap[index] = "\n#### ${i.value}\n"
+                    is TitleNode -> {
+                        nodeMap[index] = NovelNodeElement.Title(i.text)
                     }
 
-                    JUMP_PAGE -> {
-//                    nodeMap[index] = "[跳转到第${i.value}页](#Page ${i.value})"
+                    is JumpPageNode -> {
+                        nodeMap[index] = NovelNodeElement.JumpPage(i.page)
                     }
                 }
             }
@@ -104,7 +115,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             NovelDetailViewState.Success(
                 detail,
                 content,
-                nodeMap.toSortedMap().values.joinToString("") { it ?: "" }
+                nodeMap.toSortedMap { a, b -> a - b}
             )
         }
         if (AppConfig.recordNovelHistory) {
@@ -132,45 +143,46 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                 var doc = Document.createShell("")
                 var pageIndex = 0
 
-                val uploadImages = kotlin.runCatching { state.core.images }.getOrElse { emptyMap() }
 
-
-                for (i in state.core.data) {
-                    when (i.novelContentBlockType) {
-                        PLAIN -> {
-                            i.value!!.split("\n").map {
+                for ((index, i) in state.nodeMap) {
+                    when (i) {
+                        is NovelNodeElement.Plain -> {
+                            i.text.split("\n").map {
                                 doc.body().appendElement("p").text(it)
                             }
                         }
 
-                        JUMP_URI -> {
-                            doc.body().appendElement("a").attr("href", i.metadata!!).text(i.value!!)
+                        is NovelNodeElement.JumpUri -> {
+                            doc.body().appendElement("a").attr("href", i.uri).text(i.text)
                         }
 
-                        NOTATION -> {
-                            doc.body().appendElement("span").text(i.value!!)
+                        is NovelNodeElement.Notation -> {
+                            doc.body().appendElement("span").text(i.text)
                         }
 
-                        UPLOAD_IMAGE -> {
-                            val a = uploadImages[i.value!!]!![NovelImagesSize.N480Mw] as String
+                        is NovelNodeElement.UploadImage -> {
                             val uuid = UUID.randomUUID().toString().replace("-", "") + ".png"
-                            addResource(Resource(client.loadImage(a), uuid))
-                            doc.body().appendElement("img").attr("src", uuid).attr("alt", i.value!!)
+                            addResource(Resource(client.loadImage(i.url), uuid))
+                            doc.body().appendElement("img").attr("src", uuid).attr("alt", "upload-image")
                         }
 
-                        PIXIV_IMAGE -> {
-                            val img =
-                                client.getIllustDetail(i.value!!.toLong()).contentImages[IllustImagesType.LARGE]!![0]
+                        is NovelNodeElement.PixivImage -> {
+                            val img = client.getIllustDetail(i.index.toLong())
                             val uuid = UUID.randomUUID().toString().replace("-", "") + ".png"
-                            addResource(Resource(client.loadImage(img), uuid))
-                            doc.body().appendElement("img").attr("src", uuid).attr("alt", i.value!!)
+                            addResource(
+                                Resource(
+                                    client.loadImage(img.contentImages[IllustImagesType.LARGE]!![0]),
+                                    uuid
+                                )
+                            )
+                            doc.body().appendElement("img").attr("src", uuid).attr("alt", img.title)
                         }
 
-                        TITLE -> {
-                            doc.body().appendElement("h1").text(i.value!!)
+                        is NovelNodeElement.Title -> {
+                            doc.body().appendElement("h1").text(i.text)
                         }
 
-                        NEW_PAGE -> {
+                        is NovelNodeElement.NewPage -> {
                             addSection(
                                 "第${pageIndex + 1}页",
                                 Resource(doc.html().toByteArray(), "page_${pageIndex}.html")
@@ -179,9 +191,9 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             pageIndex++
                         }
 
-                        JUMP_PAGE -> {
-                            doc.body().appendElement("a").attr("href", "page_${i.value!!.toInt() - 1}.html")
-                                .text("跳转到第${i.value}页")
+                        is NovelNodeElement.JumpPage -> {
+                            doc.body().appendElement("a").attr("href", "page_${i.page - 1}.html")
+                                .text("跳转到第${i.page}页")
                         }
                     }
                 }
@@ -210,7 +222,8 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 sealed class NovelDetailViewState {
     data object Loading : NovelDetailViewState()
     data object Error : NovelDetailViewState()
-    data class Success(val novel: Novel, val core: NovelData, val content: String) : NovelDetailViewState()
+    data class Success(val novel: Novel, val core: NovelData, val nodeMap: Map<Int, NovelNodeElement>) :
+        NovelDetailViewState()
 }
 
 sealed class NovelDetailSideEffect {

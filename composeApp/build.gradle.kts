@@ -126,7 +126,7 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            //markdown readaer
+            //markdown reader
             implementation(libs.multiplatform.markdown.renderer.m3)
             //epub export
             implementation(libs.epublib.core)

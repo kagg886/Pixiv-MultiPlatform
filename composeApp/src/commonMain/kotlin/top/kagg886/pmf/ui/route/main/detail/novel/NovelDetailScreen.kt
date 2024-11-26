@@ -25,6 +25,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import com.github.panpf.sketch.LocalPlatformContext
 import com.github.panpf.sketch.rememberAsyncImagePainter
 import com.github.panpf.sketch.request.ComposableImageRequest
 import com.mikepenz.markdown.compose.Markdown
@@ -266,7 +267,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
         val model = rememberScreenModel("novel_comment_${novel.id}") {
             NovelCommentViewModel(id)
         }
-        CommentPanel(model,Modifier.fillMaxSize())
+        CommentPanel(model, Modifier.fillMaxSize())
     }
 
     @Composable
@@ -285,8 +286,29 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
             is NovelDetailViewState.Success -> {
                 val style = MaterialTheme.typography.bodyLarge
+                val content = remember(state.nodeMap) {
+                    buildString {
+                        var index = 1
+                        for ((_, value) in state.nodeMap) {
+                            val v = when (value) {
+                                is NovelNodeElement.JumpPage -> "[跳转到第${value.page}页](#Page ${value.page})"
+                                is NovelNodeElement.JumpUri -> "[${value.text}](${value.uri})"
+                                is NovelNodeElement.NewPage -> "\n***\n### Page $index".apply {
+                                    index++
+                                }
+
+                                is NovelNodeElement.Notation -> value.text
+                                is NovelNodeElement.PixivImage -> "\n![pixiv](${value.url})\n"
+                                is NovelNodeElement.Plain -> value.text
+                                is NovelNodeElement.Title -> "\n#### ${value.text}\n"
+                                is NovelNodeElement.UploadImage -> "\n![upload](${value.url})\n"
+                            }
+                            append(v)
+                        }
+                    }
+                }
                 Markdown(
-                    content = state.content,
+                    content = content,
                     colors = markdownColor(),
                     typography = markdownTypography(
                         paragraph = style.copy(
