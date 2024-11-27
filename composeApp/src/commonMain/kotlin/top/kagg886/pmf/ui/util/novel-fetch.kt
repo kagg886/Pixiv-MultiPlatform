@@ -9,6 +9,7 @@ import kotlinx.coroutines.plus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
@@ -35,6 +36,24 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         .filter {
             if (AppConfig.filterShortNovel) {
                 return@filter it.textLength > AppConfig.filterShortNovelMaxLength
+            }
+            return@filter true
+        }.filter {
+            if (AppConfig.filterAiNovel) {
+                return@filter !it.isAI
+            }
+            return@filter true
+        }
+        .filter {
+            if (AppConfig.filterR18GNovel) {
+                return@filter it.isR18G
+            }
+            return@filter true
+        }
+        .filter {
+            if (AppConfig.filterR18Novel) {
+                //TODO pixko bug, need fixed
+                return@filter !(it.isR18 || it.isR18G)
             }
             return@filter true
         }

@@ -220,6 +220,69 @@ class SettingScreen : Screen {
             SettingsGroup(
                 title = { Text("小说设置") }
             ) {
+                var filterAiNovel by remember {
+                    mutableStateOf(AppConfig.filterAiNovel)
+                }
+                LaunchedEffect(filterAiNovel) {
+                    AppConfig.filterAi = filterAiNovel
+                }
+                SettingsSwitch(
+                    state = filterAiNovel,
+                    title = {
+                        Text("AI小说过滤")
+                    },
+                    subtitle = {
+                        Text("若在服务端设置了过滤，则可以不用开启")
+                    },
+                    onCheckedChange = {
+                        filterAiNovel = it
+                    }
+                )
+
+                var filterR18Novel by remember {
+                    mutableStateOf(AppConfig.filterR18Novel)
+                }
+                var filterR18GNovel by remember {
+                    mutableStateOf(AppConfig.filterR18GNovel)
+                }
+                LaunchedEffect(filterR18Novel) {
+                    AppConfig.filterR18 = filterR18Novel
+                }
+                SettingsSwitch(
+                    state = filterR18Novel,
+                    title = {
+                        Text("R18小说过滤")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("建议关闭官方的R18过滤功能并开启这个")
+                            Text("这样可以防止R15-R18之间的插画被误杀(暴露图片的商单仍会被过滤)")
+                        }
+                    },
+                    onCheckedChange = {
+                        filterR18Novel = it
+                    }
+                )
+                LaunchedEffect(filterR18GNovel) {
+                    AppConfig.filterR18G = filterR18GNovel
+                }
+                SettingsSwitch(
+                    state = filterR18GNovel,
+                    enabled = !filterR18Novel, //不过滤r18时启用
+                    title = {
+                        Text("R18G小说过滤")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("会过滤关于R18G的内容。")
+                            Text("仅在关闭R18过滤后可选择")
+                        }
+                    },
+                    onCheckedChange = {
+                        filterR18GNovel = it
+                    }
+                )
+
                 var autoTypo by remember {
                     mutableStateOf(AppConfig.autoTypo)
                 }

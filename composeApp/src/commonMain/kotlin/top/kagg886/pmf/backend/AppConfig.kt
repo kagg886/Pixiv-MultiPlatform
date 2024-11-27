@@ -16,6 +16,9 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterR18 by boolean("filter_r18", false)
     var filterR18G by boolean("filter_r18g", false)
 
+    var filterAiNovel by boolean("filter_ai_novel", false)
+    var filterR18Novel by boolean("filter_r18_novel", false)
+    var filterR18GNovel by boolean("filter_r18g_novel", false)
     var autoTypo by boolean("auto_typo", true)
     var filterShortNovel by boolean("filter_short_novel", false)
     var filterShortNovelMaxLength by int("filter_short_novel_max_len", 100)

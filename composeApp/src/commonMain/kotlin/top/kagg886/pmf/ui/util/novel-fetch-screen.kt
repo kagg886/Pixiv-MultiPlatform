@@ -4,13 +4,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,6 +22,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.icon.Disabled
+import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 
 @Composable
@@ -73,6 +79,34 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                     items(state.novels, key = { it.id }) {
                         Column {
                             ListItem(
+                                overlineContent = {
+                                    Row {
+                                        if (it.isR18 || it.isR18G) {
+                                            Icon(
+                                                modifier = Modifier.padding(end = 4.dp),
+                                                imageVector = Icons.Default.Warning,
+                                                contentDescription = null,
+                                                tint = Color.Red
+                                            )
+                                        }
+                                        if (it.isR18G) {
+                                            Icon(
+                                                modifier = Modifier.padding(end = 4.dp),
+                                                imageVector = Disabled,
+                                                contentDescription = null,
+                                                tint = Color.Red
+                                            )
+                                        }
+                                        if (it.isAI) {
+                                            Icon(
+                                                modifier = Modifier.padding(end = 4.dp),
+                                                imageVector = Robot,
+                                                contentDescription = null,
+                                                tint = Color.Yellow
+                                            )
+                                        }
+                                    }
+                                },
                                 headlineContent = {
                                     Text(it.title)
                                 },
