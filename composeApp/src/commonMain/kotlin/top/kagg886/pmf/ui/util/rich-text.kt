@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -20,10 +21,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -177,6 +180,10 @@ fun RichText(
     Text(
         text = annotateString,
         inlineContent = inlineNode,
+        style = if (AppConfig.autoTypo) TextStyle(
+            textIndent = TextIndent(firstLine = 24.sp),
+            lineHeight = 24.sp
+        ) else LocalTextStyle.current,
         modifier = modifier.onGloballyPositioned {
             screenWidth = with(density) {
                 it.boundsInParent().width.toSp()
