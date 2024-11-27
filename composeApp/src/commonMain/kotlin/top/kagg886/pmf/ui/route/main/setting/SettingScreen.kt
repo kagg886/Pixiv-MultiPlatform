@@ -224,7 +224,7 @@ class SettingScreen : Screen {
                     mutableStateOf(AppConfig.filterAiNovel)
                 }
                 LaunchedEffect(filterAiNovel) {
-                    AppConfig.filterAi = filterAiNovel
+                    AppConfig.filterAiNovel = filterAiNovel
                 }
                 SettingsSwitch(
                     state = filterAiNovel,
@@ -246,7 +246,7 @@ class SettingScreen : Screen {
                     mutableStateOf(AppConfig.filterR18GNovel)
                 }
                 LaunchedEffect(filterR18Novel) {
-                    AppConfig.filterR18 = filterR18Novel
+                    AppConfig.filterR18Novel = filterR18Novel
                 }
                 SettingsSwitch(
                     state = filterR18Novel,
@@ -264,7 +264,7 @@ class SettingScreen : Screen {
                     }
                 )
                 LaunchedEffect(filterR18GNovel) {
-                    AppConfig.filterR18G = filterR18GNovel
+                    AppConfig.filterR18GNovel = filterR18GNovel
                 }
                 SettingsSwitch(
                     state = filterR18GNovel,
