@@ -60,7 +60,6 @@ kotlin {
         }
     }
 
-
     jvm("desktop")
 
     sourceSets.named("commonMain").configure {
@@ -126,10 +125,10 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            //markdown reader
-            implementation(libs.multiplatform.markdown.renderer.m3)
             //epub export
-            implementation(libs.epublib.core)
+            implementation(libs.epublib.core.get().toString()) {
+                exclude("xmlpull", "xmlpull")
+            }
             implementation(libs.jsoup)
 
             implementation(libs.aboutlibraries.core)
@@ -157,13 +156,6 @@ android {
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
-
-    configurations {
-        all {
-            exclude("net.sf.kxml","kxml2")
-            exclude("xmlpull","xmlpull")
-        }
-    }
 
     sourceSets {
         getByName("main") {

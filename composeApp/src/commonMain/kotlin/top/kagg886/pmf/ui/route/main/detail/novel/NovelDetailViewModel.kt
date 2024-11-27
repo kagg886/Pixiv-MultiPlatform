@@ -27,20 +27,10 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import java.io.ByteArrayOutputStream
 import java.util.*
-
-sealed interface NovelNodeElement {
-    data class Plain(val text: String) : NovelNodeElement
-    data class JumpUri(val text: String, val uri: String) : NovelNodeElement
-    data class Notation(val text: String, val notation: String) : NovelNodeElement
-    data class UploadImage(val url: String) : NovelNodeElement
-    data class PixivImage(val index: Int, val url: String) : NovelNodeElement
-    data class Title(val text: String) : NovelNodeElement
-    data class NewPage(val index: Int) : NovelNodeElement
-    data class JumpPage(val page: Int) : NovelNodeElement
-}
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
@@ -60,6 +50,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             client.getNovelDetail(id) to client.getNovelContent(id)
         }
         if (result.isFailure) {
+            result.exceptionOrNull()?.printStackTrace()
             reduce { NovelDetailViewState.Error }
             return@intent
         }
@@ -91,9 +82,11 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 
                     is PixivImageNode -> {
                         launch {
-                            val url =
-                                client.getIllustDetail(i.id.toLong()).contentImages[IllustImagesType.MEDIUM]?.get(0)!!
-                            nodeMap[index] = NovelNodeElement.PixivImage(i.id, url)
+                            val illust = client.getIllustDetail(i.id.toLong())
+                            nodeMap[index] = NovelNodeElement.PixivImage(
+                                illust,
+                                illust.contentImages[IllustImagesType.MEDIUM]?.get(0)!!
+                            )
                         }
                     }
 
@@ -115,7 +108,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             NovelDetailViewState.Success(
                 detail,
                 content,
-                nodeMap.toSortedMap { a, b -> a - b}
+                nodeMap.toSortedMap { a, b -> a - b }
             )
         }
         if (AppConfig.recordNovelHistory) {
@@ -167,7 +160,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                         }
 
                         is NovelNodeElement.PixivImage -> {
-                            val img = client.getIllustDetail(i.index.toLong())
+                            val img = i.illust
                             val uuid = UUID.randomUUID().toString().replace("-", "") + ".png"
                             addResource(
                                 Resource(

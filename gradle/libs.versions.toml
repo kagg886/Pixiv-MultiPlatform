@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.2"
+agp = "8.5.2"
 androidx-lifecycle = "2.8.3"
 composeWebviewMultiplatform = "1.9.20"
 epublibCore = "3.1"
@@ -8,7 +8,6 @@ jsoup = "1.18.1"
 kotlin = "2.0.21"
 kotlinx-coroutines = "1.9.0"
 kotlinxSerializationJson = "1.7.3"
-multiplatformMarkdownRendererM3 = "0.27.0"
 multiplatformSettings = "1.2.0"
 orbitCore = "9.0.0"
 pixko = "1.8"
@@ -29,7 +28,7 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
-epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
+epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore"}
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -38,7 +37,6 @@ androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", nam
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-multiplatform-markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "multiplatformMarkdownRendererM3" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }

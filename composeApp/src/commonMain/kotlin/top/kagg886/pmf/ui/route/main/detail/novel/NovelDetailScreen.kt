@@ -14,9 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -25,27 +23,14 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.LocalPlatformContext
-import com.github.panpf.sketch.rememberAsyncImagePainter
-import com.github.panpf.sketch.request.ComposableImageRequest
-import com.mikepenz.markdown.compose.Markdown
-import com.mikepenz.markdown.compose.components.markdownComponents
-import com.mikepenz.markdown.compose.elements.MarkdownParagraph
-import com.mikepenz.markdown.m3.markdownColor
-import com.mikepenz.markdown.m3.markdownTypography
-import com.mikepenz.markdown.model.ImageData
-import com.mikepenz.markdown.model.ImageTransformer
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchTab
-import top.kagg886.pmf.ui.util.CommentPanel
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.*
 
 
 class NovelDetailScreen(private val id: Long) : Screen {
@@ -285,72 +270,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
 
             is NovelDetailViewState.Success -> {
-                val style = MaterialTheme.typography.bodyLarge
-                val content = remember(state.nodeMap) {
-                    buildString {
-                        var index = 1
-                        for ((_, value) in state.nodeMap) {
-                            val v = when (value) {
-                                is NovelNodeElement.JumpPage -> "[跳转到第${value.page}页](#Page ${value.page})"
-                                is NovelNodeElement.JumpUri -> "[${value.text}](${value.uri})"
-                                is NovelNodeElement.NewPage -> "\n***\n### Page $index".apply {
-                                    index++
-                                }
-
-                                is NovelNodeElement.Notation -> value.text
-                                is NovelNodeElement.PixivImage -> "\n![pixiv](${value.url})\n"
-                                is NovelNodeElement.Plain -> value.text
-                                is NovelNodeElement.Title -> "\n#### ${value.text}\n"
-                                is NovelNodeElement.UploadImage -> "\n![upload](${value.url})\n"
-                            }
-                            append(v)
-                        }
-                    }
-                }
-                Markdown(
-                    content = content,
-                    colors = markdownColor(),
-                    typography = markdownTypography(
-                        paragraph = style.copy(
-                            lineHeight = if (AppConfig.autoTypo) 24.sp else style.lineHeight,
-                            textIndent = if (AppConfig.autoTypo) TextIndent(
-                                firstLine = 24.sp,
-                                restLine = 0.sp
-                            ) else style.textIndent,
-                        )
-                    ),
-                    components = markdownComponents(
-                        paragraph = {
-                            MarkdownParagraph(
-                                content = it.content,
-                                node = it.node,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    ),
-                    imageTransformer = object : ImageTransformer {
-                        @Composable
-                        override fun transform(link: String): ImageData {
-                            val painter = rememberAsyncImagePainter(
-                                request = ComposableImageRequest(link)
-                            )
-                            var show by remember { mutableStateOf(false) }
-                            if (show) {
-                                ImagePreviewer(
-                                    onDismiss = { show = false },
-                                    url = listOf(link)
-                                )
-                            }
-                            return ImageData(
-                                painter = painter,
-                                contentDescription = null,
-                                modifier = Modifier.clickable {
-                                    show = true
-                                }
-                            )
-                        }
-                    },
-                    modifier = modifier.padding(15.dp).verticalScroll(rememberScrollState())
+                RichText(
+                    state = state.nodeMap.toSortedMap().map { it.value },
+                    modifier = modifier.fillMaxWidth().padding(15.dp).verticalScroll(rememberScrollState())
                 )
             }
         }
