@@ -128,6 +128,7 @@ kotlin {
             //epub export
             implementation(libs.epublib.core.get().toString()) {
                 exclude("xmlpull", "xmlpull")
+                exclude("net.sf.kxml","kxml2")
             }
             implementation(libs.jsoup)
 
@@ -141,6 +142,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.kxml2)
         }
     }
 }

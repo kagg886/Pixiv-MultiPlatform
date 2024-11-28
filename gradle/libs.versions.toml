@@ -8,6 +8,7 @@ jsoup = "1.18.1"
 kotlin = "2.0.21"
 kotlinx-coroutines = "1.9.0"
 kotlinxSerializationJson = "1.7.3"
+kxml2 = "2.3.0"
 multiplatformSettings = "1.2.0"
 orbitCore = "9.0.0"
 pixko = "1.8"
@@ -37,6 +38,7 @@ androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", nam
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
