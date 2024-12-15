@@ -36,6 +36,7 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
+import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.backend.rootPath
@@ -282,9 +283,6 @@ fun startKoin0() {
         )
     }
 }
-
-val databasePath = rootPath.resolve("app.db")
-expect fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase>
 expect fun shareFile(file: File)
 
 enum class NavigationItem(val title: String, val icon: ImageVector, val screenClass: KClass<out Screen>) {

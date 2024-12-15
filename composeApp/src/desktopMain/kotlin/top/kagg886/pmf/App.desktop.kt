@@ -58,12 +58,6 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = databasePath.absolutePath,
-    )
-}
-
 actual fun shareFile(file: File) {
     Desktop.getDesktop().open(file)
 }

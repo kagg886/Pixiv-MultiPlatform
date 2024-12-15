@@ -75,13 +75,6 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase> {
-    return Room.databaseBuilder<AppDatabase>(
-        name = databasePath.absolutePath,
-        context = PMFApplication.getApp()
-    )
-}
-
 actual fun shareFile(file: File) {
     with(PMFApplication.getApp()) {
         val intent = Intent("android.intent.action.SEND")
