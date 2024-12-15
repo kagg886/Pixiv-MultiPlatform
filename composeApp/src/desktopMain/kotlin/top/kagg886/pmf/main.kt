@@ -11,36 +11,6 @@ import top.kagg886.pmf.ui.route.crash.CrashApp
 import java.awt.event.WindowEvent
 import kotlin.system.exitProcess
 
-//@OptIn(ExperimentalComposeUiApi::class)
-//private val mainExceptionHandler = WindowExceptionHandlerFactory { _ ->
-//    val openLock = ReentrantLock()
-//    var isOpen = false
-//    WindowExceptionHandler { ex ->
-//        openLock.withLock {
-//            if (!isOpen) {
-//                isOpen = true
-//                thread(isDaemon = true) {
-//                    application {
-//                        Window(
-//                            onCloseRequest = ::exitApplication,
-//                            title = "Crash",
-//                            icon = painterResource(Res.drawable.kotlin),
-//                        ) {
-//                            CrashApp(throwable = ex)
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//private val exceptionHandler = Thread.UncaughtExceptionHandler { _, ex ->
-//    SwingUtilities.invokeLater {
-//        throw ex
-//    }
-//}
-
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
@@ -59,11 +29,10 @@ fun main() {
             }
         }
         CompositionLocalProvider(
-            LocalWindowExceptionHandlerFactory provides WindowExceptionHandlerFactory {window->
+            LocalWindowExceptionHandlerFactory provides WindowExceptionHandlerFactory { window ->
                 WindowExceptionHandler { ex ->
                     lastException = ex
-                    window.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))
-                    throw ex
+                    exitApplication()
                 }
             }
         ) {
@@ -77,7 +46,7 @@ fun main() {
         }
     }
 
-    if  (lastException != null) {
+    if (lastException != null) {
         singleWindowApplication {
             CrashApp(throwable = lastException!!)
         }
