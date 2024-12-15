@@ -2,16 +2,31 @@ package top.kagg886.pmf
 
 import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
 import io.github.vinceglb.filekit.core.FileKit
+import kotlin.concurrent.thread
 
-class PMFApplication : Application(), SingletonSketch.Factory {
+class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtExceptionHandler {
 
     override fun onCreate() {
         super.onCreate()
         startKoin0()
+
+        Thread.setDefaultUncaughtExceptionHandler(this)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                while (true) {
+                    Looper.loop()
+                }
+            } catch (e: Throwable) {
+                uncaughtException(Thread.currentThread(), e)
+            }
+        }
     }
 
     override fun createSketch(context: PlatformContext): Sketch {
@@ -39,5 +54,15 @@ class PMFApplication : Application(), SingletonSketch.Factory {
             }
             return application as PMFApplication
         }
+    }
+
+    override fun uncaughtException(t: Thread, e: Throwable) {
+       thread {
+           val i = Intent(this, CrashActivity::class.java)
+           i.putExtra("exceptions", e)
+           i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+           startActivity(i)
+           android.os.Process.killProcess(android.os.Process.myPid());
+       }
     }
 }

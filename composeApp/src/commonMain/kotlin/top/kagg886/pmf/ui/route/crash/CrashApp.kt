@@ -6,15 +6,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.ParagraphStyle
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,7 +27,7 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: Throwable) {
                 },
                 navigationIcon = {
                     IconButton(onClick = { exitProcess(0) }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null)
+                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 },
                 actions = {
