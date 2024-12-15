@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -26,6 +27,8 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Disabled
 import top.kagg886.pmf.ui.component.icon.Robot
+import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
+import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 
 @Composable
@@ -69,7 +72,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                 }
                 LazyVerticalStaggeredGrid(
                     columns = StaggeredGridCells.Fixed(AppConfig.defaultGalleryWidth),
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(end = 8.dp),
                     state = scroll
                 ) {
                     items(
@@ -146,6 +149,12 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         )
                     }
                 }
+
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(scroll),
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp)
+                )
+
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

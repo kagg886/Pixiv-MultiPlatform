@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
+import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchTab
@@ -270,10 +272,18 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
 
             is NovelDetailViewState.Success -> {
-                RichText(
-                    state = state.nodeMap.toSortedMap().map { it.value },
-                    modifier = modifier.fillMaxWidth().padding(15.dp).verticalScroll(rememberScrollState())
-                )
+                Box(modifier.fillMaxWidth().padding(start = 15.dp, end = 8.dp)) {
+                    val scroll = rememberScrollState()
+                    RichText(
+                        state = state.nodeMap.toSortedMap().map { it.value },
+                        modifier = Modifier.padding(end = 7.dp).verticalScroll(scroll)
+                    )
+
+                    VerticalScrollbar(
+                        adapter = rememberScrollbarAdapter(scroll),
+                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+                    )
+                }
             }
         }
     }

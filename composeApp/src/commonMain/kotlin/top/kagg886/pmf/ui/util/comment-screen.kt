@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
+import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 
 @Composable
 fun CommentPanel(model: CommentViewModel, modifier: Modifier = Modifier) {
@@ -69,7 +71,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         }
                         return@PullToRefreshBox
                     }
-                    LazyColumn(state = state.scrollerState) {
+                    LazyColumn(state = state.scrollerState, modifier = Modifier.padding(end = 8.dp)) {
                         items(state.comments) { comment ->
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp)
@@ -176,6 +178,12 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             )
                         }
                     }
+
+                    VerticalScrollbar(
+                        adapter = rememberScrollbarAdapter(scroll),
+                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp),
+                    )
+
                     BackToTopOrRefreshButton(
                         isNotInTop = scroll.canScrollBackward,
                         modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

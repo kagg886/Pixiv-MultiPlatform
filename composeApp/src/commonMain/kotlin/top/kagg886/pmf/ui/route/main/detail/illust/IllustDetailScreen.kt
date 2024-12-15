@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -34,6 +36,8 @@ import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Download
+import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
+import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.*
@@ -204,117 +208,124 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         val show = remember(expand) {
             if (expand) img else img.take(3)
         }
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(show) {
-                ProgressedAsyncImage(
-                    url = it,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth()
-                        .aspectRatio(illust.width.toFloat() / illust.height)
-                        .clickable {
-                            startIndex = img.indexOf(it)
-                            preview = true
-                        }
-                )
-                Spacer(Modifier.height(16.dp))
-            }
-            if (needExpand && !expand) {
-                item {
-                    TextButton(
-                        onClick = {
-                            expand = true
-                        },
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            val scroll = rememberLazyListState()
+            LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
+                items(show) {
+                    ProgressedAsyncImage(
+                        url = it,
+                        contentScale = ContentScale.FillWidth,
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("展开更多", textAlign = TextAlign.Center)
-                    }
-                }
-            }
-            item {
-                AuthorCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    user = illust.user
-                ) {
-                    if (it) {
-                        model.followUser().join()
-                    } else {
-                        model.unFollowUser().join()
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-            }
-
-            item {
-                OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                    ListItem(
-                        overlineContent = {
-                            Text(illust.id.toString(), style = MaterialTheme.typography.labelSmall)
-                        },
-                        headlineContent = {
-                            Text(illust.title)
-                        },
-                        supportingContent = {
-                            Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
-                        },
-                        trailingContent = {
-                            Row(
-                                Modifier.size(120.dp, 68.dp),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val downloadModel = koinScreenModel<DownloadScreenModel>()
-                                IconButton(
-                                    onClick = {
-                                        downloadModel.startDownload(illust)
-                                    },
-                                    enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
-                                    modifier = Modifier.size(30.dp)
-                                ) {
-                                    Icon(Download, null)
-                                }
-                                FavoriteButton(
-                                    isFavorite = illust.isBookMarked,
-                                    modifier = Modifier.size(30.dp)
-                                ) {
-                                    if (it == FavoriteState.Favorite) {
-                                        model.likeIllust().join()
-                                        return@FavoriteButton
-                                    }
-                                    if (it == FavoriteState.NotFavorite) {
-                                        model.disLikeIllust().join()
-                                        return@FavoriteButton
-                                    }
-                                }
+                            .aspectRatio(illust.width.toFloat() / illust.height)
+                            .clickable {
+                                startIndex = img.indexOf(it)
+                                preview = true
                             }
-                        }
                     )
+                    Spacer(Modifier.height(16.dp))
                 }
-            }
-
-            item {
-                FlowRow {
-                    for (tag in illust.tags) {
-                        AssistChip(
-                            modifier = Modifier.padding(4.dp),
+                if (needExpand && !expand) {
+                    item {
+                        TextButton(
                             onClick = {
-                                nav.push(
-                                    SearchScreen(
-                                        initialKeyWords = tag.name
-                                    )
-                                )
+                                expand = true
                             },
-                            label = {
-                                Column {
-                                    Text(tag.name, style = MaterialTheme.typography.labelMedium)
-                                    tag.translatedName?.let {
-                                        Text(it, style = MaterialTheme.typography.labelSmall)
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("展开更多", textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+                item {
+                    AuthorCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        user = illust.user
+                    ) {
+                        if (it) {
+                            model.followUser().join()
+                        } else {
+                            model.unFollowUser().join()
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+                }
+                item {
+                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        ListItem(
+                            overlineContent = {
+                                Text(illust.id.toString(), style = MaterialTheme.typography.labelSmall)
+                            },
+                            headlineContent = {
+                                Text(illust.title)
+                            },
+                            supportingContent = {
+                                Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
+                            },
+                            trailingContent = {
+                                Row(
+                                    Modifier.size(120.dp, 68.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val downloadModel = koinScreenModel<DownloadScreenModel>()
+                                    IconButton(
+                                        onClick = {
+                                            downloadModel.startDownload(illust)
+                                        },
+                                        enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
+                                        modifier = Modifier.size(30.dp)
+                                    ) {
+                                        Icon(Download, null)
+                                    }
+                                    FavoriteButton(
+                                        isFavorite = illust.isBookMarked,
+                                        modifier = Modifier.size(30.dp)
+                                    ) {
+                                        if (it == FavoriteState.Favorite) {
+                                            model.likeIllust().join()
+                                            return@FavoriteButton
+                                        }
+                                        if (it == FavoriteState.NotFavorite) {
+                                            model.disLikeIllust().join()
+                                            return@FavoriteButton
+                                        }
                                     }
                                 }
                             }
                         )
                     }
                 }
+                item {
+                    FlowRow {
+                        for (tag in illust.tags) {
+                            AssistChip(
+                                modifier = Modifier.padding(4.dp),
+                                onClick = {
+                                    nav.push(
+                                        SearchScreen(
+                                            initialKeyWords = tag.name
+                                        )
+                                    )
+                                },
+                                label = {
+                                    Column {
+                                        Text(tag.name, style = MaterialTheme.typography.labelMedium)
+                                        tag.translatedName?.let {
+                                            Text(it, style = MaterialTheme.typography.labelSmall)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
             }
+
+            VerticalScrollbar(
+                adapter = rememberScrollbarAdapter(scroll),
+                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+            )
         }
     }
 

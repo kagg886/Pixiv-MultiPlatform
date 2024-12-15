@@ -24,6 +24,8 @@ import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Disabled
 import top.kagg886.pmf.ui.component.icon.Robot
+import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
+import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 
 @Composable
@@ -73,7 +75,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                     return@PullToRefreshBox
                 }
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(end = 8.dp),
                     state = scroll
                 ) {
                     items(state.novels, key = { it.id }) {
@@ -155,6 +157,12 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         )
                     }
                 }
+
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(scroll),
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp)
+                )
+
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
