@@ -85,7 +85,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             val illust = client.getIllustDetail(i.id.toLong())
                             nodeMap[index] = NovelNodeElement.PixivImage(
                                 illust,
-                                illust.contentImages[IllustImagesType.MEDIUM]?.get(0)!!
+                                illust.contentImages[IllustImagesType.MEDIUM]?.get(i.index)!!
                             )
                         }
                     }
