@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,8 +28,10 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: Throwable) {
                     Text("应用意外崩溃！")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { exitProcess(0) }) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                    if (currentPlatform is Platform.Desktop) {
+                        IconButton(onClick = { exitProcess(0) }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                        }
                     }
                 },
                 actions = {

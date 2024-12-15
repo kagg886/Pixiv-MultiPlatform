@@ -21,6 +21,7 @@ import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.getKoin
 import top.kagg886.pmf.LocalThemeSaver
 import top.kagg886.pmf.backend.AppConfig
@@ -30,6 +31,7 @@ import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
+import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
@@ -424,6 +426,46 @@ class SettingScreen : Screen {
                     onCheckedChange = {
                         byPassSni = it
                     }
+                )
+            }
+            SettingsGroup(title = { Text("高级") }) {
+                SettingsMenuLink(
+                    title = {
+                        Text("主线程抛出异常")
+                    },
+                    subtitle = {
+                        Text("调试用，没事别点")
+                    },
+                    onClick = {
+                        throw RuntimeException("测试异常，请不要反馈。")
+                    },
+                )
+                val scope = rememberCoroutineScope()
+                SettingsMenuLink(
+                    title = {
+                        Text("协程内抛出异常")
+                    },
+                    subtitle = {
+                        Text("调试用，没事别点")
+                    },
+                    onClick = {
+                        scope.launch {
+                            throw RuntimeException("测试异常，请不要反馈。")
+                        }
+                    },
+                )
+                SettingsMenuLink(
+                    title = {
+                        Text("子线程抛出异常")
+                    },
+                    subtitle = {
+                        Text("调试用，没事别点")
+                    },
+                    onClick = {
+                        thread {
+                            throw RuntimeException("测试异常，请不要反馈。")
+                        }
+                    },
                 )
             }
             SettingsGroup(title = { Text("更新") }) {
