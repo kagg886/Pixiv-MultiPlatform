@@ -81,8 +81,6 @@ fun App() {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
-
-    throw RuntimeException("progress error")
     CompositionLocalProvider(
         LocalThemeSaver provides darkModeValue,
         LocalSnackBarHost provides remember { SnackbarHostState() },
