@@ -1,12 +1,36 @@
-# Pixiv-MultiPlatform
-
-![all download](https://img.shields.io/github/downloads/kagg886/Pixiv-MultiPlatform/total)
-
-![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/kagg886/Pixiv-MultiPlatform)![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-closed/kagg886/Pixiv-MultiPlatform)
-
-这是一个基于`Kotlin MultiPlatform Compose`而发布的，支持`Android`，`Desktop(Windows,Linux)`两端三平台的**第三方**Pixiv客户端。
-
-![630c53942ab78d98e13d0ac9e566211c](./README.assets/630c53942ab78d98e13d0ac9e566211c.png)
+<div align="center">
+    <h1>Pixiv-MultiPlatform</h1>
+    <p>——基于Kotlin技术栈的全平台(Apple系除外)第三方pixiv客户端——</p>
+    <table>
+        <thead align="center">
+            <tr>
+                <th>License</th>
+                <th>下载数</th>
+                <th>issue</th>
+                <th>最后提交</th>
+            </tr>
+        </thead>
+        <tbody align="center">
+            <tr>
+                <td>
+                    <img src="https://img.shields.io/github/license/kagg886/Pixiv-MultiPlatform" alt="" srcset="">
+                </td>
+                <td>
+                    <img src="https://img.shields.io/github/downloads/kagg886/Pixiv-MultiPlatform/total" alt=""
+                        srcset="">
+                </td>
+                <td>
+                    <img src="https://img.shields.io/github/issues/kagg886/Pixiv-MultiPlatform" alt="" srcset="">
+                    <img src="https://img.shields.io/github/issues-closed/kagg886/Pixiv-MultiPlatform" alt="">
+                </td>
+                <th>
+                    <img src="https://img.shields.io/github/last-commit/kagg886/Pixiv-MultiPlatform" alt="" srcset="">
+                </th>
+            </tr>
+        </tbody>
+    </table>
+    <img src="./README.assets/630c53942ab78d98e13d0ac9e566211c.png" />
+</div>
 
 ## 一. 下载链接
 
