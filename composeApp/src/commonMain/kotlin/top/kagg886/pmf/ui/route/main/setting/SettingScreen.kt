@@ -1,5 +1,6 @@
 package top.kagg886.pmf.ui.route.main.setting
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -10,6 +11,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalWindowInfo
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -110,26 +112,104 @@ class SettingScreen : Screen {
             SettingsGroup(
                 title = { Text(text = "画廊设置") },
             ) {
-                var defaultGalleryWidth by remember {
-                    mutableStateOf(AppConfig.defaultGalleryWidth.toFloat())
+                var data by remember { mutableStateOf(AppConfig.galleryOptions) }
+                var expand by remember { mutableStateOf(false) }
+                LaunchedEffect(data) {
+                    AppConfig.galleryOptions = data
+                    expand = false
                 }
-                LaunchedEffect(defaultGalleryWidth) {
-                    AppConfig.defaultGalleryWidth = defaultGalleryWidth.toInt()
-                }
-                SettingsSlider(
+                SettingsTileScaffold(
                     title = {
-                        Text("画廊列数")
+                        Text("列数计算方式")
                     },
                     subtitle = {
-                        Text("控制画廊页面的列数,当前值:$defaultGalleryWidth")
+                        Text("指定程序以什么样的方式计算画廊的列数")
                     },
-                    value = defaultGalleryWidth,
-                    valueRange = 2f..5f,
-                    steps = 2,
-                    onValueChange = {
-                        defaultGalleryWidth = it
+                    modifier = Modifier.clickable {
+                        expand = true
+                    },
+                ) {
+                    Text(
+                        when (data) {
+                            is AppConfig.Gallery.FixColumnCount -> "固定列数"
+                            is AppConfig.Gallery.FixWidth -> "根据列宽计算"
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expand,
+                        onDismissRequest = {
+                            expand = false
+                        },
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text("固定列数")
+                            },
+                            onClick = {
+                                data = AppConfig.Gallery.FixColumnCount(3)
+                                expand = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text("根据列宽计算")
+                            },
+                            onClick = {
+                                data = AppConfig.Gallery.FixWidth(100)
+                                expand = false
+                            }
+                        )
                     }
-                )
+                }
+
+                AnimatedContent(
+                    targetState = data
+                ) {
+                    when (it) {
+                        is AppConfig.Gallery.FixColumnCount -> {
+                            var defaultGalleryWidth by remember { mutableStateOf(it.size.toFloat()) }
+                            LaunchedEffect(defaultGalleryWidth) {
+                                AppConfig.galleryOptions = it.copy(size = defaultGalleryWidth.toInt())
+                            }
+                            SettingsSlider(
+                                title = {
+                                    Text("画廊列数")
+                                },
+                                subtitle = {
+                                    Text("控制画廊页面的列数,当前值:$defaultGalleryWidth")
+                                },
+                                value = defaultGalleryWidth,
+                                valueRange = 2f..5f,
+                                steps = 2,
+                                onValueChange = {
+                                    defaultGalleryWidth = it
+                                }
+                            )
+                        }
+                        is AppConfig.Gallery.FixWidth -> {
+                            var defaultGalleryWidth by remember { mutableStateOf(it.size) }
+                            LaunchedEffect(defaultGalleryWidth) {
+                                AppConfig.galleryOptions = it.copy(size = defaultGalleryWidth)
+                            }
+                            SettingsSlider(
+                                title = {
+                                    Text("单列宽度")
+                                },
+                                subtitle = {
+                                    Text("控制画廊页面单列的大小,当前值:$defaultGalleryWidth")
+                                },
+                                value = defaultGalleryWidth.toFloat(),
+                                valueRange = 50f..1000f,
+                                steps = 949,
+                                onValueChange = {
+                                    defaultGalleryWidth = it.roundToInt()
+                                }
+                            )
+                        }
+                    }
+
+                }
+
 
                 var cacheSize by remember {
                     mutableStateOf(AppConfig.cacheSize.toFloat())

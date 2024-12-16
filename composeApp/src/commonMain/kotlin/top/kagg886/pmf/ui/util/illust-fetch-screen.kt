@@ -70,8 +70,14 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     }
                     return@PullToRefreshBox
                 }
+                val columns = remember {
+                    when (val it = AppConfig.galleryOptions) {
+                        is AppConfig.Gallery.FixColumnCount -> StaggeredGridCells.Fixed(it.size)
+                        is AppConfig.Gallery.FixWidth -> StaggeredGridCells.Adaptive(it.size.dp)
+                    }
+                }
                 LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(AppConfig.defaultGalleryWidth),
+                    columns = columns,
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
                     state = scroll
                 ) {
