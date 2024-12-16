@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
@@ -33,6 +35,7 @@ import top.kagg886.pmf.ui.util.SerializableWrapper
 import top.kagg886.pmf.ui.util.wrap
 
 class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target: ProfileItem) : Screen {
+    override val key: ScreenKey = uniqueScreenKey
     private val me by me
 
     constructor(me: SimpleMeProfile, target: ProfileItem = ProfileItem.ViewProfile) : this(wrap(me), target)
@@ -149,9 +152,35 @@ enum class ProfileItem(
         icon = Icons.AutoMirrored.Filled.ExitToApp,
         content = {
             val nav = LocalNavigator.currentOrThrow
-            LaunchedEffect(Unit) {
-                nav.replaceAll(LoginScreen(exitLogin = true))
-            }
+            AlertDialog(
+                onDismissRequest = {
+                    nav.pop()
+                },
+                title = {
+                    Text("确定退出登录？")
+                },
+                text = {
+                    Text("这会清除您在本机上的登录状态，确定要这么做吗？")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            nav.replaceAll(LoginScreen(exitLogin = true))
+                        }
+                    ) {
+                        Text("确定")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            nav.replace(ProfileScreen(it))
+                        }
+                    ) {
+                        Text("取消")
+                    }
+                }
+            )
         }
     )
 }

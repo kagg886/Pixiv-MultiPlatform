@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQ
 import androidx.compose.ui.layout.ContentScale
 import com.github.panpf.sketch.AsyncImage
 import com.github.panpf.sketch.ability.progressIndicator
+import com.github.panpf.sketch.painter.rememberMaskProgressPainter
 import com.github.panpf.sketch.painter.rememberRingProgressPainter
 import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ComposableImageRequest
@@ -35,7 +36,7 @@ fun ProgressedAsyncImage(
         },
         contentDescription = null,
         state = imageState,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
             .progressIndicator(imageState, progressPainter),
         alignment = alignment,
         contentScale = contentScale,
