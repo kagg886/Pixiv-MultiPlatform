@@ -231,7 +231,16 @@ compose.desktop {
             targetFormats(TargetFormat.Msi, TargetFormat.AppImage)
             packageName = rootProject.name
             packageVersion = pkgVersion
+
+            windows {
+                iconFile.set(project.file("icons/pixiv.ico"))
+            }
+
+            linux {
+                iconFile.set(project.file("icons/pixiv.png"))
+            }
         }
+
         buildTypes.release.proguard {
             isEnabled = false
         }
