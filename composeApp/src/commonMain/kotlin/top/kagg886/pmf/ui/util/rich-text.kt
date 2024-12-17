@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
@@ -143,7 +144,9 @@ fun RichText(
                     }
 
                     is NovelNodeElement.NewPage -> {
-                        appendInlineContent("page_${i.index}")
+                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
+                            appendInlineContent("page_${i.index}")
+                        }
                     }
 
                     is NovelNodeElement.Notation -> {
@@ -151,13 +154,13 @@ fun RichText(
                     }
 
                     is NovelNodeElement.UploadImage -> {
-                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH)) {
+                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
                             appendInlineContent("upload_${i.url.hashCode()}")
                         }
                     }
 
                     is NovelNodeElement.PixivImage -> {
-                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH)) {
+                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
                             appendInlineContent("pixiv_${i.illust.id}")
                         }
                     }
@@ -168,8 +171,10 @@ fun RichText(
 
                     is NovelNodeElement.Title -> {
                         appendLine()
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp)) {
-                            append(i.text)
+                        withStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp))) {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp)) {
+                                append(i.text)
+                            }
                         }
                         appendLine()
                     }
@@ -186,7 +191,8 @@ fun RichText(
         ) else LocalTextStyle.current,
         modifier = modifier.onGloballyPositioned {
             screenWidth = with(density) {
-                it.boundsInParent().width.toSp()
+                val offset = it.positionInParent()
+                (it.boundsInParent().width - offset.x).toSp()
             }
         }
     )

@@ -87,12 +87,8 @@ fun App() {
         LocalThemeSaver provides darkModeValue,
         LocalSnackBarHost provides remember { SnackbarHostState() },
     ) {
-        MaterialTheme(
-            colorScheme = when (darkModeValue.value) {
-                AppConfig.DarkMode.System -> if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()
-                AppConfig.DarkMode.Light -> lightColorScheme()
-                AppConfig.DarkMode.Dark -> darkColorScheme()
-            }
+        PixivMultiPlatformTheme(
+            darkModeValue.value
         ) {
             Surface(
                 color = MaterialTheme.colorScheme.background

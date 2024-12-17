@@ -1,10 +1,8 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -13,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
@@ -272,16 +271,16 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
 
             is NovelDetailViewState.Success -> {
-                Box(modifier.fillMaxWidth().padding(start = 15.dp, end = 8.dp)) {
+                Box(modifier.fillMaxWidth()) {
                     val scroll = rememberScrollState()
                     RichText(
                         state = state.nodeMap.toSortedMap().map { it.value },
-                        modifier = Modifier.padding(end = 7.dp).verticalScroll(scroll)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll)
                     )
 
                     VerticalScrollbar(
                         adapter = rememberScrollbarAdapter(scroll),
-                        modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).fillMaxHeight()
                     )
                 }
             }
