@@ -25,10 +25,13 @@ import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.copyImageToClipboard
+import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePreviewer(
     onDismiss: () -> Unit,
@@ -86,6 +89,41 @@ fun ImagePreviewer(
                 ) {
                     val snack = LocalSnackBarHost.current
                     val platform = LocalPlatformContext.current
+
+                    if (currentPlatform is Platform.Desktop) {
+                        DropdownMenuItem(
+                            text = {
+                                Text("复制到剪贴板")
+                            },
+                            leadingIcon = {
+                                Icon(Copy, null)
+                            },
+                            onClick = {
+                                scope.launch {
+                                    val cache = SingletonSketch.get(platform).downloadCache
+                                    val cacheKey = request[pagerState.currentPage].downloadCacheKey
+                                    val file = cache.withLock(cacheKey) {
+                                        openSnapshot(cacheKey)?.use { snapshot->
+                                            snapshot.data.toFile()
+                                        }
+                                    }
+                                    if (file == null) {
+                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                        return@launch
+                                    }
+                                    kotlin.runCatching {
+                                        copyImageToClipboard(file.readBytes())
+                                    }.onSuccess {
+                                        snack.showSnackbar("复制成功！")
+                                    }.onFailure {
+                                        snack.showSnackbar("复制失败：${it.message}")
+                                    }
+                                    showMenu = false
+                                }
+                            }
+                        )
+                    }
+
                     DropdownMenuItem(
                         text = {
                             Text("保存")

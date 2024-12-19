@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.room.Room
@@ -90,4 +91,8 @@ actual fun shareFile(file: File) {
         intent.setType("*/*")
         ContextCompat.startActivity(this, intent, null)
     }
+}
+
+actual fun copyImageToClipboard(bitmap: ByteArray) {
+    throw UnsupportedOperationException()
 }

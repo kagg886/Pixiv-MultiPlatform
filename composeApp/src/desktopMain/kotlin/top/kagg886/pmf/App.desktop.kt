@@ -7,17 +7,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import cafe.adriel.voyager.navigator.Navigator
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
-import top.kagg886.pmf.backend.database.AppDatabase
 import java.awt.Desktop
+import java.awt.Toolkit
+import java.awt.datatransfer.*
+import java.io.ByteArrayInputStream
 import java.io.File
-import javax.swing.JFileChooser
+import javax.imageio.ImageIO
 import kotlin.reflect.full.primaryConstructor
 
 @Composable
@@ -60,4 +56,42 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
 
 actual fun shareFile(file: File) {
     Desktop.getDesktop().open(file)
+}
+
+actual fun copyImageToClipboard(bitmap: ByteArray) {
+    Toolkit.getDefaultToolkit().systemClipboard.setContents(
+        TransferableImage(bitmap),
+        DesktopClipBoardOwner
+    )
+}
+
+private object DesktopClipBoardOwner:ClipboardOwner {
+    override fun lostOwnership(clipboard: Clipboard?, contents: Transferable?) = Unit
+}
+
+private data class TransferableImage(private val image: ByteArray) : Transferable {
+    override fun getTransferDataFlavors(): Array<DataFlavor> = arrayOf(DataFlavor.imageFlavor)
+
+    override fun isDataFlavorSupported(flavor: DataFlavor?): Boolean = flavor in transferDataFlavors
+
+    override fun getTransferData(flavor: DataFlavor?): Any {
+        if (flavor == DataFlavor.imageFlavor) {
+            return ImageIO.read(ByteArrayInputStream(image))
+        }
+        throw UnsupportedFlavorException(flavor)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TransferableImage
+
+        return image.contentEquals(other.image)
+    }
+
+    override fun hashCode(): Int {
+        return image.contentHashCode()
+    }
+
 }

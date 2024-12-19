@@ -467,6 +467,13 @@ class SettingScreen : Screen {
                 SettingsTextField(
                     value = customPixivImageHost,
                     onValueChange = {
+                        if (it.isEmpty()) {
+                            customPixivImageHost = ""
+                            scope.launch {
+                                snack.showSnackbar("已关闭自定义Pixiv Image代理")
+                            }
+                            return@SettingsTextField
+                        }
                         val url = it.toHttpUrlOrNull()
                         if (url == null) {
                             scope.launch {
