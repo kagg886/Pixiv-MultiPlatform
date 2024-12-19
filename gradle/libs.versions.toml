@@ -1,24 +1,24 @@
 [versions]
 agp = "8.7.3"
-androidx-lifecycle = "2.8.3"
-composeWebviewMultiplatform = "1.9.20"
+androidx-lifecycle = "2.8.4"
+composeWebviewMultiplatform = "1.9.20" #TODO 升级会导致ktor插件无法被加载，需要解决
 epublibCore = "3.1"
 filekitCompose = "0.8.7"
-jsoup = "1.18.1"
+jsoup = "1.18.3"
 kotlin = "2.0.21"
 kotlinx-coroutines = "1.9.0"
 kotlinxSerializationJson = "1.7.3"
 kxml2 = "2.3.0"
-multiplatformSettings = "1.2.0"
+multiplatformSettings = "1.3.0"
 orbitCore = "9.0.0"
 pixko = "1.9"
-room = "2.7.0-alpha11"
-sketchCompose = "4.0.0-alpha08"
-sqliteBundled = "2.5.0-alpha11"
+room = "2.7.0-alpha12"
+sketchCompose = "4.0.0"
+sqliteBundled = "2.5.0-alpha12"
 voyagerVersion = "1.1.0-beta03"
 ksp = "2.0.21-1.0.26"
 aboutlibraries = "11.2.3"
-zoomimageComposeSketch = "1.1.0-beta01"
+zoomimageComposeSketch = "1.1.0"
 compose-settings = "2.6.0"
 
 [libraries]
@@ -51,14 +51,14 @@ voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voy
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
 koin-core = { group = "io.insert-koin", name = "koin-core", version = "4.0.0" }
-zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch", version.ref = "zoomimageComposeSketch" }
+zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch4", version.ref = "zoomimageComposeSketch" }
 compose-settings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
 compose-settings-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version = "1.7.0" }
+jetbrainsCompose = { id = "org.jetbrains.compose", version = "1.7.1" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

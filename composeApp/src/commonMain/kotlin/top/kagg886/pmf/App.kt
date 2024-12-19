@@ -25,9 +25,11 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
+import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
 import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.ImageData
 import com.github.panpf.sketch.request.RequestInterceptor
+import com.github.panpf.sketch.request.supportPauseLoadWhenScrolling
 import kotlinx.coroutines.Dispatchers
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -188,7 +190,7 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
 
     components {
         val okhttp = getKoin().get<OkHttpClient>()
-        httpStack(OkHttpStack(okhttp))
+        supportOkHttpHttpUri(OkHttpStack(okhttp))
     }
     return build()
 }
