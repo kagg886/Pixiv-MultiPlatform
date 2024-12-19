@@ -1,17 +1,18 @@
 package top.kagg886.pmf.ui.route.main.setting
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalWindowInfo
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -19,16 +20,19 @@ import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
-import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.java.KoinJavaComponent.getKoin
+import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.LocalThemeSaver
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
+import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
+import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
@@ -52,16 +56,14 @@ class SettingScreen : Screen {
             }
             SettingsGroup(title = { Text("外观") }) {
                 var theme by LocalThemeSaver.current
-                var expand by remember { mutableStateOf(false) }
+
                 LaunchedEffect(theme) {
                     AppConfig.darkMode = theme
-                    expand = false
                 }
-                SettingsTileScaffold(
-                    title = {
-                        Text("显示模式")
-                    },
-                    subtitle = {
+
+                SettingsDropdownMenu<AppConfig.DarkMode>(
+                    title = { Text("显示模式") },
+                    subTitle = {
                         Text(
                             "当前为:${
                                 when (theme) {
@@ -72,96 +74,42 @@ class SettingScreen : Screen {
                             }"
                         )
                     },
-                    modifier = Modifier.clickable {
-                        expand = true
+                    optionsFormat = {
+                        when (it) {
+                            AppConfig.DarkMode.System -> "跟随系统"
+                            AppConfig.DarkMode.Light -> "日间模式"
+                            AppConfig.DarkMode.Dark -> "夜间模式"
+                        }
                     },
-                ) {
-                    DropdownMenu(
-                        expanded = expand,
-                        onDismissRequest = {
-                            expand = false
-                        },
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text("跟随系统")
-                            },
-                            onClick = {
-                                theme = AppConfig.DarkMode.System
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text("始终日间")
-                            },
-                            onClick = {
-                                theme = AppConfig.DarkMode.Light
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text("始终夜间")
-                            },
-                            onClick = {
-                                theme = AppConfig.DarkMode.Dark
-                            }
-                        )
-                    }
-                }
+                    current = theme,
+                    data = AppConfig.DarkMode.entries,
+                    onSelected = {
+                        theme = it
+                    },
+                )
             }
             SettingsGroup(
                 title = { Text(text = "画廊设置") },
             ) {
                 var data by remember { mutableStateOf(AppConfig.galleryOptions) }
-                var expand by remember { mutableStateOf(false) }
                 LaunchedEffect(data) {
                     AppConfig.galleryOptions = data
-                    expand = false
                 }
-                SettingsTileScaffold(
-                    title = {
-                        Text("列数计算方式")
-                    },
-                    subtitle = {
-                        Text("指定程序以什么样的方式计算画廊的列数")
-                    },
-                    modifier = Modifier.clickable {
-                        expand = true
-                    },
-                ) {
-                    Text(
-                        when (data) {
+                SettingsDropdownMenu(
+                    title = { Text("列数计算方式") },
+                    subTitle = { Text("指定程序以什么样的方式计算画廊的列数") },
+                    optionsFormat = {
+                        when (it) {
                             is AppConfig.Gallery.FixColumnCount -> "固定列数"
                             is AppConfig.Gallery.FixWidth -> "根据列宽计算"
                         }
-                    )
-                    DropdownMenu(
-                        expanded = expand,
-                        onDismissRequest = {
-                            expand = false
-                        },
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text("固定列数")
-                            },
-                            onClick = {
-                                data = AppConfig.Gallery.FixColumnCount(3)
-                                expand = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text("根据列宽计算")
-                            },
-                            onClick = {
-                                data = AppConfig.Gallery.FixWidth(100)
-                                expand = false
-                            }
-                        )
+                    },
+                    current = data,
+                    data = listOf(AppConfig.Gallery.FixColumnCount(3), AppConfig.Gallery.FixWidth(100)),
+                    onSelected = {
+                        data = it
                     }
-                }
-
+                )
                 AnimatedContent(
                     targetState = data
                 ) {
@@ -505,6 +453,37 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         byPassSni = it
+                    }
+                )
+
+                var customPixivImageHost by remember {
+                    mutableStateOf(AppConfig.customPixivImageHost)
+                }
+                LaunchedEffect(customPixivImageHost) {
+                    AppConfig.customPixivImageHost = customPixivImageHost
+                }
+                val snack = LocalSnackBarHost.current
+                val scope = rememberCoroutineScope()
+                SettingsTextField(
+                    value = customPixivImageHost,
+                    onValueChange = {
+                        val url = it.toHttpUrlOrNull()
+                        if (url == null) {
+                            scope.launch {
+                                snack.showSnackbar("请输入正确的URL")
+                            }
+                            return@SettingsTextField
+                        }
+                        customPixivImageHost = it
+                    },
+                    title = {
+                        Text("自定义Pixiv Image代理")
+                    },
+                    subTitle = {
+                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性")
+                    },
+                    dialogPlaceHolder = {
+                        Text("e.g. i.pximg.net")
                     }
                 )
             }

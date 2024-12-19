@@ -18,13 +18,13 @@ fun <T : Enum<T>> Settings.enumNullable(key: String? = null, enumClass: Class<T>
 
 
 private class EnumDelegate<T : Enum<T>>(
-    private val settings: Settings,
-    key: String?,
-    private val defaultValue: T
+    private val settings: Settings, key: String?, private val defaultValue: T
 ) : OptionalKeyDelegate<T>(key) {
     override fun getValue(key: String): T {
-        return kotlin.runCatching { java.lang.Enum.valueOf(defaultValue.javaClass, settings.get<String>(key)) }
-            .getOrElse { defaultValue }
+        val valueAsString = settings.get<String>(key) ?: return defaultValue
+        return kotlin.runCatching {
+            java.lang.Enum.valueOf(defaultValue.javaClass, valueAsString)
+        }.getOrElse { defaultValue }
     }
 
     override fun setValue(key: String, value: T) {
@@ -33,12 +33,11 @@ private class EnumDelegate<T : Enum<T>>(
 }
 
 private class EnumNullableDelegate<T : Enum<T>>(
-    private val settings: Settings,
-    key: String?,
-    private val enumClass: Class<T>
+    private val settings: Settings, key: String?, private val enumClass: Class<T>
 ) : OptionalKeyDelegate<T?>(key) {
     override fun getValue(key: String): T? {
-        return kotlin.runCatching { java.lang.Enum.valueOf(enumClass, settings.get<String>(key)) }.getOrNull()
+        val valueAsString = settings.get<String>(key) ?: return null
+        return kotlin.runCatching { java.lang.Enum.valueOf(enumClass, valueAsString) }.getOrNull()
     }
 
     override fun setValue(key: String, value: T?) {

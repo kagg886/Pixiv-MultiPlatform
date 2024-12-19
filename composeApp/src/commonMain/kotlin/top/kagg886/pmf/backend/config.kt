@@ -13,7 +13,7 @@ object SystemConfig {
             PropertiesSettings(
                 delegate = Properties().apply {
                     if (!f.exists()) {
-                        f.parentFile.mkdirs()
+                        f.parentFile!!.mkdirs()
                         f.createNewFile()
                     }
                     f.inputStream().use {

@@ -41,6 +41,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordSearchHistory by boolean("record_search", true)
 
     var byPassSNI by boolean("bypass_sni", false)
+    var customPixivImageHost by string("custom_pixiv_image_host","")
 
     var checkUpdateOnStart by boolean("check_update_on_start", true)
     var checkFailedToast by boolean("check_failed_toast", true)
@@ -48,7 +49,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
 
     enum class DarkMode {
-        Light,Dark,System
+        Light, Dark, System
     }
 
     @Serializable

@@ -5,7 +5,7 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 fun File.zip(target: File = File(this.parentFile,"${this.nameWithoutExtension}.zip")):File {
-    target.parentFile.mkdirs()
+    target.parentFile!!.mkdirs()
     target.createNewFile()
     val zip = ZipOutputStream(target.outputStream())
     zip.use {

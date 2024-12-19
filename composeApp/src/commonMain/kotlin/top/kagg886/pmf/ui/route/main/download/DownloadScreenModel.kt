@@ -27,32 +27,26 @@ import java.io.File
 fun DownloadItem.downloadRootPath(): File {
     return rootPath.resolve("download").resolve(id.toString())
 }
+
 class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSideEffect>, ViewModel(), ScreenModel,
     KoinComponent {
     private val database by inject<AppDatabase>()
 
-    private val net = OkHttpClient.Builder().apply {
-        ignoreSSL()
-        addNetworkInterceptor {
-            it.proceed(it.request().newBuilder().apply {
-                header("Referer", "https://www.pixiv.net/")
-            }.build())
-        }
-    }.build()
+    private val net by inject<OkHttpClient>()
 
     private val jobs = mutableMapOf<Long, Job>()
 
     @OptIn(OrbitExperimental::class)
-    fun startDownload(illust: Illust):Boolean {
+    fun startDownload(illust: Illust): Boolean {
         if (illust.id.toLong() in jobs.keys) {
             intent {
-                postSideEffect(DownloadScreenSideEffect.Toast("任务已存在且正在下载中，请前往下载页面查看",true))
+                postSideEffect(DownloadScreenSideEffect.Toast("任务已存在且正在下载中，请前往下载页面查看", true))
             }
             return false
         }
         jobs[illust.id.toLong()] = intent {
             runOn<DownloadScreenState.Loaded> {
-                postSideEffect(DownloadScreenSideEffect.Toast("下载已开始，是否跳转到下载页？",true))
+                postSideEffect(DownloadScreenSideEffect.Toast("下载已开始，是否跳转到下载页？", true))
                 val dao = database.downloadDAO()
                 //查找任务，若无则新建
                 val task = dao.find(illust.id.toLong())?.copy(success = false) ?: DownloadItem(
@@ -123,6 +117,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
         }
         return true
     }
+
     override val container: Container<DownloadScreenState, DownloadScreenSideEffect> =
         container(DownloadScreenState.Loading) {
             val data = database.downloadDAO().allSuspend()
@@ -144,5 +139,5 @@ sealed class DownloadScreenState {
 }
 
 sealed class DownloadScreenSideEffect {
-    data class Toast(val msg: String,val jump:Boolean = false) : DownloadScreenSideEffect()
+    data class Toast(val msg: String, val jump: Boolean = false) : DownloadScreenSideEffect()
 }

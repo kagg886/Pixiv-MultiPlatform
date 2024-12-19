@@ -51,13 +51,9 @@ fun OkHttpClient.Builder.bypassSNI() = dns(SNIBypassDNS).sslSocketFactory(Bypass
 internal object BypassTrustManager : X509TrustManager {
     @Suppress("TrustAllX509TrustManager")
     override fun checkClientTrusted(x509Certificates: Array<X509Certificate>, s: String) = Unit
-
     @Suppress("TrustAllX509TrustManager")
     override fun checkServerTrusted(x509Certificates: Array<X509Certificate>, s: String) = Unit
-
-    override fun getAcceptedIssuers(): Array<X509Certificate> {
-        return arrayOf()
-    }
+    override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
 }
 
 internal object BypassSSLSocketFactory : SSLSocketFactory() {

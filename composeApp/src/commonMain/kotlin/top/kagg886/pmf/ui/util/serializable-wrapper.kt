@@ -30,6 +30,7 @@ class SerializableWrapper<T : Any> : Externalizable {
     }
 
     @OptIn(InternalSerializationApi::class)
+    @Suppress("UNCHECKED_CAST")
     override fun readExternal(input: ObjectInput) {
         clazz = Class.forName(input.readUTF()).kotlin as KClass<T>
         value = Json.decodeFromString(clazz!!.serializer(), input.readUTF())

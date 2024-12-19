@@ -29,12 +29,15 @@ import com.github.panpf.sketch.http.OkHttpStack
 import com.github.panpf.sketch.request.ImageData
 import com.github.panpf.sketch.request.RequestInterceptor
 import kotlinx.coroutines.Dispatchers
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Path.Companion.toOkioPath
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
@@ -66,7 +69,9 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.bypassSNI
+import top.kagg886.pmf.util.ignoreSSL
 import java.io.File
+import kotlin.math.sin
 import kotlin.reflect.KClass
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
@@ -182,38 +187,8 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
     )
 
     components {
-        httpStack(
-            OkHttpStack(
-                OkHttpClient.Builder().apply {
-                    if (AppConfig.byPassSNI) {
-                        bypassSNI()
-                    }
-                    addNetworkInterceptor {
-                        val resp = it.proceed(it.request())
-                        //防止connection leak
-                        val content = resp.body?.byteStream()?.use { stream ->
-                            stream.readBytes()
-                        }
-                        resp.newBuilder()
-                            .body(content?.toResponseBody(resp.body?.contentType()))
-                            .build()
-                    }
-                }.build()
-            )
-        )
-
-        addRequestInterceptor(object : RequestInterceptor {
-            override val key: String? = null
-            override val sortWeight: Int = 0
-
-            override suspend fun intercept(chain: RequestInterceptor.Chain): Result<ImageData> {
-                val newRequest = chain.request.newRequest {
-                    setHttpHeader("Referer", "https://www.pixiv.net/")
-                }
-                return chain.proceed(newRequest)
-            }
-
-        })
+        val okhttp = getKoin().get<OkHttpClient>()
+        httpStack(OkHttpStack(okhttp))
     }
     return build()
 }
@@ -258,6 +233,40 @@ fun startKoin0() {
             //pixiv
             module {
                 single { PixivTokenStorage() }
+                single {
+                    OkHttpClient.Builder().apply {
+                        if (AppConfig.byPassSNI) {
+                            bypassSNI()
+                        }
+                        ignoreSSL()
+                        addInterceptor {
+                            val request = it.request().newBuilder()
+                            with(AppConfig.customPixivImageHost) {
+                                if (isNotBlank()) {
+                                    val originUrl = it.request().url
+                                    request.url(
+                                        this.toHttpUrl().newBuilder()
+                                            .encodedPath(originUrl.encodedPath)
+                                            .encodedQuery(originUrl.encodedQuery)
+                                            .build()
+                                    )
+                                }
+                            }
+                            request.header("Referer", "https://www.pixiv.net/")
+                            it.proceed(request.build())
+                        }
+                        addNetworkInterceptor {
+                            val resp = it.proceed(it.request())
+                            //防止connection leak
+                            val content = resp.body?.byteStream()?.use { stream ->
+                                stream.readBytes()
+                            }
+                            resp.newBuilder()
+                                .body(content?.toResponseBody(resp.body?.contentType()))
+                                .build()
+                        }
+                    }.build()
+                }
             },
 
             //data base
@@ -281,6 +290,7 @@ fun startKoin0() {
         )
     }
 }
+
 expect fun shareFile(file: File)
 
 enum class NavigationItem(val title: String, val icon: ImageVector, val screenClass: KClass<out Screen>) {

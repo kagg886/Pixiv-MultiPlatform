@@ -13,6 +13,7 @@ class CrashActivity : ComponentActivity() {
         val ex = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getSerializableExtra("exceptions", Throwable::class.java)!!
         } else {
+            @Suppress("DEPRECATION")
             intent.getSerializableExtra("exceptions") as Throwable
         }
         setContent {
