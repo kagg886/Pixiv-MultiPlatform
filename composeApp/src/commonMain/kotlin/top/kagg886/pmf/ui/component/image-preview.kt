@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.copyImageToClipboard
+import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
@@ -153,6 +155,34 @@ fun ImagePreviewer(
                             }
                         }
                     )
+
+                    if (currentPlatform is Platform.Android) {
+                        DropdownMenuItem(
+                            text = {
+                                Text("分享")
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Share,null)
+                            },
+                            onClick = {
+                                scope.launch {
+                                    val cache = SingletonSketch.get(platform).downloadCache
+                                    val cacheKey = request[pagerState.currentPage].downloadCacheKey
+                                    val file = cache.withLock(cacheKey) {
+                                        openSnapshot(cacheKey)?.use { snapshot->
+                                            snapshot.data.toFile()
+                                        }
+                                    }
+                                    if (file == null) {
+                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                        return@launch
+                                    }
+                                    shareFile(file)
+                                    showMenu = false
+                                }
+                            }
+                        )
+                    }
                 }
             }
 

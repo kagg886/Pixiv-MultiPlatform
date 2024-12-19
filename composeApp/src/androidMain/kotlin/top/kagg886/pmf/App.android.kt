@@ -76,15 +76,28 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun shareFile(file: File) {
+actual fun shareFile(file: File, name: String) {
     with(PMFApplication.getApp()) {
+        val cache = cacheDir.resolve("share").resolve(name)
+
+        if (!cache.exists()) {
+            cache.parentFile?.mkdirs()
+            cache.createNewFile()
+        }
+
+        file.inputStream().use { i->
+            cache.outputStream().use { o->
+                i.copyTo(o)
+            }
+        }
+
         val intent = Intent("android.intent.action.SEND")
         intent.putExtra(
             "android.intent.extra.STREAM",
             FileProvider.getUriForFile(
                 this,
                 "${BuildConfig.APP_BASE_PACKAGE}.fileprovider",
-                file
+                cache
             )
         )
         intent.flags = FLAG_ACTIVITY_NEW_TASK

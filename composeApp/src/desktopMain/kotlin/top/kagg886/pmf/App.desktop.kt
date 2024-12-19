@@ -54,7 +54,7 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun shareFile(file: File) {
+actual fun shareFile(file: File, name: String) {
     Desktop.getDesktop().open(file)
 }
 
@@ -65,7 +65,7 @@ actual fun copyImageToClipboard(bitmap: ByteArray) {
     )
 }
 
-private object DesktopClipBoardOwner:ClipboardOwner {
+private object DesktopClipBoardOwner : ClipboardOwner {
     override fun lostOwnership(clipboard: Clipboard?, contents: Transferable?) = Unit
 }
 

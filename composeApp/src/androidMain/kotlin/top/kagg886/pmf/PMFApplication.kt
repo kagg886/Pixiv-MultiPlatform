@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
@@ -57,12 +58,13 @@ class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtEx
     }
 
     override fun uncaughtException(t: Thread, e: Throwable) {
-       thread {
-           val i = Intent(this, CrashActivity::class.java)
-           i.putExtra("exceptions", e)
-           i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-           startActivity(i)
-           android.os.Process.killProcess(android.os.Process.myPid());
-       }
+        Log.e("uncaughtException", "App crashed", e)
+        thread {
+            val i = Intent(this, CrashActivity::class.java)
+            i.putExtra("exceptions", e)
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(i)
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 }
