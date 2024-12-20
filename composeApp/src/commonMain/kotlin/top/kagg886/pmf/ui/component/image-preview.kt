@@ -21,10 +21,15 @@ import androidx.compose.ui.window.DialogProperties
 import com.github.panpf.sketch.LocalPlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.cache.downloadCacheKey
+import com.github.panpf.sketch.painter.rememberEquitablePainterResource
+import com.github.panpf.sketch.painter.rememberIconAnimatablePainter
+import com.github.panpf.sketch.rememberAsyncImagePainter
+import com.github.panpf.sketch.request.ComposableImageRequest
 import com.github.panpf.sketch.request.ImageRequest
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.*
 import top.kagg886.pmf.Res
@@ -34,6 +39,7 @@ import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ImagePreviewer(
     onDismiss: () -> Unit,
@@ -98,14 +104,18 @@ fun ImagePreviewer(
                                 Text("复制到剪贴板")
                             },
                             leadingIcon = {
-                                Icon(painter = painterResource(Res.drawable.copy), null)
+                                Icon(painter =  rememberAsyncImagePainter(
+                                    request = ComposableImageRequest(
+                                        uri = Res.getUri("drawable/copy.svg")
+                                    )
+                                ), null)
                             },
                             onClick = {
                                 scope.launch {
                                     val cache = SingletonSketch.get(platform).downloadCache
                                     val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                     val file = cache.withLock(cacheKey) {
-                                        openSnapshot(cacheKey)?.use { snapshot->
+                                        openSnapshot(cacheKey)?.use { snapshot ->
                                             snapshot.data.toFile()
                                         }
                                     }
@@ -138,7 +148,7 @@ fun ImagePreviewer(
                                 val cache = SingletonSketch.get(platform).downloadCache
                                 val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                 val file = cache.withLock(cacheKey) {
-                                    openSnapshot(cacheKey)?.use { snapshot->
+                                    openSnapshot(cacheKey)?.use { snapshot ->
                                         snapshot.data.toFile()
                                     }
                                 }
@@ -149,7 +159,7 @@ fun ImagePreviewer(
                                 FileKit.saveFile(
                                     bytes = file.readBytes(),
                                     extension = "png",
-                                    baseName = URI.create(url[pagerState.currentPage]).path.replace("/","_")
+                                    baseName = URI.create(url[pagerState.currentPage]).path.replace("/", "_")
                                 )
                                 showMenu = false
                             }
@@ -162,14 +172,14 @@ fun ImagePreviewer(
                                 Text("分享")
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Share,null)
+                                Icon(Icons.Default.Share, null)
                             },
                             onClick = {
                                 scope.launch {
                                     val cache = SingletonSketch.get(platform).downloadCache
                                     val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                     val file = cache.withLock(cacheKey) {
-                                        openSnapshot(cacheKey)?.use { snapshot->
+                                        openSnapshot(cacheKey)?.use { snapshot ->
                                             snapshot.data.toFile()
                                         }
                                     }

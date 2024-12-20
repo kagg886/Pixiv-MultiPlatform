@@ -114,6 +114,8 @@ kotlin {
 
             //image-loader
             implementation(libs.sketch.compose)
+            implementation(libs.sketch.svg)
+            implementation(libs.sketch.resources)
             implementation(libs.sketch.extensions.compose)
             implementation(libs.sketch.http.okhttp)
             implementation(libs.zoomimage.compose.sketch)

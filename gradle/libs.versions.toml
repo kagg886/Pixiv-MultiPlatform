@@ -43,6 +43,8 @@ multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", vers
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
 pixko = { module = "top.kagg886:pixko", version.ref = "pixko" }
+sketch-svg = { module = "io.github.panpf.sketch4:sketch-svg", version.ref = "sketchCompose" }
+sketch-resources = { module = "io.github.panpf.sketch4:sketch-compose-resources", version.ref = "sketchCompose" }
 sketch-extensions-compose = { module = "io.github.panpf.sketch4:sketch-extensions-compose", version.ref = "sketchCompose" }
 sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "sketchCompose" }
 sketch-http-okhttp = { module = "io.github.panpf.sketch4:sketch-http-okhttp", version.ref = "sketchCompose" }

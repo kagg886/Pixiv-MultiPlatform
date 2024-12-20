@@ -27,7 +27,13 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import com.github.panpf.sketch.fetch.ComposeResourceUriFetcher
+import com.github.panpf.sketch.painter.rememberEquitablePainterResource
+import com.github.panpf.sketch.painter.rememberIconPainter
+import com.github.panpf.sketch.rememberAsyncImagePainter
+import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
@@ -179,7 +185,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
     @Composable
     private fun IllustPreview(illust: Illust) {
         val img by remember(illust.hashCode()) {
@@ -275,7 +281,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Icon(
-                                            painter = painterResource(Res.drawable.view),
+                                            painter = rememberAsyncImagePainter(
+                                                request = ComposableImageRequest(
+                                                    uri = Res.getUri("drawable/view.svg")
+                                                )
+                                            ),
                                             contentDescription = null,
                                             modifier = Modifier.size(30.dp)
                                         )

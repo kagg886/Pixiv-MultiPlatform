@@ -18,7 +18,6 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.IllustImagesType
-import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.loadImage
@@ -30,8 +29,6 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailSideEffect
-import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailViewState
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import java.io.ByteArrayOutputStream
@@ -56,7 +53,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         }
         if (result.isFailure) {
             result.exceptionOrNull()?.printStackTrace()
-            reduce { NovelDetailViewState.Error }
+            reduce { NovelDetailViewState.Error() }
             return@intent
         }
         val (detail, content) = result.getOrThrow()
@@ -64,9 +61,20 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 
         val nodeMap = linkedMapOf<Int, NovelNodeElement>()
 
+        val data = kotlin.runCatching {
+            content.data
+        }
+
+        if (data.isFailure) {
+            reduce {
+                NovelDetailViewState.Error("小说:${id}的正文解析失败惹")
+            }
+            return@intent
+        }
+
         //异步获取image
         coroutineScope {
-            for ((index, i) in content.data.withIndex()) {
+            for ((index, i) in data.getOrThrow().withIndex()) {
                 when (i) {
                     is PlainTextNode -> {
                         nodeMap[index] = NovelNodeElement.Plain(i.text)
@@ -305,7 +313,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 
 sealed class NovelDetailViewState {
     data object Loading : NovelDetailViewState()
-    data object Error : NovelDetailViewState()
+    data class Error(val cause: String = "加载失败惹~") : NovelDetailViewState()
     data class Success(val novel: Novel, val core: NovelData, val nodeMap: Map<Int, NovelNodeElement>) :
         NovelDetailViewState()
 }

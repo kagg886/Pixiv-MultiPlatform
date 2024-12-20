@@ -21,7 +21,14 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import com.github.panpf.sketch.fetch.ComposeResourceUriFetcher
+import com.github.panpf.sketch.fetch.newComposeResourceUri
+import com.github.panpf.sketch.painter.rememberEquitablePainterResource
+import com.github.panpf.sketch.painter.rememberIconPainter
+import com.github.panpf.sketch.rememberAsyncImagePainter
+import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
@@ -133,10 +140,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalLayoutApi::class)
+    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         when (state) {
-            NovelDetailViewState.Error -> ErrorPage(text = "加载失败惹~！") {
+            is NovelDetailViewState.Error -> ErrorPage(text = state.cause) {
                 model.reload()
             }
 
@@ -148,7 +155,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
                 TabContainer(
                     state = page.page,
-                    tab = listOf("简介", "评论")
+                    tab = listOf("简介", "评论:${state.novel.totalComments}")
                 ) {
                     when (it) {
                         0 -> {
@@ -216,7 +223,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     ) {
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Icon(
-                                                painter = painterResource(Res.drawable.view),
+                                                painter =  rememberAsyncImagePainter(
+                                                    request = ComposableImageRequest(
+                                                        uri = Res.getUri("drawable/view.svg")
+                                                    )
+                                                ),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(30.dp)
                                             )
@@ -299,8 +310,8 @@ class NovelDetailScreen(private val id: Long) : Screen {
     @Composable
     private fun NovelDetailContent(model: NovelDetailViewModel, state: NovelDetailViewState, modifier: Modifier) {
         when (state) {
-            NovelDetailViewState.Error -> {
-                ErrorPage(modifier, text = "加载失败惹~！") {
+            is NovelDetailViewState.Error -> {
+                ErrorPage(modifier, text = state.cause) {
                     model.reload()
                 }
             }
