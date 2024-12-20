@@ -18,15 +18,20 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.loadImage
 import top.kagg886.pixko.module.novel.*
 import top.kagg886.pixko.module.novel.parser.*
+import top.kagg886.pixko.module.user.followUser
+import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailSideEffect
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailViewState
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import java.io.ByteArrayOutputStream
@@ -36,13 +41,13 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
     override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
         container(NovelDetailViewState.Loading) {
-            loadByNovelId(id)
+            reload()
         }
     private val client = PixivConfig.newAccountFromConfig()
 
     private val database by inject<AppDatabase>()
 
-    fun loadByNovelId(id: Long) = intent {
+    fun reload() = intent {
         reduce {
             NovelDetailViewState.Loading
         }
@@ -208,6 +213,92 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                 baseName = state.novel.title
             )
 
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun likeNovel() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.bookmarkNovel(id)
+            }
+
+            if (result.isFailure) {
+                postSideEffect(NovelDetailSideEffect.Toast("收藏失败~"))
+                return@runOn
+            }
+            reduce {
+                state.copy(
+                    novel = state.novel.copy(isBookmarked = true)
+                )
+            }
+            postSideEffect(NovelDetailSideEffect.Toast("收藏成功~"))
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun disLikeNovel() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.deleteBookmarkNovel(id)
+            }
+
+            if (result.isFailure) {
+                postSideEffect(NovelDetailSideEffect.Toast("取消收藏失败~"))
+                return@runOn
+            }
+            reduce {
+                state.copy(
+                    novel = state.novel.copy(isBookmarked = false)
+                )
+            }
+            postSideEffect(NovelDetailSideEffect.Toast("取消收藏成功~"))
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun followUser() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.followUser(state.novel.user.id)
+            }
+            if (result.isFailure) {
+                postSideEffect(NovelDetailSideEffect.Toast("关注失败~"))
+                return@runOn
+            }
+            postSideEffect(NovelDetailSideEffect.Toast("关注成功~"))
+            reduce {
+                state.copy(
+                    novel = state.novel.copy(
+                        user = state.novel.user.copy(
+                            isFollowed = true
+                        )
+                    )
+                )
+            }
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun unFollowUser() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val result = kotlin.runCatching {
+                client.unFollowUser(state.novel.user.id)
+            }
+            if (result.isFailure) {
+                postSideEffect(NovelDetailSideEffect.Toast("取关失败~(*^▽^*)"))
+                return@runOn
+            }
+            postSideEffect(NovelDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            reduce {
+                state.copy(
+                    novel = state.novel.copy(
+                        user = state.novel.user.copy(
+                            isFollowed = false
+                        )
+                    )
+                )
+            }
         }
     }
 }

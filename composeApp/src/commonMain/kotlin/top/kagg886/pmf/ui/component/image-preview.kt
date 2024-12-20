@@ -25,12 +25,12 @@ import com.github.panpf.sketch.request.ImageRequest
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.LocalSnackBarHost
+import org.jetbrains.compose.resources.painterResource
+import top.kagg886.pmf.*
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.copyImageToClipboard
-import top.kagg886.pmf.shareFile
-import top.kagg886.pmf.ui.component.icon.Copy
+import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
 
@@ -98,7 +98,7 @@ fun ImagePreviewer(
                                 Text("复制到剪贴板")
                             },
                             leadingIcon = {
-                                Icon(Copy, null)
+                                Icon(painter = painterResource(Res.drawable.copy), null)
                             },
                             onClick = {
                                 scope.launch {

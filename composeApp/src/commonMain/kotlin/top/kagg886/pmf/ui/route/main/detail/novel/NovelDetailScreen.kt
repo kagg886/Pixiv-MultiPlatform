@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
@@ -23,15 +22,17 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
-import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchTab
 import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.view
 
 
 class NovelDetailScreen(private val id: Long) : Screen {
@@ -136,7 +137,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         when (state) {
             NovelDetailViewState.Error -> ErrorPage(text = "加载失败惹~！") {
-                model.loadByNovelId(id)
+                model.reload()
             }
 
             NovelDetailViewState.Loading -> Loading()
@@ -172,68 +173,107 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                     preview = true
                                                 }
                                         )
+                                        Spacer(Modifier.height(8.dp))
                                         Text(
                                             text = state.novel.title,
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                                .padding(top = 16.dp),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(horizontal = 8.dp),
                                             style = MaterialTheme.typography.titleLarge
                                         )
-                                        Text(
-                                            text = state.novel.caption,
-                                            modifier = Modifier.fillMaxWidth(0.8f)
-                                                .align(Alignment.CenterHorizontally)
-                                                .padding(top = 16.dp),
+                                        Spacer(Modifier.height(8.dp))
+                                        AuthorCard(
+                                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                                                .fillMaxWidth(0.8f),
+                                            state.novel.user,
+                                            onFavoriteClick = {
+                                                if (it) {
+                                                    model.followUser().join()
+                                                    return@AuthorCard
+                                                }
+                                                model.unFollowUser().join()
+                                            }
                                         )
+                                    }
+                                }
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider()
+                                    Spacer(Modifier.height(16.dp))
+                                }
+                                item {
+                                    OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {
-                                                Text(state.novel.user.name)
-                                            },
-                                            supportingContent = {
-                                                Text(
-                                                    state.novel.user.comment?.lines()?.first()
-                                                        ?.takeIf { it.isNotEmpty() }
-                                                        ?: "没有简介")
-                                            },
-                                            leadingContent = {
-                                                ProgressedAsyncImage(
-                                                    url = state.novel.user.profileImageUrls.content,
-                                                    modifier = Modifier.size(35.dp)
-                                                )
-                                            },
-                                            modifier = Modifier
-                                                .padding(16.dp)
-                                                .align(Alignment.CenterHorizontally)
-                                                .fillMaxWidth(0.8f)
-                                                .clickable {
-                                                    nav.push(AuthorScreen(state.novel.user.id))
-                                                }
+                                                Text(state.novel.caption)
+                                            }
                                         )
                                     }
                                 }
                                 item {
-                                    HorizontalDivider()
-                                }
-                                item {
-                                    FlowRow(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    Row(
+                                        Modifier.fillMaxSize().padding(horizontal = 64.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        for (tag in state.novel.tags) {
-                                            AssistChip(
-                                                label = {
-                                                    Text(text = tag.name)
-                                                },
-                                                onClick = {
-                                                    nav.push(
-                                                        SearchScreen(
-                                                            initialKeyWords = tag.name,
-                                                            tab = SearchTab.NOVEL
-                                                        )
-                                                    )
-                                                }
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Icon(
+                                                painter = painterResource(Res.drawable.view),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(30.dp)
                                             )
+                                            Text(state.novel.totalView.toString())
+                                        }
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            FavoriteButton(
+                                                isFavorite = state.novel.isBookmarked,
+                                                modifier = Modifier.size(30.dp)
+                                            ) {
+                                                if (it == FavoriteState.Favorite) {
+                                                    model.likeNovel().join()
+                                                    return@FavoriteButton
+                                                }
+                                                if (it == FavoriteState.NotFavorite) {
+                                                    model.disLikeNovel().join()
+                                                    return@FavoriteButton
+                                                }
+                                            }
+                                            Text(state.novel.totalBookmarks.toString())
                                         }
                                     }
+                                }
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                    HorizontalDivider()
+                                    Spacer(Modifier.height(16.dp))
+                                }
+                                item {
+                                    ListItem(
+                                        modifier = Modifier.padding(horizontal = 8.dp),
+                                        headlineContent = {
+                                            Text("标签")
+                                        },
+                                        supportingContent = {
+                                            FlowRow(
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            ) {
+                                                for (tag in state.novel.tags) {
+                                                    AssistChip(
+                                                        label = {
+                                                            Text(text = tag.name)
+                                                        },
+                                                        onClick = {
+                                                            nav.push(
+                                                                SearchScreen(
+                                                                    initialKeyWords = tag.name,
+                                                                    tab = SearchTab.NOVEL
+                                                                )
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            }
+
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -261,7 +301,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
         when (state) {
             NovelDetailViewState.Error -> {
                 ErrorPage(modifier, text = "加载失败惹~！") {
-                    model.loadByNovelId(id)
+                    model.reload()
                 }
             }
 
