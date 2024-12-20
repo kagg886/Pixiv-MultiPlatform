@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -27,14 +25,10 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.fetch.ComposeResourceUriFetcher
-import com.github.panpf.sketch.painter.rememberEquitablePainterResource
-import com.github.panpf.sketch.painter.rememberIconPainter
 import com.github.panpf.sketch.rememberAsyncImagePainter
 import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -43,7 +37,6 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
-import top.kagg886.pmf.copy
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
@@ -51,7 +44,8 @@ import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.*
-import top.kagg886.pmf.view
+import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.wrap
 
 //class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {

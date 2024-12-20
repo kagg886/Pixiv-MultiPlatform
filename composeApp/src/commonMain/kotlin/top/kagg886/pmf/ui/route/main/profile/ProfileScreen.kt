@@ -31,8 +31,8 @@ import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
-import top.kagg886.pmf.ui.util.SerializableWrapper
-import top.kagg886.pmf.ui.util.wrap
+import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.wrap
 
 class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target: ProfileItem) : Screen {
     override val key: ScreenKey = uniqueScreenKey

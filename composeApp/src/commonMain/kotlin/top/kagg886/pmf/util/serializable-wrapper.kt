@@ -1,4 +1,4 @@
-package top.kagg886.pmf.ui.util
+package top.kagg886.pmf.util
 
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
