@@ -1,6 +1,7 @@
 package top.kagg886.pmf.backend
 
 import com.russhwolf.settings.*
+import com.russhwolf.settings.serialization.nullableSerializedValue
 import com.russhwolf.settings.serialization.serializedValue
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Polymorphic
@@ -9,10 +10,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
+import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.enum
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
     var darkMode by enum("dark_mode", DarkMode.System)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
+    var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")
 
 //    var defaultGalleryWidth by int("default_gallery_size", if (currentPlatform.useWideScreenMode) 3 else 2)
 

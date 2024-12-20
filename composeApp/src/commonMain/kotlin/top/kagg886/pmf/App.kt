@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -14,9 +13,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.room.RoomDatabase
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -27,11 +24,7 @@ import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
 import com.github.panpf.sketch.http.OkHttpStack
-import com.github.panpf.sketch.request.ImageData
-import com.github.panpf.sketch.request.RequestInterceptor
-import com.github.panpf.sketch.request.supportPauseLoadWhenScrolling
 import kotlinx.coroutines.Dispatchers
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -42,7 +35,6 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
@@ -50,7 +42,6 @@ import top.kagg886.pmf.backend.rootPath
 import top.kagg886.pmf.ui.component.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
-import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
 import top.kagg886.pmf.ui.route.main.history.HistoryIllustViewModel
@@ -70,17 +61,19 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
-import top.kagg886.pmf.util.bypassSNI
-import top.kagg886.pmf.util.ignoreSSL
+import top.kagg886.pmf.util.*
 import java.io.File
-import kotlin.math.sin
 import kotlin.reflect.KClass
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
 }
 
-val LocalThemeSaver = compositionLocalOf<MutableState<AppConfig.DarkMode>> {
+val LocalDarkSettings = compositionLocalOf<MutableState<AppConfig.DarkMode>> {
+    error("not provided")
+}
+
+val LocalColorScheme = compositionLocalOf<MutableState<SerializedTheme?>> {
     error("not provided")
 }
 
@@ -90,13 +83,24 @@ fun App() {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
+    val colorSchemeValue = remember {
+        mutableStateOf<SerializedTheme?>(AppConfig.colorScheme ?: lightColorScheme().toSerialized())
+    }
     CompositionLocalProvider(
-        LocalThemeSaver provides darkModeValue,
+        LocalDarkSettings provides darkModeValue,
+        LocalColorScheme provides colorSchemeValue,
         LocalSnackBarHost provides remember { SnackbarHostState() },
     ) {
-        PixivMultiPlatformTheme(
-            darkModeValue.value
-        ) {
+        val currentThemeSerialized by LocalColorScheme.current
+        val lightTheme = remember(currentThemeSerialized) {
+            currentThemeSerialized?.toColorScheme() ?: lightColorScheme()
+        }
+        val theme = when (darkModeValue.value) {
+            AppConfig.DarkMode.System -> if (isSystemInDarkTheme()) darkColorScheme() else lightTheme
+            AppConfig.DarkMode.Light -> lightTheme
+            AppConfig.DarkMode.Dark -> darkColorScheme()
+        }
+        PixivMultiPlatformTheme(colorScheme = theme) {
             Surface(
                 color = MaterialTheme.colorScheme.background
             ) {

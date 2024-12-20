@@ -7,12 +7,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.style.TextDecoration
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -24,19 +23,23 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.*
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.koin.java.KoinJavaComponent.getKoin
+import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.LocalThemeSaver
+import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
+import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
+import top.kagg886.pmf.util.SerializedTheme
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
@@ -55,10 +58,10 @@ class SettingScreen : Screen {
                 )
             }
             SettingsGroup(title = { Text("外观") }) {
-                var theme by LocalThemeSaver.current
+                var darkMode by LocalDarkSettings.current
 
-                LaunchedEffect(theme) {
-                    AppConfig.darkMode = theme
+                LaunchedEffect(darkMode) {
+                    AppConfig.darkMode = darkMode
                 }
 
                 SettingsDropdownMenu<AppConfig.DarkMode>(
@@ -66,7 +69,7 @@ class SettingScreen : Screen {
                     subTitle = {
                         Text(
                             "当前为:${
-                                when (theme) {
+                                when (darkMode) {
                                     AppConfig.DarkMode.System -> "跟随系统"
                                     AppConfig.DarkMode.Light -> "日间模式"
                                     AppConfig.DarkMode.Dark -> "夜间模式"
@@ -81,16 +84,73 @@ class SettingScreen : Screen {
                             AppConfig.DarkMode.Dark -> "夜间模式"
                         }
                     },
-                    current = theme,
+                    current = darkMode,
                     data = AppConfig.DarkMode.entries,
                     onSelected = {
-                        theme = it
+                        darkMode = it
                     },
                 )
+
+                val scope = rememberCoroutineScope()
+                val snack = LocalSnackBarHost.current
+
+                var colorScheme by LocalColorScheme.current
+                LaunchedEffect(colorScheme) {
+                    AppConfig.colorScheme = colorScheme
+                }
+
+                SettingsFileUpload(
+                    title = { Text("设置主题") },
+                    subTitle = {
+                        val colors = MaterialTheme.colorScheme
+                        Text(
+                            buildAnnotatedString {
+                                append("请前往")
+                                withLink(
+                                    LinkAnnotation.Url(
+                                        url = "https://material-foundation.github.io/material-theme-builder/",
+                                        styles = TextLinkStyles(
+                                            style = SpanStyle(color = colors.primary),
+                                            hoveredStyle = SpanStyle(
+                                                color = colors.primaryContainer,
+                                                textDecoration = TextDecoration.Underline
+                                            ),
+                                        )
+                                    ),
+                                ) {
+                                    append("https://material-foundation.github.io/material-theme-builder/")
+                                }
+                                appendLine("下载主题")
+                                append("导出的格式只有为json时才能正确解析！")
+                            }
+                        )
+                    }
+                ) {
+                    val theme = kotlin.runCatching {
+                        val j = Json {
+                            ignoreUnknownKeys = true
+                        }
+                        Json.decodeFromString<JsonObject>(it.decodeToString())["schemes"]!!.jsonObject["light"]!!.jsonObject.let {
+                            j.decodeFromJsonElement<SerializedTheme>(it)
+                        }
+                    }
+                    if (theme.isFailure) {
+                        scope.launch {
+                            snack.showSnackbar("无法导入主题，原因：${theme.exceptionOrNull()!!.message}")
+                        }
+                        return@SettingsFileUpload
+                    }
+                    colorScheme = theme.getOrThrow()
+                }
+
+                SettingsMenuLink(
+                    title = { Text("还原主题") },
+                    subtitle = { Text("将主题重置为默认") },
+                    onClick = { colorScheme = null },
+                    enabled = colorScheme != null
+                )
             }
-            SettingsGroup(
-                title = { Text(text = "画廊设置") },
-            ) {
+            SettingsGroup(title = { Text(text = "画廊设置") }) {
                 var data by remember { mutableStateOf(AppConfig.galleryOptions) }
                 LaunchedEffect(data) {
                     AppConfig.galleryOptions = data
@@ -134,6 +194,7 @@ class SettingScreen : Screen {
                                 }
                             )
                         }
+
                         is AppConfig.Gallery.FixWidth -> {
                             var defaultGalleryWidth by remember { mutableStateOf(it.size) }
                             LaunchedEffect(defaultGalleryWidth) {
@@ -247,9 +308,7 @@ class SettingScreen : Screen {
                     }
                 )
             }
-            SettingsGroup(
-                title = { Text("小说设置") }
-            ) {
+            SettingsGroup(title = { Text("小说设置") }) {
                 var filterAiNovel by remember {
                     mutableStateOf(AppConfig.filterAiNovel)
                 }
@@ -374,9 +433,7 @@ class SettingScreen : Screen {
                     }
                 )
             }
-            SettingsGroup(
-                title = { Text(text = "历史记录") }
-            ) {
+            SettingsGroup(title = { Text(text = "历史记录") }) {
                 var recordIllustHistory by remember {
                     mutableStateOf(AppConfig.recordIllustHistory)
                 }
@@ -434,9 +491,7 @@ class SettingScreen : Screen {
                     }
                 )
             }
-            SettingsGroup(
-                title = { Text(text = "网络设置") }
-            ) {
+            SettingsGroup(title = { Text(text = "网络设置") }) {
                 var byPassSni by remember {
                     mutableStateOf(AppConfig.byPassSNI)
                 }
