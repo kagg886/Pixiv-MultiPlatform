@@ -7,7 +7,6 @@ import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.user.*
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
-import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
 import kotlin.coroutines.CoroutineContext

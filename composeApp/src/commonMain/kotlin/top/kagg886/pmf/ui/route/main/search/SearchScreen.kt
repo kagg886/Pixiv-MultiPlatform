@@ -49,6 +49,7 @@ import kotlin.time.Duration.Companion.seconds
 enum class SearchTab(val display: String) {
     ILLUST("插画"),
     NOVEL("小说"),
+    AUTHOR("作者")
 }
 
 class SearchScreen(
@@ -64,6 +65,7 @@ class SearchScreen(
 
     private var illustDirty = -1
     private var novelDirty = -1
+    private var authorDirty = -1
 
 
     override val key: ScreenKey by lazy {
@@ -109,6 +111,7 @@ class SearchScreen(
             with(Random(System.currentTimeMillis())) {
                 illustDirty = nextInt()
                 novelDirty = nextInt()
+                authorDirty = nextInt()
             }
             searchWords = keyWords
             active = false
@@ -464,6 +467,21 @@ class SearchScreen(
                         }
                     }
                     NovelFetchScreen(resultModel)
+                }
+
+                2 -> {
+                    val resultModel =
+                        rememberScreenModel(tag = "search_result_author_${searchWords}_${authorDirty}") {
+                            SearchResultUserModel(user = searchWords)
+                        }
+                    resultModel.collectSideEffect { effect ->
+                        when (effect) {
+                            is AuthorFetchSideEffect.Toast -> {
+                                snackbarHostState.showSnackbar(effect.msg)
+                            }
+                        }
+                    }
+                    AuthorFetchScreen(resultModel)
                 }
             }
         }

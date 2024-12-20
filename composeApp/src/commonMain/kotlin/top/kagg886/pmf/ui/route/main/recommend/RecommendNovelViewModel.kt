@@ -1,9 +1,5 @@
 package top.kagg886.pmf.ui.route.main.recommend
 
-import top.kagg886.pixko.module.illust.Illust
-import top.kagg886.pixko.module.illust.IllustResult
-import top.kagg886.pixko.module.illust.getRecommendIllust
-import top.kagg886.pixko.module.illust.getRecommendIllustNext
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.NovelResult
 import top.kagg886.pixko.module.novel.getRecommendNovel
