@@ -29,6 +29,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -169,7 +171,16 @@ fun RichText(
 
                     is NovelNodeElement.Plain -> {
                         if (AppConfig.autoTypo) {
-                            i.text.lines().filter { it.isNotBlank() }.map { it.trim() }.forEach(this::appendLine)
+                            with(i.text.lines()) {
+                                appendLine(this[0])
+                                drop(1).filter { it.isNotBlank() }.map {
+                                    if (currentPlatform is Platform.Android) {
+                                        return@map it.trim()
+                                    }
+                                    //8个空格
+                                    return@map "        ${it.trim()}" //TODO desktop上的神秘bug：TextIndent无效
+                                }.forEach(this@buildAnnotatedString::appendLine)
+                            }
                             continue
                         }
                         append(i.text)
