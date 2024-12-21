@@ -9,6 +9,8 @@ import kotlinx.coroutines.plus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.pixko.Tag
+import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.deleteBookmarkIllust
@@ -81,10 +83,17 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
     }
 
     @OptIn(OrbitExperimental::class)
-    fun likeIllust(illust: Illust) = intent {
+    fun likeIllust(
+        illust: Illust,
+        visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
+        tags: List<Tag>? = null
+    ) = intent {
         runOn<IllustFetchViewState.ShowIllustList> {
             val result = kotlin.runCatching {
-                client.bookmarkIllust(illust.id.toLong())
+                client.bookmarkIllust(illust.id.toLong()) {
+                    this.visibility = visibility
+                    this.tags = tags
+                }
             }
 
             if (result.isFailure || result.getOrNull() == false) {

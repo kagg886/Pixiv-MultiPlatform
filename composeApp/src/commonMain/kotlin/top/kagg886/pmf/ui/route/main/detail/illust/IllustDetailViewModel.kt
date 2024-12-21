@@ -8,6 +8,7 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.PixivAccountFactory
+import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.*
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
@@ -85,7 +86,7 @@ class IllustDetailViewModel(private val illust: Illust) :
 
     private val database by inject<AppDatabase>()
 
-    private fun saveDataBase(i:Illust) = intent {
+    private fun saveDataBase(i: Illust) = intent {
         if (!AppConfig.recordIllustHistory) {
             return@intent
         }
@@ -99,10 +100,16 @@ class IllustDetailViewModel(private val illust: Illust) :
     }
 
     @OptIn(OrbitExperimental::class)
-    fun likeIllust() = intent {
+    fun likeIllust(
+        visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
+        tags: List<Tag>? = null
+    ) = intent {
         runOn<IllustDetailViewState.Success> {
             val result = kotlin.runCatching {
-                client.bookmarkIllust(state.illust.id.toLong())
+                client.bookmarkIllust(state.illust.id.toLong()) {
+                    this.visibility = visibility
+                    this.tags = tags
+                }
             }
 
             if (result.isFailure || result.getOrNull() == false) {

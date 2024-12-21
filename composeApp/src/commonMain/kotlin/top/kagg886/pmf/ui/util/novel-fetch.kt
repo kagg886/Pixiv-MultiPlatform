@@ -9,6 +9,8 @@ import kotlinx.coroutines.plus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.pixko.Tag
+import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
@@ -87,10 +89,17 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
     }
 
     @OptIn(OrbitExperimental::class)
-    fun likeNovel(novel: Novel) = intent {
+    fun likeNovel(
+        novel: Novel,
+        visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
+        tags: List<Tag>? = null
+    ) = intent {
         runOn<NovelFetchViewState.ShowNovelList> {
             val result = kotlin.runCatching {
-                client.bookmarkNovel(novel.id.toLong())
+                client.bookmarkNovel(novel.id.toLong()) {
+                    this.visibility = visibility
+                    this.tags = tags
+                }
             }
 
             if (result.isFailure || result.getOrNull() == false) {

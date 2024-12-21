@@ -17,6 +17,8 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.pixko.Tag
+import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
@@ -225,10 +227,16 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     }
 
     @OptIn(OrbitExperimental::class)
-    fun likeNovel() = intent {
+    fun likeNovel(
+        visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
+        tags: List<Tag>? = null
+    ) = intent {
         runOn<NovelDetailViewState.Success> {
             val result = kotlin.runCatching {
-                client.bookmarkNovel(id)
+                client.bookmarkNovel(id) {
+                    this.tags = tags
+                    this.visibility = visibility
+                }
             }
 
             if (result.isFailure) {
