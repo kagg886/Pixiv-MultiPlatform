@@ -1,6 +1,10 @@
 package top.kagg886.pmf.ui.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -11,7 +15,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 sealed class FavoriteState {
@@ -20,6 +27,7 @@ sealed class FavoriteState {
     data object NotFavorite : FavoriteState()
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoriteButton(
     modifier: Modifier = Modifier,
@@ -30,7 +38,8 @@ fun FavoriteButton(
     favoriteIcon: @Composable () -> Unit = {
         Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = Color.Red)
     },
-    onModify: suspend (target: FavoriteState) -> Unit
+    onDoubleClick: () -> Unit = {},
+    onModify: suspend (target: FavoriteState) -> Unit,
 ) {
     var loading by remember { mutableStateOf(false) }
     val state by remember(isFavorite) {
@@ -40,7 +49,6 @@ fun FavoriteButton(
                 isFavorite -> FavoriteState.Favorite
                 else -> FavoriteState.NotFavorite
             }
-
         }
     }
     val scope = rememberCoroutineScope()
@@ -69,15 +77,38 @@ fun FavoriteButton(
             }
 
             FavoriteState.NotFavorite -> {
-                IconButton(
-                    onClick = {
-                        loading = true
-                        scope.launch {
-                            onModify(FavoriteState.Favorite)
-                        }.invokeOnCompletion {
-                            loading = false
+                val interactionSource = remember { MutableInteractionSource() }
+                val viewConfiguration = LocalViewConfiguration.current
+
+                LaunchedEffect(interactionSource) {
+                    var isLongClick = false
+
+                    interactionSource.interactions.collectLatest { interaction ->
+                        when (interaction) {
+                            is PressInteraction.Press -> {
+                                isLongClick = false
+                                delay(viewConfiguration.longPressTimeoutMillis)
+                                isLongClick = true
+                                onDoubleClick()
+                            }
+
+                            is PressInteraction.Release -> {
+                                if (isLongClick.not()) {
+                                    loading = true
+                                    scope.launch {
+                                        onModify(FavoriteState.Favorite)
+                                    }.invokeOnCompletion {
+                                        loading = false
+                                    }
+                                }
+                            }
                         }
                     }
+                }
+
+                IconButton(
+                    interactionSource = interactionSource,
+                    onClick = {}
                 ) {
                     nonFavoriteIcon()
                 }

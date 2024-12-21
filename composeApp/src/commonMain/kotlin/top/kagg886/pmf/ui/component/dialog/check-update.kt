@@ -1,4 +1,4 @@
-package top.kagg886.pmf.ui.component
+package top.kagg886.pmf.ui.component.dialog
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.AlertDialog

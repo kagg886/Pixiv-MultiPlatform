@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -25,6 +24,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Disabled
 import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
@@ -125,6 +125,23 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                 }
                             }
 
+                            var betterFavoriteDialog by remember {
+                                mutableStateOf(false)
+                            }
+                            if (betterFavoriteDialog) {
+                                TagFavoriteDialog(
+                                    tags = it.tags,
+                                    title = { Text("高级收藏设置") },
+                                    confirm = { tags, publicity ->
+                                        model.likeIllust(it, publicity, tags).join()
+                                        betterFavoriteDialog = false
+                                    },
+                                    cancel = {
+                                        betterFavoriteDialog = false
+                                    }
+                                )
+                            }
+
                             FavoriteButton(
                                 modifier = Modifier.align(Alignment.BottomEnd),
                                 isFavorite = it.isBookMarked,
@@ -134,6 +151,9 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                     } else {
                                         model.disLikeIllust(it).join()
                                     }
+                                },
+                                onDoubleClick = {
+                                    betterFavoriteDialog = true
                                 }
                             )
                         }

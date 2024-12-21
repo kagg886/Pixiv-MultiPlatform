@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Disabled
 import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
@@ -123,6 +124,22 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     )
                                 },
                                 trailingContent = {
+                                    var betterFavoriteDialog by remember {
+                                        mutableStateOf(false)
+                                    }
+                                    if (betterFavoriteDialog) {
+                                        TagFavoriteDialog(
+                                            tags = it.tags,
+                                            title = { Text("高级收藏设置") },
+                                            confirm = { tags, publicity ->
+                                                model.likeNovel(it, publicity, tags).join()
+                                                betterFavoriteDialog = false
+                                            },
+                                            cancel = {
+                                                betterFavoriteDialog = false
+                                            }
+                                        )
+                                    }
                                     FavoriteButton(
                                         isFavorite = it.isBookmarked,
                                         onModify = { target ->
@@ -131,6 +148,9 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                             } else {
                                                 model.disLikeNovel(it).join()
                                             }
+                                        },
+                                        onDoubleClick = {
+                                            betterFavoriteDialog = true
                                         }
                                     )
                                 },

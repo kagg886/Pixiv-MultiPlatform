@@ -38,6 +38,7 @@ import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
@@ -286,9 +287,29 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         Text(illust.totalView.toString())
                                     }
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        var betterFavoriteDialog by remember {
+                                            mutableStateOf(false)
+                                        }
+                                        if (betterFavoriteDialog) {
+                                            TagFavoriteDialog(
+                                                tags = illust.tags,
+                                                title = { Text("高级收藏设置") },
+                                                confirm = { tags, publicity ->
+                                                    model.likeIllust(publicity, tags).join()
+                                                    betterFavoriteDialog = false
+                                                },
+                                                cancel = {
+                                                    betterFavoriteDialog = false
+                                                }
+                                            )
+                                        }
+
                                         FavoriteButton(
                                             isFavorite = illust.isBookMarked,
-                                            modifier = Modifier.size(30.dp)
+                                            modifier = Modifier.size(30.dp),
+                                            onDoubleClick = {
+                                                betterFavoriteDialog = true
+                                            }
                                         ) {
                                             if (it == FavoriteState.Favorite) {
                                                 model.likeIllust().join()

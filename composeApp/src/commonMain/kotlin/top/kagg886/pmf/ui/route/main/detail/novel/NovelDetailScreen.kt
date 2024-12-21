@@ -34,6 +34,7 @@ import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
@@ -234,9 +235,28 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             Text(state.novel.totalView.toString())
                                         }
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            var betterFavoriteDialog by remember {
+                                                mutableStateOf(false)
+                                            }
+                                            if (betterFavoriteDialog) {
+                                                TagFavoriteDialog(
+                                                    tags = state.novel.tags,
+                                                    title = { Text("高级收藏设置") },
+                                                    confirm = { tags, publicity ->
+                                                        model.likeNovel(publicity, tags).join()
+                                                        betterFavoriteDialog = false
+                                                    },
+                                                    cancel = {
+                                                        betterFavoriteDialog = false
+                                                    }
+                                                )
+                                            }
                                             FavoriteButton(
                                                 isFavorite = state.novel.isBookmarked,
-                                                modifier = Modifier.size(30.dp)
+                                                modifier = Modifier.size(30.dp),
+                                                onDoubleClick = {
+                                                    betterFavoriteDialog = true
+                                                }
                                             ) {
                                                 if (it == FavoriteState.Favorite) {
                                                     model.likeNovel().join()
