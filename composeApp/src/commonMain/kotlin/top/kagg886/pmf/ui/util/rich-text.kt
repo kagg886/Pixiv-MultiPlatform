@@ -23,6 +23,7 @@ import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -43,14 +44,11 @@ sealed interface NovelNodeElement {
     data class JumpPage(val page: Int) : NovelNodeElement
 }
 
-private val IMAGE_WIDTH = 80.sp
-
 @Composable
 fun RichText(
     state: List<NovelNodeElement>,
     modifier: Modifier = Modifier,
 ) {
-
     val previews = remember {
         state.filterIsInstance<NovelNodeElement.UploadImage>().map { it.url }
     }
@@ -62,6 +60,10 @@ fun RichText(
             startIndex = previewIndex
         )
     }
+    val textSize = remember {
+        AppConfig.textSize.sp
+    }
+    val defaultTextStyle = LocalTextStyle.current
 
     val density = LocalDensity.current
     var screenWidth by remember {
@@ -74,7 +76,7 @@ fun RichText(
                     is NovelNodeElement.PixivImage -> {
                         put(
                             "pixiv_${i.illust.id}",
-                            InlineTextContent(Placeholder(screenWidth, IMAGE_WIDTH, PlaceholderVerticalAlign.Center)) {
+                            InlineTextContent(Placeholder(screenWidth, screenWidth, PlaceholderVerticalAlign.Center)) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     val nav = LocalNavigator.currentOrThrow
                                     ProgressedAsyncImage(
@@ -91,7 +93,7 @@ fun RichText(
                     is NovelNodeElement.UploadImage -> {
                         put(
                             "upload_${i.url.hashCode()}",
-                            InlineTextContent(Placeholder(screenWidth, IMAGE_WIDTH, PlaceholderVerticalAlign.Center)) {
+                            InlineTextContent(Placeholder(screenWidth, screenWidth, PlaceholderVerticalAlign.Center)) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     ProgressedAsyncImage(
                                         url = i.url,
@@ -144,7 +146,7 @@ fun RichText(
                     }
 
                     is NovelNodeElement.NewPage -> {
-                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
+                        withStyle(ParagraphStyle(lineHeight = screenWidth, textIndent = TextIndent(firstLine = 0.sp))) {
                             appendInlineContent("page_${i.index}")
                         }
                     }
@@ -154,25 +156,29 @@ fun RichText(
                     }
 
                     is NovelNodeElement.UploadImage -> {
-                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
+                        withStyle(ParagraphStyle(lineHeight = screenWidth, textIndent = TextIndent(firstLine = 0.sp))) {
                             appendInlineContent("upload_${i.url.hashCode()}")
                         }
                     }
 
                     is NovelNodeElement.PixivImage -> {
-                        withStyle(ParagraphStyle(lineHeight = IMAGE_WIDTH, textIndent = TextIndent(firstLine = 0.sp))) {
+                        withStyle(ParagraphStyle(lineHeight = screenWidth, textIndent = TextIndent(firstLine = 0.sp))) {
                             appendInlineContent("pixiv_${i.illust.id}")
                         }
                     }
 
                     is NovelNodeElement.Plain -> {
+                        if (AppConfig.autoTypo) {
+                            i.text.lines().filter { it.isNotBlank() }.map { it.trim() }.forEach(this::appendLine)
+                            continue
+                        }
                         append(i.text)
                     }
 
                     is NovelNodeElement.Title -> {
                         appendLine()
                         withStyle(ParagraphStyle(textIndent = TextIndent(firstLine = 0.sp))) {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = 30.sp)) {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold, fontSize = textSize * 1.5)) {
                                 append(i.text)
                             }
                         }
@@ -182,13 +188,25 @@ fun RichText(
             }
         }
     }
+    val style = remember {
+        when {
+            AppConfig.autoTypo -> TextStyle(
+                textIndent = TextIndent(firstLine = textSize * 2),
+                fontSize = textSize,
+                lineHeight = 1.5.em,
+            )
+
+            else -> defaultTextStyle.copy(
+                fontSize = textSize,
+                lineHeight = 1.5.em
+            )
+        }
+    }
     Text(
         text = annotateString,
         inlineContent = inlineNode,
-        style = if (AppConfig.autoTypo) TextStyle(
-            textIndent = TextIndent(firstLine = 24.sp),
-            lineHeight = 24.sp
-        ) else LocalTextStyle.current,
+        fontSize = textSize,
+        style = style,
         modifier = modifier.onGloballyPositioned {
             screenWidth = with(density) {
                 val offset = it.positionInParent()

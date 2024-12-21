@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
@@ -371,12 +372,17 @@ class SettingScreen : Screen {
                         filterR18GNovel = it
                     }
                 )
-
                 var autoTypo by remember {
                     mutableStateOf(AppConfig.autoTypo)
                 }
                 LaunchedEffect(autoTypo) {
                     AppConfig.autoTypo = autoTypo
+                }
+                var textSize by remember {
+                    mutableStateOf(AppConfig.textSize)
+                }
+                LaunchedEffect(textSize) {
+                    AppConfig.textSize = textSize
                 }
                 SettingsSwitch(
                     state = autoTypo,
@@ -384,10 +390,25 @@ class SettingScreen : Screen {
                         Text("自动排版")
                     },
                     subtitle = {
-                        Text("首行缩进24sp，行高24sp")
+                        Text("首行缩进${textSize * 2}sp")
                     },
                     onCheckedChange = {
                         autoTypo = it
+                    }
+                )
+
+
+                SettingsSlider(
+                    value = textSize.toFloat(),
+                    valueRange = 8f..40f,
+                    onValueChange = {
+                        textSize = it.roundToInt()
+                    },
+                    title = {
+                        Text("正文大小")
+                    },
+                    subtitle = {
+                        Text("${textSize}sp", fontSize = textSize.sp)
                     }
                 )
                 var filterShortNovel by remember {
