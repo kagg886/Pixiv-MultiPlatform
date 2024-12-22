@@ -38,7 +38,7 @@ fun FavoriteButton(
     favoriteIcon: @Composable () -> Unit = {
         Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = Color.Red)
     },
-    onDoubleClick: () -> Unit = {},
+    onDoubleClick: suspend () -> Unit = {},
     onModify: suspend (target: FavoriteState) -> Unit,
 ) {
     var loading by remember { mutableStateOf(false) }

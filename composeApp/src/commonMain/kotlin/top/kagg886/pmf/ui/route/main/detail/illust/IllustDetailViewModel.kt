@@ -10,6 +10,7 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
@@ -17,6 +18,7 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
+import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenSideEffect
 import top.kagg886.pmf.ui.util.container
 
 class IllustDetailViewModel(private val illust: Illust) :
@@ -146,16 +148,20 @@ class IllustDetailViewModel(private val illust: Illust) :
     }
 
     @OptIn(OrbitExperimental::class)
-    fun followUser() = intent {
+    fun followUser(private: Boolean = false) = intent {
         runOn<IllustDetailViewState.Success> {
             val result = kotlin.runCatching {
-                client.followUser(state.illust.user.id)
+                client.followUser(state.illust.user.id,if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
             }
             if (result.isFailure) {
                 postSideEffect(IllustDetailSideEffect.Toast("关注失败~"))
                 return@runOn
             }
-            postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
+            if (private) {
+                postSideEffect(IllustDetailSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+            } else {
+                postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
+            }
             reduce {
                 state.copy(
                     illust = state.illust.copy(

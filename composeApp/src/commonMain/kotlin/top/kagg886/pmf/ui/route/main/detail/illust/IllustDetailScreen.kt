@@ -246,7 +246,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 item {
                     AuthorCard(
                         modifier = Modifier.fillMaxWidth(),
-                        user = illust.user
+                        user = illust.user,
+                        onFavoritePrivateClick = {
+                            model.followUser(true).join()
+                        }
                     ) {
                         if (it) {
                             model.followUser().join()

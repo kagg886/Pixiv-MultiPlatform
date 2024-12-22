@@ -25,6 +25,7 @@ import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.loadImage
 import top.kagg886.pixko.module.novel.*
 import top.kagg886.pixko.module.novel.parser.*
+import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
@@ -273,16 +274,20 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     }
 
     @OptIn(OrbitExperimental::class)
-    fun followUser() = intent {
+    fun followUser(private: Boolean = false) = intent {
         runOn<NovelDetailViewState.Success> {
             val result = kotlin.runCatching {
-                client.followUser(state.novel.user.id)
+                client.followUser(state.novel.user.id, publicity = if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
             }
             if (result.isFailure) {
                 postSideEffect(NovelDetailSideEffect.Toast("关注失败~"))
                 return@runOn
             }
-            postSideEffect(NovelDetailSideEffect.Toast("关注成功~"))
+            if (private) {
+                postSideEffect(NovelDetailSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+            } else {
+                postSideEffect(NovelDetailSideEffect.Toast("关注成功~"))
+            }
             reduce {
                 state.copy(
                     novel = state.novel.copy(

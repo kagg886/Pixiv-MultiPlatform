@@ -198,6 +198,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                     return@AuthorCard
                                                 }
                                                 model.unFollowUser().join()
+                                            },
+                                            onFavoritePrivateClick = {
+                                                model.followUser(true).join()
                                             }
                                         )
                                     }

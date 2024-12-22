@@ -22,6 +22,7 @@ fun AuthorCard(
     modifier: Modifier = Modifier,
     user: User,
     onCardClick: (nav: Navigator) -> Unit = { it.push(AuthorScreen(user.id)) },
+    onFavoritePrivateClick: suspend () -> Unit = {},
     onFavoriteClick: suspend (Boolean) -> Unit = {}
 ) {
     val nav = LocalNavigator.currentOrThrow
@@ -44,6 +45,9 @@ fun AuthorCard(
                     isFavorite = user.isFollowed ?: false,
                     onModify = {
                         onFavoriteClick(it == FavoriteState.Favorite)
+                    },
+                    onDoubleClick = {
+                        onFavoritePrivateClick()
                     }
                 )
             }

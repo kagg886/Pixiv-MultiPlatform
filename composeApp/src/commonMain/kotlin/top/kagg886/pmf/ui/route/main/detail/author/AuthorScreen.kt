@@ -133,6 +133,9 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                     user = state.user.user,
                                     onCardClick = {
                                         infoDialog = true
+                                    },
+                                    onFavoritePrivateClick = {
+                                        model.followUser(true).join()
                                     }
                                 ) {
                                     if (it) {

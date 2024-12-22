@@ -6,18 +6,17 @@ import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.module.user.UserInfo
-import top.kagg886.pixko.module.user.followUser
-import top.kagg886.pixko.module.user.getUserInfo
-import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pixko.module.user.*
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
 
-class AuthorScreenModel(val id:Int) : ContainerHost<AuthorScreenState, AuthorScreenSideEffect>, ViewModel(), ScreenModel,
+class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorScreenSideEffect>, ViewModel(),
+    ScreenModel,
     KoinComponent {
-    override val container: Container<AuthorScreenState, AuthorScreenSideEffect> = container(AuthorScreenState.Loading) {
-        loadUserById(id)
-    }
+    override val container: Container<AuthorScreenState, AuthorScreenSideEffect> =
+        container(AuthorScreenState.Loading) {
+            loadUserById(id)
+        }
     private val client = PixivConfig.newAccountFromConfig()
 
     fun loadUserById(id: Int, silent: Boolean = true) = intent {
@@ -37,16 +36,23 @@ class AuthorScreenModel(val id:Int) : ContainerHost<AuthorScreenState, AuthorScr
     }
 
     @OptIn(OrbitExperimental::class)
-    fun followUser() = intent {
+    fun followUser(private: Boolean = false) = intent {
         runOn<AuthorScreenState.Success> {
             val result = kotlin.runCatching {
-                client.followUser(state.user.user.id)
+                client.followUser(
+                    state.user.user.id,
+                    if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC
+                )
             }
             if (result.isFailure) {
                 postSideEffect(AuthorScreenSideEffect.Toast("关注失败~"))
                 return@runOn
             }
-            postSideEffect(AuthorScreenSideEffect.Toast("关注成功~"))
+            if (private) {
+                postSideEffect(AuthorScreenSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+            } else {
+                postSideEffect(AuthorScreenSideEffect.Toast("关注成功~"))
+            }
             reduce {
                 state.copy(
                     user = state.user.copy(

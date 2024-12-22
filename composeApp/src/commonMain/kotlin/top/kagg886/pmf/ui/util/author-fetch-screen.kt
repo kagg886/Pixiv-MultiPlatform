@@ -68,7 +68,10 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                     items(state.data, key = { it.id }) {
                         AuthorCard(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
-                            user = it
+                            user = it,
+                            onFavoritePrivateClick = {
+                                model.followUser(it,true)
+                            }
                         ) { isRequestFavorite ->
                             if (isRequestFavorite) {
                                 model.followUser(it).join()
