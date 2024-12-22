@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun SettingsFileUpload(
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
     onValueChange: (ByteArray) -> Unit,
@@ -29,8 +30,9 @@ fun SettingsFileUpload(
     }
     SettingsTileScaffold(
         title = title,
+        enabled = enabled,
         subtitle = subTitle,
-        modifier = modifier.clickable {
+        modifier = modifier.clickable(enabled) {
             launcher.launch()
         },
     )

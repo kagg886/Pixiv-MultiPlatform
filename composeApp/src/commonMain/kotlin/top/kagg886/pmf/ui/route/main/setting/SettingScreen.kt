@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.route.main.setting
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -100,31 +101,41 @@ class SettingScreen : Screen {
                     AppConfig.colorScheme = colorScheme
                 }
 
+                val inNight = darkMode == AppConfig.DarkMode.Dark || (darkMode == AppConfig.DarkMode.System && isSystemInDarkTheme())
                 SettingsFileUpload(
                     title = { Text("设置主题") },
+                    enabled = !inNight,
                     subTitle = {
-                        val colors = MaterialTheme.colorScheme
-                        Text(
-                            buildAnnotatedString {
-                                append("请前往")
-                                withLink(
-                                    LinkAnnotation.Url(
-                                        url = "https://material-foundation.github.io/material-theme-builder/",
-                                        styles = TextLinkStyles(
-                                            style = SpanStyle(color = colors.primary),
-                                            hoveredStyle = SpanStyle(
-                                                color = colors.primaryContainer,
-                                                textDecoration = TextDecoration.Underline
-                                            ),
-                                        )
-                                    ),
-                                ) {
-                                    append("https://material-foundation.github.io/material-theme-builder/")
-                                }
-                                appendLine("下载主题")
-                                append("导出的格式只有为json时才能正确解析！")
+                        AnimatedContent(
+                            inNight
+                        ) {
+                            if (it) {
+                                Text("夜间模式的主题暂不支持设置")
+                                return@AnimatedContent
                             }
-                        )
+                            val colors = MaterialTheme.colorScheme
+                            Text(
+                                buildAnnotatedString {
+                                    append("请前往")
+                                    withLink(
+                                        LinkAnnotation.Url(
+                                            url = "https://material-foundation.github.io/material-theme-builder/",
+                                            styles = TextLinkStyles(
+                                                style = SpanStyle(color = colors.primary),
+                                                hoveredStyle = SpanStyle(
+                                                    color = colors.primaryContainer,
+                                                    textDecoration = TextDecoration.Underline
+                                                ),
+                                            )
+                                        ),
+                                    ) {
+                                        append("https://material-foundation.github.io/material-theme-builder/")
+                                    }
+                                    appendLine("下载主题")
+                                    append("导出的格式只有为json时才能正确解析！")
+                                }
+                            )
+                        }
                     }
                 ) {
                     val theme = kotlin.runCatching {
