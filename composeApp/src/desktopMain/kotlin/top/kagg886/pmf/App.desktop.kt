@@ -8,6 +8,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.*
@@ -58,11 +60,13 @@ actual fun shareFile(file: File, name: String) {
     Desktop.getDesktop().open(file)
 }
 
-actual fun copyImageToClipboard(bitmap: ByteArray) {
-    Toolkit.getDefaultToolkit().systemClipboard.setContents(
-        TransferableImage(bitmap),
-        DesktopClipBoardOwner
-    )
+actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
+    withContext(Dispatchers.IO) {
+        Toolkit.getDefaultToolkit().systemClipboard.setContents(
+            TransferableImage(bitmap),
+            DesktopClipBoardOwner
+        )
+    }
 }
 
 private object DesktopClipBoardOwner : ClipboardOwner {

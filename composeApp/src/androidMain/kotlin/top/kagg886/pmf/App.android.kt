@@ -106,6 +106,6 @@ actual fun shareFile(file: File, name: String) {
     }
 }
 
-actual fun copyImageToClipboard(bitmap: ByteArray) {
+actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
     throw UnsupportedOperationException()
 }

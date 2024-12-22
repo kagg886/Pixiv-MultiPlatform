@@ -298,7 +298,7 @@ fun startKoin0() {
 }
 
 expect fun shareFile(file: File, name: String = file.name)
-expect fun copyImageToClipboard(bitmap: ByteArray)
+expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(val title: String, val icon: ImageVector, val screenClass: KClass<out Screen>) {
     RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class),
