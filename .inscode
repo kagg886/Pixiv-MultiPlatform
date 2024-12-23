@@ -1,5 +1,0 @@
-run = "gradlew"
-language = "java"
-
-[debugger]
-program = "Main"
