@@ -63,7 +63,9 @@ import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.*
 import java.io.File
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.seconds
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -244,7 +246,10 @@ fun startKoin0() {
                         if (AppConfig.byPassSNI) {
                             bypassSNI()
                         }
-                        ignoreSSL()
+                        if (AppConfig.customPixivImageHost.isNotBlank()) {
+                            //会影响访问速度
+                            ignoreSSL()
+                        }
                         addInterceptor {
                             val request = it.request().newBuilder()
                             with(AppConfig.customPixivImageHost) {
@@ -261,6 +266,10 @@ fun startKoin0() {
                             request.header("Referer", "https://www.pixiv.net/")
                             it.proceed(request.build())
                         }
+                        callTimeout(30,TimeUnit.SECONDS)
+                        connectTimeout(30,TimeUnit.SECONDS)
+                        readTimeout(30,TimeUnit.SECONDS)
+                        writeTimeout(30,TimeUnit.SECONDS)
                         addNetworkInterceptor {
                             val resp = it.proceed(it.request())
                             //防止connection leak

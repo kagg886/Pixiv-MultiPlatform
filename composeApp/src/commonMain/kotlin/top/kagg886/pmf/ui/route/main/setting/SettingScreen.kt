@@ -574,7 +574,7 @@ class SettingScreen : Screen {
                         Text("自定义Pixiv Image代理")
                     },
                     subTitle = {
-                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性")
+                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性\ntips：该选项开启时会强制忽略pixiv的ssl证书校验，因此api的加载速度可能会变慢")
                     },
                     dialogPlaceHolder = {
                         Text("e.g. i.pximg.net")
