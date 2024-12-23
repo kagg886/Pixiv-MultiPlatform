@@ -543,43 +543,43 @@ class SettingScreen : Screen {
                     }
                 )
 
-                var customPixivImageHost by remember {
-                    mutableStateOf(AppConfig.customPixivImageHost)
-                }
-                LaunchedEffect(customPixivImageHost) {
-                    AppConfig.customPixivImageHost = customPixivImageHost
-                }
-                val snack = LocalSnackBarHost.current
-                val scope = rememberCoroutineScope()
-                SettingsTextField(
-                    value = customPixivImageHost,
-                    onValueChange = {
-                        if (it.isEmpty()) {
-                            customPixivImageHost = ""
-                            scope.launch {
-                                snack.showSnackbar("已关闭自定义Pixiv Image代理")
-                            }
-                            return@SettingsTextField
-                        }
-                        val url = it.toHttpUrlOrNull()
-                        if (url == null) {
-                            scope.launch {
-                                snack.showSnackbar("请输入正确的URL")
-                            }
-                            return@SettingsTextField
-                        }
-                        customPixivImageHost = it
-                    },
-                    title = {
-                        Text("自定义Pixiv Image代理")
-                    },
-                    subTitle = {
-                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性\ntips：该选项开启时会强制忽略pixiv的ssl证书校验，因此api的加载速度可能会变慢")
-                    },
-                    dialogPlaceHolder = {
-                        Text("e.g. i.pximg.net")
-                    }
-                )
+//                var customPixivImageHost by remember {
+//                    mutableStateOf(AppConfig.customPixivImageHost)
+//                }
+//                LaunchedEffect(customPixivImageHost) {
+//                    AppConfig.customPixivImageHost = customPixivImageHost
+//                }
+//                val snack = LocalSnackBarHost.current
+//                val scope = rememberCoroutineScope()
+//                SettingsTextField(
+//                    value = customPixivImageHost,
+//                    onValueChange = {
+//                        if (it.isEmpty()) {
+//                            customPixivImageHost = ""
+//                            scope.launch {
+//                                snack.showSnackbar("已关闭自定义Pixiv Image代理")
+//                            }
+//                            return@SettingsTextField
+//                        }
+//                        val url = it.toHttpUrlOrNull()
+//                        if (url == null) {
+//                            scope.launch {
+//                                snack.showSnackbar("请输入正确的URL")
+//                            }
+//                            return@SettingsTextField
+//                        }
+//                        customPixivImageHost = it
+//                    },
+//                    title = {
+//                        Text("自定义Pixiv Image代理")
+//                    },
+//                    subTitle = {
+//                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性\ntips：该选项开启时会强制忽略pixiv的ssl证书校验，因此api的加载速度可能会变慢")
+//                    },
+//                    dialogPlaceHolder = {
+//                        Text("e.g. i.pximg.net")
+//                    }
+//                )
             }
             SettingsGroup(title = { Text("高级") }) {
                 SettingsMenuLink(

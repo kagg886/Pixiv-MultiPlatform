@@ -246,30 +246,26 @@ fun startKoin0() {
                         if (AppConfig.byPassSNI) {
                             bypassSNI()
                         }
-                        if (AppConfig.customPixivImageHost.isNotBlank()) {
-                            //会影响访问速度
-                            ignoreSSL()
-                        }
                         addInterceptor {
                             val request = it.request().newBuilder()
-                            with(AppConfig.customPixivImageHost) {
-                                if (isNotBlank()) {
-                                    val originUrl = it.request().url
-                                    request.url(
-                                        this.toHttpUrl().newBuilder()
-                                            .encodedPath(originUrl.encodedPath)
-                                            .encodedQuery(originUrl.encodedQuery)
-                                            .build()
-                                    )
-                                }
-                            }
+//                            with(AppConfig.customPixivImageHost) {
+//                                if (isNotBlank()) {
+//                                    val originUrl = it.request().url
+//                                    request.url(
+//                                        this.toHttpUrl().newBuilder()
+//                                            .encodedPath(originUrl.encodedPath)
+//                                            .encodedQuery(originUrl.encodedQuery)
+//                                            .build()
+//                                    )
+//                                }
+//                            }
                             request.header("Referer", "https://www.pixiv.net/")
                             it.proceed(request.build())
                         }
-                        callTimeout(30,TimeUnit.SECONDS)
-                        connectTimeout(30,TimeUnit.SECONDS)
-                        readTimeout(30,TimeUnit.SECONDS)
-                        writeTimeout(30,TimeUnit.SECONDS)
+                        callTimeout(30, TimeUnit.SECONDS)
+                        connectTimeout(30, TimeUnit.SECONDS)
+                        readTimeout(30, TimeUnit.SECONDS)
+                        writeTimeout(30, TimeUnit.SECONDS)
                         addNetworkInterceptor {
                             val resp = it.proceed(it.request())
                             //防止connection leak
