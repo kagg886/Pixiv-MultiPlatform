@@ -1,8 +1,10 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
@@ -21,15 +23,8 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.fetch.ComposeResourceUriFetcher
-import com.github.panpf.sketch.fetch.newComposeResourceUri
-import com.github.panpf.sketch.painter.rememberEquitablePainterResource
-import com.github.panpf.sketch.painter.rememberIconPainter
-import com.github.panpf.sketch.rememberAsyncImagePainter
-import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
@@ -227,11 +222,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     ) {
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Icon(
-                                                painter =  rememberAsyncImagePainter(
-                                                    request = ComposableImageRequest(
-                                                        uri = Res.getUri("drawable/view.svg")
-                                                    )
-                                                ),
+                                                painter =  painterResource(Res.drawable.view),
                                                 contentDescription = null,
                                                 modifier = Modifier.size(30.dp)
                                             )

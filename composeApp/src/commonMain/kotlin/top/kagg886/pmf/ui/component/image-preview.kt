@@ -1,8 +1,5 @@
 package top.kagg886.pmf.ui.component
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -23,21 +20,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.github.panpf.sketch.LocalPlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.cache.downloadCacheKey
-import com.github.panpf.sketch.painter.rememberEquitablePainterResource
-import com.github.panpf.sketch.painter.rememberIconAnimatablePainter
-import com.github.panpf.sketch.rememberAsyncImagePainter
-import com.github.panpf.sketch.request.ComposableImageRequest
 import com.github.panpf.sketch.request.ImageRequest
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.*
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
 
@@ -107,11 +97,8 @@ fun ImagePreviewer(
                             },
                             leadingIcon = {
                                 Icon(
-                                    painter = rememberAsyncImagePainter(
-                                        request = ComposableImageRequest(
-                                            uri = Res.getUri("drawable/copy.svg")
-                                        )
-                                    ), null
+                                    painter = painterResource(Res.drawable.copy),
+                                    null
                                 )
                             },
                             onClick = {

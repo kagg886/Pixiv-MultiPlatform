@@ -47,6 +47,7 @@ import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
+import top.kagg886.pmf.view
 
 //class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
@@ -279,11 +280,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Icon(
-                                            painter = rememberAsyncImagePainter(
-                                                request = ComposableImageRequest(
-                                                    uri = Res.getUri("drawable/view.svg")
-                                                )
-                                            ),
+                                            painter = painterResource(Res.drawable.view),
                                             contentDescription = null,
                                             modifier = Modifier.size(30.dp)
                                         )

@@ -27,6 +27,7 @@ import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreen
+import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
@@ -124,6 +125,16 @@ enum class ProfileItem(
         icon = Icons.Default.Edit,
         content = {
             ErrorPage(text = "敬请期待") {}
+        }
+    ),
+    ExtendsFavorite(
+        title = "收藏查看",
+        icon = Icons.Default.Favorite,
+        content = {
+            val nav = LocalNavigator.currentOrThrow
+            LaunchedEffect(Unit) {
+                nav.push(BookmarkScreen())
+            }
         }
     ),
     History(
