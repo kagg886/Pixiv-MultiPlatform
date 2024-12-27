@@ -130,12 +130,7 @@ enum class ProfileItem(
     ExtendsFavorite(
         title = "收藏查看",
         icon = Icons.Default.Favorite,
-        content = {
-            val nav = LocalNavigator.currentOrThrow
-            LaunchedEffect(Unit) {
-                nav.push(BookmarkScreen())
-            }
-        }
+        content = {}
     ),
     History(
         title = "历史记录",
@@ -225,7 +220,12 @@ private fun SettingDrawerSheet(me: SimpleMeProfile, current: Int, onItemClick: (
 
         LazyColumn(modifier = Modifier.padding(8.dp), contentPadding = PaddingValues(vertical = 8.dp)) {
             items(ProfileItem.entries.toTypedArray()) {
+                val nav = LocalNavigator.currentOrThrow
                 SettingItem(text = it.title, icon = it.icon, selected = it.ordinal == current) {
+                    if (it.ordinal == ProfileItem.ExtendsFavorite.ordinal) {
+                        nav.push(BookmarkScreen())
+                        return@SettingItem
+                    }
                     onItemClick(it.ordinal)
                 }
             }

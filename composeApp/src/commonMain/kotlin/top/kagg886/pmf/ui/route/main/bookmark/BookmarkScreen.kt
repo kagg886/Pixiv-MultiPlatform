@@ -36,9 +36,7 @@ class BookmarkScreen : Screen {
         val nav = LocalNavigator.currentOrThrow
         val state by model.collectAsState()
         BookmarkContent(model, state) {
-            //TODO 有bug
-            nav.popAll()
-            nav.push(ProfileScreen(PixivConfig.pixiv_user!!))
+            nav.pop()
         }
     }
 
