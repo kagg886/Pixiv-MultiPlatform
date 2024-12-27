@@ -1,6 +1,8 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import org.orbitmvi.orbit.Container
@@ -102,7 +104,7 @@ sealed class TagsFetchViewState {
         val data: List<FavoriteTags>,
         val noMoreData: Boolean = false,
         val scrollerState: LazyListState = LazyListState(),
-        val selectedTagsFilter: TagFilter = TagFilter.NoFilter
+        val selectedTagsFilter: TagFilter = TagFilter.NoFilter,
     ) : TagsFetchViewState()
 }
 

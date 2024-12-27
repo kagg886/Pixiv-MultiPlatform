@@ -1,5 +1,5 @@
 import kotlinx.datetime.Clock
-import top.kagg886.pmf.ui.util.wrap
+import top.kagg886.pmf.util.wrap
 import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream

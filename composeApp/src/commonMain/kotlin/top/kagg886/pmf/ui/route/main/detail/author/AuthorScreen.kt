@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.route.main.detail.author
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -25,8 +26,7 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
-import top.kagg886.pmf.ui.component.collapsable.CollapsableColumn
-import top.kagg886.pmf.ui.component.collapsable.rememberCollapsableTopBehavior
+import top.kagg886.pmf.ui.component.collapsable.v2.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
@@ -53,20 +53,10 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
         }
         Box(Modifier.fillMaxSize()) {
             AuthorContent(state)
-
-            if (!isOpenInSideBar) {
-                Box(modifier = Modifier.align(Alignment.TopStart).padding(16.dp)) {
-                    IconButton(onClick = {
-                        nav.pop()
-                    }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                }
-            }
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
     @Composable
     fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
@@ -84,7 +74,6 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
             }
 
             is AuthorScreenState.Success -> {
-                val collapsableBehavior = rememberCollapsableTopBehavior()
                 val pager = rememberPagerState(initialPage = state.initPage) { 5 }
 
 
@@ -109,27 +98,68 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                     )
                 }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize().nestedScroll(collapsableBehavior.nestedScrollConnection),
-                    topBar = {
-                        CollapsableColumn(behavior = collapsableBehavior) {
-                            Box(modifier = Modifier.fillMaxWidth().height(280.dp).collapse()) {
-
-                                var preview by remember { mutableStateOf(false) }
-                                if (preview && state.user.profile.backgroundImageUrl != null) {
-                                    ImagePreviewer(
-                                        url = listOf(state.user.profile.backgroundImageUrl!!),
-                                        onDismiss = { preview = false }
-                                    )
-                                }
-
-                                ProgressedAsyncImage(
-                                    url = state.user.profile.backgroundImageUrl,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize().clickable { preview = true }
+                CollapsableTopAppBarScaffold(
+                    toolbarSize = 280.dp,
+                    toolbar = {
+                        Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
+                            var preview by remember { mutableStateOf(false) }
+                            if (preview && state.user.profile.backgroundImageUrl != null) {
+                                ImagePreviewer(
+                                    url = listOf(state.user.profile.backgroundImageUrl!!),
+                                    onDismiss = { preview = false }
                                 )
+                            }
+
+                            ProgressedAsyncImage(
+                                url = state.user.profile.backgroundImageUrl,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize().clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                    preview = true
+                                }
+                            )
+                            AuthorCard(
+                                modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                                user = state.user.user,
+                                onCardClick = {
+                                    infoDialog = true
+                                },
+                                onFavoritePrivateClick = {
+                                    model.followUser(true).join()
+                                }
+                            ) {
+                                if (it) {
+                                    model.followUser().join()
+                                } else {
+                                    model.unFollowUser().join()
+                                }
+                            }
+
+                            if (!isOpenInSideBar) {
+                                val nav = LocalNavigator.currentOrThrow
+                                IconButton(onClick = {
+                                    nav.pop()
+                                }) {
+                                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                }
+                            }
+                        }
+                    },
+                    smallToolBar = {
+                        TopAppBar(
+                            navigationIcon = {
+                                if (!isOpenInSideBar) {
+                                    val nav = LocalNavigator.currentOrThrow
+                                    IconButton(onClick = {
+                                        nav.pop()
+                                    }) {
+                                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                    }
+                                }
+                            },
+                            actions = {},
+                            title = {
                                 AuthorCard(
-                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
+                                    modifier = Modifier,
                                     user = state.user.user,
                                     onCardClick = {
                                         infoDialog = true
@@ -144,64 +174,43 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                         model.unFollowUser().join()
                                     }
                                 }
-//                                Card(
-//                                    colors = with(CardDefaults.cardColors()) {
-//                                        copy(containerColor = containerColor.copy(alpha = 0.6f))
-//                                    },
-//                                    modifier = Modifier.align(Alignment.BottomStart).padding(16.dp)
-//                                ) {
-//                                    ListItem(
-//                                        leadingContent = {
-//                                            ProgressedAsyncImage(
-//                                                modifier = Modifier.size(64.dp).padding(8.dp),
-//                                                url = state.user.user.profileImageUrls.content
-//                                            )
-//                                        },
-//                                        headlineContent = {
-//                                            Text(state.user.user.name)
-//                                        },
-//                                        supportingContent = {
-//                                            Text(
-//                                                text = state.user.user.comment?.ifBlank { "没有简介" } ?: "没有简介",
-//                                                maxLines = 1,
-//                                                overflow = TextOverflow.Ellipsis)
-//                                        }
-//                                    )
-//                                }
                             }
-                            ScrollableTabRow(
-                                selectedTabIndex = pager.currentPage, modifier = Modifier.fillMaxWidth(),
-                                divider = {}
-                            ) {
-                                val scope = rememberCoroutineScope()
-                                //插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
-                                val tabList = listOf("插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
-                                tabList.forEachIndexed { index, s ->
-                                    Tab(
-                                        selected = pager.currentPage == index,
-                                        modifier = Modifier.height(36.dp),
-                                        onClick = {
-                                            scope.launch {
-                                                pager.animateScrollToPage(index)
-                                            }
-                                        }) {
-                                        Text(s)
-                                    }
+                        )
+                    }
+                ) {
+                    Column(Modifier.nestedScroll(it)) {
+                        ScrollableTabRow(
+                            selectedTabIndex = pager.currentPage,
+                            modifier = Modifier.fillMaxWidth(),
+                            divider = {}
+                        ) {
+                            val scope = rememberCoroutineScope()
+                            //插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
+                            val tabList = listOf("插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
+                            tabList.forEachIndexed { index, s ->
+                                Tab(
+                                    selected = pager.currentPage == index,
+                                    modifier = Modifier.height(36.dp),
+                                    onClick = {
+                                        scope.launch {
+                                            pager.animateScrollToPage(index)
+                                        }
+                                    }) {
+                                    Text(s)
                                 }
                             }
                         }
-                    }
-                ) { padding ->
-                    HorizontalPager(
-                        state = pager,
-                        modifier = Modifier.fillMaxWidth().padding(padding)
-                    ) {
-                        when (it) {
-                            0 -> AuthorIllust(state.user)
-                            1 -> AuthorNovel(state.user)
-                            2 -> AuthorIllustBookmark(state.user)
-                            3 -> AuthorNovelBookmark(state.user)
-                            4 -> AuthorFollow(state.user)
+                        HorizontalPager(
+                            state = pager,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            when (it) {
+                                0 -> AuthorIllust(state.user)
+                                1 -> AuthorNovel(state.user)
+                                2 -> AuthorIllustBookmark(state.user)
+                                3 -> AuthorNovelBookmark(state.user)
+                                4 -> AuthorFollow(state.user)
+                            }
                         }
                     }
                 }
