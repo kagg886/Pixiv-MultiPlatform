@@ -30,6 +30,7 @@ import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
+import top.kagg886.pmf.ui.route.main.edit.EditProfileScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.util.SerializableWrapper
@@ -123,9 +124,7 @@ enum class ProfileItem(
     ModifyProfile(
         title = "修改资料",
         icon = Icons.Default.Edit,
-        content = {
-            ErrorPage(text = "敬请期待") {}
-        }
+        content = {}
     ),
     ExtendsFavorite(
         title = "收藏查看",
@@ -222,6 +221,10 @@ private fun SettingDrawerSheet(me: SimpleMeProfile, current: Int, onItemClick: (
             items(ProfileItem.entries.toTypedArray()) {
                 val nav = LocalNavigator.currentOrThrow
                 SettingItem(text = it.title, icon = it.icon, selected = it.ordinal == current) {
+                    if (it.ordinal == ProfileItem.ModifyProfile.ordinal) {
+                        nav.push(EditProfileScreen())
+                        return@SettingItem
+                    }
                     if (it.ordinal == ProfileItem.ExtendsFavorite.ordinal) {
                         nav.push(BookmarkScreen())
                         return@SettingItem

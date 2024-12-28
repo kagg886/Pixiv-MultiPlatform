@@ -2,13 +2,13 @@ package top.kagg886.pmf.ui.route.login
 
 import dev.datlag.kcef.KCEF
 import kotlinx.coroutines.runBlocking
-import top.kagg886.pmf.backend.rootPath
+import top.kagg886.pmf.backend.dataPath
 
 @Suppress("DefaultLocale")
 actual fun LoginScreenViewModel.initKCEF() = intent {
     KCEF.init(
         builder = {
-            installDir(rootPath.resolve("web-view"))
+            installDir(dataPath.resolve("web-view"))
             progress {
                 onDownloading {
                     runBlocking {

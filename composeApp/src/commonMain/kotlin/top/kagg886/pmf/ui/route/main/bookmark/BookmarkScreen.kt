@@ -21,10 +21,8 @@ import top.kagg886.pixko.module.user.FavoriteTagsType
 import top.kagg886.pixko.module.user.FavoriteTagsType.Illust
 import top.kagg886.pixko.module.user.FavoriteTagsType.Novel
 import top.kagg886.pixko.module.user.UserLikePublicity
-import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
-import top.kagg886.pmf.ui.route.main.profile.ProfileScreen
 import top.kagg886.pmf.ui.util.*
 
 class BookmarkScreen : Screen {

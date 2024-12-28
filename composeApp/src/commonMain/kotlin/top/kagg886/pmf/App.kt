@@ -25,7 +25,6 @@ import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
 import com.github.panpf.sketch.http.OkHttpStack
 import kotlinx.coroutines.Dispatchers
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Path.Companion.toOkioPath
@@ -35,10 +34,11 @@ import org.koin.dsl.module
 import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.backend.rootPath
+import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
@@ -65,7 +65,6 @@ import top.kagg886.pmf.util.*
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
-import kotlin.time.Duration.Companion.seconds
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -158,9 +157,7 @@ expect fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit)
 @Composable
 fun ProfileAvatar() {
     val nav = LocalNavigator.currentOrThrow
-    val profile = remember {
-        PixivConfig.pixiv_user!!
-    }
+    val profile = PixivConfig.pixiv_user!!
 
     IconButton(
         onClick = {
@@ -189,7 +186,7 @@ fun SearchButton() {
 fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
     resultCacheOptions(
         DiskCache.Options(
-            directory = rootPath.resolve("cache").resolve("image").toOkioPath(),
+            directory = cachePath.resolve("image").toOkioPath(),
             maxSize = AppConfig.cacheSize
         )
     )

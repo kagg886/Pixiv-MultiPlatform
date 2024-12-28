@@ -9,7 +9,7 @@ private val configCache = mutableMapOf<String, Settings>()
 object SystemConfig {
     fun getConfig(name: String = "default"): Settings {
         return configCache.getOrPut(name) {
-            val f = File(rootPath.resolve("config"), "$name.properties")
+            val f = File(dataPath.resolve("config"), "$name.properties")
             PropertiesSettings(
                 delegate = Properties().apply {
                     if (!f.exists()) {
@@ -30,7 +30,8 @@ object SystemConfig {
     }
 }
 
-expect val rootPath: File
+expect val dataPath: File
+expect val cachePath: File
 
 
 private class PropertiesSettings(

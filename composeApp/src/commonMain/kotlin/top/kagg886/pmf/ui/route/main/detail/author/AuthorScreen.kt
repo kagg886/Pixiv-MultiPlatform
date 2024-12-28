@@ -39,7 +39,6 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
 
     @Composable
     override fun Content() {
-        val nav = LocalNavigator.currentOrThrow
         val model = rememberScreenModel {
             AuthorScreenModel(id)
         }

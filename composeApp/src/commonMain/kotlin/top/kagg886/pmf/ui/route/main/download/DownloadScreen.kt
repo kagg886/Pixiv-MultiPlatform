@@ -22,7 +22,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.backend.rootPath
+import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -116,7 +117,7 @@ class DownloadScreen : Screen {
                                                                 }
                                                                 FileKit.saveFile(
                                                                     bytes = it.downloadRootPath().zip(
-                                                                        target = rootPath.resolve("share")
+                                                                        target = cachePath.resolve("share")
                                                                             .resolve("${it.id}.zip")
                                                                     ).readBytes(),
                                                                     baseName = "${it.illust.title}(${it.id})",
@@ -145,7 +146,7 @@ class DownloadScreen : Screen {
                                                             }
                                                             shareFile(
                                                                 it.downloadRootPath().zip(
-                                                                    target = rootPath.resolve("share")
+                                                                    target = cachePath.resolve("share")
                                                                         .resolve("${it.id}.zip")
                                                                 )
                                                             )

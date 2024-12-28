@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import top.kagg886.pmf.backend.database.dao.*
-import top.kagg886.pmf.backend.rootPath
+import top.kagg886.pmf.backend.dataPath
 
 @Database(
     entities = [IllustHistory::class, NovelHistory::class, DownloadItem::class, SearchHistory::class],
@@ -25,7 +25,7 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
     override fun initialize(): AppDatabase
 }
 
-val databasePath = rootPath.resolve("app.db")
+val databasePath = dataPath.resolve("app.db")
 expect fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase>
 
 //@Dao

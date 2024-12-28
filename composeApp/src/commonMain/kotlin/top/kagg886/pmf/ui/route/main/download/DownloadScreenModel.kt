@@ -19,13 +19,12 @@ import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
-import top.kagg886.pmf.backend.rootPath
+import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.ignoreSSL
 import java.io.File
 
 fun DownloadItem.downloadRootPath(): File {
-    return rootPath.resolve("download").resolve(id.toString())
+    return dataPath.resolve("download").resolve(id.toString())
 }
 
 class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSideEffect>, ViewModel(), ScreenModel,
