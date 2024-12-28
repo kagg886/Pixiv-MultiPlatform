@@ -1,6 +1,9 @@
 package top.kagg886.pmf.ui.route.main.space
 
-import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.IllustResult
+import top.kagg886.pixko.module.illust.getLatestIllust
+import top.kagg886.pixko.module.illust.getLatestIllustNext
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import kotlin.coroutines.CoroutineContext

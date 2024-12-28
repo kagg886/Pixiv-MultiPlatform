@@ -1,12 +1,7 @@
 package top.kagg886.pmf.ui.route.main.bookmark
 
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -17,7 +12,9 @@ import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.user.*
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.IllustFetchViewModel
+import top.kagg886.pmf.ui.util.NovelFetchViewModel
+import top.kagg886.pmf.ui.util.container
 import kotlin.coroutines.CoroutineContext
 
 class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, ViewModel(), ScreenModel {

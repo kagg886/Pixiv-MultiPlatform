@@ -3,7 +3,6 @@ package top.kagg886.pmf.ui.route.login
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.russhwolf.settings.ExperimentalSettingsApi
-import com.russhwolf.settings.serialization.encodeValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

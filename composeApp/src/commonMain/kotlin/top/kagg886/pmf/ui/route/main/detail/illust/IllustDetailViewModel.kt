@@ -7,7 +7,6 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.*
 import top.kagg886.pixko.module.user.UserLikePublicity
@@ -17,8 +16,6 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenSideEffect
 import top.kagg886.pmf.ui.util.container
 
 class IllustDetailViewModel(private val illust: Illust) :

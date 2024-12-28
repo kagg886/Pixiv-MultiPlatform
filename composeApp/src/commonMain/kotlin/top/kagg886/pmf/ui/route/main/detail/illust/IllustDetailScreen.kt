@@ -25,8 +25,6 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.rememberAsyncImagePainter
-import com.github.panpf.sketch.request.ComposableImageRequest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.core.component.KoinComponent
@@ -44,7 +42,10 @@ import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.AuthorCard
+import top.kagg886.pmf.ui.util.CommentPanel
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
 import top.kagg886.pmf.view

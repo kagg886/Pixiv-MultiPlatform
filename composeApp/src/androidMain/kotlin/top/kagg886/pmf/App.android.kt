@@ -7,13 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import cafe.adriel.voyager.navigator.Navigator
-import top.kagg886.pmf.backend.database.AppDatabase
 import java.io.File
 import kotlin.reflect.full.primaryConstructor
 

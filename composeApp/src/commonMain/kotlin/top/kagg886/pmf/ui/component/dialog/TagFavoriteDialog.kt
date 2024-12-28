@@ -8,7 +8,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.BookmarkVisibility
-import top.kagg886.pixko.module.user.UserLikePublicity
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable

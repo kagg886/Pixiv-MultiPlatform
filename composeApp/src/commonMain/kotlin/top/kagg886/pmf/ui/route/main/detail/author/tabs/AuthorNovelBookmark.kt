@@ -4,7 +4,9 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import top.kagg886.pixko.module.illust.NovelResult
 import top.kagg886.pixko.module.novel.Novel
-import top.kagg886.pixko.module.user.*
+import top.kagg886.pixko.module.user.UserInfo
+import top.kagg886.pixko.module.user.getUserLikeNovel
+import top.kagg886.pixko.module.user.getUserLikeNovelNext
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.NovelFetchScreen

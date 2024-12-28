@@ -23,7 +23,6 @@ import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading

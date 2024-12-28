@@ -8,7 +8,6 @@ import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.ui.route.crash.CrashApp
-import java.awt.event.WindowEvent
 import kotlin.system.exitProcess
 
 

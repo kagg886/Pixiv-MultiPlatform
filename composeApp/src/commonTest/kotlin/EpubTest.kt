@@ -4,8 +4,6 @@ import nl.siegmann.epublib.domain.Resource
 import nl.siegmann.epublib.epub.EpubWriter
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
 import java.io.File
 import kotlin.test.Test
 

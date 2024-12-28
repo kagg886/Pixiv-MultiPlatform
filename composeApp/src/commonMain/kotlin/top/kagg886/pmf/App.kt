@@ -38,9 +38,8 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.backend.dataPath
-import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
+import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
@@ -61,7 +60,10 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
-import top.kagg886.pmf.util.*
+import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.bypassSNI
+import top.kagg886.pmf.util.toColorScheme
+import top.kagg886.pmf.util.toSerialized
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
