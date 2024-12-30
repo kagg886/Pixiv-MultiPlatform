@@ -50,18 +50,18 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
 
             val scope = rememberCoroutineScope()
             var isRefresh by remember { mutableStateOf(false) }
-            Column(modifier) {
+            Box(modifier) {
                 PullToRefreshBox(
                     isRefreshing = isRefresh,
                     onRefresh = {
                         isRefresh = true
                         scope.launch {
-                            model.load(true)
+                            model.load(true).join()
                         }.invokeOnCompletion {
                             isRefresh = false
                         }
                     },
-                    modifier = Modifier.weight(1f).fillMaxWidth()
+                    modifier = Modifier.fillMaxSize().padding(bottom = TextFieldDefaults.MinHeight + 5.dp)
                 ) {
                     if (state.comments.isEmpty()) {
                         ErrorPage(text = "页面为空") {
@@ -112,7 +112,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                 Box(modifier = Modifier.padding(5.dp)) {
                                     if (comment.stamp == null) {
                                         Text(comment.comment)
-                                    } else{
+                                    } else {
                                         ProgressedAsyncImage(
                                             url = comment.stamp!!.url,
                                             modifier = Modifier.size(100.dp)
@@ -138,7 +138,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                 supportingContent = {
                                                     if (i.stamp == null) {
                                                         Text(i.comment)
-                                                    } else{
+                                                    } else {
                                                         ProgressedAsyncImage(
                                                             url = i.stamp!!.url,
                                                             modifier = Modifier.size(80.dp)
@@ -212,7 +212,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     onValueChange = {
                         text = it
                     },
-                    modifier = Modifier.fillMaxWidth().padding(5.dp),
+                    modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(5.dp),
                     label = {
                         Text(
                             if (state.replyTarget == null) {

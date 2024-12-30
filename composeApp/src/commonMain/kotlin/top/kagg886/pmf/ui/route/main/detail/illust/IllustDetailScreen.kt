@@ -144,9 +144,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         SupportRTLModalNavigationDrawer(
             drawerContent = {
                 ModalDrawerSheet {
-                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                        IllustComment(illust)
-                    }
+                    IllustComment(illust)
                 }
             },
             rtlLayout = true,
