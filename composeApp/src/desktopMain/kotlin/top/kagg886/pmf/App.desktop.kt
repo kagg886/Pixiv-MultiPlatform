@@ -56,7 +56,7 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun shareFile(file: File, name: String) {
+actual fun shareFile(file: File, name: String, mime: String) {
     Desktop.getDesktop().open(file)
 }
 

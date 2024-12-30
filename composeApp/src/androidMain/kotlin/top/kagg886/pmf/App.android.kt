@@ -72,7 +72,7 @@ actual fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) 
     }
 }
 
-actual fun shareFile(file: File, name: String) {
+actual fun shareFile(file: File, name: String,mime: String) {
     with(PMFApplication.getApp()) {
         val cache = cacheDir.resolve("share").resolve(name)
 
@@ -97,7 +97,7 @@ actual fun shareFile(file: File, name: String) {
             )
         )
         intent.flags = FLAG_ACTIVITY_NEW_TASK
-        intent.setType("*/*")
+        intent.setType(mime)
         ContextCompat.startActivity(this, intent, null)
     }
 }

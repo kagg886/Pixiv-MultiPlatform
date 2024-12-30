@@ -301,7 +301,7 @@ fun startKoin0() {
     }
 }
 
-expect fun shareFile(file: File, name: String = file.name)
+expect fun shareFile(file: File, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(val title: String, val icon: ImageVector, val screenClass: KClass<out Screen>) {

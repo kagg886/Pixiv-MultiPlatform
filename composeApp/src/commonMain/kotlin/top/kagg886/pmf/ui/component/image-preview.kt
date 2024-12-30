@@ -178,7 +178,7 @@ fun ImagePreviewer(
                                         snack.showSnackbar("文件仍在下载，请稍等片刻...")
                                         return@launch
                                     }
-                                    shareFile(file)
+                                    shareFile(file, mime = "image/*")
                                     showMenu = false
                                 }
                             }
