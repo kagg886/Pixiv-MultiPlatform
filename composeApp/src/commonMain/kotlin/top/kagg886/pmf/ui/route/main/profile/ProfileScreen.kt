@@ -65,7 +65,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
             }
             return
         }
-        val state = rememberDrawerState(DrawerValue.Closed)
+        val state = rememberDrawerState(DrawerValue.Open)
         val scope = rememberCoroutineScope()
         ModalNavigationDrawer(
             drawerContent = {

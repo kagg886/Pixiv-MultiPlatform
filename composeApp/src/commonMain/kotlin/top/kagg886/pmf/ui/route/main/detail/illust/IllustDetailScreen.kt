@@ -13,9 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -26,7 +24,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -47,6 +44,7 @@ import top.kagg886.pmf.ui.util.CommentPanel
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 import top.kagg886.pmf.view
 
@@ -119,11 +117,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             }
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                val padding = PaddingValues(horizontal = 25.dp)
-                Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight().padding(padding)) {
+                Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
                     IllustPreview(illust)
                 }
-                Box(Modifier.weight(1f).fillMaxHeight().padding(padding)) {
+                Box(Modifier.weight(1f).fillMaxHeight()) {
                     IllustComment(illust)
                 }
             }
@@ -180,7 +177,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     }
 
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun IllustPreview(illust: Illust) {
         val img by remember(illust.hashCode()) {
@@ -217,8 +214,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
-            LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
+            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(show) {
+                    Spacer(Modifier.height(16.dp))
                     ProgressedAsyncImage(
                         url = it,
                         contentScale = ContentScale.FillWidth,
@@ -229,10 +227,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 preview = true
                             }
                     )
-                    Spacer(Modifier.height(16.dp))
                 }
                 if (needExpand && !expand) {
                     item {
+                        Spacer(Modifier.height(16.dp))
                         TextButton(
                             onClick = {
                                 expand = true
@@ -244,6 +242,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
                 item {
+                    Spacer(Modifier.height(16.dp))
                     AuthorCard(
                         modifier = Modifier.fillMaxWidth(),
                         user = illust.user,
@@ -257,9 +256,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             model.unFollowUser().join()
                         }
                     }
-                    Spacer(Modifier.height(16.dp))
                 }
                 item {
+                    Spacer(Modifier.height(16.dp))
                     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                         ListItem(
                             overlineContent = {
@@ -340,34 +339,64 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
                 item {
-                    FlowRow {
-                        for (tag in illust.tags) {
-                            AssistChip(
-                                modifier = Modifier.padding(4.dp),
-                                onClick = {
-                                    nav.push(
-                                        SearchScreen(
-                                            initialKeyWords = tag.name
+                    Spacer(Modifier.height(16.dp))
+                    OutlinedCard {
+                        ListItem(
+                            overlineContent = {
+                                Text("标签")
+                            },
+                            headlineContent = {
+                                FlowRow {
+                                    for (tag in illust.tags) {
+                                        AssistChip(
+                                            modifier = Modifier.padding(4.dp),
+                                            onClick = {
+                                                nav.push(
+                                                    SearchScreen(
+                                                        initialKeyWords = tag.name
+                                                    )
+                                                )
+                                            },
+                                            label = {
+                                                Column {
+                                                    Text(tag.name, style = MaterialTheme.typography.labelMedium)
+                                                    tag.translatedName?.let {
+                                                        Text(it, style = MaterialTheme.typography.labelSmall)
+                                                    }
+                                                }
+                                            }
                                         )
-                                    )
-                                },
-                                label = {
-                                    Column {
-                                        Text(tag.name, style = MaterialTheme.typography.labelMedium)
-                                        tag.translatedName?.let {
-                                            Text(it, style = MaterialTheme.typography.labelSmall)
-                                        }
                                     }
                                 }
-                            )
-                        }
+
+                            }
+                        )
                     }
+                }
+                item {
+                    Spacer(Modifier.height(16.dp))
+                    OutlinedCard {
+                        ListItem(
+                            overlineContent = {
+                                Text("发布日期")
+                            },
+                            headlineContent = {
+                                Text(
+                                    illust.createTime.toReadableString()
+                                )
+                            }
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(Modifier.height(16.dp))
                 }
             }
 
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(scroll),
-                modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight()
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp).fillMaxHeight()
             )
         }
     }

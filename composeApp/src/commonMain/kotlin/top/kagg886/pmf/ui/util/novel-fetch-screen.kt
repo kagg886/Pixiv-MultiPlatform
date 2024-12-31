@@ -83,7 +83,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         Column {
                             ListItem(
                                 overlineContent = {
-                                    Row {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
                                         if (it.isR18 || it.isR18G) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
@@ -107,6 +107,9 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 contentDescription = null,
                                                 tint = Color.Yellow
                                             )
+                                        }
+                                        if (!it.series.isNull) {
+                                            Text(it.series.title)
                                         }
                                     }
                                 },

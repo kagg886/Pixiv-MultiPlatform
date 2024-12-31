@@ -34,7 +34,9 @@ import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
 import top.kagg886.pmf.ui.route.main.search.SearchTab
+import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.view
 
 
@@ -136,7 +138,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalLayoutApi::class, ExperimentalResourceApi::class)
+    @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         when (state) {
             is NovelDetailViewState.Error -> ErrorPage(text = state.cause) {
@@ -184,8 +186,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                                .fillMaxWidth(0.8f),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(horizontal = 8.dp),
                                             state.novel.user,
                                             onFavoriteClick = {
                                                 if (it) {
@@ -271,35 +272,78 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     Spacer(Modifier.height(16.dp))
                                 }
                                 item {
-                                    ListItem(
-                                        modifier = Modifier.padding(horizontal = 8.dp),
-                                        headlineContent = {
-                                            Text("标签")
-                                        },
-                                        supportingContent = {
-                                            FlowRow(
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                            ) {
-                                                for (tag in state.novel.tags) {
-                                                    AssistChip(
-                                                        label = {
-                                                            Text(text = tag.name)
-                                                        },
-                                                        onClick = {
-                                                            nav.push(
-                                                                SearchScreen(
-                                                                    initialKeyWords = tag.name,
-                                                                    tab = SearchTab.NOVEL
+                                    OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text("标签")
+                                            },
+                                            supportingContent = {
+                                                FlowRow(
+                                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                ) {
+                                                    for (tag in state.novel.tags) {
+                                                        AssistChip(
+                                                            label = {
+                                                                Text(text = tag.name)
+                                                            },
+                                                            onClick = {
+                                                                nav.push(
+                                                                    SearchScreen(
+                                                                        initialKeyWords = tag.name,
+                                                                        tab = SearchTab.NOVEL
+                                                                    )
                                                                 )
-                                                            )
-                                                        }
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                            }
+                                        )
+                                    }
+                                }
+
+                                if (!state.novel.series.isNull) {
+                                    item {
+                                        Spacer(Modifier.height(16.dp))
+                                        OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
+                                            ListItem(
+                                                headlineContent = {
+                                                    Text("所属系列")
+                                                },
+                                                supportingContent = {
+                                                    Text(state.novel.series.title)
+                                                },
+                                                modifier = Modifier.clickable {
+                                                    nav.push(
+                                                        NovelSeriesScreen(
+                                                            state.novel.series.id!!.toInt()
+                                                        )
                                                     )
                                                 }
-                                            }
-
+                                            )
                                         }
-                                    )
+                                    }
                                 }
+
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                    OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text("创建时间")
+                                            },
+                                            supportingContent = {
+                                                Text(state.novel.createDate.toReadableString())
+                                            }
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                }
+
                             }
                         }
 

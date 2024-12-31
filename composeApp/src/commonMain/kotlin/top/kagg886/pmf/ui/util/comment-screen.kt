@@ -16,11 +16,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.util.toReadableString
 
 @Composable
 fun CommentPanel(model: CommentViewModel, modifier: Modifier = Modifier) {
@@ -50,7 +53,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
 
             val scope = rememberCoroutineScope()
             var isRefresh by remember { mutableStateOf(false) }
-            Box(modifier) {
+            Column(modifier) {
                 PullToRefreshBox(
                     isRefreshing = isRefresh,
                     onRefresh = {
@@ -61,7 +64,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             isRefresh = false
                         }
                     },
-                    modifier = Modifier.fillMaxSize().padding(bottom = TextFieldDefaults.MinHeight + 5.dp)
+                    modifier = Modifier.fillMaxWidth().weight(1f)
                 ) {
                     if (state.comments.isEmpty()) {
                         ErrorPage(text = "页面为空") {
@@ -77,6 +80,9 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                 modifier = Modifier.fillMaxWidth().padding(5.dp)
                             ) {
                                 ListItem(
+                                    overlineContent = {
+                                        Text(comment.date.toReadableString())
+                                    },
                                     headlineContent = {
                                         Text(comment.user.name, style = MaterialTheme.typography.labelSmall)
                                     },
@@ -212,7 +218,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     onValueChange = {
                         text = it
                     },
-                    modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(5.dp),
+                    modifier = Modifier.fillMaxWidth().padding(5.dp),
                     label = {
                         Text(
                             if (state.replyTarget == null) {
