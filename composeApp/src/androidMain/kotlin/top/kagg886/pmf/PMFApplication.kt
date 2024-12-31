@@ -63,7 +63,7 @@ class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtEx
             i.putExtra("exceptions", e)
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(i)
-            android.os.Process.killProcess(android.os.Process.myPid())
+//            android.os.Process.killProcess(android.os.Process.myPid())
         }
     }
 }

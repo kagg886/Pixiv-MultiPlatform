@@ -92,7 +92,18 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                     }
 
                     is UploadImageNode -> {
-                        val img = images[i.url]!![NovelImagesSize.N480Mw]
+                        val priority = listOf(
+                            NovelImagesSize.N480Mw,
+                            NovelImagesSize.N1200x1200,
+                            NovelImagesSize.N128x128,
+                            NovelImagesSize.NOriginal,
+                            NovelImagesSize.N240Mw
+                        )
+                        val img = priority.firstNotNullOf {
+                            kotlin.runCatching {
+                                images[i.url]!![it]
+                            }.getOrNull()
+                        }
                         nodeMap[index] = NovelNodeElement.UploadImage(img)
                     }
 
