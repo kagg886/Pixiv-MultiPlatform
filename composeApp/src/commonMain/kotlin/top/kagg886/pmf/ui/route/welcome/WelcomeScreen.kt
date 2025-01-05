@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,11 +18,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.BuildConfig
+import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.kotlin
 import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
+import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 
@@ -71,7 +74,7 @@ class WelcomeScreen : Screen {
                                 Spacer(modifier = Modifier.weight(1f))
                                 FloatingActionButton(
                                     onClick = {
-                                        model.confirmInited()
+                                        model.nextStep()
                                     }
                                 ) {
                                     Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
@@ -80,6 +83,26 @@ class WelcomeScreen : Screen {
                             }
 
                         }
+                    }
+                }
+
+                WelcomeViewState.ConfigureSetting -> {
+                    val toast = LocalSnackBarHost.current
+                    LaunchedEffect(Unit) {
+                        toast.showSnackbar("完成设置后，点击右下角浮动按钮进入主页面")
+                    }
+                    Scaffold(
+                        floatingActionButton = {
+                            FloatingActionButton(
+                                onClick = {
+                                    model.nextStep()
+                                }
+                            ) {
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
+                            }
+                        }
+                    ) {
+                        SettingScreen().Content()
                     }
                 }
 
