@@ -91,7 +91,7 @@ val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
 
 @Composable
 @Preview
-fun App() {
+fun App(onNightModeListener: (Boolean) -> Unit = {}) {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
@@ -107,8 +107,18 @@ fun App() {
         val lightTheme = remember(currentThemeSerialized) {
             currentThemeSerialized?.toColorScheme() ?: lightColorScheme()
         }
+        val system = isSystemInDarkTheme()
+        LaunchedEffect(darkModeValue,system) {
+            val isInDarkMode = when (darkModeValue.value) {
+                AppConfig.DarkMode.System -> system
+                AppConfig.DarkMode.Light -> false
+                AppConfig.DarkMode.Dark -> true
+            }
+            onNightModeListener(isInDarkMode)
+        }
+
         val theme = when (darkModeValue.value) {
-            AppConfig.DarkMode.System -> if (isSystemInDarkTheme()) darkColorScheme() else lightTheme
+            AppConfig.DarkMode.System -> if (system) darkColorScheme() else lightTheme
             AppConfig.DarkMode.Light -> lightTheme
             AppConfig.DarkMode.Dark -> darkColorScheme()
         }
