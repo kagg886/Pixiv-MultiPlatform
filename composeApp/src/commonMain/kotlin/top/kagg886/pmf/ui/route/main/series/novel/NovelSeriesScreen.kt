@@ -19,15 +19,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.SeriesDetail
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
-import top.kagg886.pmf.ui.util.AuthorCard
-import top.kagg886.pmf.ui.util.NovelFetchScreen
-import top.kagg886.pmf.ui.util.NovelFetchViewModel
-import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.*
 
 class NovelSeriesScreen(private val id: Int) : Screen {
     override val key: ScreenKey = "novel_series_$id"
@@ -54,7 +50,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                     NovelSeriesFetchModel(id)
                 }
 
-                if (currentPlatform.useWideScreenMode) {
+                if (useWideScreenMode) {
                     WideNovelSeriesScreenContent(state.info, novelModel)
                     return
                 }

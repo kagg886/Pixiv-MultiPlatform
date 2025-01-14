@@ -22,8 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
@@ -31,6 +30,7 @@ import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
+import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
 
@@ -53,7 +53,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
             }
         }
         var select by page.page
-        if (currentPlatform.useWideScreenMode) {
+        if (useWideScreenMode) {
             PermanentNavigationDrawer(
                 drawerContent = {
                     SettingDrawerSheet(me = me, select) {

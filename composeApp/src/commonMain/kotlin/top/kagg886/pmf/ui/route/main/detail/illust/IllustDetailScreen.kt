@@ -30,8 +30,7 @@ import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
@@ -87,7 +86,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             }
 
             is IllustDetailViewState.Success -> {
-                if (currentPlatform.useWideScreenMode) {
+                if (useWideScreenMode) {
                     WideScreenIllustDetail(state.illust)
                     return
                 }

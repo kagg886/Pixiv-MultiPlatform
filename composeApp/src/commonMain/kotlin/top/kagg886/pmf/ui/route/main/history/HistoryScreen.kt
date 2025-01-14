@@ -17,8 +17,7 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
 
@@ -32,7 +31,7 @@ class HistoryScreen : Screen {
     override fun Content() {
         Scaffold(
             topBar = {
-                if (currentPlatform.useWideScreenMode) {
+                if (useWideScreenMode) {
                     TopAppBar(
                         title = {
                             Text("历史记录")

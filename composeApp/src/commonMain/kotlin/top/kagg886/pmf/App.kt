@@ -3,7 +3,6 @@ package top.kagg886.pmf
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,11 +13,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -30,10 +26,7 @@ import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
 import com.github.panpf.sketch.http.OkHttpStack
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Path.Companion.toOkioPath
@@ -44,11 +37,10 @@ import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
@@ -71,6 +63,7 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.bypassSNI
 import top.kagg886.pmf.util.toColorScheme
@@ -172,7 +165,7 @@ fun App() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
-    if (currentPlatform.useWideScreenMode) {
+    if (useWideScreenMode) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(hostState = LocalSnackBarHost.current)

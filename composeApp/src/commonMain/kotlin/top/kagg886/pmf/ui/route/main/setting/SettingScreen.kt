@@ -34,14 +34,14 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.useWideScreenMode
+
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
+import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
@@ -53,7 +53,7 @@ class SettingScreen : Screen {
     @Composable
     override fun Content() {
         Column(Modifier.verticalScroll(rememberScrollState())) {
-            if (currentPlatform.useWideScreenMode) {
+            if (useWideScreenMode) {
                 TopAppBar(
                     title = {
                         Text("设置")
