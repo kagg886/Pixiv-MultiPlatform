@@ -18,7 +18,7 @@ val pkgCode: Int = with(pkgVersion.split(".")) {
     val x = this[0].toInt()
     val y = this[1].toInt()
     val z = this[2].toInt()
-    x + y + z + x * y + y * z + z * x
+    x * 100 + y * 10 + z
 }
 
 println("APP_VERSION: $pkgVersion($pkgCode)")
@@ -130,7 +130,7 @@ kotlin {
             //epub export
             implementation(libs.epublib.core.get().toString()) {
                 exclude("xmlpull", "xmlpull")
-                exclude("net.sf.kxml","kxml2")
+                exclude("net.sf.kxml", "kxml2")
             }
             implementation(libs.jsoup)
 
