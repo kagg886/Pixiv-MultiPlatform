@@ -382,6 +382,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
             is NovelDetailViewState.Success -> {
                 Box(modifier.fillMaxWidth()) {
                     val scroll = rememberScrollState()
+                    val controller = remember {
+                        keyboardScrollerController(scroll) {
+                            scroll.viewportSize.toFloat()
+                        }
+                    }
+
+                    KeyListenerFromGlobalPipe(controller)
+
                     RichText(
                         state = state.nodeMap.toSortedMap().map { it.value },
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll)

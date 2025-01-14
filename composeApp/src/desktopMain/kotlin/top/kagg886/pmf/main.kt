@@ -6,6 +6,8 @@ import androidx.compose.ui.window.*
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.ui.route.crash.CrashApp
 import kotlin.system.exitProcess
@@ -33,14 +35,25 @@ fun main() {
                     lastException = ex
                     exitApplication()
                 }
-            }
+            },
+            LocalKeyStateFlow provides remember { MutableSharedFlow() }
         ) {
-            Window(
-                onCloseRequest = ::exitApplication,
-                title = BuildConfig.APP_NAME,
-                icon = painterResource(Res.drawable.kotlin),
-            ) {
-                App()
+            CompositionLocalProvider {
+                val flow = LocalKeyStateFlow.current as MutableSharedFlow
+                val scope = rememberCoroutineScope()
+                Window(
+                    onCloseRequest = ::exitApplication,
+                    title = BuildConfig.APP_NAME,
+                    icon = painterResource(Res.drawable.kotlin),
+                    onKeyEvent = {
+                        scope.launch {
+                            flow.emit(it)
+                        }
+                        true
+                    }
+                ) {
+                    App()
+                }
             }
         }
     }

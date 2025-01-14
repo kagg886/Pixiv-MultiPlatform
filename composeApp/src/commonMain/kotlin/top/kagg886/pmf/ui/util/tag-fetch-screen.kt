@@ -45,6 +45,16 @@ private fun TagsFetchContent0(
             val scroll = state.scrollerState
             var isRefresh by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
+
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
+
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {

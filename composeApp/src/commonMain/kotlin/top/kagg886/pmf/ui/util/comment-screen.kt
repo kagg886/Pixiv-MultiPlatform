@@ -74,7 +74,17 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         }
                         return@PullToRefreshBox
                     }
-                    LazyColumn(state = state.scrollerState, modifier = Modifier.padding(end = 8.dp)) {
+
+                    val controller = remember {
+                        keyboardScrollerController(scroll) {
+                            scroll.layoutInfo.viewportSize.height.toFloat()
+                        }
+                    }
+
+                    KeyListenerFromGlobalPipe(controller)
+
+
+                    LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
                         items(state.comments) { comment ->
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp)

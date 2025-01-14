@@ -46,15 +46,17 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
 
         is NovelFetchViewState.ShowNovelList -> {
             val scroll = state.scrollerState
-
-//            LaunchedEffect(refreshState.isRefreshing) {
-//                if (refreshState.isRefreshing) {
-//                    model.initNovel(true).join()
-//                    refreshState.endRefresh()
-//                }
-//            }
-            var isRefresh by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
+            var isRefresh by remember { mutableStateOf(false) }
+
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {

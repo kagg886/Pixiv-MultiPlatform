@@ -1,6 +1,8 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -17,11 +19,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import top.kagg886.pmf.LocalKeyStateFlow
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
@@ -50,6 +57,15 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
             val scroll = state.scrollerState
             val scope = rememberCoroutineScope()
             var isRefresh by remember { mutableStateOf(false) }
+
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {

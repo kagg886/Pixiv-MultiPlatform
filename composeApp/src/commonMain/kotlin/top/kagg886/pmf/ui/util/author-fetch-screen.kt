@@ -44,6 +44,15 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                 mutableStateOf(false)
             }
 
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
+
             PullToRefreshBox(
                 isRefreshing = refresh,
                 onRefresh = {

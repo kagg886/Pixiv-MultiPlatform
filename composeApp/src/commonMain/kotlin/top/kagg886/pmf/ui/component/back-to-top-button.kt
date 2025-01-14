@@ -10,10 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.BackToTopState.*
+import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 
 enum class BackToTopState {
     HIDE,
@@ -49,6 +54,12 @@ fun BackToTopOrRefreshButton(
         when (state) {
             HIDE -> {}
             SHOW_BTT -> {
+                KeyListenerFromGlobalPipe {
+                    if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
+                    if (it.key == Key.R) {
+                        onBackToTop()
+                    }
+                }
                 FloatingActionButton(
                     onClick = {
                         scope.launch {
@@ -61,6 +72,12 @@ fun BackToTopOrRefreshButton(
             }
 
             SHOW_RFH -> {
+                KeyListenerFromGlobalPipe {
+                    if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
+                    if (it.key == Key.R) {
+                        onRefresh()
+                    }
+                }
                 FloatingActionButton(
                     onClick = {
                         scope.launch {

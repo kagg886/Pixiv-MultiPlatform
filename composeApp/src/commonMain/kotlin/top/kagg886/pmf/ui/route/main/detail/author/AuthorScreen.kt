@@ -12,6 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -29,8 +33,11 @@ import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.v2.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
 import top.kagg886.pmf.ui.util.AuthorCard
+import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import kotlin.math.max
+import kotlin.math.min
 
 class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
 
@@ -74,6 +81,18 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
 
             is AuthorScreenState.Success -> {
                 val pager = rememberPagerState(initialPage = state.initPage) { 5 }
+
+                KeyListenerFromGlobalPipe {
+                    if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
+                    when (it.key) {
+                        Key.DirectionRight -> {
+                            pager.animateScrollToPage(min(pager.currentPage + 1, pager.pageCount-1))
+                        }
+                        Key.DirectionLeft -> {
+                            pager.animateScrollToPage(max(pager.currentPage - 1, 0))
+                        }
+                    }
+                }
 
 
                 var infoDialog by remember {

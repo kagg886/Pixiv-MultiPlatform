@@ -21,7 +21,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var galleryOptions: Gallery by serializedValue(
         key = "gallery_options",
-        defaultValue = Gallery.FixColumnCount(if (currentPlatform.useWideScreenMode) 3 else 2),
+        defaultValue = Gallery.FixColumnCount(if (currentPlatform is Platform.Desktop || currentPlatform is Platform.Android.AndroidPad) 3 else 2),
     )
 
 

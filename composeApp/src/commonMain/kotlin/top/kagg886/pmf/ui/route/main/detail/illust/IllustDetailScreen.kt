@@ -39,10 +39,7 @@ import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.util.AuthorCard
-import top.kagg886.pmf.ui.util.CommentPanel
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
@@ -214,6 +211,16 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
+
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
+
             LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(show) {
                     Spacer(Modifier.height(16.dp))

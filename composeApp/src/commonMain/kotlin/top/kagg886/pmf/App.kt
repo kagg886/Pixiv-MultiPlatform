@@ -3,8 +3,9 @@ package top.kagg886.pmf
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -13,7 +14,11 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -25,6 +30,10 @@ import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
 import com.github.panpf.sketch.http.OkHttpStack
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Path.Companion.toOkioPath
@@ -35,9 +44,11 @@ import org.koin.java.KoinJavaComponent.getKoin
 import org.koin.java.KoinJavaComponent.inject
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
+import top.kagg886.pmf.backend.useWideScreenMode
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
@@ -67,6 +78,7 @@ import top.kagg886.pmf.util.toSerialized
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -77,6 +89,10 @@ val LocalDarkSettings = compositionLocalOf<MutableState<AppConfig.DarkMode>> {
 }
 
 val LocalColorScheme = compositionLocalOf<MutableState<SerializedTheme?>> {
+    error("not provided")
+}
+
+val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
     error("not provided")
 }
 
@@ -153,8 +169,102 @@ fun App() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-expect fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit)
+fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
+    if (currentPlatform.useWideScreenMode) {
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = LocalSnackBarHost.current)
+            }
+        ) {
+            Row(modifier = Modifier.fillMaxSize().padding(it)) {
+                if (NavigationItem.entries.any { item -> item.screenClass.isInstance(nav.lastItemOrNull) }) {
+                    NavigationRail {
+                        SearchButton()
+                        for (entry in NavigationItem.entries) {
+                            NavigationRailItem(
+                                selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                                onClick = {
+                                    if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
+                                        return@NavigationRailItem
+                                    }
+                                    nav.push(entry.screenClass.primaryConstructor!!.call())
+                                },
+                                icon = {
+                                    Icon(imageVector = entry.icon, null)
+                                },
+                                label = {
+                                    Text(entry.title)
+                                }
+                            )
+                        }
+                        Spacer(Modifier.weight(1f))
+                        ProfileAvatar()
+                    }
+                }
+                content(Modifier.fillMaxSize())
+            }
+
+        }
+        return
+    }
+
+    var title by remember {
+        mutableStateOf("推荐")
+    }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = {
+            SnackbarHost(
+                LocalSnackBarHost.current
+            )
+        },
+        topBar = {
+            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+                TopAppBar(
+                    title = {
+                        Text(title)
+                    },
+                    navigationIcon = {
+                        ProfileAvatar()
+                    },
+                    actions = {
+                        SearchButton()
+                    }
+                )
+            }
+        },
+        bottomBar = {
+            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+                NavigationBar {
+                    for (entry in NavigationItem.entries) {
+                        NavigationBarItem(
+                            selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                            onClick = {
+                                if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
+                                    return@NavigationBarItem
+                                }
+                                title = entry.title
+                                nav.push(entry.screenClass.primaryConstructor!!.call())
+                            },
+                            icon = {
+                                Icon(imageVector = entry.icon, null)
+                            },
+                            label = {
+                                Text(entry.title)
+                            }
+                        )
+                    }
+                }
+            }
+        }
+    ) {
+        content(Modifier.padding(it))
+    }
+
+
+}
 
 @Composable
 fun ProfileAvatar() {
