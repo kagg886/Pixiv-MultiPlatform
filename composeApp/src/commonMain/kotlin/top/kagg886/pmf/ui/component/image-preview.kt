@@ -28,6 +28,7 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import top.kagg886.pmf.*
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
 import java.net.URI
 
@@ -97,7 +98,7 @@ fun ImagePreviewer(
                             },
                             leadingIcon = {
                                 Icon(
-                                    painter = painterResource(Res.drawable.copy),
+                                    imageVector = Copy,
                                     null
                                 )
                             },

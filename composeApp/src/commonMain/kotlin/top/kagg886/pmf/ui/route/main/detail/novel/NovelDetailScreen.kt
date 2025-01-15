@@ -30,6 +30,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
+import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.search.SearchScreen
@@ -37,7 +38,6 @@ import top.kagg886.pmf.ui.route.main.search.SearchTab
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.toReadableString
-import top.kagg886.pmf.view
 
 
 class NovelDetailScreen(private val id: Long) : Screen {
@@ -223,7 +223,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     ) {
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Icon(
-                                                painter =  painterResource(Res.drawable.view),
+                                                imageVector = View,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(30.dp)
                                             )
