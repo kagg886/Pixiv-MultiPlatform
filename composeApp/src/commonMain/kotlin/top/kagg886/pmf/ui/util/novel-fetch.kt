@@ -40,6 +40,11 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
             }
             return@filter true
         }.filter {
+            if (AppConfig.filterLongTag) {
+                return@filter it.tags.find { it.name.length > AppConfig.filterLongTagMinLength } == null
+            }
+            return@filter true
+        }.filter {
             if (AppConfig.filterAiNovel) {
                 return@filter !it.isAI
             }

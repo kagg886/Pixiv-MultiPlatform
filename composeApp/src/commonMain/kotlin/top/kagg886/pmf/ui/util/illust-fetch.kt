@@ -35,6 +35,9 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
 
     private fun Sequence<Illust>.filterUserCustomSettings() = this
         .filter {
+            !it.isLimited
+        }
+        .filter {
             if (AppConfig.filterAi) {
                 return@filter !it.isAI
             }

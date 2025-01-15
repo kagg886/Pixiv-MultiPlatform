@@ -36,7 +36,7 @@ private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewMode
                 if (result.isFailure) {
                     return null
                 }
-                return context!!.illusts.filterNot { it.isLimited }
+                return context!!.illusts
             }
 
         }

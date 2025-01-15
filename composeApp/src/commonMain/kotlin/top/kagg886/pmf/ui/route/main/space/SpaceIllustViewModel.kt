@@ -20,7 +20,7 @@ class SpaceIllustViewModel:IllustFetchViewModel() {
                     return null
                 }
                 it++
-                return result.getOrThrow().filterNot { it.isLimited }
+                return result.getOrThrow()
             }
 
         }

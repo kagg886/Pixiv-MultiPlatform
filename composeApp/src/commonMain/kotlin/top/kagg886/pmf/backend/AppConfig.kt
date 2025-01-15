@@ -39,6 +39,9 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterShortNovel by boolean("filter_short_novel", false)
     var filterShortNovelMaxLength by int("filter_short_novel_max_len", 100)
 
+    var filterLongTag by boolean("filter_long_tag", false)
+    var filterLongTagMinLength by int("filter_long_tag_min_len", 15)
+
     var recordIllustHistory by boolean("record_illust", true)
     var recordNovelHistory by boolean("record_novel", true)
     var recordSearchHistory by boolean("record_search", true)

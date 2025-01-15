@@ -423,6 +423,48 @@ class SettingScreen : Screen {
                         Text("${textSize}sp", fontSize = textSize.sp)
                     }
                 )
+                var filterLongTag by remember {
+                    mutableStateOf(AppConfig.filterLongTag)
+                }
+                var filterLongTagLength by remember {
+                    mutableStateOf(AppConfig.filterLongTagMinLength)
+                }
+                LaunchedEffect(filterLongTag) {
+                    AppConfig.filterLongTag = filterLongTag
+                    if (!filterLongTag) {
+                        filterLongTagLength = 15
+                    }
+                }
+                SettingsSwitch(
+                    state = filterLongTag,
+                    title = {
+                        Text("过滤长TAG小说")
+                    },
+                    subtitle = {
+                        Text("这类小说内部的主题很可能与TAG不相关")
+                    },
+                    onCheckedChange = {
+                        filterLongTag = it
+                    }
+                )
+                SettingsSlider(
+                    enabled = filterLongTag,
+                    title = {
+                        Text("TAG最大长度")
+                    },
+                    subtitle = {
+                        Column {
+                            Text("当某一TAG长度超出这个值时，将不会显示")
+                            Text("当前值:$filterLongTagLength")
+                        }
+                    },
+                    value = filterLongTagLength.toFloat(),
+                    valueRange = 5f..25f,
+                    onValueChange = {
+                        filterLongTagLength = it.roundToInt()
+                    }
+                )
+
                 var filterShortNovel by remember {
                     mutableStateOf(AppConfig.filterShortNovel)
                 }
