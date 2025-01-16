@@ -96,7 +96,7 @@ fun App(onNightModeListener: (Boolean) -> Unit = {}) {
         mutableStateOf(AppConfig.darkMode)
     }
     val colorSchemeValue = remember {
-        mutableStateOf<SerializedTheme?>(AppConfig.colorScheme ?: lightColorScheme().toSerialized())
+        mutableStateOf(AppConfig.colorScheme)
     }
     CompositionLocalProvider(
         LocalDarkSettings provides darkModeValue,

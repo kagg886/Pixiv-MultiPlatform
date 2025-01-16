@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +41,27 @@ sealed interface NovelNodeElement {
     data class Title(val text: String) : NovelNodeElement
     data class NewPage(val index: Int) : NovelNodeElement
     data class JumpPage(val page: Int) : NovelNodeElement
+}
+
+fun AnnotatedString.Builder.withLink(
+    colors: ColorScheme,
+    link: String,
+    display: String = link,
+) {
+    withLink(
+        link = LinkAnnotation.Url(
+            url = link,
+            styles = TextLinkStyles(
+                style = SpanStyle(color = colors.primary),
+                hoveredStyle = SpanStyle(
+                    color = colors.primaryContainer,
+                    textDecoration = TextDecoration.Underline
+                ),
+            )
+        ),
+    ) {
+        this.append(display)
+    }
 }
 
 @Composable
@@ -132,19 +150,10 @@ fun RichText(
 
                     is NovelNodeElement.JumpUri -> {
                         withLink(
-                            link = LinkAnnotation.Url(
-                                url = i.uri.trim(),
-                                styles = TextLinkStyles(
-                                    style = SpanStyle(color = colors.primary),
-                                    hoveredStyle = SpanStyle(
-                                        color = colors.primaryContainer,
-                                        textDecoration = TextDecoration.Underline
-                                    ),
-                                )
-                            ),
-                        ) {
-                            this.append(i.text)
-                        }
+                            colors = colors,
+                            link = i.uri,
+                            display = i.text
+                        )
                     }
 
                     is NovelNodeElement.NewPage -> {
