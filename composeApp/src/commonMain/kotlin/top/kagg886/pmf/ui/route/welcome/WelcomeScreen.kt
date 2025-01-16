@@ -67,7 +67,10 @@ class WelcomeScreen : Screen {
     @Composable
     fun WelcomeContent(model: WelcomeModel, state0: WelcomeViewState) {
         when (state0) {
-            WelcomeViewState.Loading -> {}
+            WelcomeViewState.Loading -> {
+                //安卓端无法进入
+//                Text("Welcome!")
+            }
 
             is WelcomeViewState.ConfigureSetting -> {
                 AnimatedContent(

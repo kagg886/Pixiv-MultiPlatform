@@ -60,7 +60,7 @@ fun main() {
 
     if (lastException != null) {
         singleWindowApplication {
-            CrashApp(throwable = lastException!!)
+            CrashApp(throwable = lastException!!.stackTraceToString())
         }
         exitProcess(1)
     }

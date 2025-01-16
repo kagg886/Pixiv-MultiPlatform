@@ -21,7 +21,7 @@ import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrashApp(modifier: Modifier = Modifier, throwable: Throwable) {
+fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
     var dialog by remember {
         mutableStateOf(true)
     }
@@ -74,7 +74,7 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: Throwable) {
                         IconButton(onClick = {
                             clip.setText(
                                 buildAnnotatedString {
-                                    append(throwable.stackTraceToString())
+                                    append(throwable)
                                 }
                             )
                             handler.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose")
@@ -87,7 +87,7 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: Throwable) {
         }
     ) {
         Text(
-            text = throwable.stackTraceToString().replace("\t", "    "),
+            text = throwable.replace("\t", "    "),
             modifier = Modifier.padding(it).padding(horizontal = 5.dp).verticalScroll(rememberScrollState())
         )
     }
