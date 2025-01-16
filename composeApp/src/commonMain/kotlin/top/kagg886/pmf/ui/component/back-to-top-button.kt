@@ -52,7 +52,15 @@ fun BackToTopOrRefreshButton(
         }
     ) { state ->
         when (state) {
-            HIDE -> {}
+            HIDE -> {
+                //Android use this state
+                KeyListenerFromGlobalPipe {
+                    if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
+                    if (it.key == Key.R) {
+                        onRefresh()
+                    }
+                }
+            }
             SHOW_BTT -> {
                 KeyListenerFromGlobalPipe {
                     if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
