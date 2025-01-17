@@ -68,8 +68,10 @@ class WelcomeScreen : Screen {
     fun WelcomeContent(model: WelcomeModel, state0: WelcomeViewState) {
         when (state0) {
             WelcomeViewState.Loading -> {
-                //安卓端无法进入
-//                Text("Welcome!")
+                //安卓端无法进入时需要在这里提交副作用
+                LaunchedEffect(Unit) {
+                    model.initInCompose()
+                }
             }
 
             is WelcomeViewState.ConfigureSetting -> {

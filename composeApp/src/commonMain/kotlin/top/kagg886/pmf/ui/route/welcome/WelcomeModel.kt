@@ -18,9 +18,13 @@ class WelcomeModel(
     private var isInited by settings.boolean("welcome_init", false)
 
     override val container: Container<WelcomeViewState, WelcomeSideEffect> = container(WelcomeViewState.Loading) {
+        initInCompose()
+    }
+
+    fun initInCompose() = intent {
         if (isInited) {
             postSideEffect(WelcomeSideEffect.NavigateToMain)
-            return@container
+            return@intent
         }
         reduce {
             WelcomeViewState.ConfigureSetting.WELCOME
