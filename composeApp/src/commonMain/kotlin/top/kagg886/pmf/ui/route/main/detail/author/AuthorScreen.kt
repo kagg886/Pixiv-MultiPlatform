@@ -62,7 +62,7 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
@@ -70,7 +70,7 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
         }
         when (state) {
             AuthorScreenState.Error -> {
-                ErrorPage(text = "加载失败") {
+                ErrorPage(text = "加载失败", showBackButton = true) {
                     model.loadUserById(id)
                 }
             }

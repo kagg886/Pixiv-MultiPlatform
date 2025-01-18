@@ -17,7 +17,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 
 @Composable
-fun ErrorPage(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) {
+fun ErrorPage(modifier: Modifier = Modifier, showBackButton: Boolean = false, text: String, onClick: () -> Unit) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text)
@@ -27,14 +27,16 @@ fun ErrorPage(modifier: Modifier = Modifier, text: String, onClick: () -> Unit) 
             }
         }
 
-        val nav = LocalNavigator.currentOrThrow
-        IconButton(
-            onClick = {
-                nav.pop()
-            },
-            modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
-        ) {
-            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+        if (showBackButton) {
+            val nav = LocalNavigator.currentOrThrow
+            IconButton(
+                onClick = {
+                    nav.pop()
+                },
+                modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+            }
         }
     }
 }
