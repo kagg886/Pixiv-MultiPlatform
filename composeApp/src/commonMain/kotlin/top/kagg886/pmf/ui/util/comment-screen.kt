@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +24,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.util.toReadableString
 
 @Composable
@@ -89,6 +91,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp)
                             ) {
+                                val nav = LocalNavigator.currentOrThrow
                                 ListItem(
                                     overlineContent = {
                                         Text(comment.date.toReadableString())
@@ -99,7 +102,9 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     leadingContent = {
                                         ProgressedAsyncImage(
                                             url = comment.user.profileImageUrls.content,
-                                            modifier = Modifier.size(35.dp)
+                                            modifier = Modifier.size(35.dp).clickable {
+                                                nav.push(AuthorScreen(comment.user.id))
+                                            }
                                         )
                                     },
                                     trailingContent = {
@@ -148,7 +153,9 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                 leadingContent = {
                                                     ProgressedAsyncImage(
                                                         url = i.user.profileImageUrls.content,
-                                                        modifier = Modifier.size(25.dp)
+                                                        modifier = Modifier.size(25.dp).clickable {
+                                                            nav.push(AuthorScreen(i.user.id))
+                                                        }
                                                     )
                                                 },
                                                 supportingContent = {

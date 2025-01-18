@@ -27,6 +27,7 @@ class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorSc
             client.getUserInfo(id)
         }
         if (illust.isFailure) {
+            illust.exceptionOrNull()!!.printStackTrace()
             if (silent) {
                 reduce { AuthorScreenState.Error }
             }
