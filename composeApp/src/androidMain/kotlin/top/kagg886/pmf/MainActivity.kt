@@ -34,15 +34,7 @@ class MainActivity : ComponentActivity() {
             CompositionLocalProvider(
                 LocalKeyStateFlow provides flow
             ) {
-                App(
-                    onNightModeListener = { isNight ->
-                        enableEdgeToEdge(
-                            // will override by compose
-                            statusBarStyle = SystemBarStyle.auto(0, 0) { isNight },
-                            navigationBarStyle = SystemBarStyle.auto(0, 0) { isNight }
-                        )
-                    }
-                )
+                App()
             }
         }
     }
