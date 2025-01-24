@@ -210,7 +210,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {
-                                                Text(state.novel.caption)
+                                                HTMLRichText(
+                                                    html = state.novel.caption.ifEmpty { "没有简介" }
+                                                )
                                             }
                                         )
                                     }

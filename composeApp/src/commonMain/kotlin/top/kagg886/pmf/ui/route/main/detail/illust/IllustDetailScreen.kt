@@ -314,7 +314,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 Text(illust.title)
                             },
                             supportingContent = {
-                                Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
+                                HTMLRichText(
+                                    html = illust.caption.ifEmpty { "没有简介" },
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+//                                Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
                             },
                             trailingContent = {
                                 Row(
