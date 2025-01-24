@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,12 +24,18 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
+import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
@@ -44,6 +51,41 @@ import top.kagg886.pmf.util.wrap
 
 //class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
+
+    class PreFetch(private val id: Long) : Screen, KoinComponent {
+        private val client = PixivConfig.newAccountFromConfig()
+
+        @Composable
+        override fun Content() {
+            val nav = LocalNavigator.currentOrThrow
+            val snack = LocalSnackBarHost.current
+            val scope = rememberCoroutineScope()
+            LaunchedEffect(Unit) {
+                scope.launch {
+                    val illust = kotlin.runCatching {
+                        client.getIllustDetail(id)
+                    }
+                    if (illust.isFailure) {
+                        snack.showSnackbar("无法加载插画：$id")
+                        return@launch
+                    }
+                    nav.replace(IllustDetailScreen(illust.getOrThrow()))
+                }
+            }
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Loading()
+                IconButton(
+                    onClick = {
+                        scope.cancel()
+                        nav.pop()
+                    },
+                    modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                }
+            }
+        }
+    }
 
     constructor(illust: Illust) : this(wrap(illust))
 

@@ -15,6 +15,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -63,6 +65,7 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.bypassSNI
@@ -127,43 +130,47 @@ fun App(onNightModeListener: (Boolean) -> Unit = {}) {
                 color = MaterialTheme.colorScheme.background
             ) {
                 Navigator(WelcomeScreen()) {
-                    val s = LocalSnackBarHost.current
-                    CheckUpdateDialog()
+                    CompositionLocalProvider(
+                        LocalUriHandler provides rememberSupportPixivNavigateUriHandler(),
+                    ) {
+                        val s = LocalSnackBarHost.current
+                        CheckUpdateDialog()
 
-                    val model by inject<DownloadScreenModel>(clazz = DownloadScreenModel::class.java)
-                    model.collectSideEffect { toast ->
-                        when (toast) {
-                            is DownloadScreenSideEffect.Toast -> {
-                                if (toast.jump) {
-                                    val result = s.showSnackbar(
-                                        object : SnackbarVisuals {
-                                            override val actionLabel: String
-                                                get() = "是"
-                                            override val duration: SnackbarDuration
-                                                get() = SnackbarDuration.Long
-                                            override val message: String
-                                                get() = toast.msg
-                                            override val withDismissAction: Boolean
-                                                get() = true
+                        val model by inject<DownloadScreenModel>(clazz = DownloadScreenModel::class.java)
+                        model.collectSideEffect { toast ->
+                            when (toast) {
+                                is DownloadScreenSideEffect.Toast -> {
+                                    if (toast.jump) {
+                                        val result = s.showSnackbar(
+                                            object : SnackbarVisuals {
+                                                override val actionLabel: String
+                                                    get() = "是"
+                                                override val duration: SnackbarDuration
+                                                    get() = SnackbarDuration.Long
+                                                override val message: String
+                                                    get() = toast.msg
+                                                override val withDismissAction: Boolean
+                                                    get() = true
+                                            }
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
                                         }
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
+                                        return@collectSideEffect
                                     }
-                                    return@collectSideEffect
+                                    s.showSnackbar(toast.msg, withDismissAction = true)
                                 }
-                                s.showSnackbar(toast.msg, withDismissAction = true)
                             }
                         }
-                    }
-                    AppScaffold(it) { modifier ->
-                        Box(modifier = modifier) {
-                            ScreenTransition(
-                                navigator = it,
-                                transition = {
-                                    fadeIn() togetherWith fadeOut()
-                                }
-                            )
+                        AppScaffold(it) { modifier ->
+                            Box(modifier = modifier) {
+                                ScreenTransition(
+                                    navigator = it,
+                                    transition = {
+                                        fadeIn() togetherWith fadeOut()
+                                    }
+                                )
+                            }
                         }
                     }
                 }

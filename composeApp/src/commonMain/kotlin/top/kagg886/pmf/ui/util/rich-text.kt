@@ -31,6 +31,7 @@ import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import java.util.UUID
 
 sealed interface NovelNodeElement {
     data class Plain(val text: String) : NovelNodeElement
@@ -42,6 +43,30 @@ sealed interface NovelNodeElement {
     data class NewPage(val index: Int) : NovelNodeElement
     data class JumpPage(val page: Int) : NovelNodeElement
 }
+
+//fun AnnotatedString.Builder.withClickable(
+//    colors: ColorScheme,
+//    text: String,
+//    onClick: () -> Unit,
+//) {
+//    withLink(
+//        link = LinkAnnotation.Clickable(
+//            tag = UUID.randomUUID().toString(),
+//            styles = TextLinkStyles(
+//                style = SpanStyle(color = colors.primary),
+//                hoveredStyle = SpanStyle(
+//                    color = colors.primaryContainer,
+//                    textDecoration = TextDecoration.Underline
+//                ),
+//            ),
+//            linkInteractionListener = {
+//                onClick()
+//            }
+//        ),
+//    ) {
+//        this.append(text)
+//    }
+//}
 
 fun AnnotatedString.Builder.withLink(
     colors: ColorScheme,
