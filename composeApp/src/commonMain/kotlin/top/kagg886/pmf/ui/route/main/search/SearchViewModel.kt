@@ -12,6 +12,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -101,6 +102,15 @@ class SearchViewModel : ContainerHost<SearchViewState, Nothing>, ViewModel(), Sc
 
     fun deleteSearchHistory(history: SearchHistory) = intent {
         database.searchHistoryDAO().delete(history)
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun endSearch() = intent {
+        runOn<SearchViewState.KeyWordSearch> {
+            reduce {
+                SearchViewState.EmptySearch(flow, history)
+            }
+        }
     }
 }
 

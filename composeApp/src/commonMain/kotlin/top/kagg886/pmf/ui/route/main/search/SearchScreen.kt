@@ -114,6 +114,7 @@ class SearchScreen(
             }
             searchWords = keyWords
             active = false
+            val tab = if (target in listOf(KEYWORD, TEXT)) SearchTab.NOVEL else SearchTab.ILLUST
             model.saveSearchHistory(sort, target, searchWords, tab)
         }
         Column(modifier = Modifier.fillMaxSize()) {
@@ -128,6 +129,10 @@ class SearchScreen(
                         leadingIcon = {
                             IconButton(
                                 onClick = {
+                                    if (state is SearchViewState.KeyWordSearch) {
+                                        model.endSearch()
+                                        return@IconButton
+                                    }
                                     if (active) {
                                         active = false
                                         return@IconButton
@@ -211,7 +216,9 @@ class SearchScreen(
                                                         when (i) {
                                                             EXACT_MATCH_FOR_TAGS -> "匹配精确tag"
                                                             PARTIAL_MATCH_FOR_TAGS -> "匹配模糊tag"
-                                                            TITLE_AND_CAPTION -> "匹配标题简介"
+                                                            TITLE_AND_CAPTION -> "匹配标题简介(仅插画)"
+                                                            TEXT -> "正文匹配(仅小说)"
+                                                            KEYWORD -> "关键词(仅小说)"
                                                         }
                                                     )
                                                 },
@@ -256,8 +263,9 @@ class SearchScreen(
                                         for (tag in tags?.getOrThrow() ?: emptyList()) {
                                             AssistChip(
                                                 onClick = {
+                                                    val tab = if (target in listOf(KEYWORD, TEXT)) SearchTab.NOVEL else SearchTab.ILLUST
                                                     model.saveSearchHistory(
-                                                        sort, target, tag.tag.name, SearchTab.ILLUST
+                                                        sort, target, tag.tag.name, tab
                                                     )
                                                     nav.push(
                                                         SearchScreen(
@@ -366,7 +374,9 @@ class SearchScreen(
                                                     when (it.initialTarget) {
                                                         PARTIAL_MATCH_FOR_TAGS -> "部分匹配"
                                                         EXACT_MATCH_FOR_TAGS -> "精确匹配"
-                                                        TITLE_AND_CAPTION -> "标题简介"
+                                                        TITLE_AND_CAPTION -> "标题简介(仅插画)"
+                                                        TEXT -> "正文匹配(仅小说)"
+                                                        KEYWORD -> "关键词(仅小说)"
                                                     }
                                                 )
                                             },
@@ -421,67 +431,116 @@ class SearchScreen(
             return
         }
         val page = rememberScreenModel {
-            PageScreenModel(page = mutableIntStateOf(tab.ordinal))
+            PageScreenModel(page = mutableIntStateOf(0))
         }
-        TabContainer(
-            modifier = Modifier.fillMaxSize(),
-            state = page.page,
-            tab = SearchTab.entries.map { it.display }
-        ) {
-            val snackbarHostState = LocalSnackBarHost.current
-            when (it) {
-                0 -> {
-                    val resultModel =
-                        rememberScreenModel(tag = "search_result_illust_${searchWords}_${target}_${sort}_${illustDirty}") {
-                            SearchResultIllustModel(
-                                word = searchWords,
-                                searchTarget = target,
-                                sort = sort
-                            )
-                        }
-                    resultModel.collectSideEffect { effect ->
-                        when (effect) {
-                            is IllustFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
-                        }
-                    }
-                    IllustFetchScreen(resultModel)
-                }
 
-                1 -> {
-                    val resultModel =
-                        rememberScreenModel(tag = "search_result_novel_${searchWords}_${target}_${sort}_${novelDirty}") {
-                            SearchResultNovelModel(
-                                word = searchWords,
-                                searchTarget = target,
-                                sort = sort
-                            )
-                        }
-                    resultModel.collectSideEffect { effect ->
-                        when (effect) {
-                            is NovelFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
+        when {
+            //插画，小说，作者模式
+            target in listOf(PARTIAL_MATCH_FOR_TAGS, EXACT_MATCH_FOR_TAGS) -> {
+                TabContainer(
+                    modifier = Modifier.fillMaxSize(),
+                    state = page.page,
+                    tab = SearchTab.entries.map { it.display }
+                ) {
+                    val snackbarHostState = LocalSnackBarHost.current
+                    when (it) {
+                        0 -> {
+                            val resultModel =
+                                rememberScreenModel(tag = "search_result_illust_${searchWords}_${target}_${sort}_${illustDirty}") {
+                                    SearchResultIllustModel(
+                                        word = searchWords,
+                                        searchTarget = target,
+                                        sort = sort
+                                    )
+                                }
+                            resultModel.collectSideEffect { effect ->
+                                when (effect) {
+                                    is IllustFetchSideEffect.Toast -> {
+                                        snackbarHostState.showSnackbar(effect.msg)
+                                    }
+                                }
                             }
+                            IllustFetchScreen(resultModel)
                         }
-                    }
-                    NovelFetchScreen(resultModel)
-                }
 
-                2 -> {
-                    val resultModel =
-                        rememberScreenModel(tag = "search_result_author_${searchWords}_${authorDirty}") {
-                            SearchResultUserModel(user = searchWords)
-                        }
-                    resultModel.collectSideEffect { effect ->
-                        when (effect) {
-                            is AuthorFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
+                        1 -> {
+                            val resultModel =
+                                rememberScreenModel(tag = "search_result_novel_${searchWords}_${target}_${sort}_${novelDirty}") {
+                                    SearchResultNovelModel(
+                                        word = searchWords,
+                                        searchTarget = target,
+                                        sort = sort
+                                    )
+                                }
+                            resultModel.collectSideEffect { effect ->
+                                when (effect) {
+                                    is NovelFetchSideEffect.Toast -> {
+                                        snackbarHostState.showSnackbar(effect.msg)
+                                    }
+                                }
                             }
+                            NovelFetchScreen(resultModel)
+                        }
+
+                        2 -> {
+                            val resultModel =
+                                rememberScreenModel(tag = "search_result_author_${searchWords}_${authorDirty}") {
+                                    SearchResultUserModel(user = searchWords)
+                                }
+                            resultModel.collectSideEffect { effect ->
+                                when (effect) {
+                                    is AuthorFetchSideEffect.Toast -> {
+                                        snackbarHostState.showSnackbar(effect.msg)
+                                    }
+                                }
+                            }
+                            AuthorFetchScreen(resultModel)
                         }
                     }
-                    AuthorFetchScreen(resultModel)
                 }
+            }
+
+            //仅插画
+            target == TITLE_AND_CAPTION -> {
+                val snackbarHostState = LocalSnackBarHost.current
+
+                val resultModel =
+                    rememberScreenModel(tag = "search_result_illust_${searchWords}_${target}_${sort}_${illustDirty}") {
+                        SearchResultIllustModel(
+                            word = searchWords,
+                            searchTarget = target,
+                            sort = sort
+                        )
+                    }
+                resultModel.collectSideEffect { effect ->
+                    when (effect) {
+                        is IllustFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
+                        }
+                    }
+                }
+                IllustFetchScreen(resultModel)
+            }
+
+            //仅小说
+            target in listOf(KEYWORD, TEXT) -> {
+                val snackbarHostState = LocalSnackBarHost.current
+                val resultModel =
+                    rememberScreenModel(tag = "search_result_novel_${searchWords}_${target}_${sort}_${novelDirty}") {
+                        SearchResultNovelModel(
+                            word = searchWords,
+                            searchTarget = target,
+                            sort = sort
+                        )
+                    }
+                resultModel.collectSideEffect { effect ->
+                    when (effect) {
+                        is NovelFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
+                        }
+                    }
+                }
+                NovelFetchScreen(resultModel)
             }
         }
     }
@@ -579,6 +638,7 @@ class SearchScreen(
                     }
                 }
             }
+
             IdSearchViewState.Loading -> {
                 Loading()
             }
