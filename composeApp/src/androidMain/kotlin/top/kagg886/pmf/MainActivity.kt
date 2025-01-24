@@ -1,12 +1,14 @@
 package top.kagg886.pmf
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.KeyEvent
-import com.gyf.immersionbar.ImmersionBar
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     private val flow = MutableSharedFlow<KeyEvent>()
     private val scope = CoroutineScope(Dispatchers.Main)
+
     @SuppressLint("RestrictedApi")
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         scope.launch {
@@ -32,11 +35,12 @@ class MainActivity : ComponentActivity() {
                 LocalKeyStateFlow provides flow
             ) {
                 App(
-                    onNightModeListener = {
-                        val bar = ImmersionBar.with(this).transparentBar()
-                        bar.statusBarDarkFont(!it)
-                        bar.navigationBarDarkIcon(!it)
-                        bar.init()
+                    onNightModeListener = { isNight ->
+                        enableEdgeToEdge(
+                            // will override by compose
+                            statusBarStyle = SystemBarStyle.auto(0, 0) { isNight },
+                            navigationBarStyle = SystemBarStyle.auto(0, 0) { isNight }
+                        )
                     }
                 )
             }

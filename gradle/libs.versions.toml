@@ -4,7 +4,6 @@ androidx-lifecycle = "2.8.4"
 composeWebviewMultiplatform = "1.9.20" #TODO 升级会导致ktor插件无法被加载，需要解决
 epublibCore = "3.1"
 filekitCompose = "0.8.7"
-immersionbar = "3.2.2"
 jsoup = "1.18.3"
 ksp = "2.1.0-1.0.29"
 kotlin = "2.1.0"
@@ -32,7 +31,6 @@ androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.r
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
-immersionbar = { module = "com.geyifeng.immersionbar:immersionbar", version.ref = "immersionbar" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
