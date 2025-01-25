@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.route.main.search
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -204,7 +205,7 @@ class SearchScreen(
                                     Text("搜索模式")
                                 },
                                 supportingContent = {
-                                    Row {
+                                    FlowRow {
                                         for (i in SearchTarget.entries) {
                                             InputChip(
                                                 selected = target == i,
