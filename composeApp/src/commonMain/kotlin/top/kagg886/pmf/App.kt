@@ -94,7 +94,7 @@ val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
 
 @Composable
 @Preview
-fun App(onNightModeListener: (Boolean) -> Unit = {}) {
+fun App() {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
@@ -110,18 +110,8 @@ fun App(onNightModeListener: (Boolean) -> Unit = {}) {
         val lightTheme = remember(currentThemeSerialized) {
             currentThemeSerialized?.toColorScheme() ?: lightColorScheme()
         }
-        val system = isSystemInDarkTheme()
-        LaunchedEffect(darkModeValue,system) {
-            val isInDarkMode = when (darkModeValue.value) {
-                AppConfig.DarkMode.System -> system
-                AppConfig.DarkMode.Light -> false
-                AppConfig.DarkMode.Dark -> true
-            }
-            onNightModeListener(isInDarkMode)
-        }
-
         val theme = when (darkModeValue.value) {
-            AppConfig.DarkMode.System -> if (system) darkColorScheme() else lightTheme
+            AppConfig.DarkMode.System -> if (isSystemInDarkTheme()) darkColorScheme() else lightTheme
             AppConfig.DarkMode.Light -> lightTheme
             AppConfig.DarkMode.Dark -> darkColorScheme()
         }
@@ -224,7 +214,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
         mutableStateOf("推荐")
     }
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().systemBarsPadding(),
         snackbarHost = {
             SnackbarHost(
                 LocalSnackBarHost.current
