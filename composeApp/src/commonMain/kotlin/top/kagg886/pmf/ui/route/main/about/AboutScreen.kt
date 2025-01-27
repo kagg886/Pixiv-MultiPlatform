@@ -97,14 +97,14 @@ class AboutScreen : Screen {
                                         }
                                         IconButton(
                                             onClick = {
-                                                uri.openUri("https://kagg886.top")
+                                                uri.openUri("https://pmf.kagg886.top")
                                             }
                                         ) {
                                             Icon(imageVector = Icons.Default.Home, contentDescription = null)
                                         }
                                         IconButton(
                                             onClick = {
-
+                                                uri.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/releases")
                                             }
                                         ) {
                                             Icon(imageVector = Update, contentDescription = null)
