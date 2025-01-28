@@ -47,8 +47,12 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         Text(state.release.body)
                     },
                     confirmButton = {
-                        val uri = state.release.assets.first {
+                        val uri = state.release.assets.find {
                             File(it.name).nameWithoutExtension == currentPlatform.name
+                        }
+                        if (uri == null) {
+                            Text("暂不支持该平台")
+                            return@AlertDialog
                         }
                         val handler = LocalUriHandler.current
                         TextButton(

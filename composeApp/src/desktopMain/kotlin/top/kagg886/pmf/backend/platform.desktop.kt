@@ -5,6 +5,7 @@ actual val currentPlatform: Platform by lazy {
     when {
         s.contains("win") -> Platform.Desktop.Windows
         s.contains("linux") -> Platform.Desktop.Linux
+        s.contains("mac") -> Platform.Desktop.MacOS
         else -> throw IllegalArgumentException("Unknown platform: $s")
     }
 }

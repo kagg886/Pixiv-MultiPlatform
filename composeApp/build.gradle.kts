@@ -230,9 +230,10 @@ compose.desktop {
     application {
         mainClass = "${pkgName}.MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.AppImage)
+            targetFormats(TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
             packageName = rootProject.name
             packageVersion = pkgVersion
+            includeAllModules = true
 
             windows {
                 iconFile.set(project.file("icons/pixiv.ico"))
@@ -241,18 +242,29 @@ compose.desktop {
             linux {
                 iconFile.set(project.file("icons/pixiv.png"))
             }
+
+            macOS {
+                iconFile.set(project.file("icons/pixiv.icns"))
+            }
         }
 
         buildTypes.release.proguard {
             isEnabled = false
         }
+        afterEvaluate {
+            tasks.withType<JavaExec> {
+                jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+                jvmArgs(
+                    "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED"
+                )
 
-        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
-
-        if (System.getProperty("os.name").contains("Mac")) {
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+                if (System.getProperty("os.name").contains("Mac")) {
+                    jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+                    jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
+                    jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+                }
+            }
         }
     }
+
 }

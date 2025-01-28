@@ -10,6 +10,7 @@ sealed class Platform(open val name: String) {
     sealed class Desktop(override val name: String) : Platform(name) {
         data object Linux : Desktop("linux")
         data object Windows : Desktop("windows")
+        data object MacOS : Desktop("macos")
     }
 }
 
