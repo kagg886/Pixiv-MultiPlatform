@@ -230,7 +230,15 @@ compose.desktop {
     application {
         mainClass = "${pkgName}.MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
+            targetFormats(
+                *buildList {
+                    add(TargetFormat.Msi)
+                    add(TargetFormat.Dmg)
+                    if (!System.getProperty("os.name").contains("Mac")) {
+                        add(TargetFormat.AppImage)
+                    }
+                }.toTypedArray()
+            )
             packageName = rootProject.name
             packageVersion = pkgVersion
 
