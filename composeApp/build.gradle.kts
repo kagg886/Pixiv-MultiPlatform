@@ -233,7 +233,6 @@ compose.desktop {
             targetFormats(TargetFormat.Msi, TargetFormat.Dmg, TargetFormat.Deb)
             packageName = rootProject.name
             packageVersion = pkgVersion
-            includeAllModules = true
 
             windows {
                 iconFile.set(project.file("icons/pixiv.ico"))
