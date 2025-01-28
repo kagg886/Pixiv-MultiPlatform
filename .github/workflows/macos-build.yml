@@ -4,7 +4,7 @@ on:
     branches: [ "dev-macos" ]
 jobs:
   build-macos:
-    runs-on: macos-latest-arm
+    runs-on: macos-latest
     permissions:
       contents: read
     steps:
