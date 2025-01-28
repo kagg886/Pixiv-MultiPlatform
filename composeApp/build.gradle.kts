@@ -9,7 +9,7 @@ val pkgName: String = "top.kagg886.pmf"
 //val pkgVersion: String = "1.0.0"
 //val pkgCode: Int = 1
 
-val appVersionName = System.getenv("APP_VERSION_NAME") ?: project.findProperty("APP_VERSION_NAME") as? String ?: ""
+val appVersionName = System.getenv("APP_VERSION_NAME") ?: project.findProperty("APP_VERSION_NAME") as? String ?: "v1.4.4"
 check(appVersionName.startsWith("v")) {
     "APP_VERSION not supported, current is $appVersionName"
 }
