@@ -1,7 +1,7 @@
 <div align="center">
     <img src=".idea/icon.png"/>
     <h1>Pixiv-MultiPlatform</h1>
-    <p>——基于Kotlin技术栈的全平台(Apple系除外)第三方pixiv客户端——</p>
+    <p>基于Kotlin技术栈的全平台的第三方pixiv客户端</p>
     <table>
         <thead align="center">
             <tr>
@@ -33,6 +33,7 @@
     <img src="./README.assets/630c53942ab78d98e13d0ac9e566211c.png" />
 </div>
 
+> IOS的支持正在制作，敬请期待。
 
 ## 一. 下载链接
 
@@ -40,7 +41,7 @@
 
 ## 二. 功能截图(宽窄屏配色不同的原因是主题不同)
 
-| 功能       | Windows Linux UI                                             | Android UI                                                   |
+| 功能       | Windows Linux macOS UI                                       | Android UI                                                   |
 | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | 插画流展示 | ![image-20250114223236200](./README.assets/image-20250114223236200.png) | ![image-20250114224028350](./README.assets/image-20250114224028350.png) |
 | 搜索栏     | ![image-20250114224115785](./README.assets/image-20250114224115785.png) | ![image-20250114224144449](./README.assets/image-20250114224144449.png) |
