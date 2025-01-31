@@ -14,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -105,6 +107,17 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     expanded = expanded,
                                     onDismissRequest = { expanded = false }
                                 ) {
+                                    val manager = LocalClipboardManager.current
+                                    DropdownMenuItem(
+                                        text = { Text("复制pid") },
+                                        onClick = {
+                                            manager.setText(
+                                                buildAnnotatedString {
+                                                    append("$id")
+                                                }
+                                            )
+                                        }
+                                    )
                                     DropdownMenuItem(
                                         text = { Text("导出为epub") },
                                         onClick = {

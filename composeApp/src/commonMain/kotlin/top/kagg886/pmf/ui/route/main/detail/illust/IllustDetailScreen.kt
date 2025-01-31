@@ -9,11 +9,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
@@ -38,6 +41,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
+import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
@@ -148,6 +152,38 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         IconButton(onClick = { nav.pop() }) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                         }
+                    },
+                    actions = {
+                        var enabled by remember { mutableStateOf(false) }
+                        IconButton(
+                            onClick = { enabled = true },
+                            modifier = Modifier.padding(horizontal = 8.dp)
+                        ) {
+                            Icon(Icons.Default.Menu, null)
+                        }
+                        DropdownMenu(
+                            expanded = enabled,
+                            onDismissRequest = { enabled = false },
+                        )  {
+                            val manager = LocalClipboardManager.current
+                            val model = rememberScreenModel<IllustDetailViewModel>(key) {
+                                error("not provided")
+                            }
+                            DropdownMenuItem(
+                                text = { Text("复制pid") },
+                                leadingIcon = { Icon(Copy,null) },
+                                onClick = {
+                                    manager.setText(
+                                        buildAnnotatedString {
+                                            append("${illust.id}")
+                                        }
+                                    )
+                                    model.intent {
+                                        postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
+                                    }
+                                }
+                            )
+                        }
                     }
                 )
             }
@@ -194,6 +230,37 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             }
                         },
                         actions = {
+                            var enabled by remember { mutableStateOf(false) }
+                            IconButton(
+                                onClick = { enabled = true },
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Menu, null)
+                            }
+                            DropdownMenu(
+                                expanded = enabled,
+                                onDismissRequest = { enabled = false },
+                            )  {
+                                val manager = LocalClipboardManager.current
+                                val model = rememberScreenModel<IllustDetailViewModel>(key) {
+                                    error("not provided")
+                                }
+                                DropdownMenuItem(
+                                    text = { Text("复制pid") },
+                                    leadingIcon = { Icon(Copy,null) },
+                                    onClick = {
+                                        manager.setText(
+                                            buildAnnotatedString {
+                                                append("${illust.id}")
+                                            }
+                                        )
+                                        model.intent {
+                                            postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
+                                        }
+                                    }
+                                )
+                            }
+
                             IconButton(onClick = {
                                 scope.launch {
                                     state.open()
