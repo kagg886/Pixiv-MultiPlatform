@@ -23,7 +23,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
-import top.kagg886.pmf.ui.component.icon.Disabled
+import top.kagg886.pmf.ui.component.icon.R18
+import top.kagg886.pmf.ui.component.icon.R18G
 import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
@@ -89,7 +90,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         if (it.isR18 || it.isR18G) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
-                                                imageVector = Icons.Default.Warning,
+                                                imageVector = R18,
                                                 contentDescription = null,
                                                 tint = Color.Red
                                             )
@@ -97,7 +98,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         if (it.isR18G) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
-                                                imageVector = Disabled,
+                                                imageVector = R18G,
                                                 contentDescription = null,
                                                 tint = Color.Red
                                             )

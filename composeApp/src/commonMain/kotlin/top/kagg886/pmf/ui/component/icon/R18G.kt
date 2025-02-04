@@ -9,8 +9,8 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val Disabled by lazy {
-    Builder(name = "Disabled", defaultWidth =
+val R18G by lazy {
+    Builder(name = "R18G", defaultWidth =
     24.0.dp, defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight =
     24.0f).apply {
         path(fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,

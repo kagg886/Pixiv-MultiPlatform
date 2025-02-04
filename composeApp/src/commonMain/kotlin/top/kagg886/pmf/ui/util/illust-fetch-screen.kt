@@ -1,15 +1,11 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -19,20 +15,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.LocalKeyStateFlow
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
-import top.kagg886.pmf.ui.component.icon.Disabled
+import top.kagg886.pmf.ui.component.icon.R18
+import top.kagg886.pmf.ui.component.icon.R18G
 import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
@@ -119,14 +111,14 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                     if (it.isR18G) {
                                         Icon(
                                             modifier = Modifier.padding(end = 4.dp),
-                                            imageVector = Disabled,
+                                            imageVector = R18G,
                                             contentDescription = null,
                                             tint = Color.Red
                                         )
                                     }
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
-                                        imageVector = Icons.Default.Warning,
+                                        imageVector = R18,
                                         contentDescription = null,
                                         tint = Color.Red
                                     )
