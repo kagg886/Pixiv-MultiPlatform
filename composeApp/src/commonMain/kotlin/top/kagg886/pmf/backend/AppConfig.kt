@@ -7,6 +7,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import top.kagg886.pmf.ui.util.mb
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.enum
 
@@ -25,7 +26,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     )
 
 
-    var cacheSize by long("cache_size", 1024 * 1024 * 1024)
+    var cacheSize by long("cache_size", 1024.mb.bytes)
 
     var filterAi by boolean("filter_ai", false)
     var filterR18 by boolean("filter_r18", false)

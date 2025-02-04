@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +19,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -86,8 +88,9 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                     if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
                     when (it.key) {
                         Key.DirectionRight -> {
-                            pager.animateScrollToPage(min(pager.currentPage + 1, pager.pageCount-1))
+                            pager.animateScrollToPage(min(pager.currentPage + 1, pager.pageCount - 1))
                         }
+
                         Key.DirectionLeft -> {
                             pager.animateScrollToPage(max(pager.currentPage - 1, 0))
                         }
@@ -131,9 +134,10 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                             ProgressedAsyncImage(
                                 url = state.user.profile.backgroundImageUrl,
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize().clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                                    preview = true
-                                }
+                                modifier = Modifier.fillMaxSize()
+                                    .clickable(interactionSource = MutableInteractionSource(), indication = null) {
+                                        preview = true
+                                    }
                             )
                             AuthorCard(
                                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
@@ -154,9 +158,12 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
 
                             if (!isOpenInSideBar) {
                                 val nav = LocalNavigator.currentOrThrow
-                                IconButton(onClick = {
-                                    nav.pop()
-                                }) {
+                                IconButton(
+                                    onClick = {
+                                        nav.pop()
+                                    },
+                                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
+                                ) {
                                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                                 }
                             }
@@ -170,7 +177,10 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                     IconButton(onClick = {
                                         nav.pop()
                                     }) {
-                                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = null
+                                        )
                                     }
                                 }
                             },

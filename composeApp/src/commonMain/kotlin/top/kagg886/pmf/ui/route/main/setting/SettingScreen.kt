@@ -37,6 +37,7 @@ import top.kagg886.pmf.backend.AppConfig
 
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
+import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
@@ -45,6 +46,7 @@ import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -234,29 +236,50 @@ class SettingScreen : Screen {
 
 
                 var cacheSize by remember {
-                    mutableStateOf(AppConfig.cacheSize.toFloat())
+                    mutableStateOf(AppConfig.cacheSize)
                 }
                 LaunchedEffect(cacheSize) {
-                    snapshotFlow { cacheSize }.debounce(1.seconds).collectLatest {
-                        AppConfig.cacheSize = cacheSize.toLong()
-                    }
+                    AppConfig.cacheSize = cacheSize
                 }
-                SettingsSlider(
+                SettingsTextField(
                     title = {
                         Text("画廊本地缓存大小(重启生效)")
                     },
-                    subtitle = {
+                    subTitle = {
                         Column {
-                            Text("控制画廊页面的本地缓存大小,单位为字节。")
+                            Text("控制画廊页面的本地缓存大小,单位为MB。")
                             Text("当前值:${cacheSize.b}")
+                            Text("点击此条目进行修改。")
                         }
                     },
-                    value = cacheSize,
-                    valueRange = 10.mb.bytes.toFloat()..2048.mb.bytes.toFloat(),
+                    dialogLabel = {
+                        Text("最小值:64MB,最大值:2048MB")
+                    },
+                    value = cacheSize.b.mb.roundToLong().toString(),
                     onValueChange = {
-                        cacheSize = it
+                        var size = it.toLongOrNull() ?: 1024L
+                        if (size !in 64.mb..2048.mb) {
+                           size = 1024.mb.bytes
+                        }
+                        cacheSize = size
                     }
                 )
+//                SettingsSlider(
+//                    title = {
+//                        Text("画廊本地缓存大小(重启生效)")
+//                    },
+//                    subtitle = {
+//                        Column {
+//                            Text("控制画廊页面的本地缓存大小,单位为字节。")
+//                            Text("当前值:${cacheSize.b}")
+//                        }
+//                    },
+//                    value = cacheSize,
+//                    valueRange = 10.mb.bytes.toFloat()..2048.mb.bytes.toFloat(),
+//                    onValueChange = {
+//                        cacheSize = it
+//                    }
+//                )
 
                 var filterAi by remember {
                     mutableStateOf(AppConfig.filterAi)

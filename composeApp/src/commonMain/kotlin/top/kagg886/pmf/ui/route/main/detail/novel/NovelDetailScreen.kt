@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -84,60 +85,52 @@ class NovelDetailScreen(private val id: Long) : Screen {
         ) {
             Scaffold(
                 topBar = {
-                    TopAppBar(title = {
-                        Text("小说详情")
-                    }, navigationIcon = {
-                        IconButton(onClick = {
-                            nav.pop()
-                        }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                        }
-                    }, actions = {
-                        Row {
-                            Column {
-                                var expanded by remember { mutableStateOf(false) }
-                                IconButton(
-                                    onClick = {
-                                        expanded = true
-                                    },
-                                ) {
-                                    Icon(Icons.Default.Menu, null)
-                                }
-                                DropdownMenu(
-                                    expanded = expanded,
-                                    onDismissRequest = { expanded = false }
-                                ) {
-                                    val manager = LocalClipboardManager.current
-                                    DropdownMenuItem(
-                                        text = { Text("复制pid") },
-                                        onClick = {
-                                            manager.setText(
-                                                buildAnnotatedString {
-                                                    append("$id")
-                                                }
-                                            )
-                                        }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text("导出为epub") },
-                                        onClick = {
-                                            model.exportToEpub()
-                                        }
-                                    )
-                                }
-
-                            }
-
+                    TopAppBar(
+                        title = {
+                            Text("小说详情")
+                        },
+                        navigationIcon = {
                             IconButton(onClick = {
-                                scope.launch {
-                                    drawer.open()
-                                }
+                                nav.pop()
                             }) {
-                                Icon(Icons.Default.Edit, null)
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                            }
+                        },
+                        actions = {
+                            Row {
+                                Column {
+                                    var expanded by remember { mutableStateOf(false) }
+                                    IconButton(
+                                        onClick = {
+                                            expanded = true
+                                        },
+                                    ) {
+                                        Icon(Icons.Default.Menu, null)
+                                    }
+                                    DropdownMenu(
+                                        expanded = expanded,
+                                        onDismissRequest = { expanded = false }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("导出为epub") },
+                                            onClick = {
+                                                model.exportToEpub()
+                                            }
+                                        )
+                                    }
+
+                                }
+
+                                IconButton(onClick = {
+                                    scope.launch {
+                                        drawer.open()
+                                    }
+                                }) {
+                                    Icon(Icons.Default.Edit, null)
+                                }
                             }
                         }
-
-                    })
+                    )
                 }
             ) {
                 NovelDetailContent(model, state, Modifier.padding(it))
@@ -170,6 +163,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 ) {
                     when (it) {
                         0 -> {
+                            val theme = MaterialTheme.colorScheme
                             LazyColumn(modifier = Modifier.fillMaxSize()) {
                                 item {
                                     var preview by remember { mutableStateOf(false) }
@@ -193,13 +187,24 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         Text(
-                                            text = state.novel.title,
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(horizontal = 8.dp),
+                                            text = buildAnnotatedString {
+                                                withClickable(
+                                                    theme,
+                                                    state.novel.title,
+                                                ) {
+                                                    model.intent {
+                                                        postSideEffect(NovelDetailSideEffect.Toast("已复制小说标题"))
+                                                    }
+                                                }
+                                            },
+                                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                                                .padding(horizontal = 8.dp),
                                             style = MaterialTheme.typography.titleLarge
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(horizontal = 8.dp),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
+                                                .padding(horizontal = 8.dp),
                                             state.novel.user,
                                             onFavoriteClick = {
                                                 if (it) {
@@ -223,9 +228,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {
-                                                HTMLRichText(
-                                                    html = state.novel.caption.ifEmpty { "没有简介" }
-                                                )
+                                                SelectionContainer {
+                                                    HTMLRichText(
+                                                        html = state.novel.caption.ifEmpty { "没有简介" }
+                                                    )
+                                                }
                                             }
                                         )
                                     }
@@ -287,6 +294,34 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     Spacer(Modifier.height(16.dp))
                                 }
                                 item {
+                                    OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
+                                        ListItem(
+                                            overlineContent = {
+                                                Text("pid")
+                                            },
+                                            headlineContent = {
+                                                val clip = LocalClipboardManager.current
+                                                Text(
+                                                    buildAnnotatedString {
+                                                        withClickable(
+                                                            theme,
+                                                            state.novel.id.toString(),
+                                                        ) {
+                                                            clip.setText(buildAnnotatedString { append(state.novel.id.toString()) })
+                                                            model.intent {
+                                                                postSideEffect(
+                                                                    NovelDetailSideEffect.Toast("已复制pid")
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+                                item {
+                                    Spacer(Modifier.height(16.dp))
                                     OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {

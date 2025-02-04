@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -153,38 +154,38 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                         }
                     },
-                    actions = {
-                        var enabled by remember { mutableStateOf(false) }
-                        IconButton(
-                            onClick = { enabled = true },
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        ) {
-                            Icon(Icons.Default.Menu, null)
-                        }
-                        DropdownMenu(
-                            expanded = enabled,
-                            onDismissRequest = { enabled = false },
-                        )  {
-                            val manager = LocalClipboardManager.current
-                            val model = rememberScreenModel<IllustDetailViewModel>(key) {
-                                error("not provided")
-                            }
-                            DropdownMenuItem(
-                                text = { Text("复制pid") },
-                                leadingIcon = { Icon(Copy,null) },
-                                onClick = {
-                                    manager.setText(
-                                        buildAnnotatedString {
-                                            append("${illust.id}")
-                                        }
-                                    )
-                                    model.intent {
-                                        postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
-                                    }
-                                }
-                            )
-                        }
-                    }
+//                    actions = {
+//                        var enabled by remember { mutableStateOf(false) }
+//                        IconButton(
+//                            onClick = { enabled = true },
+//                            modifier = Modifier.padding(horizontal = 8.dp)
+//                        ) {
+//                            Icon(Icons.Default.Menu, null)
+//                        }
+//                        DropdownMenu(
+//                            expanded = enabled,
+//                            onDismissRequest = { enabled = false },
+//                        ) {
+//                            val manager = LocalClipboardManager.current
+//                            val model = rememberScreenModel<IllustDetailViewModel>(key) {
+//                                error("not provided")
+//                            }
+//                            DropdownMenuItem(
+//                                text = { Text("复制pid") },
+//                                leadingIcon = { Icon(Copy, null) },
+//                                onClick = {
+//                                    manager.setText(
+//                                        buildAnnotatedString {
+//                                            append("${illust.id}")
+//                                        }
+//                                    )
+//                                    model.intent {
+//                                        postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
+//                                    }
+//                                }
+//                            )
+//                        }
+//                    }
                 )
             }
         ) {
@@ -229,46 +230,46 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                             }
                         },
-                        actions = {
-                            var enabled by remember { mutableStateOf(false) }
-                            IconButton(
-                                onClick = { enabled = true },
-                                modifier = Modifier.padding(horizontal = 8.dp)
-                            ) {
-                                Icon(Icons.Default.Menu, null)
-                            }
-                            DropdownMenu(
-                                expanded = enabled,
-                                onDismissRequest = { enabled = false },
-                            )  {
-                                val manager = LocalClipboardManager.current
-                                val model = rememberScreenModel<IllustDetailViewModel>(key) {
-                                    error("not provided")
-                                }
-                                DropdownMenuItem(
-                                    text = { Text("复制pid") },
-                                    leadingIcon = { Icon(Copy,null) },
-                                    onClick = {
-                                        manager.setText(
-                                            buildAnnotatedString {
-                                                append("${illust.id}")
-                                            }
-                                        )
-                                        model.intent {
-                                            postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
-                                        }
-                                    }
-                                )
-                            }
-
-                            IconButton(onClick = {
-                                scope.launch {
-                                    state.open()
-                                }
-                            }) {
-                                Icon(Icons.Filled.Edit, null)
-                            }
-                        }
+//                        actions = {
+//                            var enabled by remember { mutableStateOf(false) }
+//                            IconButton(
+//                                onClick = { enabled = true },
+//                                modifier = Modifier.padding(horizontal = 8.dp)
+//                            ) {
+//                                Icon(Icons.Default.Menu, null)
+//                            }
+//                            DropdownMenu(
+//                                expanded = enabled,
+//                                onDismissRequest = { enabled = false },
+//                            )  {
+//                                val manager = LocalClipboardManager.current
+//                                val model = rememberScreenModel<IllustDetailViewModel>(key) {
+//                                    error("not provided")
+//                                }
+//                                DropdownMenuItem(
+//                                    text = { Text("复制pid") },
+//                                    leadingIcon = { Icon(Copy,null) },
+//                                    onClick = {
+//                                        manager.setText(
+//                                            buildAnnotatedString {
+//                                                append("${illust.id}")
+//                                            }
+//                                        )
+//                                        model.intent {
+//                                            postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
+//                                        }
+//                                    }
+//                                )
+//                            }
+//
+//                            IconButton(onClick = {
+//                                scope.launch {
+//                                    state.open()
+//                                }
+//                            }) {
+//                                Icon(Icons.Filled.Edit, null)
+//                            }
+//                        }
                     )
                 }
             ) {
@@ -373,18 +374,49 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 item {
                     Spacer(Modifier.height(16.dp))
                     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                        val clipboard = LocalClipboardManager.current
+                        val theme = MaterialTheme.colorScheme
                         ListItem(
                             overlineContent = {
-                                Text(illust.id.toString(), style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    text = buildAnnotatedString {
+                                        withClickable(theme,illust.id.toString()) {
+                                            clipboard.setText(
+                                                buildAnnotatedString {
+                                                    append(illust.id.toString())
+                                                }
+                                            )
+                                            model.intent {
+                                                postSideEffect(IllustDetailSideEffect.Toast("复制pid成功"))
+                                            }
+                                        }
+                                    },
+                                    style = MaterialTheme.typography.labelSmall
+                                )
                             },
                             headlineContent = {
-                                Text(illust.title)
+                                Text(
+                                    text = buildAnnotatedString {
+                                        withClickable(theme,illust.title) {
+                                            clipboard.setText(
+                                                buildAnnotatedString {
+                                                    append(illust.title)
+                                                }
+                                            )
+                                            model.intent {
+                                                postSideEffect(IllustDetailSideEffect.Toast("复制标题成功"))
+                                            }
+                                        }
+                                    },
+                                )
                             },
                             supportingContent = {
-                                HTMLRichText(
-                                    html = illust.caption.ifEmpty { "没有简介" },
-                                    style = MaterialTheme.typography.labelLarge
-                                )
+                                SelectionContainer {
+                                    HTMLRichText(
+                                        html = illust.caption.ifEmpty { "没有简介" },
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
 //                                Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
                             },
                             trailingContent = {
