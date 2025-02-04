@@ -190,7 +190,7 @@ fun ImagePreviewer(
 
 
             if (url.size > 1) {
-                Card(modifier = Modifier.padding(10.dp).align(Alignment.BottomCenter)) {
+                Card(modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
                             onClick = {
@@ -222,7 +222,8 @@ fun ImagePreviewer(
             }
 
             IconButton(
-                onClick = onDismiss
+                onClick = onDismiss,
+                modifier = Modifier.align(Alignment.TopStart).padding(10.dp)
             ) {
                 Icon(Icons.Default.Close, null, tint = Color.White)
             }
