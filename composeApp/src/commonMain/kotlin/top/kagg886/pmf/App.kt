@@ -45,7 +45,6 @@ import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
-import top.kagg886.pmf.ui.route.login.LoginScreenViewModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
 import top.kagg886.pmf.ui.route.main.history.HistoryIllustViewModel
@@ -315,9 +314,6 @@ fun startKoin0() {
         modules(
             //vm
             module {
-                single {
-                    LoginScreenViewModel()
-                }
                 single {
                     WelcomeModel()
                 }

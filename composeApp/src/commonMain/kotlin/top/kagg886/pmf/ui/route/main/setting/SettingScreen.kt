@@ -22,9 +22,6 @@ import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -36,13 +33,11 @@ import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
-import top.kagg886.pmf.ui.route.login.LoginScreen
+import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
-import top.kagg886.pmf.ui.route.main.profile.ProfileScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
@@ -51,7 +46,6 @@ import top.kagg886.pmf.util.SerializedTheme
 import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
-import kotlin.time.Duration.Companion.seconds
 
 
 class SettingScreen : Screen {
@@ -108,7 +102,8 @@ class SettingScreen : Screen {
                     AppConfig.colorScheme = colorScheme
                 }
 
-                val inNight = darkMode == AppConfig.DarkMode.Dark || (darkMode == AppConfig.DarkMode.System && isSystemInDarkTheme())
+                val inNight =
+                    darkMode == AppConfig.DarkMode.Dark || (darkMode == AppConfig.DarkMode.System && isSystemInDarkTheme())
                 SettingsFileUpload(
                     title = { Text("设置主题") },
                     enabled = !inNight,
@@ -263,7 +258,7 @@ class SettingScreen : Screen {
                     onValueChange = {
                         var size = it.toLongOrNull() ?: 1024L
                         if (size !in 64.mb..2048.mb) {
-                           size = 1024.mb.bytes
+                            size = 1024.mb.bytes
                         }
                         cacheSize = size
                     }
@@ -690,7 +685,7 @@ class SettingScreen : Screen {
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    nav.replaceAll(LoginScreen(exitLogin = true))
+                                    nav.replaceAll(LoginScreen(true))
                                 }
                             ) {
                                 Text("确定")

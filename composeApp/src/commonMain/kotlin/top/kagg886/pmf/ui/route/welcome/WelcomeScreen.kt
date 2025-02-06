@@ -35,7 +35,7 @@ import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.component.icon.DarkMode
 import top.kagg886.pmf.ui.component.icon.LightMode
 import top.kagg886.pmf.ui.component.icon.SystemSuggest
-import top.kagg886.pmf.ui.route.login.LoginScreen
+import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.*
 import top.kagg886.pmf.ui.util.collectAsState

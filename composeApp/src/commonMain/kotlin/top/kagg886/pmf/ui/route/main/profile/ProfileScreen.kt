@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
 
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
-import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen

@@ -1,4 +1,4 @@
-package top.kagg886.pmf.ui.route.login
+package top.kagg886.pmf.ui.route.login.v2
 
 import dev.datlag.kcef.KCEF
 import kotlinx.coroutines.runBlocking
@@ -13,7 +13,7 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
                 onDownloading {
                     runBlocking {
                         reduce {
-                            LoginViewState.Loading("download... ${String.format("%.2f", it)}")
+                            LoginViewState.LoginType.BrowserLogin.Loading("download... ${String.format("%.2f", it)}")
                         }
                     }
                 }
@@ -21,7 +21,7 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
                 onExtracting {
                     runBlocking {
                         reduce {
-                            LoginViewState.Loading("extracting...")
+                            LoginViewState.LoginType.BrowserLogin.Loading("extracting...")
                         }
                     }
                 }
@@ -29,7 +29,7 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
                 onInitialized {
                     runBlocking {
                         reduce {
-                            LoginViewState.WaitLogin
+                            LoginViewState.LoginType.BrowserLogin.ShowBrowser
                         }
                     }
                 }
@@ -37,7 +37,7 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
                 onInitializing {
                     runBlocking {
                         reduce {
-                            LoginViewState.Loading("initializing...")
+                            LoginViewState.LoginType.BrowserLogin.Loading("initializing...")
                         }
                     }
                 }
@@ -45,14 +45,14 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
                 onInstall {
                     runBlocking {
                         reduce {
-                            LoginViewState.Loading("installing...")
+                            LoginViewState.LoginType.BrowserLogin.Loading("installing...")
                         }
                     }
                 }
                 onLocating {
                     runBlocking {
                         reduce {
-                            LoginViewState.Loading("locating...")
+                            LoginViewState.LoginType.BrowserLogin.Loading("locating...")
                         }
                     }
                 }
@@ -61,14 +61,14 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
         onError = {
             runBlocking {
                 reduce {
-                    LoginViewState.Loading("初始化时发生错误!\n${it?.stackTraceToString()}")
+                    LoginViewState.LoginType.BrowserLogin.Loading("初始化时发生错误!\n${it?.stackTraceToString()}")
                 }
             }
         },
         onRestartRequired = {
             runBlocking {
                 reduce {
-                    LoginViewState.Loading("请手动重启程序。")
+                    LoginViewState.LoginType.BrowserLogin.Loading("请手动重启程序。")
                 }
             }
         }
