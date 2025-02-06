@@ -145,42 +145,6 @@ enum class ProfileItem(
             SettingScreen().Content()
         }
     ),
-    Logout(
-        title = "退出登录",
-        icon = Icons.AutoMirrored.Filled.ExitToApp,
-        content = {
-            val nav = LocalNavigator.currentOrThrow
-            AlertDialog(
-                onDismissRequest = {
-                    nav.pop()
-                },
-                title = {
-                    Text("确定退出登录？")
-                },
-                text = {
-                    Text("这会清除您在本机上的登录状态，确定要这么做吗？")
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            nav.replaceAll(LoginScreen(exitLogin = true))
-                        }
-                    ) {
-                        Text("确定")
-                    }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            nav.replace(ProfileScreen(it))
-                        }
-                    ) {
-                        Text("取消")
-                    }
-                }
-            )
-        }
-    )
 }
 
 @Composable

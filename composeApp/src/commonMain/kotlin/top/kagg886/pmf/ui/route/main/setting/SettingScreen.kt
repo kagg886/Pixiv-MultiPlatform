@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
@@ -34,11 +35,14 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
+import top.kagg886.pmf.ui.route.login.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
+import top.kagg886.pmf.ui.route.main.profile.ProfileScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
@@ -51,7 +55,7 @@ import kotlin.time.Duration.Companion.seconds
 
 
 class SettingScreen : Screen {
-    @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -646,6 +650,74 @@ class SettingScreen : Screen {
 //                        Text("e.g. i.pximg.net")
 //                    }
 //                )
+            }
+            SettingsGroup(title = { Text(text = "登录会话") }) {
+                val clip = LocalClipboardManager.current
+                val scope = rememberCoroutineScope()
+                val snack = LocalSnackBarHost.current
+                SettingsMenuLink(
+                    title = {
+                        Text("导出登录会话")
+                    },
+                    subtitle = {
+                        Text("可以使用此会话登录多个Pixiv第三方客户端。")
+                    },
+                    onClick = {
+                        scope.launch {
+                            clip.setText(
+                                buildAnnotatedString {
+                                    append(PixivConfig.refreshToken)
+                                }
+                            )
+                            snack.showSnackbar("已将会话信息已复制到剪切板。注意：请勿将此会话发送到公开场合，这可能会导致您的账户被恶意修改。")
+                        }
+                    }
+                )
+
+                var show by remember { mutableStateOf(false) }
+                if (show) {
+                    val nav = LocalNavigator.currentOrThrow
+                    AlertDialog(
+                        onDismissRequest = {
+                            nav.pop()
+                        },
+                        title = {
+                            Text("确定退出登录？")
+                        },
+                        text = {
+                            Text("这会清除您在本机上的登录状态，确定要这么做吗？")
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    nav.replaceAll(LoginScreen(exitLogin = true))
+                                }
+                            ) {
+                                Text("确定")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(
+                                onClick = {
+                                    show = false
+                                }
+                            ) {
+                                Text("取消")
+                            }
+                        }
+                    )
+                }
+                SettingsMenuLink(
+                    title = {
+                        Text("退出登录")
+                    },
+                    subtitle = {
+                        Text("清空会话并进入登录页面")
+                    },
+                    onClick = {
+                        show = true
+                    }
+                )
             }
             SettingsGroup(title = { Text("高级") }) {
                 SettingsMenuLink(
