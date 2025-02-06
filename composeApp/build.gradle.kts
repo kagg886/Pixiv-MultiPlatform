@@ -208,6 +208,8 @@ android {
 
         getByName("debug") {
             signingConfig = signConfig
+            manifestPlaceholders["APP_NAME"] = "${rootProject.name} (Debug)"
+            applicationIdSuffix = ".debug"
         }
     }
     compileOptions {
