@@ -1,10 +1,7 @@
 package top.kagg886.pmf.ui.route.main.search.v2
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -17,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
@@ -30,17 +28,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
+import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.TabContainer
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
-import top.kagg886.pmf.ui.util.AuthorFetchScreen
-import top.kagg886.pmf.ui.util.IllustFetchScreen
-import top.kagg886.pmf.ui.util.NovelFetchScreen
-import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.*
 import kotlin.time.Duration.Companion.seconds
 
 class SearchScreen(private val param: SearchParam = SearchParam.EmptySearch) : Screen {
@@ -245,7 +245,8 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                         sort = sortState,
                                         target = targetState
                                     )
-                                }
+                                },
+                                enabled = state !is SearchViewState.SearchPanel.RedirectToPage
                             ) {
                                 Icon(Icons.Default.Search, null)
                             }
@@ -303,6 +304,93 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                         }
 
                         is SearchViewState.SearchPanel.RedirectToPage -> {
+                            val nav = LocalNavigator.currentOrThrow
+                            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                item {
+                                    if (state.illust != null) {
+                                        ListItem(
+                                            overlineContent = {
+                                                Text("找到插画")
+                                            },
+                                            leadingContent = {
+                                                ProgressedAsyncImage(
+                                                    url = state.illust.contentImages.get()!![0],
+                                                    modifier = Modifier.height(144.dp).aspectRatio(
+                                                        ratio = state.illust.width / state.illust.height.toFloat()
+                                                    )
+                                                )
+                                            },
+                                            headlineContent = {
+                                                Text(state.illust.title)
+                                            },
+                                            supportingContent = {
+                                                AuthorCard(
+                                                    user = state.illust.user,
+                                                )
+                                            },
+                                            modifier = Modifier.clickable {
+                                                nav.push(IllustDetailScreen(state.illust))
+                                            }
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    if (state.novel != null) {
+                                        ListItem(
+                                            overlineContent = {
+                                                Text("找到小说")
+                                            },
+                                            leadingContent = {
+                                                ProgressedAsyncImage(
+                                                    url = state.novel.imageUrls.medium!!,
+                                                    modifier = Modifier.height(144.dp).aspectRatio(70 / 144f)
+                                                )
+                                            },
+                                            headlineContent = {
+                                                Text(state.novel.title)
+                                            },
+                                            supportingContent = {
+                                                Text(state.novel.caption, maxLines = 3)
+                                            },
+                                            modifier = Modifier.clickable {
+                                                nav.push(NovelDetailScreen(state.novel.id.toLong()))
+                                            }
+                                        )
+                                    }
+
+                                }
+
+                                item {
+                                    if (state.user != null) {
+                                        val toast = LocalSnackBarHost.current
+                                        ListItem(
+                                            overlineContent = {
+                                                Text("找到用户")
+                                            },
+                                            headlineContent = {},
+                                            supportingContent = {
+                                                AuthorCard(
+                                                    user = state.user.user,
+                                                    onFavoriteClick = {
+                                                        toast.showSnackbar("请前往详情页面收藏作者！")
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    if (state.illust == null && state.novel == null && state.user == null) {
+                                        ErrorPage(
+                                            text = "没有搜索结果",
+                                        ) {
+                                            model.openSearchPanel()
+                                        }
+                                    }
+                                }
+                            }
 
                         }
                     }

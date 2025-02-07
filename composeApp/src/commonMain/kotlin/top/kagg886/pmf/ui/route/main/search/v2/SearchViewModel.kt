@@ -3,6 +3,8 @@ package top.kagg886.pmf.ui.route.main.search.v2
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,9 +53,9 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                 )
 
                 is SearchParam.KeyWordSearch -> {
-                    val (a,b,c) = calcThreeRepo(param.tag,param.sort,param.target)
-                    saveHistoryIfConfigOn(param.tag,param.sort,param.target)
-                    SearchViewState.MainPanel.SearchResult(param.target,param.sort,param.tag,a,b,c)
+                    val (a, b, c) = calcThreeRepo(param.tag, param.sort, param.target)
+                    saveHistoryIfConfigOn(param.tag, param.sort, param.target)
+                    SearchViewState.MainPanel.SearchResult(param.target, param.sort, param.tag, a, b, c)
                 }
             }
         )
@@ -149,10 +151,33 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
     fun searchTagOrExactSearch(text: String) = intent {
         runOn<SearchViewState.SearchPanel> {
             with(text.toLongOrNull()) {
-                if (this != null) {
-                    val illust = client.getIllustDetail(this)
-                    val novel = client.getNovelDetail(this)
-                    val author = client.getUserInfo(this.toInt())
+                if (this != null && state.keyword.value.isEmpty()) {
+                    val (illust, novel, author) = coroutineScope {
+                        val a1 = async {
+                            try {
+                                client.getIllustDetail(this@with)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+
+                        val a2 = async {
+                            try {
+                                client.getNovelDetail(this@with)
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+
+                        val a3 = async {
+                            try {
+                                client.getUserInfo(this@with.toInt())
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+                        Triple(a1.await(), a2.await(), a3.await())
+                    }
 
                     reduce {
                         SearchViewState.SearchPanel.RedirectToPage(
@@ -168,7 +193,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                     return@runOn
                 }
             }
-            
+
             reduce {
                 SearchViewState.SearchPanel.Searching(
                     keyword = state.keyword,

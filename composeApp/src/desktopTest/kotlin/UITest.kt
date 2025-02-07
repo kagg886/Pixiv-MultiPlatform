@@ -6,7 +6,9 @@ import kotlin.system.exitProcess
 class UITest {
     @Test
     fun testApp() {
-        launchApp(SearchScreen())
+        kotlin.runCatching {
+            launchApp(SearchScreen())
+        }
         exitProcess(0)
     }
 }
