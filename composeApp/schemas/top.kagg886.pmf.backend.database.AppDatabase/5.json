@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "a142716b490e49b4d1a441a6c2253d25",
+    "identityHash": "60309cd42a6310a2cce189567c5782ac",
     "entities": [
       {
         "tableName": "IllustHistory",
@@ -108,7 +108,7 @@
       },
       {
         "tableName": "SearchHistory",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `initialSort` TEXT NOT NULL, `initialTarget` TEXT NOT NULL, `keyword` TEXT NOT NULL, `createTime` INTEGER NOT NULL, `initialKeyWords` TEXT NOT NULL, `tab` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `initialSort` TEXT NOT NULL, `initialTarget` TEXT NOT NULL, `keyword` TEXT NOT NULL, `createTime` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -139,18 +139,6 @@
             "columnName": "createTime",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "initialKeyWords",
-            "columnName": "initialKeyWords",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "tab",
-            "columnName": "tab",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -163,7 +151,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a142716b490e49b4d1a441a6c2253d25')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '60309cd42a6310a2cce189567c5782ac')"
     ]
   }
 }
