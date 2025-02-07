@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val pkgName: String = "top.kagg886.pmf"
+val androidTargetVersion: Int = 35
 
 //val pkgVersion: String = "1.0.0"
 //val pkgCode: Int = 1
@@ -159,7 +160,7 @@ aboutLibraries {
 
 android {
     namespace = pkgName
-    compileSdk = 34
+    compileSdk = androidTargetVersion
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
@@ -186,7 +187,7 @@ android {
     defaultConfig {
         applicationId = pkgName
         minSdk = 24
-        targetSdk = 34
+        targetSdk = androidTargetVersion
         versionCode = pkgCode
         versionName = pkgVersion
 
