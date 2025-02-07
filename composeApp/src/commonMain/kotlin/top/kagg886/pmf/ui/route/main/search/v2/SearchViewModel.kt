@@ -234,6 +234,10 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
             keyword.emit(keyword.value + it.name)
             state.text.emit("")
 
+            if (state is SearchViewState.SearchPanel.SettingProperties) { //避免无意义动画重载
+                return@runOn
+            }
+
             reduce {
                 SearchViewState.SearchPanel.SettingProperties(
                     sort = state.sort,

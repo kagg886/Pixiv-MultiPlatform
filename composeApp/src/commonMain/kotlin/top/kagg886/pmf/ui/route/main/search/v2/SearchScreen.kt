@@ -1,5 +1,7 @@
 package top.kagg886.pmf.ui.route.main.search.v2
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,124 +69,125 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
         is SearchViewState.MainPanel -> {
             Scaffold(
                 floatingActionButton = {
-                    if (state is SearchViewState.MainPanel.SearchResult) {
-                        return@Scaffold
-                    }
-                    FloatingActionButton(
-                        onClick = {
-                            model.openSearchPanel()
+                    AnimatedVisibility(state !is SearchViewState.MainPanel.SearchResult) {
+                        FloatingActionButton(
+                            onClick = {
+                                model.openSearchPanel()
+                            }
+                        ) {
+                            Icon(Icons.Default.Search, null)
                         }
-                    ) {
-                        Icon(Icons.Default.Search, null)
                     }
                 }
             ) all@{
-                when (state) {
-                    is SearchViewState.MainPanel.EmptySearch -> {
-                        val histories by state.history.collectAsState(listOf())
-                        Scaffold(
-                            topBar = {
-                                TopAppBar(
-                                    title = {
-                                        Text("搜索")
-                                    },
-                                    navigationIcon = {
-                                        val nav = LocalNavigator.currentOrThrow
-                                        IconButton(
-                                            onClick = {
-                                                nav.pop()
+                AnimatedContent(state) { state ->
+                    when (state) {
+                        is SearchViewState.MainPanel.EmptySearch -> {
+                            val histories by state.history.collectAsState(listOf())
+                            Scaffold(
+                                topBar = {
+                                    TopAppBar(
+                                        title = {
+                                            Text("搜索")
+                                        },
+                                        navigationIcon = {
+                                            val nav = LocalNavigator.currentOrThrow
+                                            IconButton(
+                                                onClick = {
+                                                    nav.pop()
+                                                }
+                                            ) {
+                                                Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                                             }
-                                        ) {
-                                            Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                                         }
-                                    }
-                                )
-                            }
-                        ) {
-                            if (histories.isEmpty()) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize().padding(it),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text("暂无历史记录")
-                                        Text("点击搜索按钮进行一次搜索吧！")
-                                    }
-
-                                }
-                                return@Scaffold
-                            }
-                            LazyColumn(Modifier.padding(it)) {
-                                items(histories) {
-                                    HistoryItem(
-                                        onHistoryDelete = {
-                                            model.deleteHistory(it)
-                                        },
-                                        onHistoryClicked = {
-                                            model.openSearchPanel(
-                                                sort = it.initialSort,
-                                                target = it.initialTarget,
-                                                keyword = it.keyword
-                                            )
-                                        },
-                                        item = it
                                     )
                                 }
-                            }
-                        }
-                    }
-
-                    is SearchViewState.MainPanel.SearchResult -> {
-                        val data = remember(state) {
-                            buildList<Pair<String, @Composable () -> Unit>> {
-                                state.illustRepo?.let {
-                                    add("插画" to {
-                                        IllustFetchScreen(it)
-                                    })
-                                }
-                                state.novelRepo?.let {
-                                    add("小说" to {
-                                        NovelFetchScreen(it)
-                                    })
-                                }
-                                state.authorRepo?.let {
-                                    add("用户" to {
-                                        AuthorFetchScreen(it)
-                                    })
-                                }
-                            }
-                        }
-                        val tab = rememberSaveable {
-                            mutableStateOf(0)
-                        }
-                        Scaffold(
-                            topBar = {
-                                TopAppBar(
-                                    title = {
-                                        Text("[${state.keyword.joinToString(" ")}]的搜索结果", maxLines = 1)
-                                    },
-                                    navigationIcon = {
-                                        IconButton(
-                                            onClick = {
-                                                model.openSearchPanel(
-                                                    sort = state.sort,
-                                                    target = state.target,
-                                                    keyword = state.keyword
-                                                )
-                                            }
-                                        ) {
-                                            Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                            ) {
+                                if (histories.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize().padding(it),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text("暂无历史记录")
+                                            Text("点击搜索按钮进行一次搜索吧！")
                                         }
+
                                     }
-                                )
+                                    return@Scaffold
+                                }
+                                LazyColumn(Modifier.padding(it)) {
+                                    items(histories) {
+                                        HistoryItem(
+                                            onHistoryDelete = {
+                                                model.deleteHistory(it)
+                                            },
+                                            onHistoryClicked = {
+                                                model.openSearchPanel(
+                                                    sort = it.initialSort,
+                                                    target = it.initialTarget,
+                                                    keyword = it.keyword
+                                                )
+                                            },
+                                            item = it
+                                        )
+                                    }
+                                }
                             }
-                        ) {
-                            TabContainer(
-                                state = tab,
-                                tab = data.map { pair -> pair.first },
-                                modifier = Modifier.padding(it)
-                            ) { index ->
-                                data[index].second.invoke()
+                        }
+
+                        is SearchViewState.MainPanel.SearchResult -> {
+                            val data = remember(state) {
+                                buildList<Pair<String, @Composable () -> Unit>> {
+                                    state.illustRepo?.let {
+                                        add("插画" to {
+                                            IllustFetchScreen(it)
+                                        })
+                                    }
+                                    state.novelRepo?.let {
+                                        add("小说" to {
+                                            NovelFetchScreen(it)
+                                        })
+                                    }
+                                    state.authorRepo?.let {
+                                        add("用户" to {
+                                            AuthorFetchScreen(it)
+                                        })
+                                    }
+                                }
+                            }
+                            val tab = rememberSaveable {
+                                mutableStateOf(0)
+                            }
+                            Scaffold(
+                                topBar = {
+                                    TopAppBar(
+                                        title = {
+                                            Text("[${state.keyword.joinToString(" ")}]的搜索结果", maxLines = 1)
+                                        },
+                                        navigationIcon = {
+                                            IconButton(
+                                                onClick = {
+                                                    model.openSearchPanel(
+                                                        sort = state.sort,
+                                                        target = state.target,
+                                                        keyword = state.keyword
+                                                    )
+                                                }
+                                            ) {
+                                                Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                                            }
+                                        }
+                                    )
+                                }
+                            ) {
+                                TabContainer(
+                                    state = tab,
+                                    tab = data.map { pair -> pair.first },
+                                    modifier = Modifier.padding(it)
+                                ) { index ->
+                                    data[index].second.invoke()
+                                }
                             }
                         }
                     }
@@ -246,7 +249,7 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                         target = targetState
                                     )
                                 },
-                                enabled = state !is SearchViewState.SearchPanel.RedirectToPage
+                                enabled = state !is SearchViewState.SearchPanel.RedirectToPage && keyword.isNotEmpty()
                             ) {
                                 Icon(Icons.Default.Search, null)
                             }
@@ -255,146 +258,146 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                 }
             ) {
                 Column(Modifier.padding(it)) {
-                    when (state) {
-                        is SearchViewState.SearchPanel.SettingProperties -> {
-                            val hotTags by state.hotTag.collectAsState()
+                    AnimatedContent(state) { state ->
+                        when (state) {
+                            is SearchViewState.SearchPanel.SettingProperties -> {
+                                val hotTags by state.hotTag.collectAsState()
 
 
-                            SearchPropertiesPanel(
-                                modifier = Modifier.verticalScroll(rememberScrollState()),
-                                sort = sortState,
-                                target = targetState,
-                                tag = hotTags,
-                                onSortChange = { model.updateProperties(sort = it) },
-                                onTargetChange = { model.updateProperties(target = it) },
-                                onTagRequestRefresh = { model.refreshHotTag() },
-                                onTagClicked = { t -> model.selectTag(t.tag) }
-                            )
-                        }
+                                SearchPropertiesPanel(
+                                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                                    sort = sortState,
+                                    target = targetState,
+                                    tag = hotTags,
+                                    onSortChange = { model.updateProperties(sort = it) },
+                                    onTargetChange = { model.updateProperties(target = it) },
+                                    onTagRequestRefresh = { model.refreshHotTag() },
+                                    onTagClicked = { t -> model.selectTag(t.tag) }
+                                )
+                            }
 
-                        is SearchViewState.SearchPanel.Searching -> {
-                            Loading()
-                        }
+                            is SearchViewState.SearchPanel.Searching -> {
+                                Loading()
+                            }
 
-                        is SearchViewState.SearchPanel.SearchingFailed -> {
-                            ErrorPage(
-                                text = state.msg,
-                                onClick = {
-                                    model.searchTagOrExactSearch(text)
-                                }
-                            )
-                        }
+                            is SearchViewState.SearchPanel.SearchingFailed -> {
+                                ErrorPage(
+                                    text = state.msg,
+                                    onClick = {
+                                        model.searchTagOrExactSearch(text)
+                                    }
+                                )
+                            }
 
-                        is SearchViewState.SearchPanel.SelectTag -> {
-                            LazyColumn {
-                                items(state.tags) {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(it.name)
-                                        },
-                                        supportingContent = {
-                                            Text(it.translatedName ?: "")
-                                        },
-                                        modifier = Modifier.clickable {
-                                            model.selectTag(it)
-                                        }
-                                    )
+                            is SearchViewState.SearchPanel.SelectTag -> {
+                                LazyColumn {
+                                    items(state.tags) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text(it.name)
+                                            },
+                                            supportingContent = {
+                                                Text(it.translatedName ?: "")
+                                            },
+                                            modifier = Modifier.clickable {
+                                                model.selectTag(it)
+                                            }
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        is SearchViewState.SearchPanel.RedirectToPage -> {
-                            val nav = LocalNavigator.currentOrThrow
-                            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                item {
-                                    if (state.illust != null) {
-                                        ListItem(
-                                            overlineContent = {
-                                                Text("找到插画")
-                                            },
-                                            leadingContent = {
-                                                ProgressedAsyncImage(
-                                                    url = state.illust.contentImages.get()!![0],
-                                                    modifier = Modifier.height(144.dp).aspectRatio(
-                                                        ratio = state.illust.width / state.illust.height.toFloat()
+                            is SearchViewState.SearchPanel.RedirectToPage -> {
+                                val nav = LocalNavigator.currentOrThrow
+                                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                                    item {
+                                        if (state.illust != null) {
+                                            ListItem(
+                                                overlineContent = {
+                                                    Text("找到插画")
+                                                },
+                                                leadingContent = {
+                                                    ProgressedAsyncImage(
+                                                        url = state.illust.contentImages.get()!![0],
+                                                        modifier = Modifier.height(144.dp).aspectRatio(
+                                                            ratio = state.illust.width / state.illust.height.toFloat()
+                                                        )
                                                     )
-                                                )
-                                            },
-                                            headlineContent = {
-                                                Text(state.illust.title)
-                                            },
-                                            supportingContent = {
-                                                AuthorCard(
-                                                    user = state.illust.user,
-                                                )
-                                            },
-                                            modifier = Modifier.clickable {
-                                                nav.push(IllustDetailScreen(state.illust))
-                                            }
-                                        )
-                                    }
-                                }
-
-                                item {
-                                    if (state.novel != null) {
-                                        ListItem(
-                                            overlineContent = {
-                                                Text("找到小说")
-                                            },
-                                            leadingContent = {
-                                                ProgressedAsyncImage(
-                                                    url = state.novel.imageUrls.medium!!,
-                                                    modifier = Modifier.height(144.dp).aspectRatio(70 / 144f)
-                                                )
-                                            },
-                                            headlineContent = {
-                                                Text(state.novel.title)
-                                            },
-                                            supportingContent = {
-                                                Text(state.novel.caption, maxLines = 3)
-                                            },
-                                            modifier = Modifier.clickable {
-                                                nav.push(NovelDetailScreen(state.novel.id.toLong()))
-                                            }
-                                        )
+                                                },
+                                                headlineContent = {
+                                                    Text(state.illust.title)
+                                                },
+                                                supportingContent = {
+                                                    AuthorCard(
+                                                        user = state.illust.user,
+                                                    )
+                                                },
+                                                modifier = Modifier.clickable {
+                                                    nav.push(IllustDetailScreen(state.illust))
+                                                }
+                                            )
+                                        }
                                     }
 
-                                }
+                                    item {
+                                        if (state.novel != null) {
+                                            ListItem(
+                                                overlineContent = {
+                                                    Text("找到小说")
+                                                },
+                                                leadingContent = {
+                                                    ProgressedAsyncImage(
+                                                        url = state.novel.imageUrls.medium!!,
+                                                        modifier = Modifier.height(144.dp).aspectRatio(70 / 144f)
+                                                    )
+                                                },
+                                                headlineContent = {
+                                                    Text(state.novel.title)
+                                                },
+                                                supportingContent = {
+                                                    Text(state.novel.caption, maxLines = 3)
+                                                },
+                                                modifier = Modifier.clickable {
+                                                    nav.push(NovelDetailScreen(state.novel.id.toLong()))
+                                                }
+                                            )
+                                        }
 
-                                item {
-                                    if (state.user != null) {
-                                        val toast = LocalSnackBarHost.current
-                                        ListItem(
-                                            overlineContent = {
-                                                Text("找到用户")
-                                            },
-                                            headlineContent = {},
-                                            supportingContent = {
-                                                AuthorCard(
-                                                    user = state.user.user,
-                                                    onFavoriteClick = {
-                                                        toast.showSnackbar("请前往详情页面收藏作者！")
-                                                    }
-                                                )
-                                            }
-                                        )
                                     }
-                                }
 
-                                item {
-                                    if (state.illust == null && state.novel == null && state.user == null) {
-                                        ErrorPage(
-                                            text = "没有搜索结果",
-                                        ) {
-                                            model.openSearchPanel()
+                                    item {
+                                        if (state.user != null) {
+                                            val toast = LocalSnackBarHost.current
+                                            ListItem(
+                                                overlineContent = {
+                                                    Text("找到用户")
+                                                },
+                                                headlineContent = {},
+                                                supportingContent = {
+                                                    AuthorCard(
+                                                        user = state.user.user,
+                                                        onFavoriteClick = {
+                                                            toast.showSnackbar("请前往详情页面收藏作者！")
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    item {
+                                        if (state.illust == null && state.novel == null && state.user == null) {
+                                            ErrorPage(
+                                                text = "没有搜索结果",
+                                            ) {
+                                                model.openSearchPanel()
+                                            }
                                         }
                                     }
                                 }
                             }
-
                         }
                     }
-
                 }
             }
         }
