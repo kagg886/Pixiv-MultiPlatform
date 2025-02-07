@@ -26,6 +26,7 @@ import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.getRecommendTags
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserInfo
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.SearchHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -61,6 +62,9 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
         )
 
     private fun saveHistoryIfConfigOn(tag: List<String>, sort: SearchSort, target: SearchTarget) {
+        if (!AppConfig.recordSearchHistory) {
+            return
+        }
         viewModelScope.launch {
             database.searchHistoryDAO().insert(
                 SearchHistory(

@@ -54,8 +54,7 @@ import top.kagg886.pmf.ui.route.main.rank.RankScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendIllustViewModel
 import top.kagg886.pmf.ui.route.main.recommend.RecommendNovelViewModel
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
-import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.route.main.search.SearchViewModel
+import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.route.main.space.NewestIllustViewModel
 import top.kagg886.pmf.ui.route.main.space.SpaceIllustViewModel
 import top.kagg886.pmf.ui.route.main.space.SpaceScreen
@@ -317,9 +316,6 @@ fun startKoin0() {
                 }
                 single {
                     RecommendIllustViewModel()
-                }
-                single {
-                    SearchViewModel()
                 }
                 single {
                     RecommendNovelViewModel()

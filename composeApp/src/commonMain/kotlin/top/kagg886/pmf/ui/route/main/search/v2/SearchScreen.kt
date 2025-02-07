@@ -59,7 +59,11 @@ class SearchScreen(private val param: SearchParam = SearchParam.EmptySearch) : S
 
 sealed interface SearchParam {
     data object EmptySearch : SearchParam
-    data class KeyWordSearch(val tag: List<String>, val sort: SearchSort, val target: SearchTarget) : SearchParam
+    data class KeyWordSearch(
+        val tag: List<String>,
+        val sort: SearchSort = SearchSort.DATE_DESC,
+        val target: SearchTarget = SearchTarget.PARTIAL_MATCH_FOR_TAGS
+    ) : SearchParam
 }
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
