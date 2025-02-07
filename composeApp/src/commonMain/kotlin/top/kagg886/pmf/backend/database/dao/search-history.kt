@@ -4,7 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
-import top.kagg886.pmf.ui.route.main.search.SearchTab
+import top.kagg886.pmf.backend.database.converters.HistoryConverter
 
 
 @Dao
@@ -21,12 +21,12 @@ interface SearchHistoryDAO {
 }
 
 @Entity
+@TypeConverters(HistoryConverter::class)
 data class SearchHistory(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val initialSort:SearchSort,
-    val initialTarget:SearchTarget,
-    val initialKeyWords:String,
-    val tab:SearchTab,
-    val createTime: Long = System.currentTimeMillis()
+    val initialSort: SearchSort,
+    val initialTarget: SearchTarget,
+    val keyword: List<String> = listOf(),
+    val createTime: Long = System.currentTimeMillis(),
 )

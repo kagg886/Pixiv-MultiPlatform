@@ -8,9 +8,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,12 +25,9 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
@@ -42,13 +36,13 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
-import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
-import top.kagg886.pmf.ui.route.main.search.SearchScreen
+import top.kagg886.pmf.ui.route.main.search.v2.SearchParam
+import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.toReadableString
@@ -502,7 +496,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                             onClick = {
                                                 nav.push(
                                                     SearchScreen(
-                                                        initialKeyWords = tag.name
+                                                        param = SearchParam.KeyWordSearch(listOf(tag.name))
                                                     )
                                                 )
                                             },

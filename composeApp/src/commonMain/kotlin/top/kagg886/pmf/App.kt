@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.zIndex
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -56,8 +54,7 @@ import top.kagg886.pmf.ui.route.main.rank.RankScreen
 import top.kagg886.pmf.ui.route.main.recommend.RecommendIllustViewModel
 import top.kagg886.pmf.ui.route.main.recommend.RecommendNovelViewModel
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
-import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.route.main.search.SearchViewModel
+import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.route.main.space.NewestIllustViewModel
 import top.kagg886.pmf.ui.route.main.space.SpaceIllustViewModel
 import top.kagg886.pmf.ui.route.main.space.SpaceScreen
@@ -70,7 +67,6 @@ import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.bypassSNI
 import top.kagg886.pmf.util.toColorScheme
-import top.kagg886.pmf.util.toSerialized
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -94,7 +90,7 @@ val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
 
 @Composable
 @Preview
-fun App() {
+fun App(initScreen: Screen = WelcomeScreen()) {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
@@ -119,7 +115,7 @@ fun App() {
             Surface(
                 color = MaterialTheme.colorScheme.background
             ) {
-                Navigator(WelcomeScreen()) {
+                Navigator(initScreen) {
                     CompositionLocalProvider(
                         LocalUriHandler provides rememberSupportPixivNavigateUriHandler(),
                     ) {
@@ -320,9 +316,6 @@ fun startKoin0() {
                 }
                 single {
                     RecommendIllustViewModel()
-                }
-                single {
-                    SearchViewModel()
                 }
                 single {
                     RecommendNovelViewModel()

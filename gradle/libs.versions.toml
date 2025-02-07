@@ -5,26 +5,27 @@ composeWebviewMultiplatform = "1.9.20" #TODO 升级会导致ktor插件无法被�
 epublibCore = "3.1"
 filekitCompose = "0.8.7"
 jsoup = "1.18.3"
-ksp = "2.1.0-1.0.29"
-kotlin = "2.1.0"
+ksp = "2.1.10-1.0.29"
+kotlin = "2.1.10"
 kotlinx-coroutines = "1.10.1"
 kotlinxSerializationJson = "1.7.3"
 kxml2 = "2.3.0"
 multiplatformSettings = "1.3.0"
 orbitCore = "9.0.0"
 pixko = "2.3"
-room = "2.7.0-alpha12"
+room = "2.7.0-alpha13"
 sketchCompose = "4.0.0"
-sqliteBundled = "2.5.0-alpha12"
+sqliteBundled = "2.5.0-alpha13"
 voyagerVersion = "1.1.0-beta03"
 aboutlibraries = "11.2.3"
 zoomimageComposeSketch = "1.1.0"
 compose-settings = "2.6.0"
+textfield-chip = "0.7.0-alpha05"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.3" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.0" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
@@ -32,6 +33,7 @@ compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+textfield-chip = { module = "io.github.dokar3:chiptextfield-m3", version.ref = "textfield-chip" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }

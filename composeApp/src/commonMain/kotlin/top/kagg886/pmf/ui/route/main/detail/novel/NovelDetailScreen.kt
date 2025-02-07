@@ -27,17 +27,15 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
-import top.kagg886.pmf.ui.route.main.search.SearchScreen
-import top.kagg886.pmf.ui.route.main.search.SearchTab
+import top.kagg886.pmf.ui.route.main.search.v2.SearchParam
+import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.toReadableString
@@ -339,8 +337,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                             onClick = {
                                                                 nav.push(
                                                                     SearchScreen(
-                                                                        initialKeyWords = tag.name,
-                                                                        tab = SearchTab.NOVEL
+                                                                        param = SearchParam.KeyWordSearch(
+                                                                            listOf(tag.name)
+                                                                        )
                                                                     )
                                                                 )
                                                             }
