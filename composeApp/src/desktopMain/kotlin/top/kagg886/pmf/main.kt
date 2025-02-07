@@ -3,6 +3,7 @@ package top.kagg886.pmf
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.*
+import cafe.adriel.voyager.core.screen.Screen
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
@@ -10,11 +11,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.ui.route.crash.CrashApp
+import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import kotlin.system.exitProcess
 
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun main() {
+fun launchApp(init: Screen = WelcomeScreen()) {
     startKoin0()
     SingletonSketch.setSafe {
         Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
@@ -52,7 +54,7 @@ fun main() {
                         true
                     }
                 ) {
-                    App()
+                    App(init)
                 }
             }
         }
@@ -66,3 +68,5 @@ fun main() {
     }
     exitProcess(0)
 }
+
+fun main() = launchApp()

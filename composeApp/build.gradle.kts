@@ -132,6 +132,9 @@ kotlin {
                 exclude("xmlpull", "xmlpull")
                 exclude("net.sf.kxml", "kxml2")
             }
+
+
+            implementation(libs.textfield.chip)
             implementation(libs.jsoup)
 
             implementation(libs.aboutlibraries.core)

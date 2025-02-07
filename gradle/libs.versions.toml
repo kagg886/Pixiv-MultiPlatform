@@ -20,6 +20,7 @@ voyagerVersion = "1.1.0-beta03"
 aboutlibraries = "11.2.3"
 zoomimageComposeSketch = "1.1.0"
 compose-settings = "2.6.0"
+textfield-chip = "0.7.0-alpha05"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
@@ -32,6 +33,7 @@ compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+textfield-chip = { module = "io.github.dokar3:chiptextfield-m3", version.ref = "textfield-chip" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }

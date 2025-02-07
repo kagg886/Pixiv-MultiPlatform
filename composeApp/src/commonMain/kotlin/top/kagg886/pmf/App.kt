@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.zIndex
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -70,7 +68,6 @@ import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.bypassSNI
 import top.kagg886.pmf.util.toColorScheme
-import top.kagg886.pmf.util.toSerialized
 import java.io.File
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -94,7 +91,7 @@ val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
 
 @Composable
 @Preview
-fun App() {
+fun App(initScreen: Screen = WelcomeScreen()) {
     val darkModeValue = remember {
         mutableStateOf(AppConfig.darkMode)
     }
@@ -119,7 +116,7 @@ fun App() {
             Surface(
                 color = MaterialTheme.colorScheme.background
             ) {
-                Navigator(WelcomeScreen()) {
+                Navigator(initScreen) {
                     CompositionLocalProvider(
                         LocalUriHandler provides rememberSupportPixivNavigateUriHandler(),
                     ) {
