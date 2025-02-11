@@ -17,11 +17,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.internal.BackHandler
 import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
@@ -44,10 +46,16 @@ import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
 import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.wrap
 import kotlin.time.Duration.Companion.seconds
 
-class SearchScreen(private val param: SearchParam = SearchParam.EmptySearch) : Screen {
+class SearchScreen(param:SerializableWrapper<SearchParam>) : Screen {
     override val key: ScreenKey = param.hashCode().toString()
+
+    private val param by param
+
+    constructor(param: SearchParam = SearchParam.EmptySearch): this(wrap(param))
 
     @Composable
     override fun Content() {
@@ -67,7 +75,7 @@ sealed interface SearchParam {
     ) : SearchParam
 }
 
-@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
+@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class, InternalVoyagerApi::class)
 @Composable
 private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) {
     when (state) {
@@ -142,6 +150,13 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                         }
 
                         is SearchViewState.MainPanel.SearchResult -> {
+                            BackHandler(true) {
+                                model.openSearchPanel(
+                                    sort = state.sort,
+                                    target = state.target,
+                                    keyword = state.keyword
+                                )
+                            }
                             val data = remember(state) {
                                 buildList<Pair<String, @Composable () -> Unit>> {
                                     state.illustRepo?.let {
@@ -210,8 +225,18 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                 ChipTextFieldState(chips = keyword.map { Chip(it) })
             }
 
-            LaunchedEffect(keyword) {
-                chipState.chips = keyword.map { Chip(it) }
+            LaunchedEffect(chipState.chips) {
+                val target = chipState.chips.map { it.text }
+                if (target.size == keyword.size && (target zip keyword).all { it.first == it.second }) {
+                    return@LaunchedEffect
+                }
+                val keyWord = state.keyword as MutableStateFlow<List<String>>
+                keyWord.tryEmit(target)
+            }
+
+
+            BackHandler(true) {
+                model.closeSearchResultPanel()
             }
 
             Scaffold(
@@ -263,6 +288,7 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                 }
                             )
                         }
+
                         else -> {
                             LaunchedEffect(Unit) {
                                 (state.keyword as MutableStateFlow).emit(listOf())
@@ -304,6 +330,9 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                     AnimatedContent(state) { state ->
                         when (state) {
                             is SearchViewState.SearchPanel.SettingProperties -> {
+                                BackHandler(true) {
+                                    model.closeSearchPanel()
+                                }
                                 val hotTags by state.hotTag.collectAsState()
 
 
