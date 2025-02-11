@@ -23,6 +23,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.dokar.chiptextfield.Chip
+import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
 import com.dokar.chiptextfield.rememberChipTextFieldState
 import kotlinx.coroutines.FlowPreview
@@ -205,60 +206,98 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
             val sortState by state.sort.collectAsState()
             val targetState by state.target.collectAsState()
 
-
-            val chipState = rememberChipTextFieldState(chips = keyword.map { Chip(it) })
-            LaunchedEffect(chipState.chips) {
-                val target = chipState.chips.map { it.text }
-                if (target.size == keyword.size && (target zip keyword).all { it.first == it.second }) {
-                    return@LaunchedEffect
-                }
-                val keyWord = state.keyword as MutableStateFlow<List<String>>
-                keyWord.tryEmit(target)
+            val chipState = remember(keyword) {
+                ChipTextFieldState(chips = keyword.map { Chip(it) })
             }
 
             LaunchedEffect(keyword) {
                 chipState.chips = keyword.map { Chip(it) }
             }
 
-            LaunchedEffect(Unit) {
-                snapshotFlow { text }
-                    .debounce(1.seconds).distinctUntilChanged()
-                    .collectLatest { msg ->
-                        if (msg.isNotBlank()) model.searchTagOrExactSearch(msg)
-                    }
-            }
-
             Scaffold(
                 topBar = {
-                    ChipTextField(
-                        state = chipState,
-                        value = text,
-                        onValueChange = { state.text.tryEmit(it) },
-                        onSubmit = { null },
-                        leadingIcon = {
-                            IconButton(
-                                onClick = {
-                                    model.closeSearchPanel()
-                                }
-                            ) {
-                                Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                    when (targetState) {
+                        SearchTarget.EXACT_MATCH_FOR_TAGS, SearchTarget.PARTIAL_MATCH_FOR_TAGS -> {
+                            LaunchedEffect(Unit) {
+                                snapshotFlow { text }.debounce(0.5.seconds)
+                                    .distinctUntilChanged()
+                                    .collectLatest { msg ->
+                                        if (msg.isNotBlank()) {
+                                            model.searchTagOrExactSearch(msg)
+                                        } else {
+                                            model.closeSearchResultPanel()
+                                        }
+                                    }
                             }
-                        },
-                        trailingIcon = {
-                            IconButton(
-                                onClick = {
-                                    model.startSearch(
-                                        keyword,
-                                        sort = sortState,
-                                        target = targetState
-                                    )
+                            ChipTextField(
+                                state = chipState,
+                                value = text,
+                                onValueChange = { state.text.tryEmit(it) },
+                                onSubmit = { null },
+                                leadingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            if (state !is SearchViewState.SearchPanel.SettingProperties) {
+                                                model.closeSearchResultPanel()
+                                                return@IconButton
+                                            }
+                                            model.closeSearchPanel()
+                                        }
+                                    ) {
+                                        Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                                    }
                                 },
-                                enabled = state !is SearchViewState.SearchPanel.RedirectToPage && keyword.isNotEmpty()
-                            ) {
-                                Icon(Icons.Default.Search, null)
-                            }
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            model.startSearch(
+                                                keyword,
+                                                sort = sortState,
+                                                target = targetState
+                                            )
+                                        },
+                                        enabled = state !is SearchViewState.SearchPanel.RedirectToPage && keyword.isNotEmpty()
+                                    ) {
+                                        Icon(Icons.Default.Search, null)
+                                    }
+                                }
+                            )
                         }
-                    )
+                        else -> {
+                            LaunchedEffect(Unit) {
+                                (state.keyword as MutableStateFlow).emit(listOf())
+                                state.text.emit("")
+                            }
+                            TextField(
+                                value = text,
+                                modifier = Modifier.fillMaxWidth(),
+                                onValueChange = { state.text.tryEmit(it) },
+                                leadingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            model.closeSearchPanel()
+                                        }
+                                    ) {
+                                        Icon(Icons.AutoMirrored.Default.ArrowBack, null)
+                                    }
+                                },
+                                trailingIcon = {
+                                    IconButton(
+                                        onClick = {
+                                            model.startSearch(
+                                                listOf(text),
+                                                sort = sortState,
+                                                target = targetState
+                                            )
+                                        },
+                                        enabled = text.isNotEmpty()
+                                    ) {
+                                        Icon(Icons.Default.Search, null)
+                                    }
+                                }
+                            )
+                        }
+                    }
                 }
             ) {
                 Column(Modifier.padding(it)) {

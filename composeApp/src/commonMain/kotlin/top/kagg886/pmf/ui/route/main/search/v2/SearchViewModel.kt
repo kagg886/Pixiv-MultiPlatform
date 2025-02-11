@@ -95,6 +95,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                 text = MutableStateFlow(text),
                 sort = MutableStateFlow(sort),
                 target = MutableStateFlow(target),
+                hotTag = MutableStateFlow(TagPropertiesState.Loading)
             )
         }
         refreshHotTag()
@@ -152,6 +153,21 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
     }
 
     @OptIn(OrbitExperimental::class)
+    fun closeSearchResultPanel() = intent {
+        runOn<SearchViewState.SearchPanel> {
+            reduce {
+                SearchViewState.SearchPanel.SettingProperties(
+                    sort = state.sort,
+                    target = state.target,
+                    keyword = state.keyword,
+                    text = state.text,
+                    hotTag = state.hotTag
+                )
+            }
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
     fun searchTagOrExactSearch(text: String) = intent {
         runOn<SearchViewState.SearchPanel> {
             with(text.toLongOrNull()) {
@@ -192,6 +208,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                             text = state.text,
                             sort = state.sort,
                             target = state.target,
+                            hotTag = state.hotTag
                         )
                     }
                     return@runOn
@@ -204,6 +221,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                     text = state.text,
                     sort = state.sort,
                     target = state.target,
+                    hotTag = state.hotTag
                 )
             }
             try {
@@ -215,6 +233,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                         text = state.text,
                         sort = state.sort,
                         target = state.target,
+                        hotTag = state.hotTag
                     )
                 }
             } catch (e: Exception) {
@@ -225,6 +244,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                         target = state.target,
                         keyword = state.keyword,
                         text = state.text,
+                        hotTag = state.hotTag
                     )
                 }
             }
@@ -238,6 +258,10 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
             keyword.emit(keyword.value + it.name)
             state.text.emit("")
 
+            if (state.target.value != PARTIAL_MATCH_FOR_TAGS && state.target.value != EXACT_MATCH_FOR_TAGS) {
+                (state.target as MutableStateFlow).emit(PARTIAL_MATCH_FOR_TAGS)
+            }
+
             if (state is SearchViewState.SearchPanel.SettingProperties) { //避免无意义动画重载
                 return@runOn
             }
@@ -248,6 +272,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                     target = state.target,
                     keyword = state.keyword,
                     text = state.text,
+                    hotTag = state.hotTag
                 )
             }
             refreshHotTag()
@@ -332,42 +357,44 @@ sealed interface SearchViewState {
     sealed interface SearchPanel : SearchViewState {
         val keyword: StateFlow<List<String>>
         val text: MutableStateFlow<String>
-
+        val hotTag: StateFlow<TagPropertiesState>
         val sort: StateFlow<SearchSort>
         val target: StateFlow<SearchTarget>
 
         data class SettingProperties(
-            val hotTag: StateFlow<TagPropertiesState> = MutableStateFlow(TagPropertiesState.Loading),
-
-            override val sort: StateFlow<SearchSort>,
-            override val target: StateFlow<SearchTarget>,
             override val keyword: StateFlow<List<String>>,
             override val text: MutableStateFlow<String>,
+            override val hotTag: StateFlow<TagPropertiesState>,
+            override val sort: StateFlow<SearchSort>,
+            override val target: StateFlow<SearchTarget>,
         ) : SearchPanel //搜索功能
 
         data class Searching(
-            override val sort: StateFlow<SearchSort>,
-            override val target: StateFlow<SearchTarget>,
             override val keyword: StateFlow<List<String>>,
             override val text: MutableStateFlow<String>,
+            override val hotTag: StateFlow<TagPropertiesState>,
+            override val sort: StateFlow<SearchSort>,
+            override val target: StateFlow<SearchTarget>,
         ) : SearchPanel  //正在搜索
 
 
         data class SearchingFailed(
             val msg: String,
-            override val sort: StateFlow<SearchSort>,
-            override val target: StateFlow<SearchTarget>,
             override val keyword: StateFlow<List<String>>,
             override val text: MutableStateFlow<String>,
+            override val hotTag: StateFlow<TagPropertiesState>,
+            override val sort: StateFlow<SearchSort>,
+            override val target: StateFlow<SearchTarget>,
         ) : SearchPanel //搜索失败
 
         data class SelectTag(
             val tags: List<Tag>,
 
+            override val keyword: StateFlow<List<String>>,
+            override val text: MutableStateFlow<String>,
+            override val hotTag: StateFlow<TagPropertiesState>,
             override val sort: StateFlow<SearchSort>,
             override val target: StateFlow<SearchTarget>,
-            override val text: MutableStateFlow<String>,
-            override val keyword: StateFlow<List<String>>,
         ) : SearchPanel //搜索到标签
 
         data class RedirectToPage(
@@ -378,6 +405,7 @@ sealed interface SearchViewState {
 
             override val keyword: StateFlow<List<String>>,
             override val text: MutableStateFlow<String>,
+            override val hotTag: StateFlow<TagPropertiesState>,
             override val sort: StateFlow<SearchSort>,
             override val target: StateFlow<SearchTarget>,
         ) : SearchPanel //搜索到内容
