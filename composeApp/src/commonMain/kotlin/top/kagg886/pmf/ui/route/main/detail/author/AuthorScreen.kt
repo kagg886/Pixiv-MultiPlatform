@@ -7,6 +7,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
@@ -61,7 +63,6 @@ open class AuthorScreen(open val id: Int) : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     open fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
@@ -165,6 +166,34 @@ open class AuthorScreen(open val id: Int) : Screen {
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                         }
                     },
+                    actions = {
+                        var show by remember {
+                            mutableStateOf(false)
+                        }
+                        DropdownMenu(
+                            expanded = show,
+                            onDismissRequest = { show = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Text("在浏览器中打开")
+                                },
+                                onClick = {
+                                    openBrowser(
+                                        "https://www.pixiv.net/users/${state.user.user.id}"
+                                    )
+                                    show = false
+                                }
+                            )
+                        }
+                        IconButton(
+                            onClick = {
+                                show = true
+                            }
+                        ) {
+                            Icon(Icons.Default.Menu, null)
+                        }
+                    },
                     title = {
                         Text(state.user.user.name)
                     }
@@ -196,7 +225,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                             HorizontalPager(
                                 state = pager,
                                 modifier = Modifier.fillMaxWidth()
-                            ) { index->
+                            ) { index ->
                                 when (index) {
                                     0 -> AuthorIllust(state.user)
                                     1 -> AuthorNovel(state.user)

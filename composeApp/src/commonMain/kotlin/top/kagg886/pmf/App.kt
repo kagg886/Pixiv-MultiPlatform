@@ -401,6 +401,7 @@ fun startKoin0() {
     }
 }
 
+expect fun openBrowser(link: String)
 expect fun shareFile(file: File, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 

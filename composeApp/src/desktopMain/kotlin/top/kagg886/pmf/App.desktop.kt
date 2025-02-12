@@ -7,7 +7,12 @@ import java.awt.Toolkit
 import java.awt.datatransfer.*
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.net.URI
 import javax.imageio.ImageIO
+
+actual fun openBrowser(link: String) {
+    Desktop.getDesktop().browse(URI.create(link))
+}
 
 actual fun shareFile(file: File, name: String, mime: String) {
     Desktop.getDesktop().open(file)

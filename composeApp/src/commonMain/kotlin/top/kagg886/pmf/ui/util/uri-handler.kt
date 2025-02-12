@@ -63,6 +63,14 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                         }
                         return@runCatching true
                     }
+                    if (url.startsWith("pixiv://")) {
+                        val uri = URI.create(url.trim())!!
+                        when (uri.host) {
+                            "novels" -> nav.push(AuthorScreen(uri.path.substring(1).toInt()))
+                            "illusts" -> nav.push(IllustDetailScreen.PreFetch(uri.path.substring(1).toLong()))
+                            "users" -> nav.push(AuthorScreen(uri.path.substring(1).toInt()))
+                        }
+                    }
                     false
                 }
                 if (unit.isFailure || !unit.getOrThrow()) {

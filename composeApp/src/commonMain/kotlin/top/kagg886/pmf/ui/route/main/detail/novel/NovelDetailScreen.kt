@@ -29,6 +29,7 @@ import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
@@ -113,6 +114,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             text = { Text("导出为epub") },
                                             onClick = {
                                                 model.exportToEpub()
+                                                expanded = false
+                                            }
+                                        )
+                                        DropdownMenuItem(
+                                            text = { Text("在浏览器中打开") },
+                                            onClick = {
+                                                openBrowser("https://www.pixiv.net/novel/show.php?id=$id")
+                                                expanded = false
                                             }
                                         )
                                     }

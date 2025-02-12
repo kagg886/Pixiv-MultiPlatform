@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,6 +35,7 @@ import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
@@ -137,50 +139,45 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun WideScreenIllustDetail(illust: Illust) {
+    private fun IllustTopAppBar(illust: Illust) {
         val nav = LocalNavigator.currentOrThrow
+        TopAppBar(
+            title = { Text(text = "图片详情") },
+            navigationIcon = {
+                IconButton(onClick = { nav.pop() }) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                }
+            },
+            actions = {
+                var enabled by remember { mutableStateOf(false) }
+                IconButton(
+                    onClick = { enabled = true },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                ) {
+                    Icon(Icons.Default.Menu, null)
+                }
+                DropdownMenu(
+                    expanded = enabled,
+                    onDismissRequest = { enabled = false },
+                ) {
+
+                    DropdownMenuItem(
+                        text = { Text("在浏览器中打开") },
+                        onClick = {
+                            openBrowser("https://pixiv.net/artworks/${illust.id}")
+                            enabled = false
+                        }
+                    )
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun WideScreenIllustDetail(illust: Illust) {
         Scaffold(
             topBar = {
-                TopAppBar(
-                    title = { Text(text = "图片详情") },
-                    navigationIcon = {
-                        IconButton(onClick = { nav.pop() }) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                        }
-                    },
-//                    actions = {
-//                        var enabled by remember { mutableStateOf(false) }
-//                        IconButton(
-//                            onClick = { enabled = true },
-//                            modifier = Modifier.padding(horizontal = 8.dp)
-//                        ) {
-//                            Icon(Icons.Default.Menu, null)
-//                        }
-//                        DropdownMenu(
-//                            expanded = enabled,
-//                            onDismissRequest = { enabled = false },
-//                        ) {
-//                            val manager = LocalClipboardManager.current
-//                            val model = rememberScreenModel<IllustDetailViewModel>(key) {
-//                                error("not provided")
-//                            }
-//                            DropdownMenuItem(
-//                                text = { Text("复制pid") },
-//                                leadingIcon = { Icon(Copy, null) },
-//                                onClick = {
-//                                    manager.setText(
-//                                        buildAnnotatedString {
-//                                            append("${illust.id}")
-//                                        }
-//                                    )
-//                                    model.intent {
-//                                        postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
-//                                    }
-//                                }
-//                            )
-//                        }
-//                    }
-                )
+                IllustTopAppBar(illust)
             }
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
@@ -194,7 +191,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class, InternalVoyagerApi::class)
     @Composable
     private fun IllustDetail(illust: Illust) {
         val state = rememberDrawerState(DrawerValue.Closed)
@@ -214,57 +211,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             rtlLayout = true,
             drawerState = state
         ) {
-            val nav = LocalNavigator.currentOrThrow
             Scaffold(
                 topBar = {
-                    TopAppBar(
-                        title = { Text(text = "图片详情") },
-                        navigationIcon = {
-                            IconButton(onClick = { nav.pop() }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                            }
-                        },
-//                        actions = {
-//                            var enabled by remember { mutableStateOf(false) }
-//                            IconButton(
-//                                onClick = { enabled = true },
-//                                modifier = Modifier.padding(horizontal = 8.dp)
-//                            ) {
-//                                Icon(Icons.Default.Menu, null)
-//                            }
-//                            DropdownMenu(
-//                                expanded = enabled,
-//                                onDismissRequest = { enabled = false },
-//                            )  {
-//                                val manager = LocalClipboardManager.current
-//                                val model = rememberScreenModel<IllustDetailViewModel>(key) {
-//                                    error("not provided")
-//                                }
-//                                DropdownMenuItem(
-//                                    text = { Text("复制pid") },
-//                                    leadingIcon = { Icon(Copy,null) },
-//                                    onClick = {
-//                                        manager.setText(
-//                                            buildAnnotatedString {
-//                                                append("${illust.id}")
-//                                            }
-//                                        )
-//                                        model.intent {
-//                                            postSideEffect(IllustDetailSideEffect.Toast("复制成功"))
-//                                        }
-//                                    }
-//                                )
-//                            }
-//
-//                            IconButton(onClick = {
-//                                scope.launch {
-//                                    state.open()
-//                                }
-//                            }) {
-//                                Icon(Icons.Filled.Edit, null)
-//                            }
-//                        }
-                    )
+                    IllustTopAppBar(illust)
                 }
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
@@ -374,7 +323,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             overlineContent = {
                                 Text(
                                     text = buildAnnotatedString {
-                                        withClickable(theme,illust.id.toString()) {
+                                        withClickable(theme, illust.id.toString()) {
                                             clipboard.setText(
                                                 buildAnnotatedString {
                                                     append(illust.id.toString())
@@ -391,7 +340,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             headlineContent = {
                                 Text(
                                     text = buildAnnotatedString {
-                                        withClickable(theme,illust.title) {
+                                        withClickable(theme, illust.title) {
                                             clipboard.setText(
                                                 buildAnnotatedString {
                                                     append(illust.title)

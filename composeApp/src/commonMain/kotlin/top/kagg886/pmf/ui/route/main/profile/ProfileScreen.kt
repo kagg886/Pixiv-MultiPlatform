@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
-import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
@@ -96,7 +95,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             Text("我的收藏")
                         },
                         icon = {
-                            Icon(Icons.Default.Person, "")
+                            Icon(Icons.Default.Favorite, "")
                         },
                         selected = false,
                         onClick = {
@@ -112,7 +111,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             Text("下载管理")
                         },
                         icon = {
-                            Icon(Icons.Default.ArrowDropDown, "")
+                            Icon(top.kagg886.pmf.ui.component.icon.Download, "")
                         },
                         selected = page == Download,
                         onClick = {

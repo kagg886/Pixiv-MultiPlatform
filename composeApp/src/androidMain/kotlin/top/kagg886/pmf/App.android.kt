@@ -2,12 +2,13 @@ package top.kagg886.pmf
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.File
 
 
-actual fun shareFile(file: File, name: String,mime: String) {
+actual fun shareFile(file: File, name: String, mime: String) {
     with(PMFApplication.getApp()) {
         val cache = cacheDir.resolve("share").resolve(name)
 
@@ -16,8 +17,8 @@ actual fun shareFile(file: File, name: String,mime: String) {
             cache.createNewFile()
         }
 
-        file.inputStream().use { i->
-            cache.outputStream().use { o->
+        file.inputStream().use { i ->
+            cache.outputStream().use { o ->
                 i.copyTo(o)
             }
         }
@@ -39,4 +40,13 @@ actual fun shareFile(file: File, name: String,mime: String) {
 
 actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
     throw UnsupportedOperationException()
+}
+
+actual fun openBrowser(link: String) {
+    with(PMFApplication.getApp()) {
+        val uri = Uri.parse(link)
+        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+            flags = FLAG_ACTIVITY_NEW_TASK
+        })
+    }
 }
