@@ -115,7 +115,7 @@ enum class ProfileItem(
         title = "查看资料",
         icon = Icons.Default.Person,
         content = {
-            AuthorScreen(it.userId, true).Content()
+            AuthorScreen(it.userId).Content()
         }
     ),
     ExtendsFavorite(

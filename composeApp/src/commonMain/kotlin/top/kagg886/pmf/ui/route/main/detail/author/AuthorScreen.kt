@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.route.main.detail.author
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -8,7 +7,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,9 +15,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -32,7 +28,8 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
-import top.kagg886.pmf.ui.component.collapsable.v2.CollapsableTopAppBarScaffold
+import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
+import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
@@ -41,7 +38,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import kotlin.math.max
 import kotlin.math.min
 
-class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
+class AuthorScreen(val id: Int) : Screen {
 
     override val key: ScreenKey
         get() = "author_$id"
@@ -64,7 +61,6 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
@@ -120,9 +116,8 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                 }
 
                 CollapsableTopAppBarScaffold(
-                    toolbarSize = 280.dp,
-                    toolbar = {
-                        Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
+                    background = {
+                        Box(modifier = it.fillMaxWidth().height(280.dp)) {
                             var preview by remember { mutableStateOf(false) }
                             if (preview && state.user.profile.backgroundImageUrl != null) {
                                 ImagePreviewer(
@@ -155,58 +150,23 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                     model.unFollowUser().join()
                                 }
                             }
-
-                            if (!isOpenInSideBar) {
-                                val nav = LocalNavigator.currentOrThrow
-                                IconButton(
-                                    onClick = {
-                                        nav.pop()
-                                    },
-                                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp)
-                                ) {
-                                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                                }
-                            }
                         }
                     },
-                    smallToolBar = {
-                        TopAppBar(
-                            navigationIcon = {
-                                if (!isOpenInSideBar) {
-                                    val nav = LocalNavigator.currentOrThrow
-                                    IconButton(onClick = {
-                                        nav.pop()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
+                    navigationIcon = {
+                        val nav = LocalNavigator.currentOrThrow
+                        IconButton(
+                            onClick = {
+                                nav.pop()
                             },
-                            actions = {},
-                            title = {
-                                AuthorCard(
-                                    modifier = Modifier,
-                                    user = state.user.user,
-                                    onCardClick = {
-                                        infoDialog = true
-                                    },
-                                    onFavoritePrivateClick = {
-                                        model.followUser(true).join()
-                                    }
-                                ) {
-                                    if (it) {
-                                        model.followUser().join()
-                                    } else {
-                                        model.unFollowUser().join()
-                                    }
-                                }
-                            }
-                        )
+                        ) {
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    title = {
+                        Text(state.user.user.name)
                     }
                 ) {
-                    Column(Modifier.nestedScroll(it)) {
+                    Column(it) {
                         ScrollableTabRow(
                             selectedTabIndex = pager.currentPage,
                             modifier = Modifier.fillMaxWidth(),
@@ -228,16 +188,19 @@ class AuthorScreen(val id: Int, val isOpenInSideBar: Boolean = false) : Screen {
                                 }
                             }
                         }
-                        HorizontalPager(
-                            state = pager,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            when (it) {
-                                0 -> AuthorIllust(state.user)
-                                1 -> AuthorNovel(state.user)
-                                2 -> AuthorIllustBookmark(state.user)
-                                3 -> AuthorNovelBookmark(state.user)
-                                4 -> AuthorFollow(state.user)
+                        //修复电脑端滚轮
+                        CompositionLocalProvider(LocalConnectedStateKey provides this@CollapsableTopAppBarScaffold.connectedScrollState) {
+                            HorizontalPager(
+                                state = pager,
+                                modifier = Modifier.fillMaxWidth()
+                            ) { index->
+                                when (index) {
+                                    0 -> AuthorIllust(state.user)
+                                    1 -> AuthorNovel(state.user)
+                                    2 -> AuthorIllustBookmark(state.user)
+                                    3 -> AuthorNovelBookmark(state.user)
+                                    4 -> AuthorFollow(state.user)
+                                }
                             }
                         }
                     }

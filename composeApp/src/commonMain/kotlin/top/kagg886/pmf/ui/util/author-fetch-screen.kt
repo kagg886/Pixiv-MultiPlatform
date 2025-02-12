@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
+import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 
@@ -52,6 +54,7 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
 
             KeyListenerFromGlobalPipe(controller)
 
+            val x = LocalConnectedStateKey.current
 
             PullToRefreshBox(
                 isRefreshing = refresh,
@@ -63,7 +66,9 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                         refresh = false
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
+                    .fillMaxSize()
             ) {
                 if (state.data.isEmpty()) {
                     ErrorPage(text = "页面为空") {
@@ -79,7 +84,7 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
                             user = it,
                             onFavoritePrivateClick = {
-                                model.followUser(it,true)
+                                model.followUser(it, true)
                             }
                         ) { isRequestFavorite ->
                             if (isRequestFavorite) {

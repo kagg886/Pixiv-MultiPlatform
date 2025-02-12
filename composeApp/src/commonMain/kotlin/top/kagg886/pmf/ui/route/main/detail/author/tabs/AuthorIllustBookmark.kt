@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustResult
@@ -24,7 +25,7 @@ fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
 private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>() {
-            private var context : IllustResult? = null
+            private var context: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
                 val result = kotlin.runCatching {
                     context = if (context == null) {
@@ -38,7 +39,6 @@ private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewMode
                 }
                 return context!!.illusts
             }
-
         }
     }
 

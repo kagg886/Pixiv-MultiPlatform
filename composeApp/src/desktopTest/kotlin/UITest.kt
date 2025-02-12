@@ -7,7 +7,7 @@ class UITest {
     @Test
     fun testApp() {
         kotlin.runCatching {
-            launchApp(SearchScreen())
+            launchApp(CollapseV2Screen())
         }
         exitProcess(0)
     }

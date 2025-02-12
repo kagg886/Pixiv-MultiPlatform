@@ -22,6 +22,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
+import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.R18
 import top.kagg886.pmf.ui.component.icon.R18G
@@ -58,6 +60,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
 
             KeyListenerFromGlobalPipe(controller)
 
+            val x = LocalConnectedStateKey.current
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {
@@ -68,7 +71,9 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         isRefresh = false
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
+                    .fillMaxSize()
             ) {
                 if (state.novels.isEmpty()) {
                     ErrorPage(text = "页面为空") {
