@@ -1,201 +1,243 @@
 package top.kagg886.pmf.ui.route.main.profile
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.core.screen.ScreenKey
-import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
-
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem.*
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
 
+enum class ProfileItem {
+    ViewProfile,
+    History,
+    Download,
+    Setting,
+}
+
 class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target: ProfileItem) : Screen {
-    override val key: ScreenKey = uniqueScreenKey
+    constructor(me: SimpleMeProfile, target: ProfileItem = ViewProfile) : this(wrap(me), target)
+
     private val me by me
-
-    constructor(me: SimpleMeProfile, target: ProfileItem = ProfileItem.ViewProfile) : this(wrap(me), target)
-
-    private class PageScreenModel : ScreenModel {
-        val page: MutableState<Int> = mutableIntStateOf(0)
-    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val page = rememberScreenModel("initial_${target.name}") {
-            PageScreenModel().apply {
-                page.value = target.ordinal
-            }
+        var page by rememberSaveable {
+            mutableStateOf(target)
         }
-        var select by page.page
-        if (useWideScreenMode) {
-            PermanentNavigationDrawer(
-                drawerContent = {
-                    SettingDrawerSheet(me = me, select) {
-                        select = it
-                    }
-                },
-            ) {
-                SettingDrawerContent(me = me, select = select)
-            }
-            return
-        }
-        val state = rememberDrawerState(DrawerValue.Open)
-        val scope = rememberCoroutineScope()
-        ModalNavigationDrawer(
+        val drawer = rememberDrawerState(DrawerValue.Open)
+        ProfileScreenContainDrawerScaffold(
+            state = drawer,
             drawerContent = {
-                SettingDrawerSheet(me = me, select) {
-                    select = it
-                    scope.launch {
-                        state.close()
+                ModalDrawerSheet {
+                    val nav = LocalNavigator.currentOrThrow
+                    OutlinedCard(
+                        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
+                    ) {
+                        ListItem(
+                            headlineContent = {
+                                Text(me.name)
+                            },
+                            supportingContent = {
+                                Text(me.pixivId)
+                            },
+                            leadingContent = {
+                                IconButton(
+                                    onClick = { nav.pop() }
+                                ) {
+                                    Icon(Icons.AutoMirrored.Default.ArrowBack, "")
+                                }
+                            },
+                        )
                     }
+                    HorizontalDivider()
+                    Spacer(Modifier.height(8.dp))
+                    val scope = rememberCoroutineScope()
+                    NavigationDrawerItem(
+                        label = {
+                            Text("个人信息")
+                        },
+                        icon = {
+                            Icon(Icons.Default.Person, "")
+                        },
+                        selected = page == ViewProfile,
+                        onClick = {
+                            page = ViewProfile
+                            scope.launch {
+                                drawer.close()
+                            }
+                        }
+                    )
+
+                    NavigationDrawerItem(
+                        label = {
+                            Text("我的收藏")
+                        },
+                        icon = {
+                            Icon(Icons.Default.Person, "")
+                        },
+                        selected = false,
+                        onClick = {
+                            nav.push(BookmarkScreen())
+                            scope.launch {
+                                drawer.close()
+                            }
+                        }
+                    )
+
+                    NavigationDrawerItem(
+                        label = {
+                            Text("下载管理")
+                        },
+                        icon = {
+                            Icon(Icons.Default.ArrowDropDown, "")
+                        },
+                        selected = page == Download,
+                        onClick = {
+                            page = Download
+                            scope.launch {
+                                drawer.close()
+                            }
+                        }
+                    )
+
+                    NavigationDrawerItem(
+                        label = {
+                            Text("历史记录")
+                        },
+                        icon = {
+                            Icon(Icons.Default.MailOutline, "")
+                        },
+                        selected = page == History,
+                        onClick = {
+                            page = History
+                            scope.launch {
+                                drawer.close()
+                            }
+                        }
+                    )
+
+                    NavigationDrawerItem(
+                        label = {
+                            Text("程序设置")
+                        },
+                        icon = {
+                            Icon(Icons.Default.Settings, "")
+                        },
+                        selected = page == Setting,
+                        onClick = {
+                            page = Setting
+                            scope.launch {
+                                drawer.close()
+                            }
+                        }
+                    )
+
                 }
             },
+            content = {
+                @Composable
+                fun Content() {
+                    AnimatedContent(targetState = page) {
+                        when (it) {
+                            ViewProfile -> {
+                                AuthorScreen(PixivConfig.pixiv_user!!.userId).Content()
+                            }
+
+                            History -> {
+                                HistoryScreen().Content()
+                            }
+
+                            Download -> {
+                                DownloadScreen().Content()
+                            }
+
+                            Setting -> {
+                                SettingScreen().Content()
+                            }
+                        }
+                    }
+                }
+
+                if (useWideScreenMode) {
+                    Content()
+                    return@ProfileScreenContainDrawerScaffold
+                }
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    when (page) {
+                                        ViewProfile -> "个人信息"
+                                        History -> "历史记录"
+                                        Download -> "下载管理"
+                                        Setting -> "程序设置"
+                                    }
+                                )
+                            },
+                            navigationIcon = {
+                                val scope = rememberCoroutineScope()
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            drawer.open()
+                                        }
+                                    }
+                                ) {
+                                    Icon(Icons.Default.Menu, "")
+                                }
+                            }
+                        )
+                    }
+                ) {
+                    Content()
+                }
+            }
+        )
+    }
+
+
+    @Composable
+    fun ProfileScreenContainDrawerScaffold(
+        state: DrawerState,
+        content: @Composable () -> Unit,
+        drawerContent: @Composable () -> Unit
+    ) {
+        if (useWideScreenMode) {
+            PermanentNavigationDrawer(
+                drawerContent = drawerContent,
+                content = content
+            )
+            return
+        }
+        ModalNavigationDrawer(
+            drawerContent = drawerContent,
             drawerState = state,
             gesturesEnabled = true,
-        ) {
-            Scaffold(topBar = {
-                TopAppBar(title = {
-                    Text(me.name)
-                }, navigationIcon = {
-                    IconButton(onClick = {
-                        scope.launch {
-                            state.open()
-                        }
-                    }) {
-                        Icon(Icons.Default.Menu, "")
-                    }
-                })
-            }) {
-                Box(modifier = Modifier.fillMaxSize().padding(it)) {
-                    SettingDrawerContent(me, select)
-                }
-            }
-        }
+            content = content
+        )
     }
-}
-
-@Composable
-private fun SettingDrawerContent(me: SimpleMeProfile, select: Int) {
-    AnimatedContent(targetState = select) {
-        ProfileItem.entries[it].content(me)
-    }
-}
-
-enum class ProfileItem(
-    val title: String,
-    val icon: ImageVector,
-    val content: @Composable (me: SimpleMeProfile) -> Unit
-) {
-    ViewProfile(
-        title = "查看资料",
-        icon = Icons.Default.Person,
-        content = {
-            AuthorScreen(it.userId).Content()
-        }
-    ),
-    ExtendsFavorite(
-        title = "查看收藏",
-        icon = Icons.Default.Favorite,
-        content = {}
-    ),
-    History(
-        title = "历史记录",
-        icon = Icons.Default.MailOutline,
-        content = {
-            HistoryScreen().Content()
-        }
-    ),
-    Download(
-        title = "下载管理",
-        icon = Icons.Default.Done,
-        content = {
-            DownloadScreen().Content()
-        }
-    ),
-    Setting(
-        title = "程序设置",
-        icon = Icons.Default.Settings,
-        content = {
-            SettingScreen().Content()
-        }
-    ),
-}
-
-@Composable
-private fun SettingDrawerSheet(me: SimpleMeProfile, current: Int, onItemClick: (Int) -> Unit = {}) {
-    ModalDrawerSheet {
-        OutlinedCard(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            ListItem(headlineContent = {
-                Text(me.name)
-            }, leadingContent = {
-                val nav = LocalNavigator.currentOrThrow
-                IconButton(onClick = {
-                    nav.pop()
-                }) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "")
-                }
-            }, supportingContent = {
-                Text("${me.pixivId}(${me.userId})")
-            }, trailingContent = {
-                ProgressedAsyncImage(
-                    url = me.profileImageUrls.content, modifier = Modifier.size(45.dp)
-                )
-
-            })
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider()
-
-        LazyColumn(modifier = Modifier.padding(8.dp), contentPadding = PaddingValues(vertical = 8.dp)) {
-            items(ProfileItem.entries.toTypedArray()) {
-                val nav = LocalNavigator.currentOrThrow
-                SettingItem(text = it.title, icon = it.icon, selected = it.ordinal == current) {
-                    if (it.ordinal == ProfileItem.ExtendsFavorite.ordinal) {
-                        nav.push(BookmarkScreen())
-                        return@SettingItem
-                    }
-                    onItemClick(it.ordinal)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingItem(text: String, icon: ImageVector, selected: Boolean, onClick: () -> Unit = {}) {
-    NavigationDrawerItem(
-        label = {
-            Text(text)
-        }, icon = {
-            Icon(icon, "")
-        }, selected = selected, onClick = onClick
-    )
 
 }
