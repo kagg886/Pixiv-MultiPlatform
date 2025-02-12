@@ -20,6 +20,7 @@ import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
+import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
 import top.kagg886.pmf.ui.route.main.profile.ProfileItem.*
@@ -162,7 +163,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                     AnimatedContent(targetState = page) {
                         when (it) {
                             ViewProfile -> {
-                                AuthorScreen(PixivConfig.pixiv_user!!.userId).Content()
+                                AuthorScreenWithoutCollapse(PixivConfig.pixiv_user!!.userId).Content()
                             }
 
                             History -> {

@@ -38,7 +38,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import kotlin.math.max
 import kotlin.math.min
 
-class AuthorScreen(val id: Int) : Screen {
+open class AuthorScreen(open val id: Int) : Screen {
 
     override val key: ScreenKey
         get() = "author_$id"
@@ -61,8 +61,9 @@ class AuthorScreen(val id: Int) : Screen {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AuthorContent(state: AuthorScreenState) {
+    open fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
             AuthorScreenModel(id)
         }
@@ -110,7 +111,9 @@ class AuthorScreen(val id: Int) : Screen {
                             Text("个人简介")
                         },
                         text = {
-                            AuthorProfile(state.user)
+                            Box(Modifier.fillMaxHeight(0.8f)) {
+                                AuthorProfile(state.user)
+                            }
                         }
                     )
                 }
@@ -178,7 +181,7 @@ class AuthorScreen(val id: Int) : Screen {
                             tabList.forEachIndexed { index, s ->
                                 Tab(
                                     selected = pager.currentPage == index,
-                                    modifier = Modifier.height(36.dp),
+                                    modifier = Modifier.height(48.dp),
                                     onClick = {
                                         scope.launch {
                                             pager.animateScrollToPage(index)

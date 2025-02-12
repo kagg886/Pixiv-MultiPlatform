@@ -25,7 +25,7 @@ import top.kagg886.pmf.ui.util.withLink
 @Composable
 fun AuthorProfile(user: UserInfo) {
     val scroll = rememberScrollState()
-    Column(modifier = Modifier.fillMaxHeight(0.8f).verticalScroll(scroll)) {
+    Column(modifier = Modifier.verticalScroll(scroll)) {
         Title("账户信息")
         Value("用户名", user.user.name)
         Value("ID", user.user.id.toString())
