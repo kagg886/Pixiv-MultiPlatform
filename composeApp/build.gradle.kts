@@ -77,6 +77,10 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+
+            //FIXME should be bundled in Pixko
+            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0")
         }
         commonMain.dependencies {
             //kotlin stdlib

@@ -9,6 +9,7 @@ import android.util.Log
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
+import dev.whyoleg.cryptography.CryptographyProvider
 import kotlin.concurrent.thread
 
 class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtExceptionHandler {
