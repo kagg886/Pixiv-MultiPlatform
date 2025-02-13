@@ -17,6 +17,11 @@ pluginManagement {
 
 dependencyResolutionManagement {
     repositories {
+        //FIXME: 当且仅当在macOS上工作。在正式发布版本时需要删掉
+        mavenLocal {
+            url = uri("file:///Users/sheng233/.m2/repository")
+        }
+        mavenLocal()
         google {
             mavenContent {
                 includeGroupAndSubgroups("androidx")
@@ -26,7 +31,6 @@ dependencyResolutionManagement {
         }
         mavenCentral()
         maven("https://jogamp.org/deployment/maven")
-        mavenLocal()
     }
 }
 

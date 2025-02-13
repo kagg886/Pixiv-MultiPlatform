@@ -63,12 +63,17 @@ kotlin {
 
     jvm("desktop")
 
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
+        it.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+    }
+
     sourceSets.named("commonMain").configure {
         kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
     sourceSets {
-        val desktopMain by getting
-
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -78,6 +83,7 @@ kotlin {
             implementation(libs.kotlin.reflect)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.coroutines.core)
 
             //compose
             implementation(compose.runtime)
@@ -118,8 +124,13 @@ kotlin {
             implementation(libs.sketch.svg)
             implementation(libs.sketch.resources)
             implementation(libs.sketch.extensions.compose)
-            implementation(libs.sketch.http.okhttp)
+            implementation(libs.sketch.http.ktor3)
             implementation(libs.zoomimage.compose.sketch)
+
+            //ktor
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
 
             //room
             implementation(libs.androidx.room.runtime)
@@ -145,6 +156,9 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+
+
+        val desktopMain by getting
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)

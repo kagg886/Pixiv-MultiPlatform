@@ -1,22 +1,23 @@
 package top.kagg886.pmf.util
 
-import java.io.File
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import okio.FileSystem
+import okio.Path
+import okio.SYSTEM
 
-fun File.zip(target: File = File(this.parentFile,"${this.nameWithoutExtension}.zip")):File {
-    target.parentFile!!.mkdirs()
-    target.createNewFile()
-    val zip = ZipOutputStream(target.outputStream())
-    zip.use {
-        for (file in this.walkBottomUp()) {
-            if (file.isDirectory) {
-                break
-            }
-            it.putNextEntry(ZipEntry(file.relativeTo(this).path))
-            it.write(file.readBytes())
-            it.closeEntry()
-        }
-    }
-    return target
+fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve("${this.name}.zip")): Path {
+    TODO("MultiPlatform Not Support zip file!")
+//    target.parentFile!!.mkdirs()
+//    target.createNewFile()
+//    val zip = ZipOutputStream(target.outputStream())
+//    zip.use {
+//        for (file in this.walkBottomUp()) {
+//            if (file.isDirectory) {
+//                break
+//            }
+//            it.putNextEntry(ZipEntry(file.relativeTo(this).path))
+//            it.write(file.readBytes())
+//            it.closeEntry()
+//        }
+//    }
+//    return target
 }

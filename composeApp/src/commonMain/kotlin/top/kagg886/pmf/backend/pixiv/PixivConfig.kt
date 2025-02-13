@@ -12,7 +12,6 @@ import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
-import top.kagg886.pmf.util.bypassSNI
 
 object PixivConfig : Settings by SystemConfig.getConfig("pixiv_token"), KoinComponent {
     var accessToken by string("access_token", "")
@@ -29,7 +28,7 @@ object PixivConfig : Settings by SystemConfig.getConfig("pixiv_token"), KoinComp
             storage = token
             engine = {
                 if (AppConfig.byPassSNI) {
-                    bypassSNI()
+                    //FIXME bypass SNI
                 }
             }
         }

@@ -24,24 +24,28 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
-import com.github.panpf.sketch.fetch.supportOkHttpHttpUri
-import com.github.panpf.sketch.http.OkHttpStack
+import com.github.panpf.sketch.fetch.supportKtorHttpUri
+import com.github.panpf.sketch.http.KtorStack
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
-import okhttp3.OkHttpClient
-import okhttp3.ResponseBody.Companion.toResponseBody
-import okio.Path.Companion.toOkioPath
+import kotlinx.serialization.json.Json
+import okio.Path
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.koin.java.KoinJavaComponent.getKoin
-import org.koin.java.KoinJavaComponent.inject
+import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
@@ -65,12 +69,9 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
-import top.kagg886.pmf.util.bypassSNI
 import top.kagg886.pmf.util.toColorScheme
-import java.io.File
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
+import kotlin.time.Duration.Companion.seconds
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -122,7 +123,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                         val s = LocalSnackBarHost.current
                         CheckUpdateDialog()
 
-                        val model by inject<DownloadScreenModel>(clazz = DownloadScreenModel::class.java)
+                        val model = KoinPlatform.getKoin().get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
                         model.collectSideEffect { toast ->
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
@@ -185,7 +186,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                     if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
                                         return@NavigationRailItem
                                     }
-                                    nav.push(entry.screenClass.primaryConstructor!!.call())
+                                    nav.push(entry.newInstance())
                                 },
                                 icon = {
                                     Icon(imageVector = entry.icon, null)
@@ -242,7 +243,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                     return@NavigationBarItem
                                 }
                                 title = entry.title
-                                nav.push(entry.screenClass.primaryConstructor!!.call())
+                                nav.push(entry.newInstance())
                             },
                             icon = {
                                 Icon(imageVector = entry.icon, null)
@@ -294,14 +295,14 @@ fun SearchButton() {
 fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
     resultCacheOptions(
         DiskCache.Options(
-            directory = cachePath.resolve("image").toOkioPath(),
+            directory = cachePath.resolve("image"),
             maxSize = AppConfig.cacheSize
         )
     )
 
     components {
-        val okhttp = getKoin().get<OkHttpClient>()
-        supportOkHttpHttpUri(OkHttpStack(okhttp))
+        val okhttp = KoinPlatform.getKoin().get<HttpClient>()
+        supportKtorHttpUri(KtorStack(okhttp))
     }
     return build()
 }
@@ -341,41 +342,29 @@ fun startKoin0() {
             module {
                 single { PixivTokenStorage() }
                 single {
-                    OkHttpClient.Builder().apply {
-                        if (AppConfig.byPassSNI) {
-                            bypassSNI()
+                    HttpClient(CIO) {
+                        engine {
+                            //FIXME bypass SNI
                         }
-                        addInterceptor {
-                            val request = it.request().newBuilder()
-//                            with(AppConfig.customPixivImageHost) {
-//                                if (isNotBlank()) {
-//                                    val originUrl = it.request().url
-//                                    request.url(
-//                                        this.toHttpUrl().newBuilder()
-//                                            .encodedPath(originUrl.encodedPath)
-//                                            .encodedQuery(originUrl.encodedQuery)
-//                                            .build()
-//                                    )
-//                                }
-//                            }
-                            request.header("Referer", "https://www.pixiv.net/")
-                            it.proceed(request.build())
+
+                        install(HttpTimeout) {
+                            socketTimeoutMillis = 30.seconds.inWholeMilliseconds
+                            requestTimeoutMillis = 30.seconds.inWholeMilliseconds
+                            connectTimeoutMillis = 30.seconds.inWholeMilliseconds
                         }
-                        callTimeout(30, TimeUnit.SECONDS)
-                        connectTimeout(30, TimeUnit.SECONDS)
-                        readTimeout(30, TimeUnit.SECONDS)
-                        writeTimeout(30, TimeUnit.SECONDS)
-                        addNetworkInterceptor {
-                            val resp = it.proceed(it.request())
-                            //防止connection leak
-                            val content = resp.body?.byteStream()?.use { stream ->
-                                stream.readBytes()
-                            }
-                            resp.newBuilder()
-                                .body(content?.toResponseBody(resp.body?.contentType()))
-                                .build()
+
+                        defaultRequest {
+                            header("Referer", "https://www.pixiv.net/")
                         }
-                    }.build()
+
+                        install(ContentNegotiation) {
+                            json(
+                                Json {
+                                    ignoreUnknownKeys = true
+                                }
+                            )
+                        }
+                    }
                 }
             },
 
@@ -402,11 +391,22 @@ fun startKoin0() {
 }
 
 expect fun openBrowser(link: String)
-expect fun shareFile(file: File, name: String = file.name, mime: String = "*/*")
+expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-enum class NavigationItem(val title: String, val icon: ImageVector, val screenClass: KClass<out Screen>) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen::class),
-    SPACE("动态", Icons.Default.Star, SpaceScreen::class)
+enum class NavigationItem(
+    val title: String,
+    val icon: ImageVector,
+    val screenClass: KClass<out Screen>,
+    val newInstance: () -> Screen
+) {
+    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
+        RecommendScreen()
+    }),
+    RANK("排行榜", Icons.Default.DateRange, RankScreen::class, {
+        RankScreen()
+    }),
+    SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
+        SpaceScreen()
+    })
 }

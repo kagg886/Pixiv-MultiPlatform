@@ -2,13 +2,19 @@ package top.kagg886.pmf.ui.route.main.download
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.utils.io.*
+import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.internal.headersContentLength
+import okio.Buffer
+import okio.Path
+import okio.buffer
+import okio.use
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -21,9 +27,12 @@ import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.ui.util.container
-import java.io.File
+import top.kagg886.pmf.util.deleteRecursively
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.mkdirs
+import top.kagg886.pmf.util.sink
 
-fun DownloadItem.downloadRootPath(): File {
+fun DownloadItem.downloadRootPath(): Path {
     return dataPath.resolve("download").resolve(id.toString())
 }
 
@@ -31,7 +40,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
     KoinComponent {
     private val database by inject<AppDatabase>()
 
-    private val net by inject<OkHttpClient>()
+    private val net by inject<HttpClient>()
 
     private val jobs = mutableMapOf<Long, Job>()
 
@@ -69,33 +78,33 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                     val (channels, allSize) = coroutineScope {
                         val result = urls.map {
                             async(Dispatchers.IO) {
-                                val resp = net.newCall(
-                                    Request.Builder()
-                                        .url(it)
-                                        .build()
-                                ).execute()
-                                resp.body!!.byteStream() to resp.headersContentLength().toFloat()
+                                val resp = net.prepareGet(it).execute {
+                                    it
+                                }
+                                resp.bodyAsChannel() to resp.headers["Content-Length"]!!.toLong()
                             }
                         }.awaitAll()
 
-                        result.map { it.first } to result.map { it.second }.sum()
+                        result.map { it.first } to result.sumOf { it.second }
                     }
 
                     val x = Mutex()
                     var size = 0f
                     coroutineScope {
                         channels.mapIndexed { index, source ->
-                            val download = file.resolve("$index.png").outputStream()
+                            val download = file.resolve("$index.png").sink().buffer()
                             async(Dispatchers.IO) {
-                                val buf = ByteArray(1024)
-                                var len: Int
                                 download.use {
-                                    while (source.read(buf).also { len = it } != -1) {
-                                        download.write(buf, 0, len)
-                                        x.withLock {
-                                            size += len
-                                            dao.update(task.copy(progress = size / allSize))
-                                        }
+                                    while (!source.isClosedForRead) {
+                                       source.readBuffer(1024).use {
+                                           download.write(
+                                               it.readBytes()
+                                           )
+                                           x.withLock {
+                                               size += it.size.toFloat()
+                                           }
+                                           dao.update(task.copy(progress = size / allSize))
+                                       }
                                     }
                                 }
                             }

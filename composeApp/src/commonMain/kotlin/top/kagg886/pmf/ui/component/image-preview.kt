@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toRect
@@ -25,7 +24,10 @@ import com.github.panpf.sketch.request.ImageRequest
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import com.github.panpf.zoomimage.rememberSketchZoomState
 import io.github.vinceglb.filekit.core.FileKit
+import io.ktor.http.*
 import kotlinx.coroutines.launch
+import okio.buffer
+import okio.use
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
@@ -33,7 +35,7 @@ import top.kagg886.pmf.copyImageToClipboard
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
-import java.net.URI
+import top.kagg886.pmf.util.source
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,7 +94,7 @@ fun ImagePreviewer(
                                         val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                         val file = cache.withLock(cacheKey) {
                                             openSnapshot(cacheKey)?.use { snapshot ->
-                                                snapshot.data.toFile()
+                                                snapshot.data
                                             }
                                         }
                                         if (file == null) {
@@ -100,7 +102,7 @@ fun ImagePreviewer(
                                             return@launch
                                         }
                                         kotlin.runCatching {
-                                            copyImageToClipboard(file.readBytes())
+                                            copyImageToClipboard(file.source().buffer().readByteArray())
                                         }.onSuccess {
                                             snack.showSnackbar("复制成功！")
                                         }.onFailure {
@@ -124,7 +126,7 @@ fun ImagePreviewer(
                                     val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                     val file = cache.withLock(cacheKey) {
                                         openSnapshot(cacheKey)?.use { snapshot ->
-                                            snapshot.data.toFile()
+                                            snapshot.data
                                         }
                                     }
                                     if (file == null) {
@@ -132,9 +134,9 @@ fun ImagePreviewer(
                                         return@launch
                                     }
                                     FileKit.saveFile(
-                                        bytes = file.readBytes(),
+                                        bytes = file.source().buffer().readByteArray(),
                                         extension = "png",
-                                        baseName = URI.create(url[pagerState.currentPage]).path.replace("/", "_")
+                                        baseName = Url(url[pagerState.currentPage]).encodedPath.replace("/", "_")
                                     )
                                     showBottomDialog = false
                                 }
@@ -154,7 +156,7 @@ fun ImagePreviewer(
                                         val cacheKey = request[pagerState.currentPage].downloadCacheKey
                                         val file = cache.withLock(cacheKey) {
                                             openSnapshot(cacheKey)?.use { snapshot ->
-                                                snapshot.data.toFile()
+                                                snapshot.data
                                             }
                                         }
                                         if (file == null) {

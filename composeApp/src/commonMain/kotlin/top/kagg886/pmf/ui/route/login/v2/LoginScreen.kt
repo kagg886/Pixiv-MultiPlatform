@@ -64,6 +64,10 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
 
 @Composable
 private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
+    if (a is LoginViewState.LoginType.BrowserLogin.Loading) {
+        Loading(text = a.msg)
+        return
+    }
     AnimatedContent(
         targetState = a,
         modifier = Modifier.fillMaxSize()
@@ -142,13 +146,11 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
 
                     is LoginViewState.LoginType.BrowserLogin -> {
                         when (state) {
-                            is LoginViewState.LoginType.BrowserLogin.Loading -> {
-                                Loading(text = state.msg)
-                            }
-
                             LoginViewState.LoginType.BrowserLogin.ShowBrowser -> {
                                 WebViewLogin(model)
                             }
+
+                            is LoginViewState.LoginType.BrowserLogin.Loading -> TODO()
                         }
                     }
                 }

@@ -449,7 +449,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                     KeyListenerFromGlobalPipe(controller)
 
                     RichText(
-                        state = state.nodeMap.toSortedMap().map { it.value },
+                        state = state.nodeMap,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll)
                     )
 

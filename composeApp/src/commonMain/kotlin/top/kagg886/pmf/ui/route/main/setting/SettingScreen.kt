@@ -27,7 +27,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
@@ -43,7 +43,6 @@ import top.kagg886.pmf.ui.util.b
 import top.kagg886.pmf.ui.util.mb
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
-import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -736,19 +735,6 @@ class SettingScreen : Screen {
                     },
                     onClick = {
                         scope.launch {
-                            throw RuntimeException("测试异常，请不要反馈。")
-                        }
-                    },
-                )
-                SettingsMenuLink(
-                    title = {
-                        Text("子线程抛出异常")
-                    },
-                    subtitle = {
-                        Text("调试用，没事别点")
-                    },
-                    onClick = {
-                        thread {
                             throw RuntimeException("测试异常，请不要反馈。")
                         }
                     },

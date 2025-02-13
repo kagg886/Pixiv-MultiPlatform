@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("Scrollbar_desktopKt")
-
 package top.kagg886.pmf.ui.component.scroll.v2
 
 import androidx.compose.foundation.ScrollState

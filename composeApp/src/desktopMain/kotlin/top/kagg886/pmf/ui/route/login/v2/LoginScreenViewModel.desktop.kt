@@ -8,7 +8,7 @@ import top.kagg886.pmf.backend.dataPath
 actual fun LoginScreenViewModel.initKCEF() = intent {
     KCEF.init(
         builder = {
-            installDir(dataPath.resolve("web-view"))
+            installDir(dataPath.resolve("web-view").toFile())
             progress {
                 onDownloading {
                     runBlocking {

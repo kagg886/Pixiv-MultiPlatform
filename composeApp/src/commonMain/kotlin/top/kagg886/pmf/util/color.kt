@@ -9,11 +9,11 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import okhttp3.internal.toHexString
 import kotlin.math.roundToInt
 
 object ColorAsStringSerializer : KSerializer<Color> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
+    @OptIn(ExperimentalStdlibApi::class)
     override fun serialize(encoder: Encoder, value: Color) {
         val r = (value.red * 255).roundToInt().toHexString().padStart(2, '0')
         val g = (value.green * 255).roundToInt().toHexString().padStart(2, '0')

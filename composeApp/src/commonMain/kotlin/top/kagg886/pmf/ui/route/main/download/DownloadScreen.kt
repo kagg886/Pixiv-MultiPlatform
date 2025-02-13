@@ -21,6 +21,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
+import okio.buffer
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.shareFile
@@ -31,6 +32,9 @@ import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.listFile
+import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.zip
 
 class DownloadScreen : Screen {
@@ -105,10 +109,10 @@ class DownloadScreen : Screen {
                                                                 return@IconButton
                                                             }
                                                             scope.launch {
-                                                                val listFiles = it.downloadRootPath().listFiles()!!
+                                                                val listFiles = it.downloadRootPath().listFile()
                                                                 if (listFiles.size == 1) {
                                                                     FileKit.saveFile(
-                                                                        bytes = listFiles[0].readBytes(),
+                                                                        bytes = listFiles[0].source().buffer().readByteArray(),
                                                                         baseName = it.illust.title,
                                                                         extension = "png"
                                                                     )
@@ -118,7 +122,7 @@ class DownloadScreen : Screen {
                                                                     bytes = it.downloadRootPath().zip(
                                                                         target = cachePath.resolve("share")
                                                                             .resolve("${it.id}.zip")
-                                                                    ).readBytes(),
+                                                                    ).source().buffer().readByteArray(),
                                                                     baseName = "${it.illust.title}(${it.id})",
                                                                     extension = "zip"
                                                                 )
@@ -136,7 +140,7 @@ class DownloadScreen : Screen {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
-                                                            val listFiles = it.downloadRootPath().listFiles()!!
+                                                            val listFiles = it.downloadRootPath().listFile()
                                                             if (listFiles.size == 1) {
                                                                 shareFile(
                                                                     listFiles[0]
