@@ -1,14 +1,27 @@
 package top.kagg886.pmf.ui.util
 
+import kotlin.jvm.JvmInline
+import kotlin.math.roundToInt
+
 //值为byte
 @JvmInline
 value class Size(val bytes: Long) : Comparable<Size> {
 
+    private fun Float.formatToString(count:Int):String {
+        val str = this.toString()
+        if (!str.contains(".")) {
+            return this.roundToInt().toString()
+        }
+        return with(str.split(".")) {
+            this[0] + "." + this[1].take(count)
+        }
+    }
+
     override fun toString(): String {
         return when {
             bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "${String.format("%.2f", kb)} MB"
-            else -> "${String.format("%.2f", mb)} MB"
+            bytes < 1024 * 1024 -> "${kb.formatToString(2)} MB"
+            else -> "${mb.formatToString(2)} MB"
         }
     }
 

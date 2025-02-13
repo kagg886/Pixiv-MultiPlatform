@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.datetime.Clock
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -93,7 +94,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             IllustHistory(
                 id = i.id,
                 illust = i,
-                createTime = System.currentTimeMillis()
+                createTime = Clock.System.now().toEpochMilliseconds()
             )
         )
     }

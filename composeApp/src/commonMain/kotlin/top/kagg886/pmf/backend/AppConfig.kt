@@ -9,10 +9,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import top.kagg886.pmf.ui.util.mb
 import top.kagg886.pmf.util.SerializedTheme
-import top.kagg886.pmf.util.enum
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
-    var darkMode by enum("dark_mode", DarkMode.System)
+    @OptIn(ExperimentalSerializationApi::class)
+    var darkMode by serializedValue("dark_mode", DarkMode.System)
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")

@@ -7,12 +7,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalUriHandler
-import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.util.*
-import java.io.File
 
 @Composable
 fun CheckUpdateDialog() {
@@ -48,7 +47,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                     },
                     confirmButton = {
                         val uri = state.release.assets.find {
-                            File(it.name).nameWithoutExtension == currentPlatform.name
+                            it.name.startsWith(currentPlatform.name)
                         }
                         if (uri == null) {
                             Text("暂不支持该平台")

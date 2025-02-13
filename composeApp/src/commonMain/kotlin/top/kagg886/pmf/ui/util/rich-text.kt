@@ -25,10 +25,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.Node
-import org.jsoup.nodes.TextNode
+import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
@@ -36,7 +33,7 @@ import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
-import java.util.*
+import kotlin.random.Random
 
 sealed interface NovelNodeElement {
     data class Plain(val text: String) : NovelNodeElement
@@ -56,7 +53,7 @@ fun AnnotatedString.Builder.withClickable(
 ) {
     withLink(
         link = LinkAnnotation.Clickable(
-            tag = UUID.randomUUID().toString(),
+            tag = Random(Clock.System.now().toEpochMilliseconds()).nextInt().toString(),
             styles = TextLinkStyles(
                 hoveredStyle = SpanStyle(
                     color = colors.primaryContainer,
@@ -266,54 +263,9 @@ fun RichText(
 }
 
 @Composable
-fun HTMLRichText(
+expect fun HTMLRichText(
     html: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current
-) {
-    val scheme = MaterialTheme.colorScheme
-    val dom = remember(html) {
-        Jsoup.parse(html).body().childNodes()
-    }
-
-    fun AnnotatedString.Builder.appendHTMLNode(nodes: List<Node>) {
-        for (node in nodes) {
-            when (node) {
-                is TextNode -> append(node.text())
-                is Element -> {
-                    when (node.tagName()) {
-                        "strong" -> {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                if (node.childNodes().isNotEmpty()) {
-                                    appendHTMLNode(node.childNodes())
-                                    return@withStyle
-                                }
-                                append(node.text())
-                            }
-                        }
-
-                        "br" -> appendLine()
-                        "a" -> withLink(
-                            scheme,
-                            node.attr("href"),
-                            node.text()
-                        )
-
-                        else -> append(node.html())
-                    }
-                }
-
-                else -> append(node.outerHtml())
-            }
-        }
-    }
-    Text(
-        buildAnnotatedString {
-            appendHTMLNode(dom)
-        },
-        style = style,
-        color = color,
-        modifier = modifier
-    )
-}
+)
