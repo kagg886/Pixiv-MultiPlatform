@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -266,15 +267,17 @@ fun RichText(
 
 @Composable
 fun HTMLRichText(
-    modifier: Modifier = Modifier,
     html: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current
 ) {
     val scheme = MaterialTheme.colorScheme
     val dom = remember(html) {
         Jsoup.parse(html).body().childNodes()
     }
-    fun AnnotatedString.Builder.appendHTMLNode(nodes:List<Node>) {
+
+    fun AnnotatedString.Builder.appendHTMLNode(nodes: List<Node>) {
         for (node in nodes) {
             when (node) {
                 is TextNode -> append(node.text())
@@ -289,12 +292,14 @@ fun HTMLRichText(
                                 append(node.text())
                             }
                         }
+
                         "br" -> appendLine()
                         "a" -> withLink(
                             scheme,
                             node.attr("href"),
                             node.text()
                         )
+
                         else -> append(node.html())
                     }
                 }
@@ -308,6 +313,7 @@ fun HTMLRichText(
             appendHTMLNode(dom)
         },
         style = style,
+        color = color,
         modifier = modifier
     )
 }

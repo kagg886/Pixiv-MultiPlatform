@@ -353,15 +353,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     },
                                 )
                             },
-                            supportingContent = {
-                                SelectionContainer {
-                                    HTMLRichText(
-                                        html = illust.caption.ifEmpty { "没有简介" },
-                                        style = MaterialTheme.typography.labelLarge
-                                    )
-                                }
-//                                Text(illust.caption.ifEmpty { "没有简介" }, style = MaterialTheme.typography.labelLarge)
-                            },
                             trailingContent = {
                                 Row(
                                     Modifier.size(120.dp, 68.dp),
@@ -428,6 +419,15 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 }
                             }
                         )
+                        SelectionContainer {
+
+                            HTMLRichText(
+                                html = illust.caption.ifEmpty { "没有简介" },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ListItemDefaults.colors().supportingTextColor,
+                                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
+                            )
+                        }
                     }
                 }
                 item {
