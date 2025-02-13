@@ -8,7 +8,7 @@ import top.kagg886.pixko.module.search.SearchTarget.*
 fun SearchTarget.toDisplayString() = when (this) {
     EXACT_MATCH_FOR_TAGS -> "匹配精确tag"
     PARTIAL_MATCH_FOR_TAGS -> "匹配模糊tag"
-    TITLE_AND_CAPTION -> "匹配标题简介(仅插画)"
+    TITLE_AND_CAPTION -> "匹配标题简介(仅插画/作者)"
     TEXT -> "正文匹配(仅小说)"
     KEYWORD -> "关键词(仅小说)"
 }

@@ -304,6 +304,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
 
             TITLE_AND_CAPTION -> {
                 illustRepo = SearchResultIllustModel(allText, target, sort)
+                authorRepo = SearchResultUserModel(allText)
             }
 
             TEXT -> {
