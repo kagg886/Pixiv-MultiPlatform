@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.io.readByteArray
 import okio.Buffer
 import okio.Path
 import okio.buffer
@@ -75,36 +76,41 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
                 dao.update(task.copy(progress = 0f))
                 val result = kotlin.runCatching {
-                    val (channels, allSize) = coroutineScope {
+
+                    val allSize = coroutineScope {
                         val result = urls.map {
                             async(Dispatchers.IO) {
                                 val resp = net.prepareGet(it).execute {
                                     it
                                 }
-                                resp.bodyAsChannel() to resp.headers["Content-Length"]!!.toLong()
+                                resp.headers["Content-Length"]!!.toLong()
                             }
                         }.awaitAll()
 
-                        result.map { it.first } to result.sumOf { it.second }
+                        result.sum()
                     }
 
                     val x = Mutex()
                     var size = 0f
                     coroutineScope {
-                        channels.mapIndexed { index, source ->
+                        urls.mapIndexed { index, url ->
                             val download = file.resolve("$index.png").sink().buffer()
                             async(Dispatchers.IO) {
                                 download.use {
-                                    while (!source.isClosedForRead) {
-                                       source.readBuffer(1024).use {
-                                           download.write(
-                                               it.readBytes()
-                                           )
-                                           x.withLock {
-                                               size += it.size.toFloat()
-                                           }
-                                           dao.update(task.copy(progress = size / allSize))
-                                       }
+                                    net.prepareGet(url).execute {
+                                        val channel = it.bodyAsChannel()
+                                        while (!channel.isClosedForRead) {
+                                            val buf = channel.readRemaining(1024).readByteArray()
+
+                                            download.write(
+                                                buf
+                                            )
+
+                                            x.withLock {
+                                                size += buf.size.toFloat()
+                                            }
+                                            dao.update(task.copy(progress = size / allSize))
+                                        }
                                     }
                                 }
                             }
