@@ -18,6 +18,8 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
+import top.kagg886.pmf.util.PlatformLogLevel
+import top.kagg886.pmf.util.platformLog
 
 @Serializable
 data class Asset(
@@ -82,6 +84,9 @@ class UpdateCheckViewModel(
             net.get("https://api.github.com/repos/kagg886/Pixiv-MultiPlatform/releases/latest").body<Release>()
         }
         if (result.isFailure) {
+            result.exceptionOrNull()?.let {
+                platformLog(PlatformLogLevel.WARN, "更新检测失败",it )
+            }
             if (AppConfig.checkFailedToast) {
                 postSideEffect(UpdateCheckSideEffect.Toast("更新检测失败..."))
             }

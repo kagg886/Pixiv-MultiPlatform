@@ -27,22 +27,3 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
 
 val databasePath = dataPath.resolve("app.db")
 expect fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase>
-
-//@Dao
-//interface TodoDao {
-//    @Insert
-//    suspend fun insert(item: TodoEntity)
-//
-//    @Query("SELECT count(*) FROM TodoEntity")
-//    suspend fun count(): Int
-//
-//    @Query("SELECT * FROM TodoEntity")
-//    fun getAllAsFlow(): Flow<List<TodoEntity>>
-//}
-//
-//@Entity
-//data class TodoEntity(
-//    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-//    val title: String,
-//    val content: String
-//)

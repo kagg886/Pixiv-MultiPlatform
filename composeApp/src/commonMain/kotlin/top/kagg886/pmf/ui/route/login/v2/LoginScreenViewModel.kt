@@ -18,6 +18,8 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.route.login.v2.LoginType.*
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.PlatformLogLevel
+import top.kagg886.pmf.util.platformLog
 import kotlin.time.Duration.Companion.seconds
 
 class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, ViewModel(), ScreenModel, KoinComponent {
@@ -36,6 +38,10 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
                 BrowserLogin -> {
                     if (currentPlatform is Platform.Desktop) {
                         initKCEF().join()
+                        return@runOn
+                    }
+                    reduce {
+                        LoginViewState.LoginType.BrowserLogin.ShowBrowser
                     }
                 }
             }
@@ -85,6 +91,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             }
             account.getCurrentUserSimpleProfile()
         } catch (e: Exception) {
+            platformLog(PlatformLogLevel.WARN, "验证账号时出现问题", e)
             null
         }
 

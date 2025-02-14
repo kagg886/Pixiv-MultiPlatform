@@ -55,6 +55,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var checkSuccessToast by boolean("check_success_toast", false)
 
 
+    @Serializable
     enum class DarkMode {
         Light, Dark, System
     }
