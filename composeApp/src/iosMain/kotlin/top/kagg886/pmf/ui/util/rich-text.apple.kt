@@ -13,5 +13,5 @@ actual fun HTMLRichText(
     color: Color,
     style: TextStyle
 ) {
-    Text(html, color = color, style = style)
+    Text(html, color = color, style = style, modifier = modifier)
 }

@@ -1,12 +1,15 @@
 package top.kagg886.pmf
 
+import kotlinx.coroutines.runBlocking
 import okio.Path
 import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
-actual fun openBrowser(link: String) {
+actual fun openBrowser(link: String): Unit = runBlocking {
     UIApplication.sharedApplication.openURL(
-        NSURL.URLWithString(link)!!
+        url = NSURL.URLWithString(link)!!,
+        options = mapOf<Any?, String>(),
+        completionHandler = null
     )
 }
 
