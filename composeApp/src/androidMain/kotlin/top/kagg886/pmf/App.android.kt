@@ -29,7 +29,7 @@ actual fun shareFile(file: Path, name: String, mime: String) {
             "android.intent.extra.STREAM",
             FileProvider.getUriForFile(
                 this,
-                "${BuildConfig.APP_BASE_PACKAGE}.fileprovider",
+                "${packageName}.fileprovider",
                 cache
             )
         )

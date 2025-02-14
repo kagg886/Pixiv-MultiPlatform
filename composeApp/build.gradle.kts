@@ -52,6 +52,9 @@ buildConfig {
     buildConfigField("APP_BASE_PACKAGE", pkgName)
     buildConfigField("APP_VERSION_NAME", pkgVersion)
     buildConfigField("APP_VERSION_CODE", pkgCode)
+
+
+    buildConfigField("DATABASE_VERSION", 6)
 }
 kotlin {
     androidTarget {
