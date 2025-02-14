@@ -11,13 +11,11 @@ import top.kagg886.pmf.ui.util.mb
 import top.kagg886.pmf.util.SerializedTheme
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var darkMode by serializedValue("dark_mode", DarkMode.System)
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")
-
-//    var defaultGalleryWidth by int("default_gallery_size", if (currentPlatform.useWideScreenMode) 3 else 2)
 
     @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var galleryOptions: Gallery by serializedValue(

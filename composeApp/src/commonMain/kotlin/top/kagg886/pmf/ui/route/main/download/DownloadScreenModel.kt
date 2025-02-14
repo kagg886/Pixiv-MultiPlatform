@@ -2,6 +2,8 @@ package top.kagg886.pmf.ui.route.main.download
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.core.FileKit
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -24,14 +26,12 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
+import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.deleteRecursively
-import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.mkdirs
-import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.util.*
 
 fun DownloadItem.downloadRootPath(): Path {
     return dataPath.resolve("download").resolve(id.toString())
@@ -46,18 +46,19 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
     private val jobs = mutableMapOf<Long, Job>()
 
     @OptIn(OrbitExperimental::class)
-    fun startDownload(illust: Illust): Boolean {
+    fun startDownload(illust: Illust): Job? {
         if (illust.id.toLong() in jobs.keys) {
             intent {
                 postSideEffect(DownloadScreenSideEffect.Toast("任务已存在且正在下载中，请前往下载页面查看", true))
             }
-            return false
+            return null
         }
-        jobs[illust.id.toLong()] = intent {
+        val job = intent {
             runOn<DownloadScreenState.Loaded> {
                 postSideEffect(DownloadScreenSideEffect.Toast("下载已开始，是否跳转到下载页？", true))
                 val dao = database.downloadDAO()
-                //查找任务，若无则新建
+
+                //查找历史记录任务，若无任务的话则新建任务并插入
                 val task = dao.find(illust.id.toLong())?.copy(success = false) ?: DownloadItem(
                     id = illust.id.toLong(),
                     illust = illust,
@@ -65,18 +66,23 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 ).apply {
                     dao.insert(this)
                 }
+
+                //获取下载的根目录
                 val file = task.downloadRootPath()
                 if (file.exists()) {
+                    //有的话就递归删除重下
                     file.deleteRecursively()
                 }
                 file.mkdirs()
 
                 //获取所有下载链接
-
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
+
+                //更新DAO层
                 dao.update(task.copy(progress = 0f))
                 val result = kotlin.runCatching {
-
+                    //计算全部大小。
+                    //受限于ktor功能，只能分两次请求。
                     val allSize = coroutineScope {
                         val result = urls.map {
                             async(Dispatchers.IO) {
@@ -94,6 +100,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                     var size = 0f
                     coroutineScope {
                         urls.mapIndexed { index, url ->
+                            //子下载
                             val download = file.resolve("$index.png").sink().buffer()
                             async(Dispatchers.IO) {
                                 download.use {
@@ -106,6 +113,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                                                 buf
                                             )
 
+                                            //协程安全地更新变量
                                             x.withLock {
                                                 size += buf.size.toFloat()
                                             }
@@ -117,10 +125,13 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                         }.awaitAll()
                     }
                 }
+
+                //移除注册的任务
                 jobs.remove(illust.id.toLong())
                 if (result.isFailure) {
+                    //失败则报错
                     dao.update(task.copy(progress = -1f))
-                    result.exceptionOrNull()!!.printStackTrace()
+                    Logger.e(result.exceptionOrNull()!!) { "Illust: [${illust.title}(${illust.id})] download failed: ${result.exceptionOrNull()?.message}" }
                     postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载失败"))
                     file.deleteRecursively()
                     return@runOn
@@ -129,7 +140,41 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载完成！"))
             }
         }
-        return true
+        jobs[illust.id.toLong()] = job
+        return job
+    }
+
+    fun saveToExternalFile(it: DownloadItem) = intent {
+        val listFiles = it.downloadRootPath().listFile()
+        if (listFiles.size == 1) {
+            FileKit.saveFile(
+                bytes = listFiles[0].source().buffer().readByteArray(),
+                baseName = it.illust.title,
+                extension = "png"
+            )
+            return@intent
+        }
+        FileKit.saveFile(
+            bytes = it.downloadRootPath().zip(
+                target = cachePath.resolve("share")
+                    .resolve("${it.id}.zip")
+            ).source().buffer().readByteArray(),
+            baseName = "${it.illust.title}(${it.id})",
+            extension = "zip"
+        )
+    }
+
+    fun shareFile(it: DownloadItem) = intent {
+        val listFiles = it.downloadRootPath().listFile()
+        if (listFiles.size == 1) {
+            top.kagg886.pmf.shareFile(listFiles[0])
+            return@intent
+        }
+        top.kagg886.pmf.shareFile(
+            it.downloadRootPath().zip(
+                target = cachePath.resolve("${it.id}.zip")
+            )
+        )
     }
 
     override val container: Container<DownloadScreenState, DownloadScreenSideEffect> =

@@ -12,4 +12,6 @@ actual fun openBrowser(link: String) {
 
 actual fun shareFile(file: Path, name: String, mime: String): Unit = TODO()
 
-actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = TODO()
+actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
+    throw UnsupportedOperationException()
+}

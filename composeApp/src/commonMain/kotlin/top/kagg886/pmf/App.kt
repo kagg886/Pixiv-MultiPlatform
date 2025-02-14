@@ -391,7 +391,23 @@ fun startKoin0() {
 }
 
 expect fun openBrowser(link: String)
+
+/**
+ * # 分享文件。
+ *
+ * - 在电脑端的实现为直接打开对应的文件
+ * - 在安卓端的实现为复制到专用的分享文件夹(cachePath.resolve("share"))后进行发送
+ * - 在IOS端会抛出异常
+ */
 expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
+
+
+/**
+ * # 复制图片到剪切板。
+ *
+ * - 在电脑端的实现为AWT API
+ * - 在安卓端和IOS端会抛出异常
+ */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(

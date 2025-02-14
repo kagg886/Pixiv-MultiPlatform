@@ -12,28 +12,36 @@ import kotlinx.serialization.encoding.Encoder
 import kotlin.math.roundToInt
 
 object ColorAsStringSerializer : KSerializer<Color> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
-    @OptIn(ExperimentalStdlibApi::class)
-    override fun serialize(encoder: Encoder, value: Color) {
-        val r = (value.red * 255).roundToInt().toHexString().padStart(2, '0')
-        val g = (value.green * 255).roundToInt().toHexString().padStart(2, '0')
-        val b = (value.blue * 255).roundToInt().toHexString().padStart(2, '0')
-        val a = (value.alpha * 255).roundToInt().toHexString().padStart(2, '0')
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Color", PrimitiveKind.STRING)
 
-        encoder.encodeString("#$r$g$b$a")
-    }
-    override fun deserialize(decoder: Decoder): Color {
-        val color = decoder.decodeString()
-        check(color.startsWith("#")) {
-            "Color must start with #"
-        }
-        val r = color.substring(1, 3).toInt(16)
-        val g = color.substring(3, 5).toInt(16)
-        val b = color.substring(5, 7).toInt(16)
-        val a = if (color.length == 9) color.substring(7, 9).toInt(16) else 255
-        return Color(
-            r, g, b, a
+    override fun serialize(encoder: Encoder, value: Color) {
+        val r = (value.red * 255).roundToInt()
+        val g = (value.green * 255).roundToInt()
+        val b = (value.blue * 255).roundToInt()
+        val a = (value.alpha * 255).roundToInt()
+
+        encoder.encodeString(
+            buildString {
+                append("#")
+                for (i in listOf(r,g,b,a)) {
+                    append(i.toString(16).padStart(2, '0'))
+                }
+            }
         )
+    }
+
+    override fun deserialize(decoder: Decoder): Color {
+        val hex = decoder.decodeString()
+        check(hex.startsWith("#")) { "Color must start with #" }
+        check(hex.length >= 7) { "Color must be in format #RRGGBBAA" }
+        val r = hex.substring(1, 3).toInt(16)
+        val g = hex.substring(3, 5).toInt(16)
+        val b = hex.substring(5, 7).toInt(16)
+        val a = if (hex.length == 9) {
+            hex.substring(7, 9).toInt(16)
+        } else 255
+        return Color(r, g, b, a)
     }
 }
 @Serializable
@@ -75,6 +83,7 @@ data class SerializedTheme(
     @Serializable(with = ColorAsStringSerializer::class) val surfaceContainerLow: Color,
     @Serializable(with = ColorAsStringSerializer::class) val surfaceContainerLowest: Color,
 )
+
 fun ColorScheme.toSerialized() = SerializedTheme(
     primary,
     onPrimary,
@@ -113,6 +122,7 @@ fun ColorScheme.toSerialized() = SerializedTheme(
     surfaceContainerLow,
     surfaceContainerLowest
 )
+
 fun SerializedTheme.toColorScheme() = ColorScheme(
     primary,
     onPrimary,

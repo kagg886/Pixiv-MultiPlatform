@@ -101,32 +101,13 @@ class DownloadScreen : Screen {
 
                                             it.progress == -1f && it.success -> {
                                                 Row {
-                                                    val scope = rememberCoroutineScope()
                                                     IconButton(
                                                         onClick = {
                                                             if (!it.downloadRootPath().exists()) {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
-                                                            scope.launch {
-                                                                val listFiles = it.downloadRootPath().listFile()
-                                                                if (listFiles.size == 1) {
-                                                                    FileKit.saveFile(
-                                                                        bytes = listFiles[0].source().buffer().readByteArray(),
-                                                                        baseName = it.illust.title,
-                                                                        extension = "png"
-                                                                    )
-                                                                    return@launch
-                                                                }
-                                                                FileKit.saveFile(
-                                                                    bytes = it.downloadRootPath().zip(
-                                                                        target = cachePath.resolve("share")
-                                                                            .resolve("${it.id}.zip")
-                                                                    ).source().buffer().readByteArray(),
-                                                                    baseName = "${it.illust.title}(${it.id})",
-                                                                    extension = "zip"
-                                                                )
-                                                            }
+                                                            model.saveToExternalFile(it)
                                                         }
                                                     ) {
                                                         Icon(
@@ -140,19 +121,7 @@ class DownloadScreen : Screen {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
-                                                            val listFiles = it.downloadRootPath().listFile()
-                                                            if (listFiles.size == 1) {
-                                                                shareFile(
-                                                                    listFiles[0]
-                                                                )
-                                                                return@IconButton
-                                                            }
-                                                            shareFile(
-                                                                it.downloadRootPath().zip(
-                                                                    target = cachePath.resolve("share")
-                                                                        .resolve("${it.id}.zip")
-                                                                )
-                                                            )
+                                                            model.shareFile(it)
                                                         }
                                                     ) {
                                                         Icon(
