@@ -90,6 +90,8 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
 
+            implementation(libs.kermit)
+
             //compose
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -144,14 +146,15 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            //epub export
+            implementation(libs.textfield.chip)
+
+            //epub export, ios not support
             implementation(libs.epublib.core.get().toString()) {
                 exclude("xmlpull", "xmlpull")
                 exclude("net.sf.kxml", "kxml2")
             }
 
-
-            implementation(libs.textfield.chip)
+            //use to HTML parse, ios not support.
             implementation(libs.jsoup)
 
             implementation(libs.aboutlibraries.core)

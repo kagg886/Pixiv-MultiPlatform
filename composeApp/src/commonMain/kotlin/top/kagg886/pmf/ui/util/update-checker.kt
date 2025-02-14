@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.lifecycle.ViewModel
+import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.nullableString
 import io.ktor.client.*
@@ -18,8 +19,6 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
-import top.kagg886.pmf.util.PlatformLogLevel
-import top.kagg886.pmf.util.platformLog
 
 @Serializable
 data class Asset(
@@ -85,7 +84,7 @@ class UpdateCheckViewModel(
         }
         if (result.isFailure) {
             result.exceptionOrNull()?.let {
-                platformLog(PlatformLogLevel.WARN, "更新检测失败",it )
+                Logger.e(it) { "update check failed: ${it.message}" }
             }
             if (AppConfig.checkFailedToast) {
                 postSideEffect(UpdateCheckSideEffect.Toast("更新检测失败..."))

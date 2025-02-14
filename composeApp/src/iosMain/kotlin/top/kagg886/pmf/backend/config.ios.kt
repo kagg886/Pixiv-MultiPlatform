@@ -1,5 +1,6 @@
 package top.kagg886.pmf.backend
 
+import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.encodeToString
@@ -7,6 +8,7 @@ import kotlinx.serialization.json.*
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import okio.use
 import platform.Foundation.*
 import top.kagg886.pmf.util.*
 
@@ -15,14 +17,17 @@ actual fun createConfigPlatform(file: Path): Settings {
         file.absolutePath().parent?.mkdirs()
         file.createNewFile()
     }
-    NSLog("create config from: $file")
+    Logger.d("load config from ${file.absolutePath()}")
     val settings = JsonDefaultSettings(
         delegate0 = Json.decodeFromString<JsonObject>(
             file.source().buffer().readUtf8().ifEmpty { "{}" }
         ),
-        onModify = {
+        onModify = { json ->
             file.delete()
-            file.sink().buffer().write(Json.encodeToString(it).toByteArray())
+            file.sink().buffer().use {
+                it.write(Json.encodeToString(json).toByteArray())
+                it.flush()
+            }
         }
     )
 

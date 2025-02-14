@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -18,8 +19,6 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.route.login.v2.LoginType.*
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.PlatformLogLevel
-import top.kagg886.pmf.util.platformLog
 import kotlin.time.Duration.Companion.seconds
 
 class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, ViewModel(), ScreenModel, KoinComponent {
@@ -63,6 +62,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         val u = try {
             account.getCurrentUserSimpleProfile()
         } catch (e: Exception) {
+            Logger.e(e) { "check pixiv token status failed: ${e.message}" }
             null
         }
         if (u == null) {
@@ -91,7 +91,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             }
             account.getCurrentUserSimpleProfile()
         } catch (e: Exception) {
-            platformLog(PlatformLogLevel.WARN, "验证账号时出现问题", e)
+            Logger.e(e) { "verify pixiv url failed: ${e.message}" }
             null
         }
 

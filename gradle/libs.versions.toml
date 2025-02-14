@@ -5,6 +5,7 @@ composeWebviewMultiplatform = "1.9.40"
 epublibCore = "3.1"
 filekitCompose = "0.8.7"
 jsoup = "1.18.3"
+kermit = "2.0.4"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
 kotlinx-coroutines = "1.10.1"
@@ -34,6 +35,7 @@ compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor-cio" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor-cio" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-cio" }
