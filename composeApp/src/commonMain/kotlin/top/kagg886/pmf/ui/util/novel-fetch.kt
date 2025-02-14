@@ -59,7 +59,6 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         }
         .filter {
             if (AppConfig.filterR18Novel) {
-                //TODO pixko bug, need fixed
                 return@filter !(it.isR18 || it.isR18G)
             }
             return@filter true

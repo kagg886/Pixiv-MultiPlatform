@@ -213,7 +213,7 @@ fun RichText(
                                         return@map it.trim()
                                     }
                                     //8个空格
-                                    return@map "        ${it.trim()}" //TODO desktop上的神秘bug：TextIndent无效
+                                    return@map "        ${it.trim()}"
                                 }.forEach(this@buildAnnotatedString::appendLine)
                             }
                             continue

@@ -6,7 +6,6 @@ import com.russhwolf.settings.Settings
 import com.russhwolf.settings.nullableString
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
@@ -19,6 +18,7 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
+import top.kagg886.pmf.backend.PlatformEngine
 
 @Serializable
 data class Asset(
@@ -51,7 +51,7 @@ class UpdateCheckViewModel(
 
     private var skipVersion by config.nullableString("skip_version")
 
-    val net = HttpClient(CIO) {
+    val net = HttpClient(PlatformEngine) {
         install(ContentNegotiation) {
             json(
                 Json {

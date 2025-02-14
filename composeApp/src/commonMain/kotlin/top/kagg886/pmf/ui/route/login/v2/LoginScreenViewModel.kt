@@ -9,7 +9,6 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.PixivVerification
 import top.kagg886.pixko.TokenType
 import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
@@ -55,9 +54,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             this.setToken(TokenType.REFRESH, token)
         }
 
-        val account = PixivAccountFactory.newAccountFromConfig {
-            storage = tempStorage
-        }
+        val account = PixivConfig.newAccountFromConfig(tempStorage)
 
         val u = try {
             account.getCurrentUserSimpleProfile()
@@ -83,7 +80,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         postSideEffect(LoginSideEffect.NavigateToMain)
     }
 
-    fun challengePixivLoginUrl(factory: PixivVerification, url: String) = intent {
+    fun challengePixivLoginUrl(factory: PixivVerification<*>, url: String) = intent {
         reduce { LoginViewState.ProcessingUserData("正在解析用户信息...") }
         val u = try {
             val account = factory.verify(url) {

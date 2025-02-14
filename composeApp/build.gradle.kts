@@ -75,14 +75,6 @@ kotlin {
         kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
     sourceSets {
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-
-
-            //FIXME should be bundled in Pixko
-            implementation("dev.whyoleg.cryptography:cryptography-provider-jdk:0.4.0")
-        }
         commonMain.dependencies {
             //kotlin stdlib
             implementation(libs.kotlin.reflect)
@@ -135,7 +127,6 @@ kotlin {
             implementation(libs.zoomimage.compose.sketch)
 
             //ktor
-            implementation(libs.ktor.client.cio)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
 
@@ -161,17 +152,31 @@ kotlin {
             implementation(libs.aboutlibraries.compose.m3)
         }
 
-        commonTest.dependencies {
-            implementation(kotlin("test"))
-        }
-
-
         val desktopMain by getting
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.kxml2)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
         }
+
+        androidMain.dependencies {
+            implementation(compose.preview)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+            implementation(libs.cryptography.provider.apple)
+        }
+
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+
     }
 }
 

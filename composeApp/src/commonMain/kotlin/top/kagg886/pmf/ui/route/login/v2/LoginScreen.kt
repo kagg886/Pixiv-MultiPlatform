@@ -22,6 +22,7 @@ import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
@@ -166,7 +167,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
 @Composable
 private fun WebViewLogin(model: LoginScreenViewModel) {
     val auth = remember {
-        PixivAccountFactory.newAccount()
+        PixivAccountFactory.newAccount(PlatformEngine)
     }
     val state = rememberWebViewState(auth.url)
     val webNav = rememberWebViewNavigator(

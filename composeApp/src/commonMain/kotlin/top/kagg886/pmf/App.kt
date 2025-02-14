@@ -27,7 +27,6 @@ import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportKtorHttpUri
 import com.github.panpf.sketch.http.KtorStack
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -40,6 +39,8 @@ import okio.Path
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import top.kagg886.pmf.backend.PlatformEngine
+import top.kagg886.pmf.backend.PlatformConfig
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
@@ -342,10 +343,8 @@ fun startKoin0() {
             module {
                 single { PixivTokenStorage() }
                 single {
-                    HttpClient(CIO) {
-                        engine {
-                            //FIXME bypass SNI
-                        }
+                    HttpClient(PlatformEngine) {
+                        PlatformConfig()
 
                         install(HttpTimeout) {
                             socketTimeoutMillis = 30.seconds.inWholeMilliseconds
