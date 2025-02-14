@@ -38,7 +38,7 @@ fun BackToTopOrRefreshButton(
     val state0 = remember(isNotInTop) {
         when {
             isNotInTop -> SHOW_BTT
-            currentPlatform !is Platform.Android -> SHOW_RFH
+            currentPlatform is Platform.Desktop -> SHOW_RFH
             else -> HIDE
         }
     }

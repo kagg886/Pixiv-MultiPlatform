@@ -32,6 +32,8 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
@@ -604,7 +606,9 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         byPassSni = it
-                    }
+                    },
+                    //TODO SNI bypass is disabled for Apple Platform
+                    enabled = currentPlatform !is Platform.Apple
                 )
 
 //                var customPixivImageHost by remember {
