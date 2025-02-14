@@ -108,6 +108,7 @@ class SettingScreen : Screen {
                 SettingsFileUpload(
                     title = { Text("设置主题") },
                     enabled = !inNight,
+                    extensions = listOf("zip","json"),
                     subTitle = {
                         AnimatedContent(
                             inNight

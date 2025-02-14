@@ -151,7 +151,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 WebViewLogin(model)
                             }
 
-                            is LoginViewState.LoginType.BrowserLogin.Loading -> TODO()
+                            is LoginViewState.LoginType.BrowserLogin.Loading -> error("can't walk to this branch")
                         }
                     }
                 }
