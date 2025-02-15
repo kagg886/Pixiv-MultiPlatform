@@ -36,6 +36,10 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
                 BrowserLogin -> {
                     if (currentPlatform is Platform.Desktop) {
                         initKCEF().join()
+                        return@runOn
+                    }
+                    reduce {
+                        LoginViewState.LoginType.BrowserLogin.ShowBrowser
                     }
                 }
             }
