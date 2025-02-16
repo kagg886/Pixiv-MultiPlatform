@@ -85,8 +85,6 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
 
-            implementation(libs.kermit)
-
             //compose
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -118,6 +116,9 @@ kotlin {
             implementation(libs.compose.settings.ui)
             implementation(libs.compose.settings.extended)
 
+            //search-page-ui
+            implementation(libs.textfield.chip)
+
             //webview
             api(libs.compose.webview.multiplatform)
 
@@ -140,7 +141,8 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            implementation(libs.textfield.chip)
+            //logging
+            implementation(libs.kermit)
 
             //epub export, ios not support
             implementation(libs.epublib.core.get().toString()) {
@@ -148,10 +150,10 @@ kotlin {
                 exclude("net.sf.kxml", "kxml2")
             }
 
-            //use to HTML parse, ios not support.
+            //use to HTML parse
             implementation(libs.ksoup)
 
-
+            //about page
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
         }
@@ -175,6 +177,9 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.cryptography.provider.apple)
+
+            //ios zip tool
+            implementation("com.soywiz:korlibs-io:6.0.1")
         }
 
         commonTest.dependencies {

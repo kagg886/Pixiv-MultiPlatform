@@ -36,21 +36,18 @@ class IllustDetailViewModel(private val illust: Illust) :
         reduce {
             IllustDetailViewState.Success(illust)
         }
-        //先加载无原图版本的illust，然后更换为有原图版本的
+        // 部分API返回信息不全，需要重新拉取
         intent a@{
-            var i = illust
-            if (illust.contentImages[IllustImagesType.ORIGIN] == null) {
-                val result = kotlin.runCatching {
-                    client.getIllustDetail(illust.id.toLong())
-                }
-                if (result.isFailure) {
-                    postSideEffect(IllustDetailSideEffect.Toast("获取原图信息失败~"))
-                    return@a
-                }
-                i = result.getOrThrow()
-                if (i.contentImages[IllustImagesType.ORIGIN] == null) {
-                    postSideEffect(IllustDetailSideEffect.Toast("无法获取原图~不知道是怎么回事捏~"))
-                }
+            val result = kotlin.runCatching {
+                client.getIllustDetail(illust.id.toLong())
+            }
+            if (result.isFailure) {
+                postSideEffect(IllustDetailSideEffect.Toast("获取原图信息失败~"))
+                return@a
+            }
+            val i = result.getOrThrow()
+            if (i.contentImages[IllustImagesType.ORIGIN] == null) {
+                postSideEffect(IllustDetailSideEffect.Toast("无法获取原图~不知道是怎么回事捏~"))
             }
             saveDataBase(i)
             reduce {
