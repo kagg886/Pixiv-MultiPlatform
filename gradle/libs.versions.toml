@@ -7,6 +7,7 @@ epublibCore = "3.1"
 filekitCompose = "0.8.7"
 jsoup = "1.18.3"
 kermit = "2.0.4"
+ksoup = "0.2.2"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
 kotlinx-coroutines = "1.10.1"
@@ -37,8 +38,8 @@ cryptography-provider-apple = { module = "dev.whyoleg.cryptography:cryptography-
 dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptographyProviderApple" }
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
-jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }

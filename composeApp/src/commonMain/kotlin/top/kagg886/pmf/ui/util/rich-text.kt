@@ -25,6 +25,10 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.fleeksoft.ksoup.Ksoup
+import com.fleeksoft.ksoup.nodes.Element
+import com.fleeksoft.ksoup.nodes.Node
+import com.fleeksoft.ksoup.nodes.TextNode
 import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pmf.backend.AppConfig
@@ -263,9 +267,54 @@ fun RichText(
 }
 
 @Composable
-expect fun HTMLRichText(
+fun HTMLRichText(
     html: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
     style: TextStyle = LocalTextStyle.current
-)
+) {
+    val scheme = MaterialTheme.colorScheme
+    val dom = remember(html) {
+        Ksoup.parse(html).body().childNodes()
+    }
+
+    fun AnnotatedString.Builder.appendHTMLNode(nodes: List<Node>) {
+        for (node in nodes) {
+            when (node) {
+                is TextNode -> append(node.text())
+                is Element -> {
+                    when (node.tagName()) {
+                        "strong" -> {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                if (node.childNodes().isNotEmpty()) {
+                                    appendHTMLNode(node.childNodes())
+                                    return@withStyle
+                                }
+                                append(node.text())
+                            }
+                        }
+
+                        "br" -> appendLine()
+                        "a" -> withLink(
+                            scheme,
+                            node.attr("href"),
+                            node.text()
+                        )
+
+                        else -> append(node.html())
+                    }
+                }
+
+                else -> append(node.outerHtml())
+            }
+        }
+    }
+    Text(
+        buildAnnotatedString {
+            appendHTMLNode(dom)
+        },
+        style = style,
+        color = color,
+        modifier = modifier
+    )
+}
