@@ -148,7 +148,7 @@ kotlin {
             //zip files
             implementation(libs.korlibs.io)
             //epub generate
-            implementation("com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml:0.0.1-SNAPSHOT")
+            implementation(libs.kotlinx.serialization.xml)
             //use to HTML parse
             implementation(libs.ksoup)
 

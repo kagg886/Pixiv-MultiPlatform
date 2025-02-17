@@ -3,10 +3,10 @@ agp = "8.7.3"
 androidx-lifecycle = "2.8.4"
 composeWebviewMultiplatform = "1.9.40"
 cryptographyProviderApple = "0.4.0"
-epublibCore = "3.1"
 filekitCompose = "0.8.7"
 kermit = "2.0.4"
 korlibsIo = "6.0.1"
+kotlinxSerializationXml = "0.0.1-SNAPSHOT"
 ksoup = "0.2.2"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
@@ -36,10 +36,10 @@ androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.r
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 cryptography-provider-apple = { module = "dev.whyoleg.cryptography:cryptography-provider-apple", version.ref = "cryptographyProviderApple" }
 dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptographyProviderApple" }
-epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
+kotlinx-serialization-xml = { module = "com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml", version.ref = "kotlinxSerializationXml" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
