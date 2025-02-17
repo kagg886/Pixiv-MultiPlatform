@@ -1,4 +1,4 @@
-package top.kagg886.pmf.ui.util
+package top.kagg886.pmf.util
 
 import kotlin.jvm.JvmInline
 import kotlin.math.roundToInt

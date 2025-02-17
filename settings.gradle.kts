@@ -21,6 +21,7 @@ dependencyResolutionManagement {
         mavenLocal {
             url = uri("file:///Users/sheng233/.m2/repository")
         }
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
         mavenLocal()
         google {
             mavenContent {

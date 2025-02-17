@@ -144,12 +144,11 @@ kotlin {
             //logging
             implementation(libs.kermit)
 
-            //epub export, ios not support
-            implementation(libs.epublib.core.get().toString()) {
-                exclude("xmlpull", "xmlpull")
-                exclude("net.sf.kxml", "kxml2")
-            }
 
+            //zip files
+            implementation(libs.korlibs.io)
+            //epub generate
+            implementation("com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml:0.0.1-SNAPSHOT")
             //use to HTML parse
             implementation(libs.ksoup)
 
@@ -177,9 +176,6 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.cryptography.provider.apple)
-
-            //ios zip tool
-            implementation("com.soywiz:korlibs-io:6.0.1")
         }
 
         commonTest.dependencies {

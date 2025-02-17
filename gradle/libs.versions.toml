@@ -5,8 +5,8 @@ composeWebviewMultiplatform = "1.9.40"
 cryptographyProviderApple = "0.4.0"
 epublibCore = "3.1"
 filekitCompose = "0.8.7"
-jsoup = "1.18.3"
 kermit = "2.0.4"
+korlibsIo = "6.0.1"
 ksoup = "0.2.2"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
@@ -39,6 +39,7 @@ dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cry
 epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }

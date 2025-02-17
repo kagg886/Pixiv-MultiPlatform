@@ -7,7 +7,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import top.kagg886.pmf.ui.util.mb
+import top.kagg886.pmf.util.mb
 import top.kagg886.pmf.util.SerializedTheme
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {

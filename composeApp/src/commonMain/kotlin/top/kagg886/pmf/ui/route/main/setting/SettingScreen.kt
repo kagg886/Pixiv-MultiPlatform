@@ -41,8 +41,8 @@ import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.ui.util.b
-import top.kagg886.pmf.ui.util.mb
+import top.kagg886.pmf.util.b
+import top.kagg886.pmf.util.mb
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import kotlin.math.roundToInt
