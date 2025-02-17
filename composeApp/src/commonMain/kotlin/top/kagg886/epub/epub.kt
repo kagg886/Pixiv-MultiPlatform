@@ -1,6 +1,7 @@
 package top.kagg886.epub
 
 import okio.Path
+import okio.use
 import top.kagg886.epub.data.Metadata
 import top.kagg886.epub.data.ResourceItem
 import top.kagg886.epub.data.Spine
@@ -24,7 +25,7 @@ class Epub internal constructor(
 ) {
     @OptIn(ExperimentalUuidApi::class)
     fun writeTo(path: Path) {
-        val workDirBase = cachePath.resolve(Uuid.random().toHexString())
+        val workDirBase = temp.resolve(Uuid.random().toHexString())
         workDirBase.mkdirs()
 
         with(workDirBase.resolve("mimetype")) {
@@ -79,11 +80,10 @@ class Epub internal constructor(
                                 with(workDirBase.resolve("EPUB").resolve(resource.fileName)) {
                                     parentFile()?.mkdirs()
                                     createNewFile()
-                                    resource.file.transfer(this.sink())
+                                    this.sink().use { resource.file.transfer(it) }
                                 }
                                 item(id = resource.uuid, href = resource.fileName, mediaType = resource.mediaType)
                             }
-
 
                             //TOC存在则注册ncx文件
                             if (spine != null) {
