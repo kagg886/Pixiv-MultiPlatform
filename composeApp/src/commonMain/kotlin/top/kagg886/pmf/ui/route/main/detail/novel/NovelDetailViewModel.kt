@@ -240,6 +240,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                     creator(state.novel.user.name)
                     description(state.novel.caption)
                     publisher("github @Pixiv-MultiPlatform")
+                    language("zh-CN")
 
                     meta { put("cover", coverImage.uuid) }
                 }
