@@ -6,7 +6,6 @@ cryptographyProviderApple = "0.4.0"
 filekitCompose = "0.8.7"
 kermit = "2.0.4"
 korlibsIo = "6.0.1"
-kotlinxSerializationXml = "0.0.1-SNAPSHOT"
 ksoup = "0.2.2"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
@@ -39,7 +38,6 @@ dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cry
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
-kotlinx-serialization-xml = { module = "com.ryanharter.kotlinx.serialization:kotlinx-serialization-xml", version.ref = "kotlinxSerializationXml" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
