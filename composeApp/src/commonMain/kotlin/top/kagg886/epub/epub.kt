@@ -12,7 +12,6 @@ import top.kagg886.epub.nodes.opf.*
 import top.kagg886.epub.nodes.toc.navMap
 import top.kagg886.epub.nodes.toc.navPoint
 import top.kagg886.epub.nodes.toc.ncx
-import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.util.*
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -82,7 +81,12 @@ class Epub internal constructor(
                                     createNewFile()
                                     this.sink().use { resource.file.transfer(it) }
                                 }
-                                item(id = resource.uuid, href = resource.fileName, mediaType = resource.mediaType)
+                                item(
+                                    id = resource.uuid,
+                                    href = resource.fileName,
+                                    mediaType = resource.mediaType,
+                                    properties = resource.properties
+                                )
                             }
 
                             //TOC存在则注册ncx文件

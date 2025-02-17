@@ -152,7 +152,8 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             val coverImage = ResourceItem(
                 file = Buffer().write(img.get(with(state.novel.imageUrls) { original ?: contentLarge }).bodyAsBytes()),
                 extension = "png",
-                mediaType = "image/png"
+                mediaType = "image/png",
+                properties = "cover-image"
             )
 
             val inlineImages = state.nodeMap.map {
@@ -241,8 +242,6 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                     description(state.novel.caption)
                     publisher("github @Pixiv-MultiPlatform")
                     language("zh-CN")
-
-                    meta { put("cover", coverImage.uuid) }
                 }
 
                 manifest {

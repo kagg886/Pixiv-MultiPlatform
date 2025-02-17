@@ -7,7 +7,8 @@ import kotlin.uuid.Uuid
 data class ResourceItem(
     val file: Source,
     val extension: String,
-    val mediaType: String
+    val mediaType: String,
+    val properties:String?=null
 ) {
     @OptIn(ExperimentalUuidApi::class)
     val uuid by lazy { Uuid.random().toHexString() }
