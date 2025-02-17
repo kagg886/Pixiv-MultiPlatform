@@ -31,7 +31,6 @@ data class CollapseTopAppBarScaffoldScope(
 /**
  * 支持滑动隐藏 Toolbar 的 Scaffold
  * @param background 背景
- * @param backgroundHeight 背景高度
  * @param title 标题 仅在收折状态下显示
  * @param navigationIcon 导航图标 任何情况下都会显示
  * @param actions 操作按钮 任何情况下都会显示

@@ -48,6 +48,8 @@ inline fun Path.deleteRecursively() {
 }
 fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve("${this.name}.zip")): Path {
     val vfs = rootLocalVfs[absolutePath().toString()]
+    target.parentFile()?.mkdirs()
+    target.createNewFile()
     return runBlocking {
         vfs.createZipFromTreeTo(
             zipFile = rootLocalVfs[target.absolutePath().toString()]
