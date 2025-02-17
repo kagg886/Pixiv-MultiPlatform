@@ -17,6 +17,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class Epub internal constructor(
+    private val temp: Path,
     private val metadata: Metadata,
     private val resources: List<ResourceItem>,
     private val spine: Spine? = null,

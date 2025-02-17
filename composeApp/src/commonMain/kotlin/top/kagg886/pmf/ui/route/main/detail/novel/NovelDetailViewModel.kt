@@ -2,16 +2,21 @@ package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.github.vinceglb.filekit.core.FileKit
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.fleeksoft.ksoup.nodes.Document
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import korlibs.io.async.async
+import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
+import okio.Buffer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.epub.builder.EpubBuilder
+import top.kagg886.epub.data.ResourceItem
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -23,11 +28,15 @@ import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
@@ -36,7 +45,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             reload()
         }
     private val client = PixivConfig.newAccountFromConfig()
-
+    private val img by inject<HttpClient>()
     private val database by inject<AppDatabase>()
 
     fun reload() = intent {
@@ -135,99 +144,120 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         }
     }
 
-    @OptIn(OrbitExperimental::class)
+    @OptIn(OrbitExperimental::class, ExperimentalUuidApi::class)
     fun exportToEpub() = intent {
         runOn<NovelDetailViewState.Success> {
-            postSideEffect(NovelDetailSideEffect.Toast("MultiPlatform can't export epub File!"))
-//            postSideEffect(NovelDetailSideEffect.Toast("正在导出，请稍等"))
-//            val book = Book().apply {
-//                with(metadata) {
-//                    addTitle(state.novel.title)
-//                    addAuthor(Author(state.novel.user.name))
-//                    addDescription(state.novel.caption)
-//                    addDate(Date(java.util.Date.from(state.novel.createDate.toJavaInstant())))
-//                    addPublisher("github @Pixiv-MultiPlatform")
-//
-//                    coverImage = Resource(
-//                        client.loadImage(state.novel.imageUrls.content),
-//                        "cover.png"
-//                    )
-//                }
-//                var doc = Document.createShell("")
-//                var pageIndex = 0
-//
-//
-//                for ((index, i) in state.nodeMap) {
-//                    when (i) {
-//                        is NovelNodeElement.Plain -> {
-//                            i.text.split("\n").map {
-//                                doc.body().appendElement("p").text(it)
-//                            }
-//                        }
-//
-//                        is NovelNodeElement.JumpUri -> {
-//                            doc.body().appendElement("a").attr("href", i.uri).text(i.text)
-//                        }
-//
-//                        is NovelNodeElement.Notation -> {
-//                            doc.body().appendElement("span").text(i.text)
-//                        }
-//
-//                        is NovelNodeElement.UploadImage -> {
-//                            val uuid = UUID.randomUUID().toString().replace("-", "") + ".png"
-//                            addResource(Resource(client.loadImage(i.url), uuid))
-//                            doc.body().appendElement("img").attr("src", uuid).attr("alt", "upload-image")
-//                        }
-//
-//                        is NovelNodeElement.PixivImage -> {
-//                            val img = i.illust
-//                            val uuid = UUID.randomUUID().toString().replace("-", "") + ".png"
-//                            addResource(
-//                                Resource(
-//                                    client.loadImage(img.contentImages[IllustImagesType.LARGE]!![0]),
-//                                    uuid
-//                                )
-//                            )
-//                            doc.body().appendElement("img").attr("src", uuid).attr("alt", img.title)
-//                        }
-//
-//                        is NovelNodeElement.Title -> {
-//                            doc.body().appendElement("h1").text(i.text)
-//                        }
-//
-//                        is NovelNodeElement.NewPage -> {
-//                            addSection(
-//                                "第${pageIndex + 1}页",
-//                                Resource(doc.html().toByteArray(), "page_${pageIndex}.html")
-//                            )
-//                            doc = Document.createShell("")
-//                            pageIndex++
-//                        }
-//
-//                        is NovelNodeElement.JumpPage -> {
-//                            doc.body().appendElement("a").attr("href", "page_${i.page - 1}.html")
-//                                .text("跳转到第${i.page}页")
-//                        }
-//                    }
-//                }
-//                addSection(
-//                    "第${pageIndex + 1}页",
-//                    Resource(doc.html().toByteArray(), "page_${pageIndex}.html")
-//                )
-//            }
-//
-//            val bytes = with(ByteArrayOutputStream()) {
-//                EpubWriter().write(book, this)
-//
-//                toByteArray()
-//            }
-//            postSideEffect(NovelDetailSideEffect.Toast("导出完毕。"))
-//            FileKit.saveFile(
-//                bytes = bytes,
-//                extension = "epub",
-//                baseName = state.novel.title
-//            )
+            postSideEffect(NovelDetailSideEffect.Toast("正在导出，请稍等"))
 
+            val coverImage = ResourceItem(
+                file = Buffer().write(img.get(with(state.novel.imageUrls) { original ?: contentLarge }).bodyAsBytes()),
+                extension = "png",
+                mediaType = "image/png"
+            )
+
+            val inlineImages = state.nodeMap.map {
+                async(Dispatchers.IO) {
+                    when (it) {
+                        is NovelNodeElement.PixivImage -> {
+                            it to ResourceItem(
+                                file = Buffer().write(img.post(it.url).bodyAsBytes()),
+                                extension = "png",
+                                mediaType = "image/png"
+                            )
+                        }
+
+                        is NovelNodeElement.UploadImage -> {
+                            it to ResourceItem(
+                                file = Buffer().write(img.post(it.url).bodyAsBytes()),
+                                extension = "png",
+                                mediaType = "image/png"
+                            )
+                        }
+
+                        else -> null
+                    }
+                }
+            }.awaitAll().filterNotNull().toMap()
+
+            val doc = Document.createShell("")
+            var page = 1
+            for (i in state.nodeMap) {
+                when (i) {
+                    is NovelNodeElement.Plain -> {
+                        i.text.split("\n").map {
+                            doc.body().appendElement("p").text(it)
+                        }
+                    }
+
+                    is NovelNodeElement.JumpUri -> {
+                        doc.body().appendElement("p")
+                            .appendElement("a")
+                            .attr("href", i.uri)
+                            .text(i.text)
+                    }
+
+                    is NovelNodeElement.Notation -> {
+                        doc.body().appendElement("span").text(i.text)
+                    }
+
+                    is NovelNodeElement.UploadImage -> {
+                        doc.body().appendElement("img")
+                            .attr("src", inlineImages[i]!!.fileName)
+                            .attr("alt", Uuid.random().toHexString())
+                    }
+
+                    is NovelNodeElement.PixivImage -> {
+                        doc.body().appendElement("img")
+                            .attr("src", inlineImages[i]!!.fileName)
+                            .attr("alt", Uuid.random().toHexString())
+                    }
+
+                    is NovelNodeElement.Title -> {
+                        doc.body().appendElement("h1").text(i.text)
+                    }
+
+                    is NovelNodeElement.NewPage -> {
+                        doc.body().appendElement("h1").text("#Chapter${page++}")
+                    }
+
+                    is NovelNodeElement.JumpPage -> {
+                        doc.body().appendElement("a")
+                            .attr("href", "#Chapter${i.page}")
+                            .text("跳转到第${i.page}章节")
+                    }
+                }
+            }
+
+            val docResource = ResourceItem(
+                file = Buffer().write(doc.html().encodeToByteArray()),
+                extension = "html",
+                mediaType = "application/xhtml+xml"
+            )
+
+            val epub = EpubBuilder(cachePath.resolve(Uuid.random().toHexString())) {
+                metadata {
+                    title(state.novel.title)
+                    creator(state.novel.user.name)
+                    description(state.novel.caption)
+                    publisher("github @Pixiv-MultiPlatform")
+
+                    meta { put("cover", coverImage.uuid) }
+                }
+
+                manifest {
+                    add(coverImage)
+                    add(docResource)
+                    addAll(inlineImages.values)
+                }
+
+                spine {
+                    toc(state.novel.title, docResource)
+                }
+            }
+
+            val dst = cachePath.resolve("${state.novel.title}.epub")
+            epub.writeTo(dst)
+            shareFile(dst)
         }
     }
 
@@ -281,7 +311,10 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     fun followUser(private: Boolean = false) = intent {
         runOn<NovelDetailViewState.Success> {
             val result = kotlin.runCatching {
-                client.followUser(state.novel.user.id, publicity = if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
+                client.followUser(
+                    state.novel.user.id,
+                    publicity = if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC
+                )
             }
             if (result.isFailure) {
                 postSideEffect(NovelDetailSideEffect.Toast("关注失败~"))

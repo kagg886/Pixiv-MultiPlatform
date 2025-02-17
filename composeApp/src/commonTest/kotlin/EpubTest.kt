@@ -2,6 +2,7 @@ import okio.Buffer
 import okio.Path.Companion.toPath
 import top.kagg886.epub.builder.EpubBuilder
 import top.kagg886.epub.data.ResourceItem
+import top.kagg886.pmf.backend.cachePath
 import kotlin.test.Test
 
 class EpubTest {
@@ -30,7 +31,7 @@ class EpubTest {
                 mediaType = "application/xhtml+xml"
             )
         }
-        val epub = EpubBuilder {
+        val epub = EpubBuilder(cachePath.resolve("work")) {
             metadata {
                 title("Test")
                 description("QWQ")
