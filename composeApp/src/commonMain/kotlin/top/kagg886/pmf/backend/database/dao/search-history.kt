@@ -2,6 +2,7 @@ package top.kagg886.pmf.backend.database.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.backend.database.converters.HistoryConverter
@@ -28,5 +29,5 @@ data class SearchHistory(
     val initialSort: SearchSort,
     val initialTarget: SearchTarget,
     val keyword: List<String> = listOf(),
-    val createTime: Long = System.currentTimeMillis(),
+    val createTime: Long = Clock.System.now().toEpochMilliseconds(),
 )

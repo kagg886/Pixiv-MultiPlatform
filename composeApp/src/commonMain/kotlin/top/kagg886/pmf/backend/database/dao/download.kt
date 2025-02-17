@@ -2,6 +2,7 @@ package top.kagg886.pmf.backend.database.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pmf.backend.database.converters.IllustConverter
 
@@ -31,5 +32,5 @@ data class DownloadItem(
     val illust: Illust,
     val success: Boolean,
     val progress: Float = -1f,
-    val createTime: Long = System.currentTimeMillis()
+    val createTime: Long = Clock.System.now().toEpochMilliseconds()
 )

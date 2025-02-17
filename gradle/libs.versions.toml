@@ -1,26 +1,29 @@
 [versions]
 agp = "8.7.3"
 androidx-lifecycle = "2.8.4"
-composeWebviewMultiplatform = "1.9.20" #TODO 升级会导致ktor插件无法被加载，需要解决
-epublibCore = "3.1"
+composeWebviewMultiplatform = "1.9.40"
+cryptographyProviderApple = "0.4.0"
 filekitCompose = "0.8.7"
-jsoup = "1.18.3"
+kermit = "2.0.4"
+korlibsIo = "6.0.1"
+ksoup = "0.2.2"
 ksp = "2.1.10-1.0.29"
 kotlin = "2.1.10"
 kotlinx-coroutines = "1.10.1"
 kotlinxSerializationJson = "1.7.3"
+ktor = "3.0.3"
 kxml2 = "2.3.0"
 multiplatformSettings = "1.3.0"
 orbitCore = "9.0.0"
-pixko = "2.3"
-room = "2.7.0-alpha13"
+pixko = "2.5"
+room = "2.7.0-beta01"
 sketchCompose = "4.0.0"
-sqliteBundled = "2.5.0-alpha13"
+sqliteBundled = "2.5.0-beta01"
 voyagerVersion = "1.1.0-beta03"
 aboutlibraries = "11.2.3"
 zoomimageComposeSketch = "1.1.0"
 compose-settings = "2.6.0"
-textfield-chip = "0.7.0-alpha05"
+textfield-chip = "0.7.0-alpha06"
 
 [libraries]
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
@@ -30,11 +33,19 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
-epublib-core = { module = "com.positiondev.epublib:epublib-core", version.ref = "epublibCore" }
+cryptography-provider-apple = { module = "dev.whyoleg.cryptography:cryptography-provider-apple", version.ref = "cryptographyProviderApple" }
+dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptographyProviderApple" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
-jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 textfield-chip = { module = "io.github.dokar3:chiptextfield-m3", version.ref = "textfield-chip" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
@@ -49,7 +60,7 @@ sketch-svg = { module = "io.github.panpf.sketch4:sketch-svg", version.ref = "ske
 sketch-resources = { module = "io.github.panpf.sketch4:sketch-compose-resources", version.ref = "sketchCompose" }
 sketch-extensions-compose = { module = "io.github.panpf.sketch4:sketch-extensions-compose", version.ref = "sketchCompose" }
 sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "sketchCompose" }
-sketch-http-okhttp = { module = "io.github.panpf.sketch4:sketch-http-okhttp", version.ref = "sketchCompose" }
+sketch-http-ktor3 = { module = "io.github.panpf.sketch4:sketch-http-ktor3", version.ref = "sketchCompose" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerVersion" }
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }

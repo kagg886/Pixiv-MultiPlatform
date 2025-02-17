@@ -12,6 +12,11 @@ sealed class Platform(open val name: String) {
         data object Windows : Desktop("windows")
         data object MacOS : Desktop("macos")
     }
+
+    sealed class Apple(override val name: String) : Platform(name) {
+        data object IPhoneOS : Apple("ios")
+        data object IPadOS : Apple("ipados")
+    }
 }
 
 

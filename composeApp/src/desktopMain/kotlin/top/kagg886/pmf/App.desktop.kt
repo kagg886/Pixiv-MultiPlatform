@@ -2,11 +2,11 @@ package top.kagg886.pmf
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okio.Path
 import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.*
 import java.io.ByteArrayInputStream
-import java.io.File
 import java.net.URI
 import javax.imageio.ImageIO
 
@@ -14,8 +14,8 @@ actual fun openBrowser(link: String) {
     Desktop.getDesktop().browse(URI.create(link))
 }
 
-actual fun shareFile(file: File, name: String, mime: String) {
-    Desktop.getDesktop().open(file)
+actual fun shareFile(file: Path, name: String, mime: String) {
+    Desktop.getDesktop().open(file.toFile())
 }
 
 actual suspend fun copyImageToClipboard(bitmap: ByteArray) {

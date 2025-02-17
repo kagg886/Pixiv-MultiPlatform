@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("Scrollbar_desktopKt")
-
 package top.kagg886.pmf.ui.component.scroll
 
 import androidx.compose.animation.animateColorAsState
@@ -486,7 +484,6 @@ private fun top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter.asOldAdapter
         "androidx.compose.foundation.rememberScrollbarAdapter"
     )
 )
-@JvmName("rememberScrollbarAdapter")
 @Suppress("DEPRECATION")
 @Composable
 fun rememberOldScrollbarAdapter(
@@ -506,7 +503,6 @@ fun rememberOldScrollbarAdapter(
         "androidx.compose.foundation.rememberScrollbarAdapter"
     )
 )
-@JvmName("rememberScrollbarAdapter")
 @Suppress("DEPRECATION")
 @Composable
 fun rememberOldScrollbarAdapter(
@@ -543,7 +539,6 @@ fun rememberOldScrollbarAdapter(
         "androidx.compose.foundation.ScrollbarAdapter"
     )
 )
-@JvmName("ScrollbarAdapter")
 @Suppress("DEPRECATION")
 fun OldScrollbarAdapter(
     scrollState: ScrollState
@@ -575,7 +570,6 @@ fun OldScrollbarAdapter(
         "androidx.compose.foundation.ScrollbarAdapter"
     )
 )
-@JvmName("ScrollbarAdapter")
 @Suppress("DEPRECATION")
 fun OldScrollbarAdapter(
     scrollState: LazyListState
@@ -585,7 +579,6 @@ fun OldScrollbarAdapter(
  * Create and [remember] [androidx.compose.foundation.v2.ScrollbarAdapter] for
  * scrollable container with the given instance [ScrollState].
  */
-@JvmName("rememberScrollbarAdapter2")
 @Composable
 fun rememberScrollbarAdapter(
     scrollState: ScrollState
@@ -597,7 +590,6 @@ fun rememberScrollbarAdapter(
  * Create and [remember] [androidx.compose.foundation.v2.ScrollbarAdapter] for
  * lazy scrollable container with the given instance [LazyListState].
  */
-@JvmName("rememberScrollbarAdapter2")
 @Composable
 fun rememberScrollbarAdapter(
     scrollState: LazyListState,
@@ -605,7 +597,6 @@ fun rememberScrollbarAdapter(
     ScrollbarAdapter(scrollState)
 }
 
-@JvmName("rememberScrollbarAdapter2")
 @Composable
 fun rememberScrollbarAdapter(
     scrollState: LazyStaggeredGridState,
@@ -617,7 +608,6 @@ fun rememberScrollbarAdapter(
  * Create and [remember] [androidx.compose.foundation.v2.ScrollbarAdapter] for lazy grid with
  * the given instance of [LazyGridState].
  */
-@JvmName("rememberScrollbarAdapter2")
 @Composable
 fun rememberScrollbarAdapter(
     scrollState: LazyGridState,
@@ -644,7 +634,6 @@ fun rememberScrollbarAdapter(
  *         )
  *     }
  */
-@JvmName("ScrollbarAdapter2")
 fun ScrollbarAdapter(
     scrollState: ScrollState
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = ScrollableScrollbarAdapter(scrollState)
@@ -668,12 +657,10 @@ fun ScrollbarAdapter(
  *         )
  *     }
  */
-@JvmName("ScrollbarAdapter2")
 fun ScrollbarAdapter(
     scrollState: LazyListState
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyListScrollbarAdapter(scrollState)
 
-@JvmName("ScrollbarAdapter2")
 fun ScrollbarAdapter(
     scrollState: LazyStaggeredGridState
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyStaggerGirdListScrollbarAdapter(scrollState)
@@ -698,7 +685,6 @@ fun ScrollbarAdapter(
  *         )
  *     }
  */
-@JvmName("ScrollbarAdapter2")
 fun ScrollbarAdapter(
     scrollState: LazyGridState
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyGridScrollbarAdapter(scrollState)

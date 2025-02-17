@@ -52,6 +52,9 @@ buildConfig {
     buildConfigField("APP_BASE_PACKAGE", pkgName)
     buildConfigField("APP_VERSION_NAME", pkgVersion)
     buildConfigField("APP_VERSION_CODE", pkgCode)
+
+
+    buildConfigField("DATABASE_VERSION", 6)
 }
 kotlin {
     androidTarget {
@@ -63,21 +66,24 @@ kotlin {
 
     jvm("desktop")
 
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
+        it.binaries.framework {
+            baseName = "ComposeApp"
+            isStatic = true
+            linkerOpts.add("-lsqlite3")
+        }
+    }
+
     sourceSets.named("commonMain").configure {
         kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
     sourceSets {
-        val desktopMain by getting
-
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-        }
         commonMain.dependencies {
             //kotlin stdlib
             implementation(libs.kotlin.reflect)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.coroutines.core)
 
             //compose
             implementation(compose.runtime)
@@ -110,6 +116,9 @@ kotlin {
             implementation(libs.compose.settings.ui)
             implementation(libs.compose.settings.extended)
 
+            //search-page-ui
+            implementation(libs.textfield.chip)
+
             //webview
             api(libs.compose.webview.multiplatform)
 
@@ -118,8 +127,12 @@ kotlin {
             implementation(libs.sketch.svg)
             implementation(libs.sketch.resources)
             implementation(libs.sketch.extensions.compose)
-            implementation(libs.sketch.http.okhttp)
+            implementation(libs.sketch.http.ktor3)
             implementation(libs.zoomimage.compose.sketch)
+
+            //ktor
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
 
             //room
             implementation(libs.androidx.room.runtime)
@@ -128,28 +141,45 @@ kotlin {
             //save file to storage
             implementation(libs.filekit.compose)
 
-            //epub export
-            implementation(libs.epublib.core.get().toString()) {
-                exclude("xmlpull", "xmlpull")
-                exclude("net.sf.kxml", "kxml2")
-            }
+            //logging
+            implementation(libs.kermit)
 
 
-            implementation(libs.textfield.chip)
-            implementation(libs.jsoup)
+            //zip files
+            implementation(libs.korlibs.io)
+            //use to HTML parse
+            implementation(libs.ksoup)
 
+            //about page
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
+        }
+
+        val desktopMain by getting
+        desktopMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.kxml2)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
+        }
+
+        androidMain.dependencies {
+            implementation(compose.preview)
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
+        }
+
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+            implementation(libs.cryptography.provider.apple)
         }
 
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.kxml2)
-        }
+
     }
 }
 

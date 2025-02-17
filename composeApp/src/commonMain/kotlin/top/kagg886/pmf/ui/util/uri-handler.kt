@@ -8,10 +8,10 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import io.ktor.http.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
-import java.net.URI
 
 @Composable
 fun rememberSupportPixivNavigateUriHandler(): UriHandler {
@@ -55,20 +55,20 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
             override fun openUri(url: String) {
                 val unit = kotlin.runCatching {
                     if (url.contains("pixiv.net")) {
-                        val uri = URI.create(url.trim())!!
+                        val uri = Url(url.trim())
                         when {
-                            uri.path.startsWith("/users/") -> nav.push(AuthorScreen(uri.path.split("/")[2].toInt()))
-                            uri.path.startsWith("/novel/show.php") -> nav.push(NovelDetailScreen(uri.query.split("=")[1].toLong()))
-                            uri.path.startsWith("/artworks/") -> nav.push(IllustDetailScreen.PreFetch(uri.path.split("/")[2].toLong()))
+                            uri.encodedPath.startsWith("/users/") -> nav.push(AuthorScreen(uri.encodedPath.split("/")[2].toInt()))
+                            uri.encodedPath.startsWith("/novel/show.php") -> nav.push(NovelDetailScreen(uri.encodedPath.split("=")[1].toLong()))
+                            uri.encodedPath.startsWith("/artworks/") -> nav.push(IllustDetailScreen.PreFetch(uri.encodedPath.split("/")[2].toLong()))
                         }
                         return@runCatching true
                     }
                     if (url.startsWith("pixiv://")) {
-                        val uri = URI.create(url.trim())!!
+                        val uri = Url(url.trim())
                         when (uri.host) {
-                            "novels" -> nav.push(AuthorScreen(uri.path.substring(1).toInt()))
-                            "illusts" -> nav.push(IllustDetailScreen.PreFetch(uri.path.substring(1).toLong()))
-                            "users" -> nav.push(AuthorScreen(uri.path.substring(1).toInt()))
+                            "novels" -> nav.push(AuthorScreen(uri.encodedPath.substring(1).toInt()))
+                            "illusts" -> nav.push(IllustDetailScreen.PreFetch(uri.encodedPath.substring(1).toLong()))
+                            "users" -> nav.push(AuthorScreen(uri.encodedPath.substring(1).toInt()))
                         }
                     }
                     false

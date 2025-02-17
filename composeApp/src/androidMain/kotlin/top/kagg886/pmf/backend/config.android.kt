@@ -1,12 +1,12 @@
 package top.kagg886.pmf.backend
 
+import okio.Path
+import okio.Path.Companion.toOkioPath
 import top.kagg886.pmf.PMFApplication
-import java.io.File
 
-
-actual val dataPath: File by lazy {
-    PMFApplication.getApp().filesDir
+actual val dataPath: Path by lazy {
+    PMFApplication.getApp().filesDir.toOkioPath()
 }
-actual val cachePath: File by lazy {
-    PMFApplication.getApp().cacheDir
+actual val cachePath: Path by lazy {
+    PMFApplication.getApp().cacheDir.toOkioPath()
 }

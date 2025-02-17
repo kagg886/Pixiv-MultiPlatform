@@ -19,5 +19,5 @@ data class IllustHistory(
     @PrimaryKey(autoGenerate = false)
     val id: Int,
     val illust: Illust,
-    val createTime:Long
+    val createTime: Long
 )

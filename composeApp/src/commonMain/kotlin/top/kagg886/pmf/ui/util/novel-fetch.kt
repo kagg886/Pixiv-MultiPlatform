@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.plus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -58,7 +59,6 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         }
         .filter {
             if (AppConfig.filterR18Novel) {
-                //TODO pixko bug, need fixed
                 return@filter !(it.isR18 || it.isR18G)
             }
             return@filter true

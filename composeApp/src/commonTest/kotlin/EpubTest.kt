@@ -1,36 +1,54 @@
-import nl.siegmann.epublib.domain.Author
-import nl.siegmann.epublib.domain.Book
-import nl.siegmann.epublib.domain.Resource
-import nl.siegmann.epublib.epub.EpubWriter
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.File
+import okio.Buffer
+import okio.Path.Companion.toPath
+import top.kagg886.epub.builder.EpubBuilder
+import top.kagg886.epub.data.ResourceItem
+import top.kagg886.pmf.backend.cachePath
 import kotlin.test.Test
 
 class EpubTest {
-    @Test
-    fun testEpub() {
-        val book = Book()
-
-        val client = OkHttpClient.Builder().build()
-        with(book) {
-            val body = client.newCall(Request.Builder().url("https://q.qlogo.cn/g?b=qq&nk=2513485574&s=160").build()).execute().body!!.byteStream().readBytes()
-            coverImage = Resource(body, "cover.png")
-
-            with(metadata) {
-                addTitle("标题")
-                addAuthor(Author("作者"))
-                addDescription("简介")
-            }
-
-            val res = addResource(Resource(body,"1.png"))
-
-            addSection("第一章",Resource("<img src=\"1.png\" alt=\"a\"></h1>".toByteArray(),"first.html"))
-        }
-
-
-
-        EpubWriter().write(book, File("test.epub").outputStream())
+    private fun pageN(int: Int): String {
+        return """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Document</title>
+            </head>
+            <body>
+                <p>This is Page $int！！！</p>
+            </body>
+            </html>
+        """.trimIndent()
     }
 
+    @Test
+    fun testEPUBExport() {
+        val pages = (1..10).map {
+            ResourceItem(
+                file = Buffer().write(pageN(it).encodeToByteArray()),
+                extension = "html",
+                mediaType = "application/xhtml+xml"
+            )
+        }
+        val epub = EpubBuilder(cachePath.resolve("work")) {
+            metadata {
+                title("Test")
+                description("QWQ")
+                creator("kagg886")
+                language("zh-CN")
+            }
+
+            manifest {
+                addAll(pages)
+            }
+
+            spine {
+                for (i in pages.indices) {
+                    toc("Page $i", pages[i])
+                }
+            }
+        }
+        epub.writeTo("test.epub".toPath())
+    }
 }

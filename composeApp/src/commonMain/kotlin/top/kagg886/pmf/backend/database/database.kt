@@ -4,12 +4,13 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.dao.*
 
 @Database(
     entities = [IllustHistory::class, NovelHistory::class, DownloadItem::class, SearchHistory::class],
-    version = 5
+    version = BuildConfig.DATABASE_VERSION
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -27,22 +28,3 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
 
 val databasePath = dataPath.resolve("app.db")
 expect fun getDataBaseBuilder(): RoomDatabase.Builder<AppDatabase>
-
-//@Dao
-//interface TodoDao {
-//    @Insert
-//    suspend fun insert(item: TodoEntity)
-//
-//    @Query("SELECT count(*) FROM TodoEntity")
-//    suspend fun count(): Int
-//
-//    @Query("SELECT * FROM TodoEntity")
-//    fun getAllAsFlow(): Flow<List<TodoEntity>>
-//}
-//
-//@Entity
-//data class TodoEntity(
-//    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-//    val title: String,
-//    val content: String
-//)

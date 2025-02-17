@@ -420,7 +420,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             }
                         )
                         SelectionContainer {
-
                             HTMLRichText(
                                 html = illust.caption.ifEmpty { "没有简介" },
                                 style = MaterialTheme.typography.bodyMedium,

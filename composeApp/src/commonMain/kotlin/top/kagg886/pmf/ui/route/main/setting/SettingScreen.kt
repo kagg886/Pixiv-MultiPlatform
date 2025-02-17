@@ -27,11 +27,13 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
@@ -39,11 +41,10 @@ import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.ui.util.b
-import top.kagg886.pmf.ui.util.mb
+import top.kagg886.pmf.util.b
+import top.kagg886.pmf.util.mb
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
-import kotlin.concurrent.thread
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -107,6 +108,7 @@ class SettingScreen : Screen {
                 SettingsFileUpload(
                     title = { Text("设置主题") },
                     enabled = !inNight,
+                    extensions = listOf("zip","json"),
                     subTitle = {
                         AnimatedContent(
                             inNight
@@ -605,7 +607,9 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         byPassSni = it
-                    }
+                    },
+                    //TODO SNI bypass is disabled for Apple Platform
+                    enabled = currentPlatform !is Platform.Apple
                 )
 
 //                var customPixivImageHost by remember {
@@ -736,19 +740,6 @@ class SettingScreen : Screen {
                     },
                     onClick = {
                         scope.launch {
-                            throw RuntimeException("测试异常，请不要反馈。")
-                        }
-                    },
-                )
-                SettingsMenuLink(
-                    title = {
-                        Text("子线程抛出异常")
-                    },
-                    subtitle = {
-                        Text("调试用，没事别点")
-                    },
-                    onClick = {
-                        thread {
                             throw RuntimeException("测试异常，请不要反馈。")
                         }
                     },

@@ -21,6 +21,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.vinceglb.filekit.core.FileKit
 import kotlinx.coroutines.launch
+import okio.buffer
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.shareFile
@@ -31,6 +32,9 @@ import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.listFile
+import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.zip
 
 class DownloadScreen : Screen {
@@ -97,32 +101,13 @@ class DownloadScreen : Screen {
 
                                             it.progress == -1f && it.success -> {
                                                 Row {
-                                                    val scope = rememberCoroutineScope()
                                                     IconButton(
                                                         onClick = {
                                                             if (!it.downloadRootPath().exists()) {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
-                                                            scope.launch {
-                                                                val listFiles = it.downloadRootPath().listFiles()!!
-                                                                if (listFiles.size == 1) {
-                                                                    FileKit.saveFile(
-                                                                        bytes = listFiles[0].readBytes(),
-                                                                        baseName = it.illust.title,
-                                                                        extension = "png"
-                                                                    )
-                                                                    return@launch
-                                                                }
-                                                                FileKit.saveFile(
-                                                                    bytes = it.downloadRootPath().zip(
-                                                                        target = cachePath.resolve("share")
-                                                                            .resolve("${it.id}.zip")
-                                                                    ).readBytes(),
-                                                                    baseName = "${it.illust.title}(${it.id})",
-                                                                    extension = "zip"
-                                                                )
-                                                            }
+                                                            model.saveToExternalFile(it)
                                                         }
                                                     ) {
                                                         Icon(
@@ -136,19 +121,7 @@ class DownloadScreen : Screen {
                                                                 model.startDownload(it.illust)
                                                                 return@IconButton
                                                             }
-                                                            val listFiles = it.downloadRootPath().listFiles()!!
-                                                            if (listFiles.size == 1) {
-                                                                shareFile(
-                                                                    listFiles[0]
-                                                                )
-                                                                return@IconButton
-                                                            }
-                                                            shareFile(
-                                                                it.downloadRootPath().zip(
-                                                                    target = cachePath.resolve("share")
-                                                                        .resolve("${it.id}.zip")
-                                                                )
-                                                            )
+                                                            model.shareFile(it)
                                                         }
                                                     ) {
                                                         Icon(

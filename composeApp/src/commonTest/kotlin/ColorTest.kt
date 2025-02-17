@@ -1,9 +1,9 @@
 import androidx.compose.ui.graphics.Color
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.*
 import kotlinx.serialization.json.Json
-import org.junit.Test
 import top.kagg886.pmf.util.ColorAsStringSerializer
+import kotlin.math.roundToInt
+import kotlin.test.Test
 
 class ColorTest {
 
@@ -28,9 +28,11 @@ class ColorTest {
 
     @Test
     fun testColorFromString() {
+
+        fun Color.toFormatString() = "Color(r=${(red*255).roundToInt()}, g=${(green*255).roundToInt()}, b=${(blue*255).roundToInt()}, a=${alpha})"
         val a = "{\"color\":\"#0a141e\"}"
         val b = "{\"color\":\"#0a141e28\"}"
-        println(Json.decodeFromString<ColorWrapper>(a).color)
-        println(Json.decodeFromString<ColorWrapper>(b).color)
+        println(Json.decodeFromString<ColorWrapper>(a).color.toFormatString())
+        println(Json.decodeFromString<ColorWrapper>(b).color.toFormatString())
     }
 }
