@@ -14,6 +14,9 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+}
 
 dependencyResolutionManagement {
     repositories {
@@ -36,3 +39,10 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+
+//some API libraries was in here
+//sometimes it can't publish
+//other is fork from others
+include(":lib:chip-text-field")
+include(":lib:epub")
+include(":lib:okio-enhancement-util")

@@ -117,7 +117,7 @@ kotlin {
             implementation(libs.compose.settings.extended)
 
             //search-page-ui
-            implementation(libs.textfield.chip)
+            implementation(project(":lib:chip-text-field"))
 
             //webview
             api(libs.compose.webview.multiplatform)
@@ -144,6 +144,11 @@ kotlin {
             //logging
             implementation(libs.kermit)
 
+            //epub module
+            implementation(project(":lib:epub"))
+
+
+            implementation(project(":lib:okio-enhancement-util"))
 
             //zip files
             implementation(libs.korlibs.io)

@@ -1,9 +1,7 @@
 package top.kagg886.pmf.util
 
-import co.touchlab.kermit.Logger
 import korlibs.io.file.std.createZipFromTreeTo
 import korlibs.io.file.std.rootLocalVfs
-import korlibs.io.file.std.uniVfs
 import kotlinx.coroutines.runBlocking
 import okio.*
 
@@ -54,7 +52,6 @@ fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolv
         vfs.createZipFromTreeTo(
             zipFile = rootLocalVfs[target.absolutePath().toString()]
         )
-        Logger.d("zip complete! target: $target")
         target
     }
 }

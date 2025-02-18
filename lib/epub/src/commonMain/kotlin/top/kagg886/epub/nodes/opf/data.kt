@@ -1,6 +1,5 @@
 package top.kagg886.epub.nodes.opf
 
-import korlibs.io.serialization.xml.Xml
 import korlibs.io.serialization.xml.XmlBuilder
 import korlibs.io.serialization.xml.buildXml
 import top.kagg886.epub.RootScope
@@ -17,7 +16,7 @@ import top.kagg886.epub.RootScope
  *    </spine>
  * </package>
  */
-inline fun RootScope.pkg(crossinline block: XmlBuilder.() -> Unit) = buildXml(
+internal inline fun RootScope.pkg(crossinline block: XmlBuilder.() -> Unit) = buildXml(
     rootTag = "package",
     props = arrayOf(
         "xmlns" to "http://www.idpf.org/2007/opf",
@@ -39,32 +38,32 @@ inline fun RootScope.pkg(crossinline block: XmlBuilder.() -> Unit) = buildXml(
  * <meta name="cover" content="image_1" />
  * </metadata>
  */
-inline fun XmlBuilder.description(text:String) = node(
+internal inline fun XmlBuilder.description(text:String) = node(
     tag = "dc:description",
     block = { text(text) }
 )
-inline fun XmlBuilder.metadata(block: XmlBuilder.() -> Unit) = node(
+internal inline fun XmlBuilder.metadata(block: XmlBuilder.() -> Unit) = node(
     tag = "metadata",
     props = arrayOf(
         "xmlns:dc" to "http://purl.org/dc/elements/1.1/"
     ),
     block = block
 )
-inline fun XmlBuilder.dcMeta(name:String, value: String) = node(
+internal inline fun XmlBuilder.dcMeta(name:String, value: String) = node(
     tag = "meta",
     props = arrayOf(
         "property" to name,
         "content" to value
     ),
 )
-inline fun XmlBuilder.dcDescription(text:String) = dcElement(tag = "description", value = text)
-inline fun XmlBuilder.dcTitle(title: String) = dcElement(tag = "title", id = "title", value = title)
-inline fun XmlBuilder.dcCreator(creator: String) = dcElement(tag = "creator", value = creator)
-inline fun XmlBuilder.dcPublisher(publisher: String) = dcElement(tag = "publisher", value = publisher)
-inline fun XmlBuilder.dcRights(rights: String) = dcElement(tag = "rights", value = rights)
-inline fun XmlBuilder.dcIdentifier(identifier: String) = dcElement(tag = "identifier", id = "p$identifier", value = identifier)
-inline fun XmlBuilder.dcLanguage(language: String) = dcElement(tag = "language", value = language)
-inline fun XmlBuilder.dcElement(tag: String, id: String? = null, value: String) = node(
+internal inline fun XmlBuilder.dcDescription(text:String) = dcElement(tag = "description", value = text)
+internal inline fun XmlBuilder.dcTitle(title: String) = dcElement(tag = "title", id = "title", value = title)
+internal inline fun XmlBuilder.dcCreator(creator: String) = dcElement(tag = "creator", value = creator)
+internal inline fun XmlBuilder.dcPublisher(publisher: String) = dcElement(tag = "publisher", value = publisher)
+internal inline fun XmlBuilder.dcRights(rights: String) = dcElement(tag = "rights", value = rights)
+internal inline fun XmlBuilder.dcIdentifier(identifier: String) = dcElement(tag = "identifier", id = "p$identifier", value = identifier)
+internal inline fun XmlBuilder.dcLanguage(language: String) = dcElement(tag = "language", value = language)
+internal inline fun XmlBuilder.dcElement(tag: String, id: String? = null, value: String) = node(
     tag = "dc:$tag",
     props = id?.let { arrayOf("id" to id) } ?: emptyArray(),
     block = { text(value) }
@@ -82,12 +81,12 @@ inline fun XmlBuilder.dcElement(tag: String, id: String? = null, value: String) 
  *     <item id="titlepage" href="titlepage.xhtml" media-type="application/xhtml+xml" />
  * </manifest>
  */
-inline fun XmlBuilder.manifest(block: XmlBuilder.() -> Unit) = node(
+internal inline fun XmlBuilder.manifest(block: XmlBuilder.() -> Unit) = node(
     tag = "manifest",
     block = block
 )
 
-inline fun XmlBuilder.item(id: String, properties: String? = null, href: String, mediaType: String) = node(
+internal inline fun XmlBuilder.item(id: String, properties: String? = null, href: String, mediaType: String) = node(
     tag = "item",
     props = buildList {
         add("id" to id)
@@ -123,13 +122,13 @@ inline fun XmlBuilder.item(id: String, properties: String? = null, href: String,
  *         <itemref linear="yes" idref="ncx" />
  *     </spine>
  */
-inline fun XmlBuilder.spine(toc: String? = null, block: XmlBuilder.() -> Unit) = node(
+internal inline fun XmlBuilder.spine(toc: String? = null, block: XmlBuilder.() -> Unit) = node(
     tag = "spine",
     props = toc?.let { arrayOf("toc" to it) } ?: emptyArray(),
     block = block
 )
 
-inline fun XmlBuilder.itemRef(idref: String, linear: Boolean = true) = node(
+internal inline fun XmlBuilder.itemRef(idref: String, linear: Boolean = true) = node(
     tag = "itemref",
     props = buildList {
         add("idref" to idref)
