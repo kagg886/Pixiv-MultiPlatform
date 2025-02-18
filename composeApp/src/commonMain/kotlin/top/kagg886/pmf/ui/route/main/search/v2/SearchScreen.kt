@@ -48,6 +48,7 @@ import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
+import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
@@ -443,7 +444,22 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                                 }
                                             )
                                         }
+                                    }
 
+                                    item {
+                                        if (state.series != null) {
+                                            ListItem(
+                                                overlineContent = {
+                                                    Text("找到小说系列")
+                                                },
+                                                headlineContent = {
+                                                    Text(state.series.novelSeriesDetail.title)
+                                                },
+                                                modifier = Modifier.clickable {
+                                                    nav.push(NovelSeriesScreen(state.series.novelSeriesDetail.id))
+                                                }
+                                            )
+                                        }
                                     }
 
                                     item {

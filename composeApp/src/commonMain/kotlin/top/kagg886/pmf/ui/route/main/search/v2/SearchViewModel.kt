@@ -17,14 +17,15 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.getIllustDetail
-import top.kagg886.pixko.module.novel.Novel
-import top.kagg886.pixko.module.novel.getNovelDetail
+import top.kagg886.pixko.module.novel.*
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.search.SearchTarget.*
 import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.getRecommendTags
+import top.kagg886.pixko.module.user.SeriesResult
 import top.kagg886.pixko.module.user.UserInfo
+import top.kagg886.pixko.module.user.getNovelSeries
 import top.kagg886.pixko.module.user.getUserInfo
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
@@ -172,7 +173,15 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
         runOn<SearchViewState.SearchPanel> {
             with(text.toLongOrNull()) {
                 if (this != null && state.keyword.value.isEmpty()) {
-                    val (illust, novel, author) = coroutineScope {
+
+                    data class Result(
+                        val illust: Illust?,
+                        val novel: Novel?,
+                        val author: UserInfo?,
+                        val series: SeriesInfo?
+                    )
+
+                    val (illust, novel, author, series) = coroutineScope {
                         val a1 = async {
                             try {
                                 client.getIllustDetail(this@with)
@@ -196,7 +205,16 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                                 null
                             }
                         }
-                        Triple(a1.await(), a2.await(), a3.await())
+
+                        val a4 = async {
+                            try {
+                                client.getNovelSeries(this@with.toInt())
+                            } catch (e: Exception) {
+                                null
+                            }
+                        }
+
+                        Result(a1.await(), a2.await(), a3.await(),a4.await())
                     }
 
                     reduce {
@@ -204,6 +222,7 @@ class SearchViewModel(param: SearchParam) : ViewModel(), ScreenModel, KoinCompon
                             illust = illust,
                             novel = novel,
                             user = author,
+                            series = series,
                             keyword = state.keyword,
                             text = state.text,
                             sort = state.sort,
@@ -402,6 +421,7 @@ sealed interface SearchViewState {
             val illust: Illust?,
             val novel: Novel?,
             val user: UserInfo?,
+            val series: SeriesInfo?,
 
 
             override val keyword: StateFlow<List<String>>,

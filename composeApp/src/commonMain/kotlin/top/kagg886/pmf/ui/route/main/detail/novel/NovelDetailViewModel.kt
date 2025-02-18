@@ -1,6 +1,7 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.fleeksoft.ksoup.nodes.Document
 import io.ktor.client.*
@@ -157,7 +158,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             )
 
             val inlineImages = state.nodeMap.map {
-                async(Dispatchers.IO) {
+                viewModelScope.async(Dispatchers.IO) {
                     when (it) {
                         is NovelNodeElement.PixivImage -> {
                             it to ResourceItem(

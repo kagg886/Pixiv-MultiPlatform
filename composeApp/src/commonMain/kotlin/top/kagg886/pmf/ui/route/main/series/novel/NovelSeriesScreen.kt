@@ -6,9 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -19,6 +17,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.SeriesDetail
+import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.openBrowser
 
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -32,6 +32,14 @@ class NovelSeriesScreen(private val id: Int) : Screen {
     override fun Content() {
         val model = rememberScreenModel {
             NovelSeriesScreenModel(id)
+        }
+        val snack = LocalSnackBarHost.current
+        model.collectSideEffect {
+            when (it) {
+                is NovelSeriesScreenSideEffect.Toast -> {
+                    snack.showSnackbar(it.msg)
+                }
+            }
         }
         val state by model.collectAsState()
         NovelSeriesScreenContent(state, model)
@@ -100,6 +108,28 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                                     null
                                 )
                             }
+                        },
+                        actions = {
+                            var expanded by remember { mutableStateOf(false) }
+                            IconButton(
+                                onClick = {
+                                    expanded = true
+                                },
+                            ) {
+                                Icon(Icons.Default.Menu, null)
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("在浏览器中打开") },
+                                    onClick = {
+                                        openBrowser("https://www.pixiv.net/novel/series/${id}")
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     )
                 }
@@ -153,12 +183,21 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                     item {
                         Spacer(Modifier.height(16.dp))
                         //TODO 添加关注
+                        val model = rememberScreenModel {
+                            NovelSeriesScreenModel(id)
+                        }
                         AuthorCard(
                             modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
                                 .padding(horizontal = 8.dp),
                             info.user,
-                            onFavoriteClick = {},
-                            onFavoritePrivateClick = {}
+                            onFavoriteClick = {
+                                val job = if (it) model.followUser(false) else model.unFollowUser()
+                                job.join()
+                            },
+                            onFavoritePrivateClick = {
+                                val job = model.followUser(true)
+                                job.join()
+                            }
                         )
                     }
 
