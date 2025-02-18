@@ -75,7 +75,7 @@ kotlin {
     }
 
     sourceSets.named("commonMain").configure {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+//        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
     sourceSets {
         commonMain.dependencies {
@@ -266,6 +266,7 @@ compose.desktop {
     application {
         mainClass = "${pkgName}.MainKt"
         nativeDistributions {
+            includeAllModules = true
             targetFormats(
                 *buildList {
                     add(TargetFormat.Msi)
