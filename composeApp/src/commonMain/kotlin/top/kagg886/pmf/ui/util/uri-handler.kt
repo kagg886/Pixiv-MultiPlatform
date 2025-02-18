@@ -70,7 +70,7 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                             "illusts" -> nav.push(IllustDetailScreen.PreFetch(uri.encodedPath.substring(1).toLong()))
                             "users" -> nav.push(AuthorScreen(uri.encodedPath.substring(1).toInt()))
                         }
-                        return@runCatching false
+                        return@runCatching true
                     }
                     false
                 }
