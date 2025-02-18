@@ -33,6 +33,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -66,8 +69,14 @@ class SearchScreen(param:SerializableWrapper<SearchParam>) : Screen {
     }
 }
 
+@Serializable
+@Polymorphic
 sealed interface SearchParam {
+    @Serializable
+    @SerialName("empty")
     data object EmptySearch : SearchParam
+    @Serializable
+    @SerialName("keyword")
     data class KeyWordSearch(
         val tag: List<String>,
         val sort: SearchSort = SearchSort.DATE_DESC,
