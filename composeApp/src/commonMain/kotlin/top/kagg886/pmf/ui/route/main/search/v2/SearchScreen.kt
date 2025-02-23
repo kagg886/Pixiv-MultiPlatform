@@ -33,6 +33,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.serialization.Polymorphic
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -45,6 +48,7 @@ import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
+import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.wrap
@@ -66,8 +70,14 @@ class SearchScreen(param:SerializableWrapper<SearchParam>) : Screen {
     }
 }
 
+@Serializable
+@Polymorphic
 sealed interface SearchParam {
+    @Serializable
+    @SerialName("empty")
     data object EmptySearch : SearchParam
+    @Serializable
+    @SerialName("keyword")
     data class KeyWordSearch(
         val tag: List<String>,
         val sort: SearchSort = SearchSort.DATE_DESC,
@@ -434,7 +444,22 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                                 }
                                             )
                                         }
+                                    }
 
+                                    item {
+                                        if (state.series != null) {
+                                            ListItem(
+                                                overlineContent = {
+                                                    Text("找到小说系列")
+                                                },
+                                                headlineContent = {
+                                                    Text(state.series.novelSeriesDetail.title)
+                                                },
+                                                modifier = Modifier.clickable {
+                                                    nav.push(NovelSeriesScreen(state.series.novelSeriesDetail.id))
+                                                }
+                                            )
+                                        }
                                     }
 
                                     item {

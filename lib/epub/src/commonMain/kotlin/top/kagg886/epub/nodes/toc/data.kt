@@ -16,7 +16,7 @@ import top.kagg886.epub.RootScope
  *     </navMap>
  * </ncx>
  */
-inline fun RootScope.ncx(crossinline block: XmlBuilder.() -> Unit) = buildXml(
+internal inline fun RootScope.ncx(crossinline block: XmlBuilder.() -> Unit) = buildXml(
     rootTag = "ncx",
     props = arrayOf(
         "xmlns" to "http://www.daisy.org/z3986/2005/ncx/",
@@ -26,31 +26,31 @@ inline fun RootScope.ncx(crossinline block: XmlBuilder.() -> Unit) = buildXml(
     block = block
 ).toString()
 
-inline fun XmlBuilder.head(crossinline block: XmlBuilder.() -> Unit) = node(
+internal inline fun XmlBuilder.head(crossinline block: XmlBuilder.() -> Unit) = node(
     tag = "head",
     block = block,
 )
 
-inline fun XmlBuilder.docTitle(text: String) = node(
+internal inline fun XmlBuilder.docTitle(text: String) = node(
     tag = "docTitle",
     block = {
         text(text)
     },
 )
 
-inline fun XmlBuilder.docAuthor(text: String) = node(
+internal inline fun XmlBuilder.docAuthor(text: String) = node(
     tag = "docAuthor",
     block = {
         text(text)
     },
 )
 
-inline fun XmlBuilder.navMap(crossinline block: XmlBuilder.() -> Unit) = node(
+internal inline fun XmlBuilder.navMap(crossinline block: XmlBuilder.() -> Unit) = node(
     tag = "navMap",
     block = block,
 )
 
-inline fun XmlBuilder.navPoint(
+internal inline fun XmlBuilder.navPoint(
     id: String,
     playOrder: String,
     label: String,

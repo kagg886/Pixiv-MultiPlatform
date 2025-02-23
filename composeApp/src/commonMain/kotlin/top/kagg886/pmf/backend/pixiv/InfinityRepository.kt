@@ -22,7 +22,7 @@ abstract class InfinityRepository<T>(private val context: CoroutineContext = Emp
                     }
                     container.addAll(new)
                 }
-                yield(container.removeFirst())
+                yield(container.removeAt(0))
             }
             noMoreData = true
         }
