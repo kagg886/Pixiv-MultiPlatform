@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -127,6 +128,16 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                     }
                                 ) {
                                     Text("确定")
+                                }
+                            },
+                            dismissButton = {
+                                val uri = LocalUriHandler.current
+                                TextButton(
+                                    onClick = {
+                                        uri.openUri("https://pmf.kagg886.top/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
+                                    }
+                                ) {
+                                    Text("帮助")
                                 }
                             },
                             title = {
