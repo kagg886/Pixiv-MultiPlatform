@@ -300,8 +300,18 @@ compose.desktop {
         buildTypes.release.proguard {
             isEnabled = false
         }
+
+        //release mode
+        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
+
+        if (System.getProperty("os.name").contains("Mac")) {
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+        }
         afterEvaluate {
             tasks.withType<JavaExec> {
+                //debug mode
                 jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
                 jvmArgs(
                     "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED"
