@@ -319,7 +319,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                         val clipboard = LocalClipboardManager.current
                         val theme = MaterialTheme.colorScheme
-                        ListItem(
+                        SupportListItem(
                             overlineContent = {
                                 Text(
                                     text = buildAnnotatedString {
@@ -417,16 +417,17 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         Text("下载")
                                     }
                                 }
+                            },
+                            supportingContent = {
+                                SelectionContainer {
+                                    HTMLRichText(
+                                        html = illust.caption.ifEmpty { "没有简介" },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = ListItemDefaults.colors().supportingTextColor,
+                                    )
+                                }
                             }
                         )
-                        SelectionContainer {
-                            HTMLRichText(
-                                html = illust.caption.ifEmpty { "没有简介" },
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = ListItemDefaults.colors().supportingTextColor,
-                                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
-                            )
-                        }
                     }
                 }
                 item {

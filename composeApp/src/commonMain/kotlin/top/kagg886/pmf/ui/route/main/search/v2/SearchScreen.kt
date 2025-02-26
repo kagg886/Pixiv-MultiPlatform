@@ -27,7 +27,6 @@ import cafe.adriel.voyager.navigator.internal.BackHandler
 import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
-import com.dokar.chiptextfield.rememberChipTextFieldState
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -36,6 +35,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -268,7 +268,11 @@ private fun SearchScreenContent(model: SearchViewModel, state: SearchViewState) 
                                 state = chipState,
                                 value = text,
                                 onValueChange = { state.text.tryEmit(it) },
-                                onSubmit = { null },
+                                onSubmit = {
+                                    model.selectTag(Tag(it))
+                                    state.text.tryEmit("")
+                                    Chip(it)
+                                },
                                 leadingIcon = {
                                     IconButton(
                                         onClick = {

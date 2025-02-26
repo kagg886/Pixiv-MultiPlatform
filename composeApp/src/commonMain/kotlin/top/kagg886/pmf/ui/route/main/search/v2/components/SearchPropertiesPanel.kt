@@ -16,6 +16,7 @@ import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.trending.TrendingTags
+import top.kagg886.pmf.ui.component.SupportListItem
 import top.kagg886.pmf.ui.route.main.search.v2.toDisplayString
 
 sealed interface TagPropertiesState {
@@ -81,7 +82,7 @@ fun SearchPropertiesPanel(
 
             },
         )
-        ListItem(
+        SupportListItem(
             trailingContent = {
                 IconButton(
                     onClick = { onTagRequestRefresh() },
