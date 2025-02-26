@@ -80,7 +80,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             //kotlin stdlib
-            implementation(libs.kotlin.reflect)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
@@ -164,7 +163,6 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.kxml2)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
         }
