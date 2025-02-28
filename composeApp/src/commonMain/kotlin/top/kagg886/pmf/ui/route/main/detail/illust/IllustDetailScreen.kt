@@ -26,6 +26,10 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import com.github.panpf.sketch.AsyncImageState
+import com.github.panpf.sketch.rememberAsyncImageState
+import com.github.panpf.sketch.request.ImageResult
+import com.github.panpf.sketch.size
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -274,11 +278,19 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp)) {
                 items(show) {
                     Spacer(Modifier.height(16.dp))
+                    val state = rememberAsyncImageState()
+                    val ratio = remember(state.result) {
+                        if (state.result is ImageResult.Success) {
+                            val info = (state.result as ImageResult.Success).imageInfo
+                            return@remember info.width.toFloat() / info.height.toFloat()
+                        }
+                        illust.width.toFloat() / illust.height
+                    }
                     ProgressedAsyncImage(
                         url = it,
-                        contentScale = ContentScale.FillWidth,
+                        state = state,
                         modifier = Modifier.fillMaxWidth()
-                            .aspectRatio(illust.width.toFloat() / illust.height)
+                            .aspectRatio(ratio)
                             .clickable {
                                 startIndex = img.indexOf(it)
                                 preview = true

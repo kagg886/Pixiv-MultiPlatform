@@ -9,12 +9,9 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQuality
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import com.github.panpf.sketch.AsyncImage
-import com.github.panpf.sketch.LocalPlatformContext
+import com.github.panpf.sketch.*
 import com.github.panpf.sketch.ability.progressIndicator
 import com.github.panpf.sketch.painter.rememberRingProgressPainter
-import com.github.panpf.sketch.rememberAsyncImagePainter
-import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ComposableImageRequest
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.InternalResourceApi
@@ -34,7 +31,7 @@ fun painterResource(drawableResource: DrawableResource): Painter {
 fun ProgressedAsyncImage(
     url: String?,
     modifier: Modifier = Modifier,
-
+    state:AsyncImageState = rememberAsyncImageState(),
     alignment: Alignment = Alignment.Center,
     contentScale: ContentScale = ContentScale.Fit,
     alpha: Float = DefaultAlpha,
@@ -43,15 +40,14 @@ fun ProgressedAsyncImage(
     clipToBounds: Boolean = true,
 ) {
     val progressPainter = rememberRingProgressPainter()
-    val imageState = rememberAsyncImageState()
     AsyncImage(
         request = ComposableImageRequest(url) {
             crossfade()
+            resizeOnDraw()
         },
         contentDescription = null,
-        state = imageState,
-        modifier = modifier
-            .progressIndicator(imageState, progressPainter),
+        state = state,
+        modifier = modifier.progressIndicator(state, progressPainter),
         alignment = alignment,
         contentScale = contentScale,
         alpha = alpha,
