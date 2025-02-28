@@ -12,11 +12,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.alorma.compose.settings.ui.SettingsMenuLink
+import com.dokar.chiptextfield.util.runIf
 import com.github.panpf.sketch.LocalPlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.cache.downloadCacheKey
@@ -203,7 +206,19 @@ fun ImagePreviewer(
 
             }
 
-            Card(Modifier.align(Alignment.BottomCenter).padding(bottom = 50.dp)) {
+            Card(
+                Modifier.align(Alignment.BottomCenter).graphicsLayer {
+                    this.alpha = 0.6f
+                }.run {
+                    if (currentPlatform is Platform.Android) {
+                        //can't execute smart cast
+                        if ((currentPlatform as Platform.Android).version == 35) {
+                            return@run this.padding(bottom = 90.dp)
+                        }
+                    }
+                    this.padding(bottom = 10.dp)
+                }
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val scope = rememberCoroutineScope()
                     IconButton(

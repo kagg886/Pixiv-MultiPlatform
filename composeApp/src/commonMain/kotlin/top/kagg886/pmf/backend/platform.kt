@@ -2,9 +2,9 @@ package top.kagg886.pmf.backend
 
 sealed class Platform(open val name: String) {
 
-    sealed class Android : Platform("android") {
-        data object AndroidPhone : Android()
-        data object AndroidPad : Android()
+    sealed class Android(open val version: Int) : Platform("android") {
+        data class AndroidPhone(override val version: Int) : Android(version)
+        data class AndroidPad(override val version: Int) : Android(version)
     }
 
     sealed class Desktop(override val name: String) : Platform(name) {
