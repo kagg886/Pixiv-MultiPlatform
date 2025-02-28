@@ -279,7 +279,12 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 items(show) {
                     Spacer(Modifier.height(16.dp))
                     val state = rememberAsyncImageState()
-                    val ratio = remember(state.result) {
+                    val haveRatio = remember {
+                        derivedStateOf {
+                            state.result is ImageResult.Success
+                        }
+                    }
+                    val ratio = remember(haveRatio) {
                         if (state.result is ImageResult.Success) {
                             val info = (state.result as ImageResult.Success).imageInfo
                             return@remember info.width.toFloat() / info.height.toFloat()
