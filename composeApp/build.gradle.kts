@@ -125,6 +125,7 @@ kotlin {
             implementation(libs.sketch.compose)
             implementation(libs.sketch.svg)
             implementation(libs.sketch.resources)
+            implementation(libs.sketch.animated.gif)
             implementation(libs.sketch.extensions.compose)
             implementation(libs.sketch.http.ktor3)
             implementation(libs.zoomimage.compose.sketch)

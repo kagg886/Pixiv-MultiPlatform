@@ -3,6 +3,7 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -13,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -26,10 +26,10 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.AsyncImageState
+import com.github.panpf.sketch.fetch.newBase64Uri
 import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ImageResult
-import com.github.panpf.sketch.size
+import com.github.panpf.sketch.util.MimeTypeMap
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -51,6 +51,7 @@ import top.kagg886.pmf.ui.route.main.search.v2.SearchParam
 import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.absolutePath
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
@@ -132,10 +133,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             is IllustDetailViewState.Success -> {
                 if (useWideScreenMode) {
-                    WideScreenIllustDetail(state.illust)
+                    WideScreenIllustDetail(state.illust,state)
                     return
                 }
-                IllustDetail(state.illust)
+                IllustDetail(state.illust,state)
             }
         }
 
@@ -178,7 +179,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    private fun WideScreenIllustDetail(illust: Illust) {
+    private fun WideScreenIllustDetail(illust: Illust,illustState: IllustDetailViewState.Success) {
         Scaffold(
             topBar = {
                 IllustTopAppBar(illust)
@@ -186,7 +187,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
-                    IllustPreview(illust)
+                    when(illustState) {
+                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust, illustState)
+                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
+                    }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     IllustComment(illust)
@@ -197,7 +201,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     @OptIn(InternalVoyagerApi::class, InternalVoyagerApi::class)
     @Composable
-    private fun IllustDetail(illust: Illust) {
+    private fun IllustDetail(illust: Illust,illustState: IllustDetailViewState.Success) {
         val state = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
@@ -221,48 +225,237 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                    IllustPreview(illust)
+                    when(val s = illustState) {
+                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust,s)
+                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
+                    }
                 }
             }
         }
+    }
 
+    @Composable
+    fun GIFPreview(illust: Illust, state: IllustDetailViewState.Success.GIF) {
+        Box(Modifier.fillMaxSize()) {
+            val scroll = rememberLazyListState()
+
+            val controller = remember {
+                keyboardScrollerController(scroll) {
+                    scroll.layoutInfo.viewportSize.height.toFloat()
+                }
+            }
+
+            KeyListenerFromGlobalPipe(controller)
+
+            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
+                item {
+                    ProgressedAsyncImage(
+                        url = newBase64Uri("image/gif",state.data),
+                        modifier = Modifier.fillMaxWidth().aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
+                    )
+                }
+
+                previewCommonItem(illust)
+            }
+
+        }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
+    fun LazyListScope.previewCommonItem(illust: Illust) {
+        item {
+            val model = rememberScreenModel<IllustDetailViewModel>(key) {
+                error("not provided")
+            }
+            Spacer(Modifier.height(16.dp))
+            AuthorCard(
+                modifier = Modifier.fillMaxWidth(),
+                user = illust.user,
+                onFavoritePrivateClick = {
+                    model.followUser(true).join()
+                }
+            ) {
+                if (it) {
+                    model.followUser().join()
+                } else {
+                    model.unFollowUser().join()
+                }
+            }
+        }
+        item {
+            val model = rememberScreenModel<IllustDetailViewModel>(key) {
+                error("not provided")
+            }
+            Spacer(Modifier.height(16.dp))
+            OutlinedCard(modifier = Modifier.fillMaxWidth()) {
+                val clipboard = LocalClipboardManager.current
+                val theme = MaterialTheme.colorScheme
+                SupportListItem(
+                    overlineContent = {
+                        Text(
+                            text = buildAnnotatedString {
+                                withClickable(theme, illust.id.toString()) {
+                                    clipboard.setText(
+                                        buildAnnotatedString {
+                                            append(illust.id.toString())
+                                        }
+                                    )
+                                    model.intent {
+                                        postSideEffect(IllustDetailSideEffect.Toast("复制pid成功"))
+                                    }
+                                }
+                            },
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    },
+                    headlineContent = {
+                        Text(
+                            text = buildAnnotatedString {
+                                withClickable(theme, illust.title) {
+                                    clipboard.setText(
+                                        buildAnnotatedString {
+                                            append(illust.title)
+                                        }
+                                    )
+                                    model.intent {
+                                        postSideEffect(IllustDetailSideEffect.Toast("复制标题成功"))
+                                    }
+                                }
+                            },
+                        )
+                    },
+                    trailingContent = {
+                        Row(
+                            Modifier.size(120.dp, 68.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(
+                                    imageVector = View,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                                Text(illust.totalView.toString())
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                var betterFavoriteDialog by remember {
+                                    mutableStateOf(false)
+                                }
+                                if (betterFavoriteDialog) {
+                                    TagFavoriteDialog(
+                                        tags = illust.tags,
+                                        title = { Text("高级收藏设置") },
+                                        confirm = { tags, publicity ->
+                                            model.likeIllust(publicity, tags).join()
+                                            betterFavoriteDialog = false
+                                        },
+                                        cancel = {
+                                            betterFavoriteDialog = false
+                                        }
+                                    )
+                                }
+
+                                FavoriteButton(
+                                    isFavorite = illust.isBookMarked,
+                                    modifier = Modifier.size(30.dp),
+                                    onDoubleClick = {
+                                        betterFavoriteDialog = true
+                                    }
+                                ) {
+                                    if (it == FavoriteState.Favorite) {
+                                        model.likeIllust().join()
+                                        return@FavoriteButton
+                                    }
+                                    if (it == FavoriteState.NotFavorite) {
+                                        model.disLikeIllust().join()
+                                        return@FavoriteButton
+                                    }
+                                }
+                                Text(illust.totalBookmarks.toString())
+                            }
+                            val downloadModel = koinScreenModel<DownloadScreenModel>()
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                IconButton(
+                                    onClick = {
+                                        downloadModel.startDownload(illust)
+                                    },
+                                    enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
+                                    modifier = Modifier.size(30.dp)
+                                ) {
+                                    Icon(Download, null)
+                                }
+                                Text("下载")
+                            }
+                        }
+                    },
+                    supportingContent = {
+                        SelectionContainer {
+                            HTMLRichText(
+                                html = illust.caption.ifEmpty { "没有简介" },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ListItemDefaults.colors().supportingTextColor,
+                            )
+                        }
+                    }
+                )
+            }
+        }
+        item {
+            Spacer(Modifier.height(16.dp))
+            OutlinedCard {
+                ListItem(
+                    overlineContent = {
+                        Text("标签")
+                    },
+                    headlineContent = {
+                        FlowRow {
+                            val nav = LocalNavigator.currentOrThrow
+                            for (tag in illust.tags) {
+                                AssistChip(
+                                    modifier = Modifier.padding(4.dp),
+                                    onClick = {
+                                        nav.push(
+                                            SearchScreen(
+                                                param = SearchParam.KeyWordSearch(listOf(tag.name))
+                                            )
+                                        )
+                                    },
+                                    label = {
+                                        Column {
+                                            Text(tag.name, style = MaterialTheme.typography.labelMedium)
+                                            tag.translatedName?.let {
+                                                Text(it, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
+                    }
+                )
+            }
+        }
+        item {
+            Spacer(Modifier.height(16.dp))
+            OutlinedCard {
+                ListItem(
+                    overlineContent = {
+                        Text("发布日期")
+                    },
+                    headlineContent = {
+                        Text(
+                            illust.createTime.toReadableString()
+                        )
+                    }
+                )
+            }
+        }
+    }
+
     @Composable
     private fun IllustPreview(illust: Illust) {
-        val img by remember(illust.hashCode()) {
-            mutableStateOf(
-                illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!
-            )
-        }
-        val nav = LocalNavigator.currentOrThrow
-        val model = rememberScreenModel<IllustDetailViewModel>(key) {
-            error("not provided")
-        }
-
-        var preview by remember { mutableStateOf(false) }
-        var startIndex by remember { mutableStateOf(0) }
-
-        if (preview) {
-            ImagePreviewer(
-                onDismiss = { preview = false },
-                url = img,
-                modifier = Modifier.fillMaxSize(),
-                startIndex = startIndex
-            )
-        }
-        val needExpand by remember {
-            derivedStateOf { img.size > 3 }
-        }
-        var expand by remember {
-            mutableStateOf(false)
-        }
-
-        val show = remember(expand) {
-            if (expand) img else img.take(3)
-        }
-
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
 
@@ -275,8 +468,35 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             KeyListenerFromGlobalPipe(controller)
 
 
-            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp)) {
-                items(show) {
+            var expand by remember {
+                mutableStateOf(false)
+            }
+            val img by remember(illust.hashCode(), expand) {
+                mutableStateOf(
+                    illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!.let {
+                        if (!expand) it.take(3) else it
+                    }
+                )
+            }
+
+
+            var preview by remember { mutableStateOf(false) }
+            var startIndex by remember { mutableStateOf(0) }
+            if (preview) {
+                ImagePreviewer(
+                    onDismiss = { preview = false },
+                    url = img,
+                    modifier = Modifier.fillMaxSize(),
+                    startIndex = startIndex
+                )
+            }
+            val needExpand by remember {
+                derivedStateOf { img.size > 3 }
+            }
+
+
+            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
+                items(img) {
                     Spacer(Modifier.height(16.dp))
                     val state = rememberAsyncImageState()
                     val haveRatio = remember {
@@ -315,192 +535,8 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         }
                     }
                 }
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    AuthorCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        user = illust.user,
-                        onFavoritePrivateClick = {
-                            model.followUser(true).join()
-                        }
-                    ) {
-                        if (it) {
-                            model.followUser().join()
-                        } else {
-                            model.unFollowUser().join()
-                        }
-                    }
-                }
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                        val clipboard = LocalClipboardManager.current
-                        val theme = MaterialTheme.colorScheme
-                        SupportListItem(
-                            overlineContent = {
-                                Text(
-                                    text = buildAnnotatedString {
-                                        withClickable(theme, illust.id.toString()) {
-                                            clipboard.setText(
-                                                buildAnnotatedString {
-                                                    append(illust.id.toString())
-                                                }
-                                            )
-                                            model.intent {
-                                                postSideEffect(IllustDetailSideEffect.Toast("复制pid成功"))
-                                            }
-                                        }
-                                    },
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            },
-                            headlineContent = {
-                                Text(
-                                    text = buildAnnotatedString {
-                                        withClickable(theme, illust.title) {
-                                            clipboard.setText(
-                                                buildAnnotatedString {
-                                                    append(illust.title)
-                                                }
-                                            )
-                                            model.intent {
-                                                postSideEffect(IllustDetailSideEffect.Toast("复制标题成功"))
-                                            }
-                                        }
-                                    },
-                                )
-                            },
-                            trailingContent = {
-                                Row(
-                                    Modifier.size(120.dp, 68.dp),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            imageVector = View,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(30.dp)
-                                        )
-                                        Text(illust.totalView.toString())
-                                    }
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        var betterFavoriteDialog by remember {
-                                            mutableStateOf(false)
-                                        }
-                                        if (betterFavoriteDialog) {
-                                            TagFavoriteDialog(
-                                                tags = illust.tags,
-                                                title = { Text("高级收藏设置") },
-                                                confirm = { tags, publicity ->
-                                                    model.likeIllust(publicity, tags).join()
-                                                    betterFavoriteDialog = false
-                                                },
-                                                cancel = {
-                                                    betterFavoriteDialog = false
-                                                }
-                                            )
-                                        }
 
-                                        FavoriteButton(
-                                            isFavorite = illust.isBookMarked,
-                                            modifier = Modifier.size(30.dp),
-                                            onDoubleClick = {
-                                                betterFavoriteDialog = true
-                                            }
-                                        ) {
-                                            if (it == FavoriteState.Favorite) {
-                                                model.likeIllust().join()
-                                                return@FavoriteButton
-                                            }
-                                            if (it == FavoriteState.NotFavorite) {
-                                                model.disLikeIllust().join()
-                                                return@FavoriteButton
-                                            }
-                                        }
-                                        Text(illust.totalBookmarks.toString())
-                                    }
-                                    val downloadModel = koinScreenModel<DownloadScreenModel>()
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        IconButton(
-                                            onClick = {
-                                                downloadModel.startDownload(illust)
-                                            },
-                                            enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
-                                            modifier = Modifier.size(30.dp)
-                                        ) {
-                                            Icon(Download, null)
-                                        }
-                                        Text("下载")
-                                    }
-                                }
-                            },
-                            supportingContent = {
-                                SelectionContainer {
-                                    HTMLRichText(
-                                        html = illust.caption.ifEmpty { "没有简介" },
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = ListItemDefaults.colors().supportingTextColor,
-                                    )
-                                }
-                            }
-                        )
-                    }
-                }
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedCard {
-                        ListItem(
-                            overlineContent = {
-                                Text("标签")
-                            },
-                            headlineContent = {
-                                FlowRow {
-                                    for (tag in illust.tags) {
-                                        AssistChip(
-                                            modifier = Modifier.padding(4.dp),
-                                            onClick = {
-                                                nav.push(
-                                                    SearchScreen(
-                                                        param = SearchParam.KeyWordSearch(listOf(tag.name))
-                                                    )
-                                                )
-                                            },
-                                            label = {
-                                                Column {
-                                                    Text(tag.name, style = MaterialTheme.typography.labelMedium)
-                                                    tag.translatedName?.let {
-                                                        Text(it, style = MaterialTheme.typography.labelSmall)
-                                                    }
-                                                }
-                                            }
-                                        )
-                                    }
-                                }
-
-                            }
-                        )
-                    }
-                }
-                item {
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedCard {
-                        ListItem(
-                            overlineContent = {
-                                Text("发布日期")
-                            },
-                            headlineContent = {
-                                Text(
-                                    illust.createTime.toReadableString()
-                                )
-                            }
-                        )
-                    }
-                }
-
-                item {
-                    Spacer(Modifier.height(16.dp))
-                }
+                previewCommonItem(illust)
             }
 
             VerticalScrollbar(

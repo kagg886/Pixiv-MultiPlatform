@@ -5,10 +5,13 @@ import com.russhwolf.settings.Settings
 import io.ktor.utils.io.core.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
+import okio.FileNotFoundException
 import okio.Path
 import okio.buffer
 import okio.use
 import top.kagg886.pmf.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 private val configCache = mutableMapOf<String, Settings>()
 
@@ -151,3 +154,29 @@ private class JsonDefaultSettings(
 
 expect val dataPath: Path
 expect val cachePath: Path
+
+
+@OptIn(ExperimentalUuidApi::class)
+inline fun <T : Any> useTempFile(block: (Path) -> T): T {
+    val file = cachePath.resolve(Uuid.random().toHexString())
+    file.parentFile()?.mkdirs() ?: throw FileNotFoundException("parent file not found")
+    file.createNewFile()
+
+    try {
+       return block(file)
+    } finally {
+        file.delete()
+    }
+}
+
+@OptIn(ExperimentalUuidApi::class)
+inline fun <T : Any> useTempDir(block: (Path) -> T): T {
+    val file = cachePath.resolve(Uuid.random().toHexString())
+    file.mkdirs()
+
+    try {
+        return block(file)
+    } finally {
+        file.deleteRecursively()
+    }
+}

@@ -48,3 +48,5 @@ include(":lib:epub")
 include(":lib:okio-enhancement-util")
 include("lib:gif")
 findProject(":lib:gif")?.name = "gif"
+include("lib:sketch-fetcher-file-adapter-windows")
+findProject(":lib:sketch-fetcher-file-adapter-windows")?.name = "sketch-fetcher-file-adapter-windows"
