@@ -46,3 +46,5 @@ include(":composeApp")
 include(":lib:chip-text-field")
 include(":lib:epub")
 include(":lib:okio-enhancement-util")
+include("lib:gif")
+findProject(":lib:gif")?.name = "gif"
