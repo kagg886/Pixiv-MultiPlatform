@@ -3,7 +3,7 @@ package top.e404.skiko.gif
 import okio.BufferedSink
 import top.e404.skiko.gif.structure.AnimationDisposalMode
 
-object GraphicControlExtension {
+internal object GraphicControlExtension {
     private const val INTRODUCER = 0x21
     private const val LABEL = 0xF9
     private const val BLOCK_SIZE = 0x04

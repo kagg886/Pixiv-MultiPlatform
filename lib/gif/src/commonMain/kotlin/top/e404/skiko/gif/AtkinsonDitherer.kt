@@ -6,7 +6,7 @@ import top.e404.skiko.util.rgb
 /**
  * 抖动器
  */
-object AtkinsonDitherer {
+internal object AtkinsonDitherer {
     private val DISTRIBUTION = listOf(
         ErrorComponent(1, 0, 1 / 8.0),
         ErrorComponent(2, 0, 1 / 8.0),

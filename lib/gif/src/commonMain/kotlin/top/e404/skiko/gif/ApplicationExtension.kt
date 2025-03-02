@@ -2,7 +2,7 @@ package top.e404.skiko.gif
 
 import okio.BufferedSink
 
-object ApplicationExtension {
+internal object ApplicationExtension {
     private val INTRODUCER = 0x21.asUnsignedByte()
 
     /**

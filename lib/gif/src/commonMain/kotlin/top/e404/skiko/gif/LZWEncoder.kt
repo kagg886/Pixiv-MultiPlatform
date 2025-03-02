@@ -1,9 +1,8 @@
 package top.e404.skiko.gif
 
 import korlibs.datastructure.BitArray
-import java.util.*
 
-class LZWEncoder(private val colors: ColorTable, private val image: IntArray) {
+internal class LZWEncoder(private val colors: ColorTable, private val image: IntArray) {
     internal companion object {
         val CLEAR_CODE = listOf(-1)
         val END_OF_INFO = listOf(-2)

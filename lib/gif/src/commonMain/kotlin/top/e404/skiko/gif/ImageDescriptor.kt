@@ -4,7 +4,7 @@ import okio.Buffer
 import okio.BufferedSink
 import top.e404.skiko.gif.structure.IRect
 
-object ImageDescriptor {
+internal object ImageDescriptor {
     private const val SEPARATOR = 0x002C
     private const val TERMINATOR = 0x0000
 

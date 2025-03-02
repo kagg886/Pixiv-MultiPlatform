@@ -4,7 +4,7 @@ import top.e404.skiko.util.blue
 import top.e404.skiko.util.green
 import top.e404.skiko.util.red
 
-fun Int.rgb() = Triple(red(), green(), blue())
+internal fun Int.rgb() = Triple(red(), green(), blue())
 internal fun Int.asUnsignedShort(): Short {
     check(this in 0..0xFFFF)
     return toShort()

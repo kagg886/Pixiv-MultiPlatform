@@ -129,6 +129,10 @@ kotlin {
             implementation(libs.sketch.http.ktor3)
             implementation(libs.zoomimage.compose.sketch)
 
+            //gif-exporter
+            implementation(project(":lib:gif"))
+
+
             //ktor
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)

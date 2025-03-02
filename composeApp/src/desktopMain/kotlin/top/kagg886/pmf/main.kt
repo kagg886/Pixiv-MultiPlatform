@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.*
 import cafe.adriel.voyager.core.screen.Screen
+import co.touchlab.kermit.Logger
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
@@ -59,7 +60,7 @@ fun launchApp(init: Screen = WelcomeScreen()) {
             }
         }
     }
-
+    Logger.e("App exit with exception",lastException)
     if (lastException != null) {
         singleWindowApplication {
             CrashApp(throwable = lastException!!.stackTraceToString())
