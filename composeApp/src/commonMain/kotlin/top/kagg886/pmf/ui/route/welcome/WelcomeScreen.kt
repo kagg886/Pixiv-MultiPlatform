@@ -139,6 +139,7 @@ class WelcomeScreen : Screen {
         val colors = MaterialTheme.colorScheme
         when (state) {
             WELCOME -> {
+                val scheme = MaterialTheme.colorScheme
                 Text(
                     buildAnnotatedString {
                         append("        ${BuildConfig.APP_NAME} 是一个基于 Compose Multiplatform 的跨平台第三方Pixiv客户端，由")
@@ -157,6 +158,12 @@ class WelcomeScreen : Screen {
                         appendLine()
 
                         append("        准备好了吗？点击下一步以开始设置。")
+
+                        appendLine()
+
+                        append("        出现问题了? 请前往")
+                        withLink(scheme,"https://t.me/+n_xsrc1Z590xNTY9","TG交流群")
+                        append("描述您的问题。")
                     }
                 )
             }

@@ -40,7 +40,7 @@ import top.kagg886.pmf.kotlin
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.icon.Github
-import top.kagg886.pmf.ui.component.icon.Update
+import top.kagg886.pmf.ui.component.icon.Telegram
 
 class AboutScreen : Screen {
     @OptIn(ExperimentalResourceApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -104,10 +104,10 @@ class AboutScreen : Screen {
                             }
                             IconButton(
                                 onClick = {
-                                    uri.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/releases")
+                                    uri.openUri("https://t.me/+n_xsrc1Z590xNTY9")
                                 }
                             ) {
-                                Icon(imageVector = Update, contentDescription = null)
+                                Icon(imageVector = Telegram, contentDescription = null)
                             }
                         }
                     }
