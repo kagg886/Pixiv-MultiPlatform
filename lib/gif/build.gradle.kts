@@ -44,6 +44,7 @@ kotlin {
                 api(compose.ui)
                 implementation(project(":lib:okio-enhancement-util"))
                 api(libs.korlibs.io)
+                implementation(libs.kermit)
             }
         }
 

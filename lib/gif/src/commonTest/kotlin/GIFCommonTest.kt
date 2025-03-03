@@ -27,7 +27,7 @@ class GIFCommonTest {
             table(ImageBitmapDelegate(img[0].first))
             loop(0)
             for (i in 1..118) {
-                frame(ImageBitmapDelegate(img[i].first)) {
+                frame({ImageBitmapDelegate(img[i].first)}) {
                     duration = img[i].second
                 }
             }

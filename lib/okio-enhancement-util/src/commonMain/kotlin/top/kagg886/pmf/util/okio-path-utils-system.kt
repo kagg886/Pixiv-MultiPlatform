@@ -15,6 +15,7 @@ inline fun Source.transfer(sink: Sink) {
         sink.write(buf, len)
         buf.clear()
     }
+    sink.flush()
 }
 
 inline fun Path.writeBytes(byteArray: ByteArray) = sink().buffer().use {

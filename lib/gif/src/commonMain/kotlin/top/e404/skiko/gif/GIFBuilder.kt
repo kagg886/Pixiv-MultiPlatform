@@ -1,10 +1,15 @@
 package top.e404.skiko.gif
 
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.*
-import okio.Buffer
-import okio.BufferedSink
-import okio.use
-import top.e404.skiko.gif.structure.*
+import okio.*
+import top.e404.skiko.gif.structure.AnimationDisposalMode
+import top.e404.skiko.gif.structure.AnimationFrameInfo
+import top.e404.skiko.gif.structure.Bitmap
+import top.e404.skiko.gif.structure.IRect
+import top.kagg886.pmf.util.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class GIFBuilder(val width: Int, val height: Int) {
     companion object {
@@ -65,7 +70,6 @@ class GIFBuilder(val width: Int, val height: Int) {
     var options = AnimationFrameInfo(
         duration = 1000,
         disposalMethod = AnimationDisposalMode.UNUSED,
-        frameRect = IRect.makeXYWH(0, 0, 0, 0)
     )
 
     /**
@@ -75,67 +79,121 @@ class GIFBuilder(val width: Int, val height: Int) {
         options.apply(block)
     }
 
-    var frames = ArrayList<Triple<Bitmap, ColorTable, AnimationFrameInfo>>()
+    var frames = ArrayList<Triple<() -> Bitmap, ColorTable, AnimationFrameInfo>>()
 
     fun frame(
-        bitmap: Bitmap,
+        bitmap: () -> Bitmap,
         colors: ColorTable = ColorTable.Empty,
         block: AnimationFrameInfo.() -> Unit = {},
     ): GIFBuilder = apply {
-        val rect = IRect.makeXYWH(0, 0, bitmap.width, bitmap.height)
-        frames.add(Triple(bitmap, colors, options.copy(frameRect = rect).apply(block)))
+        frames.add(Triple(bitmap, colors, options.copy().apply(block)))
     }
 
     fun frame(
-        bitmap: Bitmap,
+        bitmap: () -> Bitmap,
         colors: ColorTable = ColorTable.Empty,
         info: AnimationFrameInfo,
     ) = apply {
         frames.add(Triple(bitmap, colors, info))
     }
 
-    @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
-    fun buildToSink(sink:BufferedSink) {
-        val list = runBlocking {
-            frames.map { (bitmap, colors, info) ->
-                CoroutineScope(Dispatchers.Default).async {
+
+    private var scope = CoroutineScope(Dispatchers.Default)
+    fun scope(scope: CoroutineScope) = apply { this.scope = scope }
+
+    private var workDir: Path? = null
+    fun workDir(path: Path) = apply { workDir = path }
+
+    @OptIn(ExperimentalUuidApi::class)
+    fun buildToSink(sink: BufferedSink) {
+        val list: List<Source> = runBlocking {
+            frames.mapIndexed { count, it ->
+                val (producer, colors, info) = it
+                scope.async {
+                    Logger.i("GIF encoder") { "Making Frame: $count" }
+                    val bitmap = withContext(scope.coroutineContext) {
+                        producer()
+                    }
                     val opaque = !bitmap.computeIsOpaque()
-                    val table = when {
-                        colors.exists() -> colors
-                        global.exists() -> global
-                        else -> ColorTable(OctTreeQuantizer().quantize(bitmap, if (opaque) 255 else 256), true)
+                    val table = withContext(scope.coroutineContext) {
+                        when {
+                            colors.exists() -> colors
+                            global.exists() -> global
+                            else -> ColorTable(OctTreeQuantizer().quantize(bitmap, if (opaque) 255 else 256), true)
+                        }
                     }
+                    val dither = withContext(scope.coroutineContext) {
+                        AtkinsonDitherer.dither(bitmap, table.colors)
+                    }
+
                     val transparency = if (opaque) table.transparency else null
-                    val result = AtkinsonDitherer.dither(bitmap, table.colors)
+                    val result = when (val work = workDir) {
+                        null -> {
+                            val rtn = Buffer()
+                            extracted(rtn, info, transparency, bitmap, table, dither)
+                            rtn
+                        }
 
+                        else -> {
+                            val tmp = work.resolve(Uuid.random().toHexString())
+                            tmp.parentFile()?.mkdirs()
+                            tmp.createNewFile()
 
-                    val rtn = Buffer()
-                    GraphicControlExtension.write(
-                        rtn,
-                        info.disposalMethod,
-                        false,
-                        transparency,
-                        info.duration
-                    )
+                            tmp.sink().buffer().use { rtn ->
+                                extracted(rtn, info, transparency, bitmap, table, dither)
+                                rtn.flush()
+                            }
 
-                    val descBuf = ImageDescriptor.toBuffer(info.frameRect, table, table !== global, result)
-                    descBuf.use {
-                        rtn.write(it.readByteArray())
+                            tmp.source()
+                        }
                     }
-                    rtn
+                    Logger.i("GIF encoder") { "Frame $count done" }
+                    result
                 }
             }.awaitAll()
         }
-
 
         header(sink)
         LogicalScreenDescriptor.write(sink, width, height, global, ratio)
         if (loop >= 0) ApplicationExtension.loop(sink, loop)
         if (buffering > 0) ApplicationExtension.buffering(sink, buffering)
 
-        list.forEach { buffer->
-            buffer.use { sink.write(it.readByteArray()) }
+        list.forEachIndexed { index, buffer ->
+            Logger.i("Writing Frame: $index")
+            buffer.buffer().use { it.transfer(sink) }
+            Logger.i("Writing Frame: $index done.")
         }
         trailer(sink)
+        sink.flush()
+    }
+
+    private suspend fun extracted(
+        rtn: BufferedSink,
+        info: AnimationFrameInfo,
+        transparency: Int?,
+        bitmap: Bitmap,
+        table: ColorTable,
+        dither: IntArray
+    ) {
+        withContext(scope.coroutineContext) {
+            GraphicControlExtension.write(
+                rtn,
+                info.disposalMethod,
+                false,
+                transparency,
+                info.duration
+            )
+        }
+        val descBuf = withContext(scope.coroutineContext) {
+            ImageDescriptor.toBuffer(
+                IRect.makeXYWH(0, 0, bitmap.width, bitmap.height),
+                table,
+                table !== global,
+                dither
+            )
+        }
+        descBuf.use {
+            rtn.write(it.readByteArray())
+        }
     }
 }

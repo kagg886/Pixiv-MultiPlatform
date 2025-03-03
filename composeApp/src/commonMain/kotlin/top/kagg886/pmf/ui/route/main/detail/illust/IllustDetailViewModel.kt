@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import okio.*
 import okio.Path.Companion.toPath
@@ -27,6 +28,7 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.backend.useTempDir
 import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.exists
@@ -55,36 +57,31 @@ class IllustDetailViewModel(private val illust: Illust) :
         }
 
         if (illust.isUgoira) {
-            val meta = client.getUgoiraMetadata(illust)
             val gif = cachePath.resolve("${illust.id}.gif")
-
             if (!gif.exists()) {
+                val meta = client.getUgoiraMetadata(illust)
                 useTempFile { path ->
                     val zip = with(path) {
                         writeBytes(net.get(meta.url.content).bodyAsBytes())
-//                        sink().use {
-//                            it.buffer().apply {
-//                                write(net.get(meta.url.content).bodyAsBytes())
-//                                flush()
-//                            }
-//                        }
                         FileSystem.SYSTEM.openZip(this)
                     }
-
 
                     val frames = meta.frames.map {
                         zip.source(it.file.toPath()).toImageBitmap() to it.delay
                     }
 
-                    val data = gif(illust.width, illust.height) {
-                        table(ImageBitmapDelegate(frames[0].first))
-                        loop(0)
+                    val data = useTempDir {
+                        gif(illust.width, illust.height) {
+                            table(ImageBitmapDelegate(frames[0].first))
+                            loop(0)
+                            workDir(it)
 
-                        frame(ImageBitmapDelegate(frames[0].first))
+                            frame({ ImageBitmapDelegate(frames[0].first) })
 
-                        for (i in 1 until frames.size) {
-                            frame(ImageBitmapDelegate(frames[i].first)) {
-                                duration = frames[i].second
+                            for (i in 1 until frames.size) {
+                                frame({ ImageBitmapDelegate(frames[i].first) }) {
+                                    duration = frames[i].second
+                                }
                             }
                         }
                     }
