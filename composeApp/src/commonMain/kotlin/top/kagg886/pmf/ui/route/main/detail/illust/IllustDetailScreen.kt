@@ -250,9 +250,21 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
                 item {
+                    var show by remember {
+                        mutableStateOf(false)
+                    }
+                    if (show) {
+                        ImagePreviewer(
+                            onDismiss = {show = false},
+                            url = listOf(state.data),
+                            startIndex = 0,
+                        )
+                    }
                     ProgressedAsyncImage(
-                        url = newBase64Uri("image/gif",state.data),
-                        modifier = Modifier.fillMaxWidth().aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
+                        url = state.data,
+                        modifier = Modifier.fillMaxWidth()
+                            .aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
+                            .clickable { show = true }
                     )
                 }
 

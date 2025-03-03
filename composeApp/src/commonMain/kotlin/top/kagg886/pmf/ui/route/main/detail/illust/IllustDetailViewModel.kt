@@ -1,14 +1,16 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
+import com.github.panpf.sketch.fetch.newBase64Uri
+import com.github.panpf.sketch.util.Uri
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
 import okio.*
 import okio.Path.Companion.toPath
@@ -83,6 +85,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                             loop(0)
                             workDir(it)
                             frame(frames[0].first)
+                            scope(screenModelScope + Dispatchers.Default)
                             progress {
                                 when (it) {
                                     is GIFMakingStep.CompressImage -> loadingState.data.tryEmit("处理动图像素帧: ${it.done} / ${it.total}")
@@ -106,8 +109,9 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             reduce {
+                loadingState.data.tryEmit("编码gif中")
                 gif.source().use {
-                    IllustDetailViewState.Success.GIF(illust, it.buffer().readByteString().base64())
+                    IllustDetailViewState.Success.GIF(illust, newBase64Uri("image/gif",it.buffer().readByteString().base64()) )
                 }
             }
             saveDataBase(illust)
