@@ -87,8 +87,9 @@ class IllustDetailViewModel(private val illust: Illust) :
                         }
                     }
 
-                    gif.sink().use {
-                        data.buildToSink(it.buffer())
+                    gif.sink().buffer().use {
+                        data.buildToSink(it)
+                        it.flush()
                     }
                 }
             }
@@ -98,6 +99,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                     IllustDetailViewState.Success.GIF(illust, it.buffer().readByteString().base64())
                 }
             }
+            saveDataBase(illust)
             return@intent
         }
 

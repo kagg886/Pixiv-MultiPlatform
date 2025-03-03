@@ -4,6 +4,7 @@ import korlibs.io.file.std.createZipFromTreeTo
 import korlibs.io.file.std.rootLocalVfs
 import kotlinx.coroutines.runBlocking
 import okio.*
+import okio.Path.Companion.toPath
 
 inline fun Path.sink() = FileSystem.SYSTEM.sink(this)
 
@@ -44,6 +45,7 @@ inline fun Path.deleteRecursively() {
     FileSystem.SYSTEM.deleteRecursively(this)
     FileSystem.SYSTEM.delete(this)
 }
+
 fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve("${this.name}.zip")): Path {
     val vfs = rootLocalVfs[absolutePath().toString()]
     target.parentFile()?.mkdirs()
@@ -54,4 +56,22 @@ fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolv
         )
         target
     }
+}
+
+val Path.nameWithoutExtension
+    get() = if (name.lastIndexOf(".") == -1) name else name.substring(0, name.lastIndexOf("."))
+
+fun Path.unzip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve(nameWithoutExtension)): Path {
+    val sys = FileSystem.SYSTEM.openZip(this)
+    sys.listRecursively("/".toPath()).filterNot { sys.metadata(it).isDirectory }.forEach {
+        val tr = target.resolve(it.relativeTo("/".toPath()))
+        tr.parentFile()?.mkdirs()
+        tr.createNewFile()
+
+        tr.sink().buffer().use { out->
+            sys.source(it).transfer(out)
+            out.flush()
+        }
+    }
+    return target
 }

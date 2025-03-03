@@ -17,7 +17,7 @@ import kotlin.system.exitProcess
 
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun launchApp(init: Screen = WelcomeScreen()) {
+fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
     startKoin0()
     SingletonSketch.setSafe {
         Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
@@ -55,12 +55,12 @@ fun launchApp(init: Screen = WelcomeScreen()) {
                         true
                     }
                 ) {
-                    App(init)
+                    App(init())
                 }
             }
         }
     }
-    Logger.e("App exit with exception",lastException)
+    Logger.e("App exit with exception", lastException)
     if (lastException != null) {
         singleWindowApplication {
             CrashApp(throwable = lastException!!.stackTraceToString())

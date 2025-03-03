@@ -1,83 +1,38 @@
 package top.kagg886.pmf.test
 
-import androidx.compose.material.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import cafe.adriel.voyager.core.screen.Screen
-import co.touchlab.kermit.Logger
-import io.ktor.client.*
-import kotlinx.coroutines.launch
-import okio.FileSystem
+import com.github.panpf.sketch.AsyncImage
+import com.github.panpf.sketch.fetch.newBase64Uri
 import okio.Path.Companion.toPath
 import okio.buffer
-import okio.openZip
 import org.junit.Test
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import top.e404.skiko.gif.gif
-import top.kagg886.gif.ImageBitmapDelegate
-import top.kagg886.gif.toImageBitmap
-import top.kagg886.pixko.module.illust.getIllustDetail
-import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
-import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.launchApp
-import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import top.kagg886.pmf.util.absolutePath
+import top.kagg886.pmf.util.source
 
 class GUITest {
     @Test
     fun testGUI1() {
-        launchApp(init = GIFScreen())
+        launchApp(init = {GIFScreen()})
     }
+
+    @Test
+    fun testGUI2() {
+        launchApp(init = {IllustDetailScreen.PreFetch(127775686)})
+    }
+
 
 
     class GIFScreen : Screen, KoinComponent {
         @Composable
         override fun Content() {
-            val scope = rememberCoroutineScope()
-            println("composed")
-            Button(
-                onClick = {
-                    val account = PixivConfig.newAccountFromConfig()
-                    val client by inject<HttpClient>()
-
-                    scope.launch {
-                        val illust = account.getIllustDetail(127775686)
-                        val meta = account.getUgoiraMetadata(illust)
-                        Logger.i("get the ugoira data")
-                        val zip = FileSystem.SYSTEM.openZip(
-                            cachePath.resolve("gif.zip")
-                        )
-
-                        Logger.i("open zip success")
-
-                        val frames = meta.frames.map {
-                            zip.source(it.file.toPath()).toImageBitmap() to it.delay
-                        }
-
-                        Logger.i("get the frames")
-
-                        val data = gif(illust.width,illust.height) {
-                            table(ImageBitmapDelegate(frames[0].first))
-                            loop(0)
-
-                            frame(ImageBitmapDelegate(frames[0].first))
-
-                            for (i in 1 until frames.size) {
-                                frame(ImageBitmapDelegate(frames[i].first)) {
-                                    duration = frames[i].second
-                                }
-                            }
-                        }
-
-                        data.buildToSink("out.gif".toPath().sink().buffer())
-                        Logger.i("write to out.png")
-                    }
-                }
-            ) {
-                Text("start GIF")
-            }
+            AsyncImage(
+                uri = newBase64Uri("image/gif","C:\\Users\\kagg886\\IdeaProjects\\Pixiv-MultiPlatform\\lib\\gif\\output.gif".toPath().absolutePath().source().buffer().readByteArray()),
+                contentDescription = ""
+            )
         }
     }
 }
