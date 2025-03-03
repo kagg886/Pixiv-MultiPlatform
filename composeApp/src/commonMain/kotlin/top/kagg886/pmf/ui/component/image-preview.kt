@@ -221,7 +221,11 @@ fun ImagePreviewer(
 
                                                 useTempFile { tmp ->
                                                     tmp.sink().buffer().use { source.transfer(it) }
-                                                    shareFile(tmp, mime = mime)
+                                                    shareFile(
+                                                        tmp,
+                                                        name = "${Uuid.random().toHexString()}.${MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin"}",
+                                                        mime = mime
+                                                    )
                                                 }
                                             }
 
