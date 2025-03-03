@@ -1,11 +1,14 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import okio.*
 import okio.Path.Companion.toPath
@@ -15,6 +18,7 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.e404.skiko.gif.gif
+import top.e404.skiko.gif.listener.GIFMakingStep
 import top.kagg886.gif.ImageBitmapDelegate
 import top.kagg886.gif.toImageBitmap
 import top.kagg886.pixko.Tag
@@ -40,7 +44,7 @@ class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,
     ViewModel(), ScreenModel, KoinComponent {
     override val container: Container<IllustDetailViewState, IllustDetailSideEffect> =
-        container(IllustDetailViewState.Loading) {
+        container(IllustDetailViewState.Loading()) {
             load()
         }
 
@@ -50,36 +54,44 @@ class IllustDetailViewModel(private val illust: Illust) :
 
 
     fun load(showLoading: Boolean = true) = intent {
+        val loadingState = IllustDetailViewState.Loading()
         if (showLoading) {
             reduce {
-                IllustDetailViewState.Loading
+                loadingState
             }
         }
 
         if (illust.isUgoira) {
             val gif = cachePath.resolve("${illust.id}.gif")
             if (!gif.exists()) {
+                loadingState.data.tryEmit("获取动图元数据")
                 val meta = client.getUgoiraMetadata(illust)
                 useTempFile { path ->
+                    loadingState.data.tryEmit("下载动图帧数据")
                     val zip = with(path) {
                         writeBytes(net.get(meta.url.content).bodyAsBytes())
                         FileSystem.SYSTEM.openZip(this)
                     }
 
                     val frames = meta.frames.map {
-                        zip.source(it.file.toPath()).toImageBitmap() to it.delay
+                        { ImageBitmapDelegate(zip.source(it.file.toPath()).toImageBitmap()) } to it.delay
                     }
 
                     val data = useTempDir {
                         gif(illust.width, illust.height) {
-                            table(ImageBitmapDelegate(frames[0].first))
+                            table(frames[0].first())
                             loop(0)
                             workDir(it)
-
-                            frame({ ImageBitmapDelegate(frames[0].first) })
+                            frame(frames[0].first)
+                            progress {
+                                when (it) {
+                                    is GIFMakingStep.CompressImage -> loadingState.data.tryEmit("处理动图像素帧: ${it.done} / ${it.total}")
+                                    is GIFMakingStep.WritingData ->  loadingState.data.tryEmit("写出动图: ${it.done} / ${it.total}")
+                                }
+                            }
 
                             for (i in 1 until frames.size) {
-                                frame({ ImageBitmapDelegate(frames[i].first) }) {
+                                frame(frames[i].first) {
                                     duration = frames[i].second
                                 }
                             }
@@ -297,12 +309,13 @@ class IllustDetailViewModel(private val illust: Illust) :
     }
 
     fun clearStatus() = intent {
-        reduce { IllustDetailViewState.Loading }
+        reduce { IllustDetailViewState.Loading() }
     }
 }
 
 sealed class IllustDetailViewState {
-    data object Loading : IllustDetailViewState()
+    data class Loading(val data: MutableStateFlow<String> = MutableStateFlow("")) : IllustDetailViewState()
+
     data object Error : IllustDetailViewState()
     sealed class Success : IllustDetailViewState() {
         abstract val illust: Illust

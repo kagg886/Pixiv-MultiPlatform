@@ -127,8 +127,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
             }
 
-            IllustDetailViewState.Loading -> {
-                Loading()
+            is IllustDetailViewState.Loading -> {
+                val text by state.data.collectAsState()
+                Loading(text = text)
             }
 
             is IllustDetailViewState.Success -> {

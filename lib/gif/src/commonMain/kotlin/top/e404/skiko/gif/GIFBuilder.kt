@@ -2,7 +2,11 @@ package top.e404.skiko.gif
 
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.*
+import top.e404.skiko.gif.listener.GIFMakingListener
+import top.e404.skiko.gif.listener.GIFMakingStep
 import top.e404.skiko.gif.structure.AnimationDisposalMode
 import top.e404.skiko.gif.structure.AnimationFrameInfo
 import top.e404.skiko.gif.structure.Bitmap
@@ -104,13 +108,16 @@ class GIFBuilder(val width: Int, val height: Int) {
     private var workDir: Path? = null
     fun workDir(path: Path) = apply { workDir = path }
 
+    private var listener: GIFMakingListener? = null
+    fun progress(listener: GIFMakingListener) = apply { this.listener = listener }
+
     @OptIn(ExperimentalUuidApi::class)
     fun buildToSink(sink: BufferedSink) {
         val list: List<Source> = runBlocking {
-            frames.mapIndexed { count, it ->
-                val (producer, colors, info) = it
+            val lock = Mutex()
+            var progress = 0
+            frames.map { (producer, colors, info) ->
                 scope.async {
-                    Logger.i("GIF encoder") { "Making Frame: $count" }
                     val bitmap = withContext(scope.coroutineContext) {
                         producer()
                     }
@@ -147,7 +154,9 @@ class GIFBuilder(val width: Int, val height: Int) {
                             tmp.source()
                         }
                     }
-                    Logger.i("GIF encoder") { "Frame $count done" }
+                    lock.withLock {
+                        listener?.onProgress(GIFMakingStep.CompressImage(progress++, frames.size))
+                    }
                     result
                 }
             }.awaitAll()
@@ -162,6 +171,7 @@ class GIFBuilder(val width: Int, val height: Int) {
             Logger.i("Writing Frame: $index")
             buffer.buffer().use { it.transfer(sink) }
             Logger.i("Writing Frame: $index done.")
+            listener?.onProgress(GIFMakingStep.WritingData(index, frames.size))
         }
         trailer(sink)
         sink.flush()
