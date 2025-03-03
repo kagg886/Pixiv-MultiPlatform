@@ -32,6 +32,7 @@ import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.exists
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.writeBytes
 
 class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,
@@ -60,12 +61,13 @@ class IllustDetailViewModel(private val illust: Illust) :
             if (!gif.exists()) {
                 useTempFile { path ->
                     val zip = with(path) {
-                        sink().use {
-                            it.buffer().apply {
-                                write(net.get(meta.url.content).bodyAsBytes())
-                                flush()
-                            }
-                        }
+                        writeBytes(net.get(meta.url.content).bodyAsBytes())
+//                        sink().use {
+//                            it.buffer().apply {
+//                                write(net.get(meta.url.content).bodyAsBytes())
+//                                flush()
+//                            }
+//                        }
                         FileSystem.SYSTEM.openZip(this)
                     }
 

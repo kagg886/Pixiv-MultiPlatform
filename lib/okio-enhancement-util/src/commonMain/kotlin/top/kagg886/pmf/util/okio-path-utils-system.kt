@@ -17,7 +17,11 @@ inline fun Source.transfer(sink: Sink) {
     }
 }
 
-inline fun Path.writeBytes(byteArray: ByteArray) = sink().buffer().write(byteArray).close()
+inline fun Path.writeBytes(byteArray: ByteArray) = sink().buffer().use {
+    it.write(byteArray)
+    it.flush()
+    it.close()
+}
 
 inline fun Path.writeString(s: String) = writeBytes(s.encodeToByteArray())
 

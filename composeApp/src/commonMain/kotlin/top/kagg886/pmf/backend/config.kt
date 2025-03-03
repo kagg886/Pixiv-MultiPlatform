@@ -38,10 +38,7 @@ object SystemConfig {
                         JsonObject(emptyMap())
                     },
                 onModify = { json ->
-                    file.sink().buffer().use {
-                        it.write(Json.encodeToString(json).toByteArray())
-                        it.flush()
-                    }
+                    file.writeBytes(Json.encodeToString(json).toByteArray())
                 }
             )
             return settings
