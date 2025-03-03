@@ -4,19 +4,9 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.graphics.ImageBitmap
 import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
-import com.github.panpf.sketch.LocalPlatformContext
-import com.github.panpf.sketch.request.ComposableImageRequest
-import com.github.panpf.sketch.request.ImageRequest
-import com.github.panpf.sketch.request.execute
-import com.github.panpf.sketch.sketch
 import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -34,7 +24,6 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.launchApp
 import top.kagg886.pmf.util.sink
-import top.kagg886.pmf.util.writeBytes
 
 class GUITest {
     @Test

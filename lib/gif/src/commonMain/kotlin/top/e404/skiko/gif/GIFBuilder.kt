@@ -137,6 +137,5 @@ class GIFBuilder(val width: Int, val height: Int) {
             buffer.use { sink.write(it.readByteArray()) }
         }
         trailer(sink)
-
     }
 }

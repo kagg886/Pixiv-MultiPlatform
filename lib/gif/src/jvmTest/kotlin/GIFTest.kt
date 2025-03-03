@@ -27,21 +27,20 @@ class GIFTest {
     fun testGIF() {
         fun img(i:Int) = ImageIO.read(File("test/${i.toString().padStart(6,'0')}.jpg")).toImage()
 
-
         val builder = gif(270,360) {
             table(DelegatedBitmap(Bitmap.makeFromImage(img(0))))
-            options {
-                loop(0)
-                duration = 150
-            }
+            loop(0)
             for (i in 1..118) {
-                frame(DelegatedBitmap(Bitmap.makeFromImage(img(i))))
+                frame(DelegatedBitmap(Bitmap.makeFromImage(img(i)))) {
+                    duration = 10
+                }
             }
-
         }
 
         File("output.gif").sink().buffer().use {
             builder.buildToSink(it)
+            it.flush()
         }
+        println(File("output.gif").absolutePath)
     }
 }

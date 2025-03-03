@@ -37,10 +37,10 @@ internal object ApplicationExtension {
         buffer.writeByte(INTRODUCER.toInt())
         buffer.writeByte(LABEL.toInt())
         buffer.writeByte(BLOCK_SIZE.toInt())
-        buffer.write(identifier.encodeToByteArray().reversedArray())
-        buffer.write(authentication.encodeToByteArray().reversedArray())
+        buffer.write(identifier.encodeToByteArray())
+        buffer.write(authentication.encodeToByteArray())
         buffer.writeByte(data.size.asUnsignedByte().toInt())
-        buffer.write(data.reversedArray())
+        buffer.write(data)
         buffer.writeByte(TERMINATOR.toInt())
     }
 

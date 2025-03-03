@@ -1,7 +1,6 @@
 package top.e404.skiko.gif
 
-import okio.Buffer
-import okio.BufferedSink
+import okio.*
 import top.e404.skiko.gif.structure.IRect
 
 internal object ImageDescriptor {
@@ -27,14 +26,22 @@ internal object ImageDescriptor {
     private fun data(
         buffer: BufferedSink,
         min: Int,
-        data: ByteArray,
+        data: BufferedSource,
     ) {
         buffer.writeByte(min.asUnsignedByte().toInt())
-        for (index in data.indices step 255) {
-            val size = minOf(data.size - index, 255)
-            buffer.writeByte(size.asUnsignedByte().toInt()) // 1 Byte
-            buffer.write(data, index, size)
+
+
+        val buf = ByteArray(255)
+        var len:Int
+        while (data.read(buf).also { len = it } != -1) {
+            buffer.writeByte(len.asUnsignedByte().toInt())
+            buffer.write(buf, 0, len)
         }
+//        for (index in data.indices step 255) {
+//            val size = minOf(data.size - index, 255)
+//            buffer.writeByte(size.asUnsignedByte().toInt()) // 1 Byte
+//            buffer.write(data, index, size)
+//        }
     }
 
     fun toBuffer(
@@ -68,7 +75,9 @@ internal object ImageDescriptor {
 
         if (local) table.write(buffer) // (colors.capacity() - colors.size) * 3 + 3
 
-        data(buffer, min, lzw)
+        Buffer().write(lzw).use {
+            data(buffer, min, it)
+        }
 
         buffer.writeByte(TERMINATOR.asUnsignedByte().toInt())
 
