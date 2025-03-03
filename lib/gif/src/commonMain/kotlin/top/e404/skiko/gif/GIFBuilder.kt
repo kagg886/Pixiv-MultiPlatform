@@ -175,6 +175,9 @@ class GIFBuilder(val width: Int, val height: Int) {
         }
         trailer(sink)
         sink.flush()
+        if (workDir != null) {
+            workDir!!.deleteRecursively()
+        }
     }
 
     private suspend fun extracted(

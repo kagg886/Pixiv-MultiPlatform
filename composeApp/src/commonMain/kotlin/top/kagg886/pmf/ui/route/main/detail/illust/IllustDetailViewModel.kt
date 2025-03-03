@@ -76,7 +76,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                     }
 
                     val frames = meta.frames.map {
-                        { ImageBitmapDelegate(zip.source(it.file.toPath()).toImageBitmap()) } to it.delay
+                        { ImageBitmapDelegate(zip.source(it.file.toPath()).use { it.toImageBitmap() }) } to it.delay
                     }
 
                     val data = useTempDir {
