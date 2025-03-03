@@ -63,7 +63,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
         }
 
-        if (illust.isUgoira) {
+        if (illust.isUgoira && AppConfig.gifSupport) {
             val gif = cachePath.resolve("${illust.id}.gif")
             if (!gif.exists()) {
                 loadingState.data.tryEmit("获取动图元数据")

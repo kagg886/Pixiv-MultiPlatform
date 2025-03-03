@@ -265,22 +265,6 @@ class SettingScreen : Screen {
                         cacheSize = size
                     }
                 )
-//                SettingsSlider(
-//                    title = {
-//                        Text("画廊本地缓存大小(重启生效)")
-//                    },
-//                    subtitle = {
-//                        Column {
-//                            Text("控制画廊页面的本地缓存大小,单位为字节。")
-//                            Text("当前值:${cacheSize.b}")
-//                        }
-//                    },
-//                    value = cacheSize,
-//                    valueRange = 10.mb.bytes.toFloat()..2048.mb.bytes.toFloat(),
-//                    onValueChange = {
-//                        cacheSize = it
-//                    }
-//                )
 
                 var filterAi by remember {
                     mutableStateOf(AppConfig.filterAi)
@@ -342,6 +326,31 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterR18G = it
+                    }
+                )
+
+                var gifSupport by remember {
+                    mutableStateOf(AppConfig.gifSupport)
+                }
+                LaunchedEffect(gifSupport) {
+                    AppConfig.gifSupport = gifSupport
+                }
+                SettingsSwitch(
+                    state = gifSupport,
+                    title = {
+                        Text("动态图片支持(实验性)")
+                    },
+                    subtitle = {
+                       Text(
+                           buildAnnotatedString {
+                               appendLine("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
+                               appendLine("该功能在Android上运行较为缓慢(合成4帧约8秒)，请酌情开启。")
+                               appendLine("如有必要请选择其他Pixiv动图导出工具。")
+                           }
+                       )
+                    },
+                    onCheckedChange = {
+                        gifSupport = it
                     }
                 )
             }
