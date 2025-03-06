@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -105,7 +106,6 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         }
         delay(3.seconds)
         postSideEffect(LoginSideEffect.NavigateToMain)
-
     }
 }
 
@@ -124,8 +124,9 @@ sealed interface LoginViewState {
         data object InputTokenLogin : LoginType
 
         sealed interface BrowserLogin : LoginType {
-            data class Loading(val msg: String) : BrowserLogin
+            data class Loading(val msg: MutableStateFlow<String>) : BrowserLogin
             data object ShowBrowser : BrowserLogin
+            data class Error(val exception: Throwable) : BrowserLogin
         }
     }
 

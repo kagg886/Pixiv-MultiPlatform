@@ -2,6 +2,9 @@ package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -25,11 +28,13 @@ import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.withLink
 
 class LoginScreen(clearOldSession: Boolean = false) : Screen {
     override val key: ScreenKey = uniqueScreenKey
@@ -66,10 +71,6 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
 
 @Composable
 private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
-    if (a is LoginViewState.LoginType.BrowserLogin.Loading) {
-        Loading(text = a.msg)
-        return
-    }
     AnimatedContent(
         targetState = a,
         modifier = Modifier.fillMaxSize()
@@ -162,7 +163,36 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 WebViewLogin(model)
                             }
 
-                            is LoginViewState.LoginType.BrowserLogin.Loading -> error("can't walk to this branch")
+                            is LoginViewState.LoginType.BrowserLogin.Loading -> {
+                                val msg by state.msg.collectAsState()
+                                Loading(text = msg)
+                            }
+
+                            is LoginViewState.LoginType.BrowserLogin.Error -> {
+                                AlertDialog(
+                                    onDismissRequest = {
+                                    },
+                                    confirmButton = {
+
+                                    },
+                                    title = {
+                                        Text("浏览器初始化失败")
+                                    },
+                                    text = {
+                                        val theme = MaterialTheme.colorScheme
+                                        SelectionContainer {
+                                            Text(
+                                                text = buildAnnotatedString {
+                                                    appendLine("Pixiv-MultiPlatform在初始化嵌入式浏览器时遇到了一个错误。")
+                                                    append("请复制这段消息，然后")
+                                                    withLink(theme,"https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose","点击此链接以新建ISSUE")
+                                                },
+                                                modifier = Modifier.fillMaxWidth()
+                                                    .verticalScroll(rememberScrollState()))
+                                        }
+                                    },
+                                )
+                            }
                         }
                     }
                 }
