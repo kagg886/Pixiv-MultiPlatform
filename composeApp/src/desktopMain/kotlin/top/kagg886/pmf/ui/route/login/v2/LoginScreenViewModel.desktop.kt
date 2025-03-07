@@ -62,32 +62,35 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
     )
 }
 
-actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job {
+actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job = intent {
     if (WEBVIEW_INSTALL_LOCK_PATH.exists()) {
-        return initKCEF()
+        return@intent initKCEF().join()
     }
     if (file.name.endsWith(".tar.gz")) {
-        throw IllegalArgumentException("file must be end with .tar.gz")
+        postSideEffect(LoginSideEffect.Toast("必须是.tar.gz结尾的文件！"))
+        return@intent
     }
-
+    val state = LoginViewState.LoginType.BrowserLogin.Loading(MutableStateFlow("解压浏览器内核中..."))
+    reduce { state }
     TarGzExtractor.extract(
         WEBVIEW_INSTALL_DIR,
         file.toFile(),
         4096
     )
-
+    state.msg.tryEmit("安装浏览器内核中")
     TarGzExtractor.move(
         WEBVIEW_INSTALL_DIR
     )
 
     if (Platform.getCurrentPlatform().os.isMacOSX) {
+        state.msg.tryEmit("正在设置xattr...")
         WEBVIEW_INSTALL_DIR.unquarantine()
     }
-
+    state.msg.tryEmit("创建安装锁...")
     WEBVIEW_INSTALL_LOCK_PATH.createNewFile()
 
     if (!WEBVIEW_INSTALL_LOCK_PATH.exists()) {
         throw KCEFException.InstallationLock
     }
-    return initKCEF()
+    return@intent initKCEF().join()
 }
