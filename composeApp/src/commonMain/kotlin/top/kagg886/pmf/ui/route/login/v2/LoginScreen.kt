@@ -186,6 +186,8 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                     appendLine("Pixiv-MultiPlatform在初始化嵌入式浏览器时遇到了一个错误。")
                                                     append("请复制这段消息，然后")
                                                     withLink(theme,"https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose","点击此链接以新建ISSUE")
+                                                    appendLine()
+                                                    append(state.exception.stackTraceToString())
                                                 },
                                                 modifier = Modifier.fillMaxWidth()
                                                     .verticalScroll(rememberScrollState()))
