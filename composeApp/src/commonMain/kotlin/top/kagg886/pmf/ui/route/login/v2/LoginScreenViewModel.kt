@@ -3,8 +3,14 @@ package top.kagg886.pmf.ui.route.login.v2
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import co.touchlab.kermit.Logger
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.core.pickFile
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import okio.Path
+import okio.buffer
+import okio.use
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -17,8 +23,10 @@ import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
+import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.route.login.v2.LoginType.*
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.sink
 import kotlin.time.Duration.Companion.seconds
 
 class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, ViewModel(), ScreenModel, KoinComponent {
@@ -28,6 +36,11 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
 
     @OptIn(OrbitExperimental::class)
     fun selectLoginType(loginType: LoginType) = intent {
+        runOn<LoginViewState.LoginType.BrowserLogin.Error> {
+            reduce {
+                LoginViewState.WaitChooseLogin
+            }
+        }
         runOn<LoginViewState.WaitChooseLogin> {
             when (loginType) {
                 InputTokenLogin -> reduce {
@@ -107,6 +120,30 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         delay(3.seconds)
         postSideEffect(LoginSideEffect.NavigateToMain)
     }
+
+    fun installKCEFLocal() = intent {
+        val platformFile = FileKit.pickFile(
+            type = PickerType.File(listOf("tar.gz")),
+        )
+        if (platformFile == null) {
+            postSideEffect(LoginSideEffect.Toast("未选择文件"))
+            return@intent
+        }
+        useTempFile { tmp->
+            tmp.sink().buffer().use {
+                val stream = platformFile.getStream()
+                val buffer = ByteArray(2048)
+                var len:Int
+                while (stream.hasBytesAvailable()) {
+                    len = stream.readInto(buffer,buffer.size)
+                    it.write(buffer,0,len)
+                }
+
+                it.flush()
+            }
+            initKCEFLocal(tmp).join()
+        }
+    }
 }
 
 enum class LoginType {
@@ -115,6 +152,7 @@ enum class LoginType {
 }
 
 expect fun LoginScreenViewModel.initKCEF(): Job
+expect fun LoginScreenViewModel.initKCEFLocal(file:Path):Job
 
 sealed interface LoginViewState {
     data object WaitChooseLogin : LoginViewState

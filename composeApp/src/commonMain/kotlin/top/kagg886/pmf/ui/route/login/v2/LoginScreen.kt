@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,8 @@ import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.pickFile
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.PlatformEngine
@@ -32,8 +35,10 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
+import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.ui.util.withLink
 
 class LoginScreen(clearOldSession: Boolean = false) : Screen {
@@ -169,30 +174,78 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                             }
 
                             is LoginViewState.LoginType.BrowserLogin.Error -> {
-                                AlertDialog(
-                                    onDismissRequest = {
-                                    },
-                                    confirmButton = {
-
-                                    },
+                                GuideScaffold(
                                     title = {
-                                        Text("浏览器初始化失败")
+                                        Text("警告")
                                     },
-                                    text = {
-                                        val theme = MaterialTheme.colorScheme
-                                        SelectionContainer {
-                                            Text(
-                                                text = buildAnnotatedString {
-                                                    appendLine("Pixiv-MultiPlatform在初始化嵌入式浏览器时遇到了一个错误。")
-                                                    append("请复制这段消息，然后")
-                                                    withLink(theme,"https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose","点击此链接以新建ISSUE")
-                                                    appendLine()
-                                                    append(state.exception.stackTraceToString())
-                                                },
-                                                modifier = Modifier.fillMaxWidth()
-                                                    .verticalScroll(rememberScrollState()))
+                                    subTitle = {
+                                        Text("无法初始化嵌入式浏览器")
+                                    },
+                                    skipButton = {
+                                        TextButton(
+                                            onClick = {
+                                                model.installKCEFLocal()
+                                            }
+                                        ) {
+                                            Text("选择压缩包路径")
                                         }
                                     },
+                                    confirmButton = {
+                                        Button(
+                                            onClick = {
+                                                model.selectLoginType(LoginType.BrowserLogin)
+                                            }
+                                        ) {
+                                            Text("重试")
+                                        }
+                                    },
+                                    content = {
+                                        val theme = MaterialTheme.colorScheme
+                                        var detailsDialog by remember {
+                                            mutableStateOf(false)
+                                        }
+                                        if (detailsDialog) {
+                                            AlertDialog(
+                                                    onDismissRequest = {
+                                                        detailsDialog = false
+                                                    },
+                                                    title = {
+                                                        Text("错误详情")
+                                                    },
+                                                    text = {
+                                                        Text(state.exception.stackTraceToString(), modifier = Modifier.verticalScroll(rememberScrollState()))
+                                                    },
+                                                    confirmButton = {
+                                                        val clip = LocalClipboardManager.current
+                                                        TextButton(
+                                                            onClick = {
+                                                                clip.setText(
+                                                                    buildAnnotatedString {
+                                                                        append(state.exception.stackTraceToString())
+                                                                    }
+                                                                )
+                                                            }
+                                                        ) {
+                                                            Text("复制")
+                                                        }
+                                                    }
+                                            )
+                                        }
+                                        Text(
+                                            buildAnnotatedString {
+                                                appendLine("由于一些未知的原因，无法初始化嵌入式浏览器。")
+                                                appendLine("请关闭程序后尝试使用token登录。")
+                                                append("或者参阅")
+                                                withLink(theme,"https://pmf.kagg886.top/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98","此链接")
+                                                append("的内容以手动安装嵌入式浏览器。")
+                                                appendLine()
+                                                appendLine()
+                                                withClickable(theme,"点击此文本以查看详细信息") {
+                                                    detailsDialog = true
+                                                }
+                                            },
+                                        )
+                                    }
                                 )
                             }
                         }
