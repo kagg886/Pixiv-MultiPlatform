@@ -49,7 +49,7 @@ private data class CloudFlareDNSResponse(
     )
 }
 
-fun OkHttpClient.Builder.bypassSNIOnDesktop(
+fun OkHttpClient.Builder.bypassSNIOnAndroid(
     queryUrl: String,
     unsafeSSL: Boolean = true,
     fallback: Map<String, List<String>>

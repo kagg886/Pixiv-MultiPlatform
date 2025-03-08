@@ -315,17 +315,19 @@ class WelcomeScreen : Screen {
                     buildAnnotatedString {
                         append("        在某些地区，由于政策限制，可能无法访问Pixiv。")
                         appendLine()
-                        append("        该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。")
+                        append("        我们提供了SNI Bypass和代理这两种方案。")
                         appendLine()
-                        append("        要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁")
+                        append("        SNI Bypass：该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁")
+                        appendLine()
+                        append("        代理：该功能通过代理的方式，将Pixiv的请求转发到Pixiv服务器，从而绕过封锁。")
                     }
                 )
 
-                var byPassSni by remember {
-                    mutableStateOf(AppConfig.byPassSNI)
+                var bypassSettings by remember {
+                    mutableStateOf(AppConfig.bypassSettings)
                 }
-                LaunchedEffect(byPassSni) {
-                    AppConfig.byPassSNI = byPassSni
+                LaunchedEffect(bypassSettings) {
+                    AppConfig.bypassSettings = bypassSettings
                 }
                 Spacer(Modifier.height(16.dp))
                 Row(
@@ -333,28 +335,10 @@ class WelcomeScreen : Screen {
                     modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
                 ) {
                     SelectionCard(
-                        select = byPassSni == true,
+                        select = bypassSettings is AppConfig.BypassSetting.None,
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
-                            byPassSni = true
-                        }
-                    ) {
-                        ListItem(
-                            leadingContent = {
-                                Icon(Icons.Default.Check, "")
-                            },
-                            headlineContent = {
-                                Text("开启")
-                            },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
-                        )
-                    }
-
-                    SelectionCard(
-                        select = byPassSni == false,
-                        modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
-                        onClick = {
-                            byPassSni = false
+                            bypassSettings = AppConfig.BypassSetting.None
                         }
                     ) {
                         ListItem(
@@ -362,7 +346,43 @@ class WelcomeScreen : Screen {
                                 Icon(Icons.Default.Delete, "")
                             },
                             headlineContent = {
-                                Text("关闭")
+                                Text("不使用绕过措施")
+                            },
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                        )
+                    }
+
+                    SelectionCard(
+                        select = bypassSettings is AppConfig.BypassSetting.SNIReplace,
+                        modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
+                        onClick = {
+                            bypassSettings = AppConfig.BypassSetting.SNIReplace()
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(Icons.Default.Check, "")
+                            },
+                            headlineContent = {
+                                Text("使用SNI阻断")
+                            },
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                        )
+                    }
+
+                    SelectionCard(
+                        select = bypassSettings is AppConfig.BypassSetting.Proxy,
+                        modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
+                        onClick = {
+                            bypassSettings = AppConfig.BypassSetting.Proxy()
+                        }
+                    ) {
+                        ListItem(
+                            leadingContent = {
+                                Icon(Icons.Default.Check, "")
+                            },
+                            headlineContent = {
+                                Text("使用代理")
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
                         )

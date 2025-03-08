@@ -47,9 +47,6 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordNovelHistory by boolean("record_novel", true)
     var recordSearchHistory by boolean("record_search", true)
 
-    @Deprecated("Deprecated", replaceWith = ReplaceWith("AppConfig.bypassSettings"))
-    var byPassSNI by boolean("bypass_sni", false)
-
     @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var bypassSettings: BypassSetting by serializedValue(
         key = "bypass_settings",
