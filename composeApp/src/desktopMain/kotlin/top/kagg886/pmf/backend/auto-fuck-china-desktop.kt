@@ -1,6 +1,5 @@
 package top.kagg886.pmf.backend
 
-import android.annotation.SuppressLint
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.Dns
@@ -49,10 +48,10 @@ private data class CloudFlareDNSResponse(
     )
 }
 
-fun OkHttpClient.Builder.bypassSNI() = dns(SNIBypassDNS).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
+fun OkHttpClient.Builder.bypassSNIOnDesktop() = dns(SNIBypassDNS).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
 
-@SuppressLint("CustomX509TrustManager")
-internal object BypassTrustManager : X509TrustManager {
+@Suppress("CustomX509TrustManager")
+private object BypassTrustManager : X509TrustManager {
     @Suppress("TrustAllX509TrustManager")
     override fun checkClientTrusted(x509Certificates: Array<X509Certificate>, s: String) = Unit
     @Suppress("TrustAllX509TrustManager")
@@ -60,7 +59,7 @@ internal object BypassTrustManager : X509TrustManager {
     override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
 }
 
-internal object BypassSSLSocketFactory : SSLSocketFactory() {
+private object BypassSSLSocketFactory : SSLSocketFactory() {
     @Throws(IOException::class)
     override fun createSocket(paramSocket: Socket?, host: String?, port: Int, autoClose: Boolean): Socket {
         val inetAddress = paramSocket!!.inetAddress
@@ -96,7 +95,7 @@ internal object BypassSSLSocketFactory : SSLSocketFactory() {
     }
 }
 
-internal object SNIBypassDNS : Dns {
+private object SNIBypassDNS : Dns {
     private val client = OkHttpClient.Builder().apply {
         ignoreSSL()
     }.build()

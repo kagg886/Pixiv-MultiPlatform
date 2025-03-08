@@ -9,7 +9,7 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
         config {
             followRedirects(true)
             if (AppConfig.byPassSNI) {
-                bypassSNI()
+                bypassSNIOnAndroid()
             }
         }
     }
