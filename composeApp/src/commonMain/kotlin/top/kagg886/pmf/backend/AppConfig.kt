@@ -47,7 +47,15 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordNovelHistory by boolean("record_novel", true)
     var recordSearchHistory by boolean("record_search", true)
 
+    @Deprecated("Deprecated", replaceWith = ReplaceWith("AppConfig.bypassSettings"))
     var byPassSNI by boolean("bypass_sni", false)
+
+    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
+    var bypassSettings: BypassSetting by serializedValue(
+        key = "bypass_settings",
+        defaultValue = BypassSetting.None,
+    )
+
 
     var checkUpdateOnStart by boolean("check_update_on_start", true)
     var checkFailedToast by boolean("check_failed_toast", true)
@@ -70,5 +78,39 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         @Serializable
         @SerialName("fix_width")
         data class FixWidth(val size: Int) : Gallery
+    }
+
+    @Serializable
+    @Polymorphic
+    sealed interface BypassSetting {
+        @Serializable
+        @SerialName("none")
+        data object None : BypassSetting
+
+        @Serializable
+        @SerialName("sni-replace")
+        data class SNIReplace(
+            val url: String = "https://1.0.0.1/dns-query",
+            val fallback: Map<String, List<String>> = mapOf(
+                "app-api.pixiv.net" to listOf("210.140.139.155"),
+                "oauth.secure.pixiv.net" to listOf("210.140.139.155"),
+                "i.pximg.net" to listOf("210.140.139.133"),
+                "s.pximg.net" to listOf("210.140.139.133"),
+            ),
+            val nonStrictSSL:Boolean = true
+        ) : BypassSetting
+
+        @Serializable
+        @SerialName("proxy")
+        data class Proxy(
+            val host: String = "localhost",
+            val port: Int = 7890,
+            val type: ProxyType = ProxyType.HTTP,
+        ):BypassSetting {
+
+            enum class ProxyType {
+                HTTP, SOCKS
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 package top.kagg886.pmf.ui.route.main.setting
 
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.*
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +23,7 @@ import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -108,7 +109,7 @@ class SettingScreen : Screen {
                 SettingsFileUpload(
                     title = { Text("设置主题") },
                     enabled = !inNight,
-                    extensions = listOf("zip","json"),
+                    extensions = listOf("zip", "json"),
                     subTitle = {
                         AnimatedContent(
                             inNight
@@ -341,13 +342,13 @@ class SettingScreen : Screen {
                         Text("动态图片支持(实验性)")
                     },
                     subtitle = {
-                       Text(
-                           buildAnnotatedString {
-                               appendLine("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
-                               appendLine("该功能在Android上运行较为缓慢(合成4帧约8秒)，请酌情开启。")
-                               appendLine("如有必要请选择其他Pixiv动图导出工具。")
-                           }
-                       )
+                        Text(
+                            buildAnnotatedString {
+                                appendLine("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
+                                appendLine("该功能在Android上运行较为缓慢(合成4帧约8秒)，请酌情开启。")
+                                appendLine("如有必要请选择其他Pixiv动图导出工具。")
+                            }
+                        )
                     },
                     onCheckedChange = {
                         gifSupport = it
@@ -600,64 +601,127 @@ class SettingScreen : Screen {
                 )
             }
             SettingsGroup(title = { Text(text = "网络设置") }) {
-                var byPassSni by remember {
-                    mutableStateOf(AppConfig.byPassSNI)
+                var bypassSetting by remember {
+                    mutableStateOf(AppConfig.bypassSettings)
                 }
-                LaunchedEffect(byPassSni) {
-                    AppConfig.byPassSNI = byPassSni
+                LaunchedEffect(bypassSetting) {
+                    AppConfig.bypassSettings = bypassSetting
                 }
-                SettingsSwitch(
-                    state = byPassSni,
-                    title = {
-                        Text("SNI Bypass(重启生效)")
+
+                SettingsDropdownMenu(
+                    title = { Text("直连方案") },
+                    subTitle = { Text("在部分地区无法访问Pixiv API，可以更改此设置以解除限制。") },
+                    data = listOf(
+                        AppConfig.BypassSetting.None,
+                        AppConfig.BypassSetting.Proxy(),
+                        AppConfig.BypassSetting.SNIReplace()
+                    ),
+                    current = bypassSetting,
+                    onSelected = {
+                        bypassSetting = it
                     },
-                    subtitle = {
-                        Text("绕过Pixiv SNI Checker，可实现免VPN直连。若拥有梯子环境请关闭此功能以提高加载速度")
+                    optionsFormat = {
+                        when (it) {
+                            AppConfig.BypassSetting.None -> "无"
+                            is AppConfig.BypassSetting.Proxy -> "代理"
+                            is AppConfig.BypassSetting.SNIReplace -> "SNI替换"
+                        }
                     },
-                    onCheckedChange = {
-                        byPassSni = it
-                    },
-                    //TODO SNI bypass is disabled for Apple Platform
-                    enabled = currentPlatform !is Platform.Apple
                 )
 
-//                var customPixivImageHost by remember {
-//                    mutableStateOf(AppConfig.customPixivImageHost)
-//                }
-//                LaunchedEffect(customPixivImageHost) {
-//                    AppConfig.customPixivImageHost = customPixivImageHost
-//                }
-//                val snack = LocalSnackBarHost.current
-//                val scope = rememberCoroutineScope()
-//                SettingsTextField(
-//                    value = customPixivImageHost,
-//                    onValueChange = {
-//                        if (it.isEmpty()) {
-//                            customPixivImageHost = ""
-//                            scope.launch {
-//                                snack.showSnackbar("已关闭自定义Pixiv Image代理")
-//                            }
-//                            return@SettingsTextField
-//                        }
-//                        val url = it.toHttpUrlOrNull()
-//                        if (url == null) {
-//                            scope.launch {
-//                                snack.showSnackbar("请输入正确的URL")
-//                            }
-//                            return@SettingsTextField
-//                        }
-//                        customPixivImageHost = it
-//                    },
-//                    title = {
-//                        Text("自定义Pixiv Image代理")
-//                    },
-//                    subTitle = {
-//                        Text("替换pixiv图片直链的url-host以提高加载速度。\n留空则禁用此属性\ntips：该选项开启时会强制忽略pixiv的ssl证书校验，因此api的加载速度可能会变慢")
-//                    },
-//                    dialogPlaceHolder = {
-//                        Text("e.g. i.pximg.net")
-//                    }
-//                )
+                AnimatedContent(
+                    targetState = bypassSetting,
+                    transitionSpec = { expandVertically() togetherWith shrinkVertically() }
+                ) { readOnlySettings ->
+                    Column {
+                        when (readOnlySettings) {
+                            AppConfig.BypassSetting.None -> {}
+                            is AppConfig.BypassSetting.Proxy -> {
+                                SettingsDropdownMenu(
+                                    title = { Text("代理类型") },
+                                    current = readOnlySettings.type,
+                                    data = AppConfig.BypassSetting.Proxy.ProxyType.entries,
+                                    onSelected = {
+                                        bypassSetting = readOnlySettings.copy(type = it)
+                                    }
+                                )
+
+                                SettingsTextField(
+                                    title = { Text("代理地址") },
+                                    value = readOnlySettings.host,
+                                    onValueChange = {
+                                        bypassSetting = readOnlySettings.copy(host = it)
+                                    }
+                                )
+                                SettingsTextField(
+                                    title = { Text("代理端口") },
+                                    value = readOnlySettings.port.toString(),
+                                    onValueChange = {
+                                        val port = it.toIntOrNull() ?: return@SettingsTextField
+                                        bypassSetting = readOnlySettings.copy(port = port)
+                                    }
+                                )
+                            }
+
+                            is AppConfig.BypassSetting.SNIReplace -> {
+
+                                val snack = LocalSnackBarHost.current
+                                val scope = rememberCoroutineScope()
+                                SettingsTextField(
+                                    title = { Text("DoH地址") },
+                                    subTitle = {
+                                        Text(
+                                            buildAnnotatedString {
+                                                appendLine("通过DoH来解析Pixiv真实ip。")
+                                                appendLine("若默认DoH不可用，请尝试更换此值为合法且能解析pixivvision.net的DoH服务器。")
+                                            }
+                                        )
+                                    },
+                                    value = readOnlySettings.url,
+                                    onValueChange = {
+                                        bypassSetting = readOnlySettings.copy(url = it)
+                                    }
+                                )
+                                SettingsSwitch(
+                                    state = readOnlySettings.nonStrictSSL,
+                                    title = {
+                                        Text("忽略SSL错误")
+                                    },
+                                    subtitle = {
+                                        Text("关闭后将不会忽略非严格SSL错误(可能造成DoH解析失败)，一般不会调整此设置。")
+                                    },
+                                    onCheckedChange = {
+                                        bypassSetting = readOnlySettings.copy(nonStrictSSL = it)
+                                    }
+                                )
+                                SettingsTextField(
+                                    title = { Text("内置IP池列表") },
+                                    subTitle = {
+                                        Text(
+                                            buildAnnotatedString {
+                                                appendLine("DoH不可用时直接提供此表中的IP")
+                                                appendLine("作为最后的防御手段，该ip一定要可以直连")
+                                            }
+                                        )
+                                    },
+                                    value = Json.encodeToString(readOnlySettings.fallback),
+                                    onValueChange = {
+                                        val fallback = try {
+                                            Json.decodeFromString<Map<String, List<String>>>(it)
+                                        } catch (e: Exception) {
+                                            scope.launch {
+                                                snack.showSnackbar("格式错误")
+                                            }
+                                            return@SettingsTextField
+                                        }
+                                        bypassSetting = readOnlySettings.copy(fallback = fallback)
+                                    }
+                                )
+                            }
+                        }
+
+                    }
+                }
             }
             SettingsGroup(title = { Text(text = "登录会话") }) {
                 val clip = LocalClipboardManager.current
