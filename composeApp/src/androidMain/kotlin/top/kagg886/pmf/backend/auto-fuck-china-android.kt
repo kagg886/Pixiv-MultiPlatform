@@ -94,7 +94,7 @@ private data class SNIReplaceDNS(
         } catch (e: Throwable) {
             logger.w(e) { "query DoH failed, use system dns" }
 
-            fallback[hostname]!!.map { InetAddress.getAllByName(it)!!.toList() }.flatten() + Dns.SYSTEM.lookup(hostname)
+            Dns.SYSTEM.lookup(hostname) + fallback[hostname]!!.map { InetAddress.getAllByName(it)!!.toList() }.flatten()
         }
         return data
     }
