@@ -72,7 +72,7 @@ jobs:
           APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: Zip artifact
-        run: tar -czvf linux.tar.gz composeApp/build/compose/binaries/main-release/app/*
+        run: tar -czvf linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .
 
       - name: Upload linux artifact
         uses: actions/upload-artifact@v4
