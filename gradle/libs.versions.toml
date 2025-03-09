@@ -25,6 +25,7 @@ compose-settings = "2.6.0"
 okio = "3.10.2"
 
 [libraries]
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }

@@ -40,9 +40,9 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import top.kagg886.pmf.backend.PlatformEngine
-import top.kagg886.pmf.backend.PlatformConfig
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig

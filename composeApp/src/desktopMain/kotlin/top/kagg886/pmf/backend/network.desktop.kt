@@ -35,4 +35,4 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
 
 actual val PlatformEngine: HttpClientEngineFactory<*> = OkHttp
 
-actual val PlatformConfig: HttpClientConfig<*>.() -> Unit = InternalType as HttpClientConfig<*>.() -> Unit
+actual val PlatformConfig0: HttpClientConfig<*>.() -> Unit = InternalType as HttpClientConfig<*>.() -> Unit
