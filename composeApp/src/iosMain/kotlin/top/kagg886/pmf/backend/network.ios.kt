@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.darwin.*
+import top.kagg886.pmf.util.logger
 
 /**
  * Raw值	CFNetwork/CFProxySupport.h	CFNetwork/CFHTTPStream.h CFNetwork/CFSocketStream.h
@@ -44,11 +45,11 @@ private val InternalType: HttpClientConfig<DarwinClientEngineConfig>.() -> Unit 
             }
 
             is AppConfig.BypassSetting.SNIReplace -> {
-                Logger.w("SNIReplace is not supported on iOS")
+                logger.w("SNIReplace is not supported on iOS")
             }
         }
 
-        Logger.i("BypassType: " + AppConfig.bypassSettings::class.simpleName)
+        logger.i("BypassType: " + AppConfig.bypassSettings::class.simpleName)
     }
 }
 

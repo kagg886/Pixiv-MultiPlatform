@@ -9,14 +9,14 @@ import android.util.Log
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
-import dev.whyoleg.cryptography.CryptographyProvider
+import top.kagg886.pmf.util.initFileLogger
 import kotlin.concurrent.thread
 
 class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtExceptionHandler {
 
     override fun onCreate() {
         super.onCreate()
-        startKoin0()
+        setupEnv()
 
         Thread.setDefaultUncaughtExceptionHandler(this)
         Handler(Looper.getMainLooper()).post {

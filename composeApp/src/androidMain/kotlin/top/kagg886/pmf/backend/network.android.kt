@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
+import top.kagg886.pmf.util.logger
 import java.net.InetSocketAddress
 import java.net.Proxy
 
@@ -29,7 +30,7 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
                     )
                 }
             }
-            Logger.i("BypassType: " + AppConfig.bypassSettings::class.simpleName)
+            logger.i("BypassType: " + AppConfig.bypassSettings::class.simpleName)
         }
     }
 }

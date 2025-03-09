@@ -19,6 +19,7 @@ import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.PlatformEngine
+import top.kagg886.pmf.util.logger
 
 @Serializable
 data class Asset(
@@ -84,7 +85,7 @@ class UpdateCheckViewModel(
         }
         if (result.isFailure) {
             result.exceptionOrNull()?.let {
-                Logger.e(it) { "update check failed: ${it.message}" }
+                logger.e(it) { "update check failed: ${it.message}" }
             }
             if (AppConfig.checkFailedToast) {
                 postSideEffect(UpdateCheckSideEffect.Toast("更新检测失败..."))

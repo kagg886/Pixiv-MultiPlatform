@@ -17,6 +17,7 @@ import kotlin.uuid.Uuid
 
 class GIFBuilder(val width: Int, val height: Int) {
     companion object {
+        private val logger = Logger.withTag(this::class.qualifiedName!!)
         /**
          * GIF标识头
          */
@@ -168,9 +169,9 @@ class GIFBuilder(val width: Int, val height: Int) {
         if (buffering > 0) ApplicationExtension.buffering(sink, buffering)
 
         list.forEachIndexed { index, buffer ->
-            Logger.i("Writing Frame: $index")
+            logger.i("Writing Frame: $index")
             buffer.buffer().use { it.transfer(sink) }
-            Logger.i("Writing Frame: $index done.")
+            logger.i("Writing Frame: $index done.")
             listener?.onProgress(GIFMakingStep.WritingData(index, frames.size))
         }
         trailer(sink)

@@ -11,7 +11,7 @@ import platform.UIKit.UIViewController
 
 @Suppress("unused")
 fun MainViewController(): UIViewController {
-    startKoin0()
+    setupEnv()
     SingletonSketch.setSafe {
         Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
     }

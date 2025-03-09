@@ -25,7 +25,7 @@ object SystemConfig {
                 file.createNewFile()
             }
 
-            Logger.d("load config from ${file.absolutePath()}")
+            logger.d("load config from ${file.absolutePath()}")
 
             val settings = JsonDefaultSettings(
                 delegate =
@@ -34,7 +34,7 @@ object SystemConfig {
                             file.source().buffer().readUtf8().ifEmpty { "{}" }
                         )
                     }.getOrElse {
-                        Logger.w("config create failed, now create a new config")
+                        logger.w("config create failed, now create a new config")
                         JsonObject(emptyMap())
                     },
                 onModify = { json ->

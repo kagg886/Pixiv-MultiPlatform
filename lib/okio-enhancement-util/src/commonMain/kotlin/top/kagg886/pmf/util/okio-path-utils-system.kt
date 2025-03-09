@@ -6,7 +6,11 @@ import kotlinx.coroutines.runBlocking
 import okio.*
 import okio.Path.Companion.toPath
 
-inline fun Path.sink() = FileSystem.SYSTEM.sink(this)
+inline fun Path.meta() = FileSystem.SYSTEM.metadata(this)
+
+inline fun Path.sink(append:Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(this)) {
+    if (append) appendingSink() else sink(fileOffset = 0)
+}
 
 inline fun Source.transfer(sink: Sink) {
     val buf = Buffer()
@@ -36,7 +40,7 @@ inline fun Path.listFile() = FileSystem.SYSTEM.list(this)
 
 inline fun Path.exists() = FileSystem.SYSTEM.exists(this)
 
-inline fun Path.isDirectory() = FileSystem.SYSTEM.metadata(this).isDirectory
+inline fun Path.isDirectory() = meta().isDirectory
 
 inline fun Path.mkdirs() = FileSystem.SYSTEM.createDirectories(this)
 
@@ -73,7 +77,7 @@ fun Path.unzip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.reso
         tr.parentFile()?.mkdirs()
         tr.createNewFile()
 
-        tr.sink().buffer().use { out->
+        tr.sink().buffer().use { out ->
             sys.source(it).transfer(out)
             out.flush()
         }

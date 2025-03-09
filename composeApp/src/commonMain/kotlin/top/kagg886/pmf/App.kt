@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
+import co.touchlab.kermit.Severity
 import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportKtorHttpUri
@@ -37,8 +38,14 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.core.Koin
 import org.koin.core.context.startKoin
+import org.koin.core.logger.Level
+import org.koin.core.logger.Level.*
+import org.koin.core.logger.Logger
+import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
+import org.koin.ext.getFullName
 import top.kagg886.pmf.backend.PlatformEngine
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
@@ -70,9 +77,10 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.initFileLogger
+import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.toColorScheme
 import kotlin.reflect.KClass
-import kotlin.time.Duration.Companion.seconds
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -308,8 +316,33 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
     return build()
 }
 
-fun startKoin0() {
+fun setupEnv() {
+    //init logger
+    initFileLogger()
+
+    //init koin
     startKoin {
+        logger(
+            object : Logger() {
+                override fun display(level: Level, msg: MESSAGE) {
+                    if (level == NONE) {
+                        return
+                    }
+                    logger.processLog(
+                        severity = when (level) {
+                            DEBUG -> Severity.Debug
+                            INFO -> Severity.Info
+                            WARNING -> Severity.Warn
+                            ERROR -> Severity.Error
+                            else -> throw IllegalArgumentException("unknown level")
+                        },
+                        tag = Koin::class.getFullName(),
+                        throwable = null,
+                        message = msg
+                    )
+                }
+            }
+        )
         modules(
             //vm
             module {
@@ -345,12 +378,6 @@ fun startKoin0() {
                 single {
                     HttpClient(PlatformEngine) {
                         PlatformConfig()
-
-                        install(HttpTimeout) {
-                            socketTimeoutMillis = 30.seconds.inWholeMilliseconds
-                            requestTimeoutMillis = 30.seconds.inWholeMilliseconds
-                            connectTimeoutMillis = 30.seconds.inWholeMilliseconds
-                        }
 
                         defaultRequest {
                             header("Referer", "https://www.pixiv.net/")

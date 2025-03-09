@@ -6,6 +6,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.Dns
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import top.kagg886.pmf.util.logger
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Socket
@@ -91,7 +92,7 @@ private data class SNIReplaceDNS(
                 InetAddress.getByName(it.data)
             }
         } catch (e: Throwable) {
-            Logger.w(e) { "query DoH failed, use system dns" }
+            logger.w(e) { "query DoH failed, use system dns" }
 
             fallback[hostname]!!.map { InetAddress.getAllByName(it)!!.toList() }.flatten() + Dns.SYSTEM.lookup(hostname)
         }

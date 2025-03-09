@@ -5,10 +5,11 @@ import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
+import top.kagg886.pmf.util.logger
 
 private val KermitLogger = object : Logger {
     override fun log(message: String) {
-        co.touchlab.kermit.Logger.i(message)
+        logger.d(message)
     }
 }
 

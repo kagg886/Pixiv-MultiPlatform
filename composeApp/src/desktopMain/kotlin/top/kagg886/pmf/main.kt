@@ -18,7 +18,7 @@ import kotlin.system.exitProcess
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
-    startKoin0()
+    setupEnv()
     SingletonSketch.setSafe {
         Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
     }

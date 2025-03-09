@@ -2,6 +2,7 @@
 
 package top.kagg886.pmf.ui.route.login.v2
 
+import androidx.compose.ui.text.intl.Locale
 import dev.datlag.kcef.KCEF
 import dev.datlag.kcef.KCEFException
 import dev.datlag.kcef.Platform

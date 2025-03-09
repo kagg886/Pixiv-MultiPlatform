@@ -26,6 +26,7 @@ import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.route.login.v2.LoginType.*
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
 import kotlin.time.Duration.Companion.seconds
 
@@ -73,7 +74,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         val u = try {
             account.getCurrentUserSimpleProfile()
         } catch (e: Exception) {
-            Logger.e(e) { "check pixiv token status failed: ${e.message}" }
+            logger.e(e) { "check pixiv token status failed: ${e.message}" }
             null
         }
         if (u == null) {
@@ -102,7 +103,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             }
             account.getCurrentUserSimpleProfile()
         } catch (e: Exception) {
-            Logger.e(e) { "verify pixiv url failed: ${e.message}" }
+            logger.e(e) { "verify pixiv url failed: ${e.message}" }
             null
         }
 

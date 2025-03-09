@@ -131,7 +131,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 if (result.isFailure) {
                     //失败则报错
                     dao.update(task.copy(progress = -1f))
-                    Logger.e(result.exceptionOrNull()!!) { "Illust: [${illust.title}(${illust.id})] download failed: ${result.exceptionOrNull()?.message}" }
+                    logger.e(result.exceptionOrNull()!!) { "Illust: [${illust.title}(${illust.id})] download failed: ${result.exceptionOrNull()?.message}" }
                     postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载失败"))
                     file.deleteRecursively()
                     return@runOn
