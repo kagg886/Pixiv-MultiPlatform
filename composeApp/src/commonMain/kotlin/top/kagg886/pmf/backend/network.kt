@@ -25,7 +25,7 @@ val PlatformConfig: HttpClientConfig<*>.() -> Unit = {
         logger = KermitLogger
         level = LogLevel.ALL
         filter {
-            it.url.host.contains("pximg")
+            !it.url.host.contains("pximg")
         }
         sanitizeHeader { it == HttpHeaders.Authorization }
     }

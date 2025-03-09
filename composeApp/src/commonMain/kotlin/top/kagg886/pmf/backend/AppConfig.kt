@@ -94,7 +94,8 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
                 "i.pximg.net" to listOf("210.140.139.133"),
                 "s.pximg.net" to listOf("210.140.139.133"),
             ),
-            val nonStrictSSL:Boolean = true
+            val nonStrictSSL: Boolean = true,
+            val dohTimeout: Int = 5,
         ) : BypassSetting
 
         @Serializable
@@ -103,7 +104,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
             val host: String = "localhost",
             val port: Int = 7890,
             val type: ProxyType = ProxyType.HTTP,
-        ):BypassSetting {
+        ) : BypassSetting {
 
             enum class ProxyType {
                 HTTP, SOCKS

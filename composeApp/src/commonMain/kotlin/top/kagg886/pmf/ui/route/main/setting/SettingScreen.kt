@@ -682,6 +682,28 @@ class SettingScreen : Screen {
                                         bypassSetting = readOnlySettings.copy(url = it)
                                     }
                                 )
+
+                                SettingsTextField(
+                                    title = { Text("DoH超时时间") },
+                                    subTitle = {
+                                        Text(
+                                            buildAnnotatedString {
+                                                appendLine("设置DoH的超时时间，单位为秒")
+                                                appendLine("若DoH解析失败，请尝试调高DoH解析时间以给予更多超时时间以解析DoH")
+                                            }
+                                        )
+                                    },
+                                    value = readOnlySettings.dohTimeout.toString(),
+                                    onValueChange = {
+                                        val data = it.toIntOrNull() ?: run {
+                                            scope.launch {
+                                                snack.showSnackbar("格式错误")
+                                            }
+                                            return@run 5
+                                        }
+                                        bypassSetting = readOnlySettings.copy(dohTimeout = data)
+                                    }
+                                )
                                 SettingsSwitch(
                                     state = readOnlySettings.nonStrictSSL,
                                     title = {

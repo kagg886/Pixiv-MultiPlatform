@@ -15,6 +15,8 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocket
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.X509TrustManager
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 
 private val json = Json {
@@ -51,13 +53,15 @@ private data class CloudFlareDNSResponse(
 
 fun OkHttpClient.Builder.bypassSNIOnDesktop(
     queryUrl: String,
+    dohTimeout:Int = 5,
     unsafeSSL: Boolean = true,
     fallback: Map<String, List<String>>
-) = dns(SNIReplaceDNS(queryUrl, unsafeSSL, fallback)).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
+) = dns(SNIReplaceDNS(queryUrl,dohTimeout, unsafeSSL, fallback)).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
 
 
 private data class SNIReplaceDNS(
     val queryUrl: String,
+    val dohTimeout:Int = 5,
     val unsafeSSL: Boolean = true,
     val fallback: Map<String, List<String>>
 ) : Dns {
@@ -65,6 +69,7 @@ private data class SNIReplaceDNS(
         if (unsafeSSL) {
             ignoreSSL()
         }
+        callTimeout(dohTimeout.seconds.toJavaDuration())
     }.build()
     override fun lookup(hostname: String): List<InetAddress> {
         val data = try {

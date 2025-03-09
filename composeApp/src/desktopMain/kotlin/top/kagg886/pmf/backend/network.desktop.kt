@@ -18,7 +18,8 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
                     bypassSNIOnDesktop(
                         queryUrl =  config.url,
                         unsafeSSL = config.nonStrictSSL,
-                        fallback = config.fallback
+                        fallback = config.fallback,
+                        dohTimeout = config.dohTimeout
                     )
                 }
 

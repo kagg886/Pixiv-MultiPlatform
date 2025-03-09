@@ -18,7 +18,8 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
                     bypassSNIOnAndroid(
                         queryUrl =  config.url,
                         unsafeSSL = config.nonStrictSSL,
-                        fallback = config.fallback
+                        fallback = config.fallback,
+                        dohTimeout = config.dohTimeout
                     )
                 }
 
