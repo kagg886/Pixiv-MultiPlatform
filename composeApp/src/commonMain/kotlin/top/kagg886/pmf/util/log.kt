@@ -3,6 +3,9 @@ package top.kagg886.pmf.util
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
+import io.ktor.utils.io.core.*
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.datetime.*
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.char
@@ -17,7 +20,7 @@ val Any.logger: Logger
 
 fun initFileLogger() {
     Logger.setTag(BuildConfig.APP_BASE_PACKAGE)
-    Logger.addLogWriter(FileLogger(cachePath.resolve("log")))
+    Logger.setLogWriters(FileLogger(cachePath.resolve("log")))
 }
 
 /**
@@ -31,6 +34,8 @@ fun initFileLogger() {
 class FileLogger(baseFile: Path) : LogWriter(), AutoCloseable {
     private val latestPath = baseFile.resolve("latest.log")
     private val archivePath = baseFile.resolve("archive")
+
+    private val lock = reentrantLock()
 
     init {
         if (!archivePath.exists()) {
@@ -53,19 +58,26 @@ class FileLogger(baseFile: Path) : LogWriter(), AutoCloseable {
         val header = "$time ${severity.name.uppercase().padEnd(5, ' ')} $tag - "
         val body = lines.drop(1).joinToString("\n") { it.padStart(header.length + it.length, ' ') }
 
-        val print = "$header${lines[0]}${if (body.isNotBlank()) "\n$body" else ""}"
+        val mainBody = "$header${lines[0]}${if (body.isNotBlank()) "\n$body" else ""}"
 
-        latest.writeUtf8(print)
-        latest.writeUtf8("\n")
-        archive.writeUtf8(print)
-        archive.writeUtf8("\n")
+        val print = (if (throwable == null) "$mainBody\n" else "$mainBody\n${throwable.stackTraceToString()}\n").toByteArray()
+
+
+        lock.withLock {
+            latest.write(print)
+            archive.write(print)
+            latest.flush()
+            archive.flush()
+        }
     }
 
     override fun close() {
-        latest.flush()
-        latest.close()
-        archive.flush()
-        archive.close()
+        lock.withLock {
+            latest.flush()
+            archive.flush()
+            latest.close()
+            archive.close()
+        }
     }
 }
 

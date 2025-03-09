@@ -27,6 +27,7 @@ import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportKtorHttpUri
 import com.github.panpf.sketch.http.KtorStack
+import com.github.panpf.sketch.util.Logger.Level.*
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -302,6 +303,38 @@ fun SearchButton() {
 
 
 fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
+    logger(
+        level = Verbose,
+        pipeline = object : com.github.panpf.sketch.util.Logger.Pipeline {
+
+            override fun log(level: com.github.panpf.sketch.util.Logger.Level, tag: String, msg: String, tr: Throwable?) {
+                logger.processLog(
+                    severity = when (level) {
+                        Verbose -> Severity.Verbose
+                        Debug -> Severity.Debug
+                        Info -> Severity.Info
+                        Warn -> Severity.Warn
+                        Error -> Severity.Error
+                        Assert -> Severity.Assert
+                    },
+                    tag = tag,
+                    throwable = tr,
+                    message = msg
+                )
+            }
+
+            override fun flush() {
+                logger.v("")
+            }
+        }
+    )
+
+    downloadCacheOptions(
+        DiskCache.Options(
+            directory = cachePath.resolve("image"),
+            maxSize = AppConfig.cacheSize
+        )
+    )
     resultCacheOptions(
         DiskCache.Options(
             directory = cachePath.resolve("image"),

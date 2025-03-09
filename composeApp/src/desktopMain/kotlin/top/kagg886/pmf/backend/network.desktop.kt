@@ -1,6 +1,5 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
