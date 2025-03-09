@@ -879,7 +879,11 @@ class SettingScreen : Screen {
                     }
                 )
 
-                if (checkUpdateOnStart) {
+                AnimatedVisibility(
+                    checkUpdateOnStart,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
+                ) {
                     SettingsSwitch(
                         enabled = checkUpdateOnStart,
                         state = showCheckSuccessToast,
