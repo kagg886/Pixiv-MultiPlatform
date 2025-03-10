@@ -1,15 +1,12 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
 import io.ktor.utils.io.core.*
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import okio.FileNotFoundException
-import okio.Path
-import okio.buffer
+import okio.*
 import okio.use
 import top.kagg886.pmf.util.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -35,7 +32,7 @@ object SystemConfig {
                 delegate =
                     kotlin.runCatching {
                         Json.decodeFromString<JsonObject>(
-                            file.source().buffer().readUtf8().ifEmpty { "{}" }
+                            file.source().buffer().use { it.readUtf8().ifEmpty { "{}" } }
                         )
                     }.getOrElse {
                         logger.w("config create failed, now create a new config")
@@ -166,7 +163,7 @@ inline fun <T : Any> useTempFile(block: (Path) -> T): T {
     file.createNewFile()
 
     try {
-       return block(file)
+        return block(file)
     } finally {
         file.delete()
     }

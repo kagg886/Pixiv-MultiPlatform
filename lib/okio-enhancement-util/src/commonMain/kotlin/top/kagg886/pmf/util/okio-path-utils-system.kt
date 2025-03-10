@@ -22,7 +22,7 @@ inline fun Source.transfer(sink: Sink) {
     sink.flush()
 }
 
-inline fun Path.writeBytes(byteArray: ByteArray) = apply { delete();createNewFile(); }.sink().buffer().use {
+inline fun Path.writeBytes(byteArray: ByteArray) = FileSystem.SYSTEM.openReadWrite(this).apply { resize(0) }.sink().buffer().use {
     it.write(byteArray)
     it.flush()
     it.close()

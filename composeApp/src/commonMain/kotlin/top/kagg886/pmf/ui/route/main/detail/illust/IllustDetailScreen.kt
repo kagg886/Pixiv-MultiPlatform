@@ -26,10 +26,8 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.fetch.newBase64Uri
 import com.github.panpf.sketch.rememberAsyncImageState
 import com.github.panpf.sketch.request.ImageResult
-import com.github.panpf.sketch.util.MimeTypeMap
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -51,7 +49,6 @@ import top.kagg886.pmf.ui.route.main.search.v2.SearchParam
 import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.SerializableWrapper
-import top.kagg886.pmf.util.absolutePath
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
@@ -112,14 +109,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 is IllustDetailSideEffect.Toast -> host.showSnackbar(it.msg)
             }
         }
-        IllustDetailScreenContent(state)
+        IllustDetailScreenContent(state, model)
     }
 
     @Composable
-    private fun IllustDetailScreenContent(state: IllustDetailViewState) {
-        val model = rememberScreenModel<IllustDetailViewModel>(key) {
-            error("not provided")
-        }
+    private fun IllustDetailScreenContent(state: IllustDetailViewState, model: IllustDetailViewModel) {
         when (state) {
             IllustDetailViewState.Error -> {
                 ErrorPage(text = "加载失败") {
@@ -134,10 +128,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             is IllustDetailViewState.Success -> {
                 if (useWideScreenMode) {
-                    WideScreenIllustDetail(state.illust,state)
+                    WideScreenIllustDetail(state.illust, state)
                     return
                 }
-                IllustDetail(state.illust,state)
+                IllustDetail(state.illust, state)
             }
         }
 
@@ -180,7 +174,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    private fun WideScreenIllustDetail(illust: Illust,illustState: IllustDetailViewState.Success) {
+    private fun WideScreenIllustDetail(illust: Illust, illustState: IllustDetailViewState.Success) {
         Scaffold(
             topBar = {
                 IllustTopAppBar(illust)
@@ -188,7 +182,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
-                    when(illustState) {
+                    when (illustState) {
                         is IllustDetailViewState.Success.GIF -> GIFPreview(illust, illustState)
                         is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
                     }
@@ -202,7 +196,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     @OptIn(InternalVoyagerApi::class, InternalVoyagerApi::class)
     @Composable
-    private fun IllustDetail(illust: Illust,illustState: IllustDetailViewState.Success) {
+    private fun IllustDetail(illust: Illust, illustState: IllustDetailViewState.Success) {
         val state = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
@@ -226,8 +220,8 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                    when(val s = illustState) {
-                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust,s)
+                    when (val s = illustState) {
+                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust, s)
                         is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
                     }
                 }
@@ -255,7 +249,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                     if (show) {
                         ImagePreviewer(
-                            onDismiss = {show = false},
+                            onDismiss = { show = false },
                             url = listOf(state.data),
                             startIndex = 0,
                         )
