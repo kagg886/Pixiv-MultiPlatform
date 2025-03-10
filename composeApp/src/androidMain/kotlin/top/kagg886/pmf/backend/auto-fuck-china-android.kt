@@ -1,6 +1,5 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okhttp3.Dns
@@ -94,8 +93,10 @@ private data class SNIReplaceDNS(
         } catch (e: Throwable) {
             logger.w(e) { "query DoH failed, use system dns" }
 
-            Dns.SYSTEM.lookup(hostname) + fallback[hostname]!!.map { InetAddress.getAllByName(it)!!.toList() }.flatten()
+            //FIXME 不知道什么情况下fallback前置好用
+            fallback[hostname]!!.map { InetAddress.getAllByName(it)!!.toList() }.flatten() + Dns.SYSTEM.lookup(hostname)
         }
+        logger.d("DNS lookup $hostname result : $data")
         return data
     }
 

@@ -3,6 +3,8 @@ package top.kagg886.pmf.backend
 import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
 import io.ktor.utils.io.core.*
+import kotlinx.atomicfu.locks.reentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import okio.FileNotFoundException
@@ -26,6 +28,8 @@ object SystemConfig {
             }
 
             logger.d("load config from ${file.absolutePath()}")
+
+            val lock = reentrantLock()
 
             val settings = JsonDefaultSettings(
                 delegate =

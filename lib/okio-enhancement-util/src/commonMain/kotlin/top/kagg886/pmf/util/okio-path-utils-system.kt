@@ -8,7 +8,7 @@ import okio.Path.Companion.toPath
 
 inline fun Path.meta() = FileSystem.SYSTEM.metadata(this)
 
-inline fun Path.sink(append:Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(this)) {
+inline fun Path.sink(append: Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(this)) {
     if (append) appendingSink() else sink(fileOffset = 0)
 }
 
@@ -22,7 +22,7 @@ inline fun Source.transfer(sink: Sink) {
     sink.flush()
 }
 
-inline fun Path.writeBytes(byteArray: ByteArray) = sink().buffer().use {
+inline fun Path.writeBytes(byteArray: ByteArray) = apply { delete();createNewFile(); }.sink().buffer().use {
     it.write(byteArray)
     it.flush()
     it.close()

@@ -20,7 +20,7 @@ val Any.logger: Logger
 
 fun initFileLogger() {
     Logger.setTag(BuildConfig.APP_BASE_PACKAGE)
-    Logger.setLogWriters(FileLogger(cachePath.resolve("log")))
+    Logger.addLogWriter(FileLogger(cachePath.resolve("log")))
 }
 
 /**
