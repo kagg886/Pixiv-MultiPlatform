@@ -42,7 +42,9 @@ object SystemConfig {
                         JsonObject(emptyMap())
                     },
                 onModify = { json ->
-                    file.writeBytes(Json.encodeToString(json).toByteArray())
+                    lock.withLock {
+                        file.writeBytes(Json.encodeToString(json).toByteArray())
+                    }
                 }
             )
             return settings
