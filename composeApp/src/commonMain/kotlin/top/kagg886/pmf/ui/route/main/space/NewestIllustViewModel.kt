@@ -13,9 +13,7 @@ class NewestIllustViewModel : IllustFetchViewModel() {
         return object : InfinityRepository<Illust>() {
             private var ctx: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
-                kotlin.runCatching {
-                    ctx = if (ctx == null) client.getLatestIllust() else client.getLatestIllustNext(ctx!!)
-                }
+                ctx = if (ctx == null) client.getLatestIllust() else client.getLatestIllustNext(ctx!!)
                 return ctx?.illusts
             }
 

@@ -17,7 +17,7 @@ abstract class InfinityRepository<T>(private val context: CoroutineContext = Emp
                        try {
                            onFetchList()
                        } catch (e:Throwable) {
-                           logger.e("fetch failed",e)
+                           logger.w("fetch failed",e)
                            null
                        }
                     }

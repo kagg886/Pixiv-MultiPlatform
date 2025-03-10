@@ -26,16 +26,11 @@ private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewMode
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>() {
             private var context: IllustResult? = null
-            override suspend fun onFetchList(): List<Illust>? {
-                val result = kotlin.runCatching {
-                    context = if (context == null) {
-                        client.getUserLikeIllust(user)
-                    } else {
-                        client.getUserLikeIllustNext(context!!)
-                    }
-                }
-                if (result.isFailure) {
-                    return null
+            override suspend fun onFetchList(): List<Illust> {
+                context = if (context == null) {
+                    client.getUserLikeIllust(user)
+                } else {
+                    client.getUserLikeIllustNext(context!!)
                 }
                 return context!!.illusts
             }

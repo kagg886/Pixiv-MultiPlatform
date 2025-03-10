@@ -13,12 +13,10 @@ class RecommendIllustViewModel : IllustFetchViewModel() {
         return object : InfinityRepository<Illust>(coroutineContext) {
             private var context: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
-                kotlin.runCatching {
-                    context = if (context == null) {
-                        client.getRecommendIllust()
-                    } else {
-                        client.getRecommendIllustNext(context!!)
-                    }
+                context = if (context == null) {
+                    client.getRecommendIllust()
+                } else {
+                    client.getRecommendIllustNext(context!!)
                 }
                 return context?.illusts
             }

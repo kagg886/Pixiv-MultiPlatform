@@ -23,17 +23,13 @@ private class AuthorFollowViewModel(val user: Int) : AuthorFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<User> {
         return object : InfinityRepository<User>() {
             var i = 1
-            override suspend fun onFetchList(): List<User>? {
-                val result = kotlin.runCatching {
-                    client.getFollowingList(user) {
-                        page = i
-                    }
+            override suspend fun onFetchList(): List<User> {
+                val result = client.getFollowingList(user) {
+                    page = i
                 }
-                if (result.isFailure) {
-                    return null
-                }
+
                 i++
-                return result.getOrThrow()
+                return result
             }
         }
     }

@@ -23,15 +23,11 @@ class AuthorNovelViewModel(val id: Long) : NovelFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
         return object : InfinityRepository<Novel>(coroutineContext) {
             var page = 1
-            override suspend fun onFetchList(): List<Novel>? {
-                val result = kotlin.runCatching {
-                    client.getUserNovel(id, page)
-                }
-                if (result.isFailure) {
-                    return null
-                }
+            override suspend fun onFetchList(): List<Novel> {
+                val result = client.getUserNovel(id, page)
+
                 page++
-                return result.getOrThrow().ifEmpty { null }
+                return result
             }
         }
     }

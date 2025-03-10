@@ -13,12 +13,10 @@ class RecommendNovelViewModel : NovelFetchViewModel() {
         return object : InfinityRepository<Novel>(coroutineContext) {
             private var context: NovelResult? = null
             override suspend fun onFetchList(): List<Novel>? {
-                kotlin.runCatching {
-                    context = if (context == null) {
-                        client.getRecommendNovel()
-                    } else {
-                        client.getRecommendNovelNext(context!!)
-                    }
+                context = if (context == null) {
+                    client.getRecommendNovel()
+                } else {
+                    client.getRecommendNovelNext(context!!)
                 }
                 return context?.novels
             }

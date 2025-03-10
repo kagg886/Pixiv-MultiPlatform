@@ -11,16 +11,11 @@ class SpaceIllustViewModel:IllustFetchViewModel() {
         return object :InfinityRepository<Illust>() {
             private var it = 1
             override suspend fun onFetchList(): List<Illust>? {
-                val result = kotlin.runCatching {
-                    client.getIllustFollowList {
-                        page = it
-                    }
-                }
-                if (result.isFailure) {
-                    return null
+                val result = client.getIllustFollowList {
+                    page = it
                 }
                 it++
-                return result.getOrThrow()
+                return result
             }
 
         }

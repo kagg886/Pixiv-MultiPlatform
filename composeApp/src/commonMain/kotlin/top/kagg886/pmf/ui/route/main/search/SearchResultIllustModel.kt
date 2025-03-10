@@ -17,17 +17,13 @@ class SearchResultIllustModel(
         return object : InfinityRepository<Illust>(coroutineContext) {
             private var page1 = 0
             override suspend fun onFetchList(): List<Illust>? {
-                val list = kotlin.runCatching {
-                    client.searchIllust(word) {
-                        searchTarget = this@SearchResultIllustModel.searchTarget
-                        sort = this@SearchResultIllustModel.sort
-                        page = page1 + 1
-                    }
+                val list = client.searchIllust(word) {
+                    searchTarget = this@SearchResultIllustModel.searchTarget
+                    sort = this@SearchResultIllustModel.sort
+                    page = page1 + 1
                 }
-                if (list.isSuccess) {
-                    page1 += 1
-                }
-                return list.getOrNull()
+                page1++
+                return list
             }
         }
     }

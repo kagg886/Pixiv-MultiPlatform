@@ -87,13 +87,11 @@ class BookmarkNovelViewModel(
         return object : InfinityRepository<Novel>(coroutineContext) {
             private var ctx: NovelResult? = null
             override suspend fun onFetchList(): List<Novel>? {
-                kotlin.runCatching {
-                    ctx = if (ctx == null) client.getUserLikeNovel(
-                        id,
-                        restrict,
-                        tagFilter
-                    ) else client.getUserLikeNovelNext(ctx!!)
-                }
+                ctx = if (ctx == null) client.getUserLikeNovel(
+                    id,
+                    restrict,
+                    tagFilter
+                ) else client.getUserLikeNovelNext(ctx!!)
                 return ctx?.novels
             }
         }

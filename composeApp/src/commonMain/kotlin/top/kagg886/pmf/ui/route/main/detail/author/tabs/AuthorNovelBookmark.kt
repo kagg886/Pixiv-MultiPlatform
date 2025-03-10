@@ -25,16 +25,11 @@ private class AuthorNovelBookmarkViewModel(val user: Int) : NovelFetchViewModel(
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
         return object : InfinityRepository<Novel>() {
             private var context : NovelResult? = null
-            override suspend fun onFetchList(): List<Novel>? {
-                val result = kotlin.runCatching {
-                    context = if (context == null) {
-                        client.getUserLikeNovel(user)
-                    } else {
-                        client.getUserLikeNovelNext(context!!)
-                    }
-                }
-                if (result.isFailure) {
-                    return null
+            override suspend fun onFetchList(): List<Novel> {
+                context = if (context == null) {
+                    client.getUserLikeNovel(user)
+                } else {
+                    client.getUserLikeNovelNext(context!!)
                 }
                 return context!!.novels
             }

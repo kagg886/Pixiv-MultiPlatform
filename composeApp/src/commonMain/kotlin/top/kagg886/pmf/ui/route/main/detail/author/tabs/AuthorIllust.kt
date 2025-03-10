@@ -23,15 +23,10 @@ private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>() {
             private var page = 1
-            override suspend fun onFetchList(): List<Illust>? {
-                val result = kotlin.runCatching {
-                    client.getUserIllust(user.toLong(), page)
-                }
-                if (result.isFailure) {
-                    return null
-                }
+            override suspend fun onFetchList(): List<Illust> {
+                val result = client.getUserIllust(user.toLong(), page)
                 page++
-                return result.getOrThrow()
+                return result
             }
 
         }

@@ -16,18 +16,14 @@ class SearchResultNovelModel(
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
         return object : InfinityRepository<Novel>(coroutineContext) {
             private var page1 = 0
-            override suspend fun onFetchList(): List<Novel>? {
-                val list = kotlin.runCatching {
-                    client.searchNovel(word) {
-                        searchTarget = this@SearchResultNovelModel.searchTarget
-                        sort = this@SearchResultNovelModel.sort
-                        page = page1 + 1
-                    }
+            override suspend fun onFetchList(): List<Novel> {
+                val list = client.searchNovel(word) {
+                    searchTarget = this@SearchResultNovelModel.searchTarget
+                    sort = this@SearchResultNovelModel.sort
+                    page = page1 + 1
                 }
-                if (list.isSuccess) {
-                    page1 += 1
-                }
-                return list.getOrNull()
+                page1++
+                return list
             }
         }
     }

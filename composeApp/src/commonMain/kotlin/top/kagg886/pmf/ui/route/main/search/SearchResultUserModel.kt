@@ -12,15 +12,10 @@ class SearchResultUserModel(
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<User> =
         object : InfinityRepository<User>(coroutineContext) {
             private var page = 1
-            override suspend fun onFetchList(): List<User>? {
-                val result = kotlin.runCatching {
-                    client.searchUser(keyword = user, page = page)
-                }
-                if (result.isFailure) {
-                    return null
-                }
+            override suspend fun onFetchList(): List<User> {
+                val result =  client.searchUser(keyword = user, page = page)
                 page++
-                return result.getOrThrow()
+                return result
             }
         }
 
