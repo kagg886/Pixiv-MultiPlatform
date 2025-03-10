@@ -67,13 +67,11 @@ class BookmarkIllustViewModel(
         return object : InfinityRepository<Illust>(coroutineContext) {
             private var ctx: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
-                kotlin.runCatching {
-                    ctx = if (ctx == null) client.getUserLikeIllust(
-                        id,
-                        restrict,
-                        tagFilter
-                    ) else client.getUserLikeIllustNext(ctx!!)
-                }
+                ctx = if (ctx == null) client.getUserLikeIllust(
+                    id,
+                    restrict,
+                    tagFilter
+                ) else client.getUserLikeIllustNext(ctx!!)
                 return ctx?.illusts
             }
         }

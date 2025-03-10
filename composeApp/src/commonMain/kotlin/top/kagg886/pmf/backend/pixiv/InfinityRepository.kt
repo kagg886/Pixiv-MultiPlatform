@@ -1,6 +1,7 @@
 package top.kagg886.pmf.backend.pixiv
 
 import kotlinx.coroutines.runBlocking
+import top.kagg886.pmf.util.logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -13,9 +14,12 @@ abstract class InfinityRepository<T>(private val context: CoroutineContext = Emp
             while (true) {
                 if (container.isEmpty()) {
                     val new = runBlocking(context) {
-                        runCatching {
-                            onFetchList()
-                        }.getOrNull()
+                       try {
+                           onFetchList()
+                       } catch (e:Throwable) {
+                           logger.e("fetch failed",e)
+                           null
+                       }
                     }
                     if (new.isNullOrEmpty()) {
                         break

@@ -2,22 +2,18 @@ package top.kagg886.pmf.ui.route.main.download
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.core.FileKit
 import io.ktor.client.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.utils.io.*
-import io.ktor.utils.io.core.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.io.readByteArray
-import okio.Buffer
-import okio.Path
-import okio.buffer
-import okio.use
+import okio.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -32,6 +28,7 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.*
+import kotlin.time.Duration.Companion.hours
 
 fun DownloadItem.downloadRootPath(): Path {
     return dataPath.resolve("download").resolve(id.toString())
@@ -64,12 +61,15 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                     illust = illust,
                     success = false
                 ).apply {
+                    logger.d("create a record for illust:${illust.id} where not exists in database")
                     dao.insert(this)
                 }
 
                 //获取下载的根目录
                 val file = task.downloadRootPath()
+                logger.d("the illust:${illust.id} will be download to $file")
                 if (file.exists()) {
+                    logger.d("the illust:${illust.id} has been downloaded, delete it")
                     //有的话就递归删除重下
                     file.deleteRecursively()
                 }
@@ -78,51 +78,55 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 //获取所有下载链接
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
 
+                logger.d("the illust:${illust.id}'s download link: $urls")
+
                 //更新DAO层
                 dao.update(task.copy(progress = 0f))
                 val result = kotlin.runCatching {
-                    //计算全部大小。
-                    //受限于ktor功能，只能分两次请求。
-                    val allSize = coroutineScope {
-                        val result = urls.map {
-                            async(Dispatchers.IO) {
-                                val resp = net.prepareGet(it).execute {
-                                    it
-                                }
-                                resp.headers["Content-Length"]!!.toLong()
-                            }
-                        }.awaitAll()
-
-                        result.sum()
-                    }
-
-                    val x = Mutex()
-                    var size = 0f
                     coroutineScope {
-                        urls.mapIndexed { index, url ->
-                            //子下载
-                            val download = file.resolve("$index.png").sink().buffer()
-                            async(Dispatchers.IO) {
-                                download.use {
-                                    net.prepareGet(url).execute {
-                                        val channel = it.bodyAsChannel()
-                                        while (!channel.isClosedForRead) {
-                                            val buf = channel.readRemaining(1024).readByteArray()
+                        val lock = Mutex()
+                        var size = 0L
+                        var download = 0L
 
-                                            download.write(
-                                                buf
-                                            )
+                        urls.mapIndexed { index, it ->
+                            launch(Dispatchers.IO) {
+                                net.prepareGet(it) {
+                                    timeout {
+                                        socketTimeoutMillis = 1.hours.inWholeMilliseconds
+                                        connectTimeoutMillis = 1.hours.inWholeMilliseconds
+                                        requestTimeoutMillis = 1.hours.inWholeMilliseconds
+                                    }
+                                }.execute { resp ->
+                                    logger.d("the illust:${illust.id}'s download link: $it, status: ${resp.status}")
+                                    val length = resp.headers[HttpHeaders.ContentLength]!!.toLong()
+                                    lock.withLock { size += length }
+                                    logger.d("the illust:${illust.id}'s download link: $it, length is: $length")
 
-                                            //协程安全地更新变量
-                                            x.withLock {
-                                                size += buf.size.toFloat()
+                                    val source = resp.bodyAsChannel().asOkioSource() //closed when around execute block
+                                    val sink = file.resolve("$index.png").sink().buffer()
+
+                                    sink.use {
+                                        var len: Long
+                                        val buffer = Buffer()
+                                        while (source.read(buffer, 8192).also { len = it } != -1L) {
+                                            sink.write(buffer.readByteArray())
+                                            sink.flush()
+                                            buffer.clear()
+                                            lock.withLock {
+                                                logger.v("the illust:${illust.id}'s download link: $it, fetch data size: $len")
+                                                download += len
+                                                dao.update(
+                                                    task.copy(
+                                                        progress = download.toFloat() / size.toFloat()
+                                                    )
+                                                )
+//                                                logger.d("the illust:${illust.id}'s progress: ${download.toFloat() / size.toFloat()}")
                                             }
-                                            dao.update(task.copy(progress = size / allSize))
                                         }
                                     }
                                 }
                             }
-                        }.awaitAll()
+                        }.joinAll()
                     }
                 }
 
@@ -181,7 +185,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
         container(DownloadScreenState.Loading) {
             val data = database.downloadDAO().allSuspend()
             for (i in data) {
-                if (!i.downloadRootPath().exists()) {
+                if (!i.success) {
                     database.downloadDAO().update(i.copy(success = false, progress = -1f))
                 }
             }
@@ -199,4 +203,28 @@ sealed class DownloadScreenState {
 
 sealed class DownloadScreenSideEffect {
     data class Toast(val msg: String, val jump: Boolean = false) : DownloadScreenSideEffect()
+}
+
+
+private fun ByteReadChannel.asOkioSource(): Source {
+    val channel = this
+    return object : Source {
+        override fun close() {
+            channel.cancel()
+        }
+
+        override fun read(sink: Buffer, byteCount: Long): Long = runBlocking {
+            val buf = ByteArray(byteCount.toInt())
+            val len = channel.readAvailable(buf)
+            if (len == -1) {
+                return@runBlocking -1L
+            }
+
+            sink.write(buf, 0, len)
+
+            len.toLong()
+        }
+
+        override fun timeout(): Timeout = Timeout.NONE
+    }
 }

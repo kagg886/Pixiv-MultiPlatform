@@ -503,10 +503,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     startIndex = startIndex
                 )
             }
-            val needExpand by remember {
-                derivedStateOf { img.size > 3 }
-            }
-
 
             LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
                 items(img) {
@@ -535,7 +531,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             }
                     )
                 }
-                if (needExpand && !expand) {
+                if (illust.contentImages.size > 3 && !expand) {
                     item {
                         Spacer(Modifier.height(16.dp))
                         TextButton(

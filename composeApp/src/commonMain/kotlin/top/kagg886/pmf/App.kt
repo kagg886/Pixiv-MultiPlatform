@@ -406,7 +406,7 @@ fun setupEnv() {
                 }
             },
             //pixiv
-            module {
+            module(createdAtStart = true) {
                 single { PixivTokenStorage() }
                 single {
                     HttpClient(PlatformEngine) {
