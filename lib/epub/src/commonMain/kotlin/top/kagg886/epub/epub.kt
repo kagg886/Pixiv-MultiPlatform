@@ -79,7 +79,7 @@ class Epub internal constructor(
                                 with(workDirBase.resolve("EPUB").resolve(resource.fileName)) {
                                     parentFile()?.mkdirs()
                                     createNewFile()
-                                    this.sink().use { resource.file.transfer(it) }
+                                    sink().use { resource.file.transfer(it) }
                                 }
                                 item(
                                     id = resource.uuid,

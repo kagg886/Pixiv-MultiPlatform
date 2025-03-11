@@ -8,11 +8,14 @@ import okio.Path.Companion.toPath
 
 inline fun Path.meta() = FileSystem.SYSTEM.metadata(this)
 
-inline fun Path.sink(append: Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(this)) {
-    if (append) appendingSink() else sink(fileOffset = 0)
+
+fun Path.sink(append: Boolean = false): Sink = sink0(this, append)
+
+internal fun sink0(path: Path, append: Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(path)) {
+    FileHandleSink(this, if (append) appendingSink() else sink(fileOffset = 0))
 }
 
-inline fun Source.transfer(sink: Sink) {
+fun Source.transfer(sink: Sink) {
     val buf = Buffer()
     var len: Long
     while (this.read(buf, 1024).also { len = it } != -1L) {
@@ -22,11 +25,13 @@ inline fun Source.transfer(sink: Sink) {
     sink.flush()
 }
 
-inline fun Path.writeBytes(byteArray: ByteArray) = FileSystem.SYSTEM.openReadWrite(this).apply { resize(0) }.sink().buffer().use {
-    it.write(byteArray)
-    it.flush()
-    it.close()
-}
+fun Path.writeBytes(byteArray: ByteArray) = FileSystem.SYSTEM.openReadWrite(this).apply {
+    resize(0)
+    sink().buffer().use {
+        it.write(byteArray)
+        it.flush()
+    }
+}.close()
 
 inline fun Path.writeString(s: String) = writeBytes(s.encodeToByteArray())
 
