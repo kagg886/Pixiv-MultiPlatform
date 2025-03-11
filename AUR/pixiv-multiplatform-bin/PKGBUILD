@@ -5,7 +5,7 @@ pkgrel=163
 pkgdesc="基于Kotlin技术栈的全平台的第三方pixiv客户端"
 url="https://pmf.kagg886.top"
 license=(GPL3)
-arch=(any)
+arch=(x86_64)
 source=(
     "https://github.com/kagg886/Pixiv-MultiPlatform/releases/download/$pkgver/linux.tar.gz"
     Pixiv-MultiPlatform.desktop
