@@ -14,17 +14,15 @@ import top.kagg886.epub.nodes.toc.navPoint
 import top.kagg886.epub.nodes.toc.ncx
 import top.kagg886.pmf.util.*
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class Epub internal constructor(
-    private val temp: Path,
+    private val workDirBase: Path,
     private val metadata: Metadata,
     private val resources: List<ResourceItem>,
     private val spine: Spine? = null,
 ) {
     @OptIn(ExperimentalUuidApi::class)
     fun writeTo(path: Path) {
-        val workDirBase = temp.resolve(Uuid.random().toHexString())
         workDirBase.mkdirs()
 
         with(workDirBase.resolve("mimetype")) {

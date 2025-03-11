@@ -36,7 +36,7 @@ class EpubBuilder(private val tempDir: Path) {
 
     fun build(): Epub {
         return Epub(
-            temp = tempDir,
+            workDirBase = tempDir,
             metadata = metadata.build(),
             resources = manifest,
             spine = spine?.build()
