@@ -170,3 +170,33 @@ jobs:
             build/macos.dmg/macos.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  push-aur-bin:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    needs: [ create-release ]
+    steps:
+      - name: set up environment
+        run: |
+          pacman -Sy --noconfirm fakeroot fish git curl openssh
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVKEY }}" >~/.ssh/id_rsa
+          chmod 0600 ~/.ssh/id_rsa
+          git config --global user.name Horange321
+          git config --global user.email horange321@163.com
+          useradd horange
+      - name: clone aur
+        run: |
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+          git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git aur
+          chmod 777 aur
+      - name: build
+        run: |
+          cd /aur
+          fish build.fish ${{ github.ref_name }}
+          su horange -c 'makepkg --printsrcinfo' >.SRCINFO
+      - name: push
+        run: |
+          git add PKGBUILD .SRCINFO
+          git commit -m "${{ github.ref_name }}
+          git push
