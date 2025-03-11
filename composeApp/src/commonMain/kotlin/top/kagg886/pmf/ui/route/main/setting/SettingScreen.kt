@@ -436,7 +436,7 @@ class SettingScreen : Screen {
                         Text("自动排版")
                     },
                     subtitle = {
-                        Text("首行缩进${textSize * 2}sp")
+                        Text("去除多余的空行，并首行缩进${textSize * 2}sp")
                     },
                     onCheckedChange = {
                         autoTypo = it

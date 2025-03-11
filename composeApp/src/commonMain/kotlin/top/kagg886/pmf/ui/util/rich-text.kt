@@ -1,10 +1,7 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material3.*
@@ -31,20 +28,23 @@ import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
 import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
+import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 sealed interface NovelNodeElement {
     data class Plain(val text: String) : NovelNodeElement
     data class JumpUri(val text: String, val uri: String) : NovelNodeElement
     data class Notation(val text: String, val notation: String) : NovelNodeElement
-    data class UploadImage(val url: String) : NovelNodeElement
-    data class PixivImage(val illust: Illust, val url: String) : NovelNodeElement
+    data class UploadImage(val url: String, val size: androidx.compose.ui.geometry.Size) : NovelNodeElement
+    data class PixivImage(val illust: Illust) : NovelNodeElement
     data class Title(val text: String) : NovelNodeElement
     data class NewPage(val index: Int) : NovelNodeElement
     data class JumpPage(val page: Int) : NovelNodeElement
@@ -125,32 +125,53 @@ fun RichText(
                 when (i) {
                     is NovelNodeElement.PixivImage -> {
                         put(
+                            // iW   sW
+                            // -- = --
+                            // iH   ??
                             "pixiv_${i.illust.id}",
-                            InlineTextContent(Placeholder(screenWidth, screenWidth, PlaceholderVerticalAlign.Center)) {
+                            InlineTextContent(
+                                Placeholder(
+                                    screenWidth,
+                                    with(density) { ((i.illust.height * (screenWidth * 0.85).toPx().absoluteValue / i.illust.width)).toSp() },
+                                    PlaceholderVerticalAlign.Center
+                                )
+                            ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     val nav = LocalNavigator.currentOrThrow
                                     ProgressedAsyncImage(
-                                        url = i.url,
-                                        modifier = Modifier.fillMaxHeight().clickable {
-                                            nav.push(IllustDetailScreen(i.illust))
-                                        },
-                                        contentScale = ContentScale.FillHeight
+                                        url = i.illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]?.get(
+                                            0
+                                        ),
+                                        modifier = Modifier.fillMaxWidth(0.8f)
+                                            .aspectRatio(i.illust.width.toFloat() / i.illust.height)
+                                            .clickable {
+                                                nav.push(IllustDetailScreen(i.illust))
+                                            }
                                     )
                                 }
-                            })
+                            }
+                        )
                     }
 
                     is NovelNodeElement.UploadImage -> {
                         put(
                             "upload_${i.url.hashCode()}",
-                            InlineTextContent(Placeholder(screenWidth, screenWidth, PlaceholderVerticalAlign.Center)) {
+                            InlineTextContent(
+                                Placeholder(
+                                    screenWidth,
+                                    with(density) { ((i.size.height * (screenWidth * 0.85).toPx().absoluteValue / i.size.width)).toSp() },
+                                    PlaceholderVerticalAlign.Center
+                                )
+                            ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     ProgressedAsyncImage(
                                         url = i.url,
-                                        modifier = Modifier.fillMaxHeight().clickable {
-                                            previewIndex = previews.indexOf(i.url)
-                                        },
-                                        contentScale = ContentScale.FillHeight
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.8f)
+                                            .aspectRatio(i.size.width / i.size.height)
+                                            .clickable {
+                                                previewIndex = previews.indexOf(i.url)
+                                            },
                                     )
                                 }
                             }
@@ -209,8 +230,9 @@ fun RichText(
                     }
 
                     is NovelNodeElement.Plain -> {
+                        fun String.replaceBigLines() = replace("(\\s*\\r?\\n){2,}\n".toRegex(),"\n")
                         if (AppConfig.autoTypo) {
-                            with(i.text.lines()) {
+                            with(i.text.replaceBigLines().lines()) {
                                 appendLine(this[0])
                                 drop(1).filter { it.isNotBlank() }.map {
                                     if (currentPlatform is Platform.Android) {

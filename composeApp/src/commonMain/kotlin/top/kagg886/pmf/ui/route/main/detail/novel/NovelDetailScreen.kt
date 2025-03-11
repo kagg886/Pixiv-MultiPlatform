@@ -26,6 +26,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import com.github.panpf.sketch.LocalPlatformContext
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.LocalSnackBarHost
@@ -53,6 +54,12 @@ class NovelDetailScreen(private val id: Long) : Screen {
         val model = rememberScreenModel("novel_detail_$id") {
             NovelDetailViewModel(id)
         }
+
+        val ctx = LocalPlatformContext.current
+        LaunchedEffect(Unit) {
+            model.reload(ctx)
+        }
+
         val snack = LocalSnackBarHost.current
         model.collectSideEffect {
             when (it) {
@@ -153,9 +160,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
     @Composable
     @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
+        val sketch = LocalPlatformContext.current
         when (state) {
             is NovelDetailViewState.Error -> ErrorPage(text = state.cause) {
-                model.reload()
+                model.reload(sketch)
             }
 
             NovelDetailViewState.Loading -> Loading()
@@ -425,10 +433,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
     @Composable
     private fun NovelDetailContent(model: NovelDetailViewModel, state: NovelDetailViewState, modifier: Modifier) {
+        val ctx = LocalPlatformContext.current
         when (state) {
             is NovelDetailViewState.Error -> {
                 ErrorPage(modifier, text = state.cause) {
-                    model.reload()
+                    model.reload(ctx)
                 }
             }
 

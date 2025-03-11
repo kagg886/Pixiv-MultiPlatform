@@ -1,13 +1,21 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toIntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.fleeksoft.ksoup.nodes.Document
+import com.github.panpf.sketch.PlatformContext
+import com.github.panpf.sketch.Sketch
+import com.github.panpf.sketch.request.ImageRequest
+import com.github.panpf.sketch.request.ImageResult
+import com.github.panpf.sketch.request.execute
+import com.github.panpf.sketch.sketch
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import korlibs.io.async.async
 import kotlinx.coroutines.*
 import kotlinx.datetime.Clock
 import okio.Buffer
@@ -19,12 +27,13 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.epub.builder.EpubBuilder
 import top.kagg886.epub.data.ResourceItem
 import top.kagg886.pixko.Tag
+import top.kagg886.pixko.anno.ExperimentalNovelParserAPI
 import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.*
-import top.kagg886.pixko.module.novel.parser.*
+import top.kagg886.pixko.module.novel.parser.v2.*
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
@@ -36,20 +45,21 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.logger
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
-    override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
-        container(NovelDetailViewState.Loading) {
-            reload()
-        }
+    override val container: Container<NovelDetailViewState, NovelDetailSideEffect> = container(NovelDetailViewState.Loading)
     private val client = PixivConfig.newAccountFromConfig()
     private val img by inject<HttpClient>()
     private val database by inject<AppDatabase>()
 
-    fun reload() = intent {
+    private fun CombinedText.toPlainString() = this.joinToString("") { it.text }
+
+    @OptIn(ExperimentalNovelParserAPI::class)
+    fun reload(sketch: PlatformContext) = intent {
         reduce {
             NovelDetailViewState.Loading
         }
@@ -67,7 +77,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         val nodeMap = linkedMapOf<Int, NovelNodeElement>()
 
         val data = kotlin.runCatching {
-            content.data
+            content.content.value
         }
 
         if (data.isFailure) {
@@ -81,16 +91,8 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
         coroutineScope {
             for ((index, i) in data.getOrThrow().withIndex()) {
                 when (i) {
-                    is PlainTextNode -> {
-                        nodeMap[index] = NovelNodeElement.Plain(i.text)
-                    }
-
                     is JumpUriNode -> {
                         nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
-                    }
-
-                    is NotationNode -> {
-                        nodeMap[index] = NovelNodeElement.Notation(i.text, i.notation)
                     }
 
                     is UploadImageNode -> {
@@ -106,15 +108,21 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                                 images[i.url]!![it]
                             }.getOrNull()
                         }
-                        nodeMap[index] = NovelNodeElement.UploadImage(img)
+
+                        val resp = ImageRequest(context = sketch, uri = img).execute()
+                        if (resp is ImageResult.Success) {
+                            val info = (resp as ImageResult.Success).imageInfo
+                            nodeMap[index] = NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
+                            continue
+                        }
+                        logger.w { "getting novel image: $img failed, msg:$resp" }
                     }
 
                     is PixivImageNode -> {
                         launch {
                             val illust = client.getIllustDetail(i.id.toLong())
                             nodeMap[index] = NovelNodeElement.PixivImage(
-                                illust,
-                                illust.contentImages[IllustImagesType.MEDIUM]?.get(i.index)!!
+                                illust
                             )
                         }
                     }
@@ -123,13 +131,18 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                         nodeMap[index] = NovelNodeElement.NewPage(index + 1)
                     }
 
+                    is TextNode -> {
+                        nodeMap[index] = NovelNodeElement.Plain(i.text.toPlainString())
+                    }
+
                     is TitleNode -> {
-                        nodeMap[index] = NovelNodeElement.Title(i.text)
+                        nodeMap[index] = NovelNodeElement.Title(i.text.toPlainString())
                     }
 
                     is JumpPageNode -> {
                         nodeMap[index] = NovelNodeElement.JumpPage(i.page)
                     }
+
                 }
             }
         }
@@ -162,7 +175,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                     when (it) {
                         is NovelNodeElement.PixivImage -> {
                             it to ResourceItem(
-                                file = Buffer().write(img.post(it.url).bodyAsBytes()),
+                                file = Buffer().write(img.post(it.illust.imageUrls.content).bodyAsBytes()),
                                 extension = "png",
                                 mediaType = "image/png"
                             )
