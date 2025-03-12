@@ -15,10 +15,7 @@ jobs:
         run: |
           pacman -Sy --noconfirm fakeroot fish git curl openssh openssl
           mkdir -p ~/.ssh
-          ssh-agent -s
-          echo $SSH_PRIVKEY >~/.ssh/id_rsa
-          cat ~/.ssh/id_rsa
-          chmod 0600 ~/.ssh/id_rsa
+          echo $SSH_PRIVKEY | ssh-agent ssh-add -
           git config --global user.name Horange321
           git config --global user.email horange321@163.com
           useradd horange
