@@ -24,7 +24,7 @@ jobs:
         run: |
           ssh-keyscan aur.archlinux.org >~/.ssh/known_hosts
           GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa' git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git /aur
-          chmod 777 aur
+          chmod 777 /aur
       - name: build
         run: |
           cd /aur
