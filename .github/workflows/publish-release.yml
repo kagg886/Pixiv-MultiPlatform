@@ -15,14 +15,14 @@ jobs:
         run: |
           pacman -Sy --noconfirm fakeroot fish git curl openssh openssl
           mkdir -p ~/.ssh
-          echo $SSH_PRIVKEY | ssh-agent ssh-add -
+          echo $SSH_PRIVKEY >~/.ssh/id_rsa
           git config --global user.name Horange321
           git config --global user.email horange321@163.com
           useradd horange
       - name: clone aur
         run: |
           ssh-keyscan aur.archlinux.org >~/.ssh/known_hosts
-          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no' git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git aur
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa' git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git aur
           chmod 777 aur
       - name: build
         run: |
