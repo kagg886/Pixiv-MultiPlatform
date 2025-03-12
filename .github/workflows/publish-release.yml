@@ -1,180 +1,13 @@
 name: CI
 on:
   push:
-    #    branches: [ "master" ]
-    tags:
-      - v*.*.*
+    branches: [ "master" ]
+
 jobs:
-  build-windows:
-    runs-on: windows-latest
-    permissions:
-      contents: read
-    steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
-
-      - name: Build with Gradle Wrapper
-        run: ./gradlew packageReleaseDistributionForCurrentOS
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
-
-      - name: zip artifact
-        run: powershell -Command "Compress-Archive -Path 'composeApp\build\compose\binaries\main-release\app\Pixiv-MultiPlatform' -DestinationPath 'composeApp\build\compose\binaries\main-release\app\windows.zip'"
-
-      - name: Upload windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows.zip
-          path: composeApp\build\compose\binaries\main-release\app\windows.zip
-  build-linux:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
-
-      - name: Build with Gradle Wrapper
-        run: |
-          chmod +x ./gradlew
-          ./gradlew packageReleaseDistributionForCurrentOS
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
-
-      - name: Zip artifact
-        run: tar -czvf linux.tar.gz composeApp/build/compose/binaries/main-release/app/*
-
-      - name: Upload linux artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux.tar.gz
-          path: linux.tar.gz
-  build-android:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
-
-      - name: Build with Gradle Wrapper
-        run: |
-          chmod +x ./gradlew
-          ./gradlew assembleRelease
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
-      - name: Rename apk
-        run: |
-          mv composeApp/build/outputs/apk/release/composeApp-release.apk composeApp/build/outputs/apk/release/android.apk
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: android.apk
-          path: composeApp/build/outputs/apk/release/android.apk
-  build-macos:
-    runs-on: macos-latest
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
-
-      - name: Build with Gradle Wrapper
-        run: ./gradlew packageReleaseDmg
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
-
-      - name: Rename artifact
-        run: |
-          filename=$(ls composeApp/build/compose/binaries/main-release/dmg/)
-          mv composeApp/build/compose/binaries/main-release/dmg/${filename} composeApp/build/compose/binaries/main-release/dmg/macos.dmg
-
-      - name: Upload macos artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos.dmg
-          path: composeApp/build/compose/binaries/main-release/dmg/macos.dmg
-  create-release:
-    runs-on: ubuntu-latest
-    needs: [ build-windows, build-android, build-linux, build-macos ]
-    steps:
-      - name: Download Artifact
-        uses: actions/download-artifact@v4
-        with:
-          path: build
-      - name: Show file list
-        run: ls -lR
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref_name }}
-          files: |
-            build/windows.zip/windows.zip
-            build/android.apk/android.apk
-            build/linux.tar.gz/linux.tar.gz
-            build/macos.dmg/macos.dmg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   push-aur-bin:
     runs-on: ubuntu-latest
     container: archlinux:latest
-    needs: [ create-release ]
+    #needs: [ create-release ]
     steps:
       - name: set up environment
         env:
@@ -182,16 +15,15 @@ jobs:
         run: |
           pacman -Sy --noconfirm fakeroot fish git curl openssh
           mkdir -p ~/.ssh
-          echo $SSH_PRIVKEY >~/.ssh/id_rsa
+          echo $SSH_PRIVKEY | ssh-add -
           chmod 0600 ~/.ssh/id_rsa
           git config --global user.name Horange321
           git config --global user.email horange321@163.com
-          ssh-keygen -R aur.archlinux.org
           useradd horange
       - name: clone aur
         run: |
-          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
-          git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git aur
+          ssh-keyscan aur.archlinux.org >~/.ssh/known_hosts
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no' git clone ssh://aur@aur.archlinux.org/pixiv-multiplatform-bin.git aur
           chmod 777 aur
       - name: build
         run: |
