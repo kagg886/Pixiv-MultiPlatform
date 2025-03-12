@@ -186,6 +186,7 @@ jobs:
           chmod 0600 ~/.ssh/id_rsa
           git config --global user.name Horange321
           git config --global user.email horange321@163.com
+          ssh-keygen -R aur.archlinux.org
           useradd horange
       - name: clone aur
         run: |
