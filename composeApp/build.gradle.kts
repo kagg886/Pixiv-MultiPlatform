@@ -35,6 +35,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.room)
     alias(libs.plugins.aboutlibrariesPlugin)
+    id("top.kagg886.compose.installer.windows")
 }
 
 room {
@@ -329,5 +330,12 @@ compose.desktop {
             }
         }
     }
+}
 
+configureComposeWindowsInstaller {
+    appName = rootProject.name
+    appVersion = pkgVersion
+    shortcutName = rootProject.name
+    iconFile = project.file("icons/pixiv.ico")
+    manufacturer = "kagg886"
 }

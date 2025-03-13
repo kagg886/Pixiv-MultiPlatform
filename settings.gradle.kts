@@ -13,6 +13,8 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    includeBuild("plugin/compose-desktop-build-windows")
 }
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
@@ -46,7 +48,6 @@ include(":composeApp")
 include(":lib:chip-text-field")
 include(":lib:epub")
 include(":lib:okio-enhancement-util")
-include("lib:gif")
-findProject(":lib:gif")?.name = "gif"
-include("lib:sketch-fetcher-file-adapter-windows")
-findProject(":lib:sketch-fetcher-file-adapter-windows")?.name = "sketch-fetcher-file-adapter-windows"
+include(":lib:gif")
+include(":lib:sketch-fetcher-file-adapter-windows")
+//include(":plugin:compose-desktop-build-windows")

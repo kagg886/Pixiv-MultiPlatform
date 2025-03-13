@@ -28,19 +28,30 @@ jobs:
       - name: Generate AboutLibraries Metadata
         run: ./gradlew exportLibraryDefinitions
 
-      - name: Build with Gradle Wrapper
+      - name: Build binaries with Gradle Wrapper
         run: ./gradlew packageReleaseDistributionForCurrentOS
         env:
           APP_VERSION_NAME: ${{ github.ref_name }}
 
-      - name: zip artifact
+      - name: Build MSI with Gradle Wrapper
+        run: ./gradlew light
+        env:
+          APP_VERSION_NAME: ${{ github.ref_name }}
+
+      - name: zip binaries artifact
         run: powershell -Command "Compress-Archive -Path 'composeApp\build\compose\binaries\main-release\app\Pixiv-MultiPlatform' -DestinationPath 'composeApp\build\compose\binaries\main-release\app\windows.zip'"
 
-      - name: Upload windows artifact
+      - name: Upload Windows binaries artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows.zip
           path: composeApp\build\compose\binaries\main-release\app\windows.zip
+
+      - name: Upload Windows MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows.msi
+          path: composeApp\build\compose\binaries\main-release\app\windows.msi
   build-linux:
     runs-on: ubuntu-latest
     permissions:
@@ -165,6 +176,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           files: |
             build/windows.zip/windows.zip
+            build/windows.msi/windows.msi
             build/android.apk/android.apk
             build/linux.tar.gz/linux.tar.gz
             build/macos.dmg/macos.dmg
