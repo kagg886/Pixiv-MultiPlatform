@@ -1,82 +1,83 @@
 [versions]
-agp = "8.7.3"
-androidx-lifecycle = "2.8.4"
+aboutlibraries = "12.0.0-a04"
+agp = "8.8.0-alpha05"
+androidx-lifecycle = "2.9.0-alpha04"
+compose-settings = "2.10.0"
 composeWebviewMultiplatform = "1.9.40"
-cryptographyProviderApple = "0.4.0"
-filekitCompose = "0.8.7"
-kermit = "2.0.4"
+filekitCompose = "0.8.8"
+kermit = "2.0.5"
 korlibsIo = "6.0.1"
-ksoup = "0.2.2"
-ksp = "2.1.10-1.0.29"
-kotlin = "2.1.10"
+kotlin = "2.1.20-RC2"
 kotlinx-coroutines = "1.10.1"
-kotlinxSerializationJson = "1.7.3"
-ktor = "3.0.3"
+kotlinxSerializationJson = "1.8.0"
+ksoup = "0.2.2"
+ksp = "2.1.20-RC2-1.0.31"
+ktor = "3.1.1"
 multiplatformSettings = "1.3.0"
+okio = "3.10.2"
 orbitCore = "9.0.0"
 pixko = "2.5"
-room = "2.7.0-beta01"
+room = "2.7.0-rc02"
 sketchCompose = "4.0.4"
-sqliteBundled = "2.5.0-beta01"
+sqliteBundled = "2.5.0-rc02"
 voyagerVersion = "1.1.0-beta03"
-aboutlibraries = "11.2.3"
-zoomimageComposeSketch = "1.1.0"
-compose-settings = "2.6.0"
-okio = "3.10.2"
+zoomimageComposeSketch = "1.1.2"
+benmanesVersions = "0.52.0"
+versionCatalogUpdate = "0.8.5"
 
 [libraries]
-ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
-okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
-aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
-androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.10.0" }
+aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
+androidx-activity-compose = "androidx.activity:activity-compose:1.11.0-alpha01"
+androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
+compose-settings-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "compose-settings" }
+compose-settings-ui = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "compose-settings" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
-cryptography-provider-apple = { module = "dev.whyoleg.cryptography:cryptography-provider-apple", version.ref = "cryptographyProviderApple" }
-dev-whyoleg-cryptography-cryptography-provider-jdk = { module = "dev.whyoleg.cryptography:cryptography-provider-jdk", version.ref = "cryptographyProviderApple" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+koin-core = "io.insert-koin:koin-core:4.1.0-Beta5"
 korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
-ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
-ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
-ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
-ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
-kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
-androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
-androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version = "0.6.1" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.6.2"
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
 multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
 pixko = { module = "top.kagg886:pixko", version.ref = "pixko" }
 sketch-animated-gif = { module = "io.github.panpf.sketch4:sketch-animated-gif", version.ref = "sketchCompose" }
-sketch-svg = { module = "io.github.panpf.sketch4:sketch-svg", version.ref = "sketchCompose" }
-sketch-resources = { module = "io.github.panpf.sketch4:sketch-compose-resources", version.ref = "sketchCompose" }
-sketch-extensions-compose = { module = "io.github.panpf.sketch4:sketch-extensions-compose", version.ref = "sketchCompose" }
 sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "sketchCompose" }
+sketch-extensions-compose = { module = "io.github.panpf.sketch4:sketch-extensions-compose", version.ref = "sketchCompose" }
 sketch-http-ktor3 = { module = "io.github.panpf.sketch4:sketch-http-ktor3", version.ref = "sketchCompose" }
+sketch-resources = { module = "io.github.panpf.sketch4:sketch-compose-resources", version.ref = "sketchCompose" }
+sketch-svg = { module = "io.github.panpf.sketch4:sketch-svg", version.ref = "sketchCompose" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerVersion" }
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
-koin-core = { group = "io.insert-koin", name = "koin-core", version = "4.0.0" }
 zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch4", version.ref = "zoomimageComposeSketch" }
-compose-settings-ui = { group = "com.github.alorma.compose-settings", name = "ui-tiles", version.ref = "compose-settings" }
-compose-settings-extended = { group = "com.github.alorma.compose-settings", name = "ui-tiles-extended", version.ref = "compose-settings" }
 
 [plugins]
+aboutlibrariesPlugin = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-jetbrainsCompose = { id = "org.jetbrains.compose", version = "1.7.3" }
+buildConfig = "com.github.gmazzo.buildconfig:5.5.4"
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+jetbrainsCompose = "org.jetbrains.compose:1.8.0-alpha04"
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-buildConfig = { id = "com.github.gmazzo.buildconfig", version = "5.5.0" }
-ksp = { id = 'com.google.devtools.ksp', version.ref = 'ksp' }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
-aboutlibrariesPlugin = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
+benmanes-versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesVersions"}
+version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }

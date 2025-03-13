@@ -171,19 +171,16 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
         }
 
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
-            implementation(libs.dev.whyoleg.cryptography.cryptography.provider.jdk)
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
-            implementation(libs.cryptography.provider.apple)
         }
 
         commonTest.dependencies {
