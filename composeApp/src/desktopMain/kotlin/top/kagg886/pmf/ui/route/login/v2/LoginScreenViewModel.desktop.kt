@@ -13,6 +13,7 @@ import okio.Path
 import top.kagg886.pmf.backend.dataPath
 import dev.datlag.kcef.step.extract.TarGzExtractor
 import dev.datlag.kcef.common.unquarantine
+import top.kagg886.pmf.util.absolutePath
 
 private val WEBVIEW_INSTALL_DIR = dataPath.resolve("web-view").toFile()
 private val WEBVIEW_INSTALL_LOCK_PATH = WEBVIEW_INSTALL_DIR.resolve("install.lock")
@@ -24,6 +25,10 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
     KCEF.init(
         builder = {
             installDir(WEBVIEW_INSTALL_DIR)
+            settings {
+                logFile = top.kagg886.pmf.backend.cachePath.resolve("log").resolve("web-view.log").absolutePath().toString()
+                cachePath = top.kagg886.pmf.backend.cachePath.resolve("web-view").absolutePath().toString()
+            }
             progress {
                 onDownloading {
                     loading.msg.tryEmit("下载浏览器内核中... ${String.format("%.2f", it)}")
