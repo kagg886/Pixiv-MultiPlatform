@@ -10,11 +10,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
       - uses: actions/checkout@v4
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -28,12 +23,7 @@ jobs:
       - name: Generate AboutLibraries Metadata
         run: ./gradlew exportLibraryDefinitions
 
-      - name: Build binaries with Gradle Wrapper
-        run: ./gradlew packageReleaseDistributionForCurrentOS
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
-
-      - name: Build MSI with Gradle Wrapper
+      - name: Build MSI And Content with Gradle Wrapper
         run: ./gradlew light
         env:
           APP_VERSION_NAME: ${{ github.ref_name }}
@@ -57,11 +47,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
       - uses: actions/checkout@v4
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -95,11 +80,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      #      - name: Cancel previous runs
-      #        uses: styfle/cancel-workflow-action@0.5.0
-      #        with:
-      #          access_token: ${{ secrets.ACCESS_TOKEN }}
-
       - uses: actions/checkout@v4
       - name: Set up JDK 17
         uses: actions/setup-java@v4
