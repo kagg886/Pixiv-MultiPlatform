@@ -28,6 +28,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
@@ -604,6 +605,9 @@ class SettingScreen : Screen {
                 var bypassSetting by remember {
                     mutableStateOf(AppConfig.bypassSettings)
                 }
+                val bypassSettingsKey by remember(bypassSetting) {
+                    derivedStateOf { bypassSetting::class.getFullName() }
+                }
                 LaunchedEffect(bypassSetting) {
                     AppConfig.bypassSettings = bypassSetting
                 }
@@ -630,11 +634,11 @@ class SettingScreen : Screen {
                 )
 
                 AnimatedContent(
-                    targetState = bypassSetting,
+                    targetState = bypassSettingsKey,
                     transitionSpec = { expandVertically() togetherWith shrinkVertically() }
-                ) { readOnlySettings ->
+                ) {
                     Column {
-                        when (readOnlySettings) {
+                        when (val readOnlySettings = bypassSetting) {
                             AppConfig.BypassSetting.None -> {}
                             is AppConfig.BypassSetting.Proxy -> {
                                 SettingsDropdownMenu(
