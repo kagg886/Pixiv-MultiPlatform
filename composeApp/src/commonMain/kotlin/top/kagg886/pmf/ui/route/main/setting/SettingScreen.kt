@@ -22,8 +22,8 @@ import com.alorma.compose.settings.ui.SettingsGroup
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
+import korlibs.io.net.MimeType
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -34,19 +34,17 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.Platform
-import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.util.b
-import top.kagg886.pmf.util.mb
 import top.kagg886.pmf.ui.util.useWideScreenMode
-import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.*
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
@@ -840,6 +838,49 @@ class SettingScreen : Screen {
                     onClick = {
                         scope.launch {
                             throw RuntimeException("测试异常，请不要反馈。")
+                        }
+                    },
+                )
+
+
+                SettingsMenuLink(
+                    title = {
+                        Text("导出单次日志")
+                    },
+                    subtitle = {
+                        Text("可能会很卡")
+                    },
+                    onClick = {
+                       scope.launch {
+                           shareFile(cachePath.resolve("log").resolve("latest.log"), mime = MimeType.TEXT_PLAIN.mime)
+                       }
+                    },
+                )
+                SettingsMenuLink(
+                    title = {
+                        Text("清空日志归档")
+                    },
+                    subtitle = {
+                        Text("日志可能会占用存储空间")
+                    },
+                    onClick = {
+                       scope.launch {
+                           runCatching { //windows平台无法删除正在hold的文件
+                               cachePath.resolve("log").deleteRecursively()
+                           }
+                       }
+                    },
+                )
+                SettingsMenuLink(
+                    title = {
+                        Text("导出全部日志")
+                    },
+                    subtitle = {
+                        Text("一定会很卡")
+                    },
+                    onClick = {
+                        scope.launch {
+                            shareFile(cachePath.resolve("log").zip())
                         }
                     },
                 )
