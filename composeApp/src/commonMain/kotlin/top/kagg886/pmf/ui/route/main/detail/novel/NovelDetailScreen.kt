@@ -29,6 +29,8 @@ import cafe.adriel.voyager.navigator.internal.BackHandler
 import com.github.panpf.sketch.LocalPlatformContext
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
+import top.kagg886.pixko.module.search.SearchSort
+import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.ui.component.*
@@ -36,8 +38,7 @@ import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
-import top.kagg886.pmf.ui.route.main.search.v2.SearchParam
-import top.kagg886.pmf.ui.route.main.search.v2.SearchScreen
+import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.toReadableString
@@ -353,10 +354,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                             },
                                                             onClick = {
                                                                 nav.push(
-                                                                    SearchScreen(
-                                                                        param = SearchParam.KeyWordSearch(
-                                                                            listOf(tag.name)
-                                                                        )
+                                                                    SearchResultScreen(
+                                                                        keyword = listOf(tag.name),
+                                                                        sort = SearchSort.DATE_DESC,
+                                                                        target = SearchTarget.PARTIAL_MATCH_FOR_TAGS
                                                                     )
                                                                 )
                                                             }
