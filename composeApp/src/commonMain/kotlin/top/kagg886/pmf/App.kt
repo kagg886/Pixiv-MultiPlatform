@@ -47,10 +47,10 @@ import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
 import org.koin.ext.getFullName
-import top.kagg886.pmf.backend.PlatformEngine
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformConfig
+import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -160,14 +160,11 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                             }
                         }
                         AppScaffold(it) { modifier ->
-                            Box(modifier = modifier) {
-                                ScreenTransition(
-                                    navigator = it,
-                                    transition = {
-                                        fadeIn() togetherWith fadeOut()
-                                    }
-                                )
-                            }
+                            ScreenTransition(
+                                navigator = it,
+                                transition = { fadeIn() togetherWith fadeOut() },
+                                modifier = modifier.fillMaxSize()
+                            )
                         }
                     }
                 }
@@ -307,7 +304,12 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
         level = Verbose,
         pipeline = object : com.github.panpf.sketch.util.Logger.Pipeline {
 
-            override fun log(level: com.github.panpf.sketch.util.Logger.Level, tag: String, msg: String, tr: Throwable?) {
+            override fun log(
+                level: com.github.panpf.sketch.util.Logger.Level,
+                tag: String,
+                msg: String,
+                tr: Throwable?
+            ) {
                 logger.processLog(
                     severity = when (level) {
                         Verbose -> Severity.Verbose

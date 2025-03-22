@@ -19,6 +19,9 @@ interface SearchHistoryDAO {
 
     @Delete
     suspend fun delete(item: SearchHistory)
+
+    @Query("DELETE FROM SearchHistory")
+    suspend fun clear()
 }
 
 @Entity

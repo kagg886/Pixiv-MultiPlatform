@@ -1,8 +1,9 @@
 package top.kagg886.pmf.ui.route.main.profile
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -10,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -166,7 +166,12 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
             content = {
                 @Composable
                 fun Content() {
-                    AnimatedContent(targetState = page) {
+                    AnimatedContent(
+                        targetState = page,
+                        transitionSpec = {
+                            slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
+                        }
+                    ) {
                         when (it) {
                             ViewProfile -> {
                                 AuthorScreenWithoutCollapse(PixivConfig.pixiv_user!!.userId).Content()
