@@ -43,7 +43,7 @@ class SearchResultScreen(
         }
 
         BackHandler(true) {
-            navigator.push(SearchPanelScreen(sort, target, keyword))
+            navigator.pop()
         }
 
         val tab = rememberSaveable {
