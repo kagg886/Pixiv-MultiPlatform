@@ -167,7 +167,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 model.reload(sketch)
             }
 
-            NovelDetailViewState.Loading -> Loading()
+            is NovelDetailViewState.Loading -> {
+                val text by state.text.collectAsState()
+                Loading(text = text)
+            }
             is NovelDetailViewState.Success -> {
                 val nav = LocalNavigator.currentOrThrow
                 val page = rememberScreenModel {
@@ -442,8 +445,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
             }
 
-            NovelDetailViewState.Loading -> {
-                Loading(modifier)
+            is NovelDetailViewState.Loading -> {
+                val text by state.text.collectAsState()
+                Loading(modifier,text)
             }
 
 

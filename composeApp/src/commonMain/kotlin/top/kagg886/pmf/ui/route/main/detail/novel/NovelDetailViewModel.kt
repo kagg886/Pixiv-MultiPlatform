@@ -1,22 +1,20 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.toIntSize
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.fleeksoft.ksoup.nodes.Document
 import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.request.ImageRequest
 import com.github.panpf.sketch.request.ImageResult
 import com.github.panpf.sketch.request.execute
-import com.github.panpf.sketch.sketch
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import okio.Buffer
 import org.koin.core.component.KoinComponent
@@ -29,8 +27,6 @@ import top.kagg886.epub.data.ResourceItem
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.anno.ExperimentalNovelParserAPI
 import top.kagg886.pixko.module.illust.BookmarkVisibility
-import top.kagg886.pixko.module.illust.IllustImagesType
-import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.*
 import top.kagg886.pixko.module.novel.parser.v2.*
@@ -46,12 +42,14 @@ import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.logger
+import kotlin.collections.set
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
 class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
-    override val container: Container<NovelDetailViewState, NovelDetailSideEffect> = container(NovelDetailViewState.Loading)
+    override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
+        container(NovelDetailViewState.Loading(MutableStateFlow("Loading...")))
     private val client = PixivConfig.newAccountFromConfig()
     private val img by inject<HttpClient>()
     private val database by inject<AppDatabase>()
@@ -60,14 +58,14 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 
     @OptIn(ExperimentalNovelParserAPI::class)
     fun reload(sketch: PlatformContext) = intent {
-        reduce {
-            NovelDetailViewState.Loading
-        }
+        val loading = NovelDetailViewState.Loading(MutableStateFlow("获取小说详情和正文中..."))
+        reduce { loading }
+
         val result = kotlin.runCatching {
             client.getNovelDetail(id) to client.getNovelContent(id)
         }
         if (result.isFailure) {
-            result.exceptionOrNull()?.printStackTrace()
+            logger.e("get novel info failed:", result.exceptionOrNull())
             reduce { NovelDetailViewState.Error() }
             return@intent
         }
@@ -89,10 +87,13 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 
         //异步获取image
         coroutineScope {
+            var parsed by atomic(0)
             for ((index, i) in data.getOrThrow().withIndex()) {
                 when (i) {
                     is JumpUriNode -> {
                         nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
+                        parsed++
+                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                     }
 
                     is UploadImageNode -> {
@@ -112,7 +113,12 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                         val resp = ImageRequest(context = sketch, uri = img).execute()
                         if (resp is ImageResult.Success) {
                             val info = (resp as ImageResult.Success).imageInfo
-                            nodeMap[index] = NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
+                            nodeMap[index] =
+                                NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
+
+                            parsed++
+                            loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+
                             continue
                         }
                         logger.w { "getting novel image: $img failed, msg:$resp" }
@@ -124,23 +130,33 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             nodeMap[index] = NovelNodeElement.PixivImage(
                                 illust
                             )
+                            parsed++
+                            loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                         }
                     }
 
                     is NewPageNode -> {
                         nodeMap[index] = NovelNodeElement.NewPage(index + 1)
+                        parsed++
+                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                     }
 
                     is TextNode -> {
                         nodeMap[index] = NovelNodeElement.Plain(i.text.toPlainString())
+                        parsed++
+                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                     }
 
                     is TitleNode -> {
                         nodeMap[index] = NovelNodeElement.Title(i.text.toPlainString())
+                        parsed++
+                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                     }
 
                     is JumpPageNode -> {
                         nodeMap[index] = NovelNodeElement.JumpPage(i.page)
+                        parsed++
+                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
                     }
 
                 }
@@ -376,7 +392,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
 }
 
 sealed class NovelDetailViewState {
-    data object Loading : NovelDetailViewState()
+    data class Loading(val text: MutableStateFlow<String>) : NovelDetailViewState()
     data class Error(val cause: String = "加载失败惹~") : NovelDetailViewState()
     data class Success(val novel: Novel, val core: NovelData, val nodeMap: List<NovelNodeElement>) :
         NovelDetailViewState()

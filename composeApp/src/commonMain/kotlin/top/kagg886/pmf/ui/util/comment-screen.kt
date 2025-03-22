@@ -111,9 +111,9 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     trailingContent = {
                                         AnimatedContent(
                                             targetState = when {
+                                                comment.hasReplies -> -1
                                                 comment == (state as? CommentViewState.Success.HasReply)?.replyTarget -> 1
-                                                comment.hasReplies -> 0
-                                                else -> -1
+                                                else -> 0
                                             },
                                             transitionSpec = { fadeIn() togetherWith fadeOut() }
                                         ) {
