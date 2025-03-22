@@ -1,6 +1,6 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -108,25 +109,45 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                         )
                                     },
                                     trailingContent = {
-                                        if (comment.hasReplies) {
-                                            FavoriteButton(
-                                                isFavorite = false,
-                                                nonFavoriteIcon = {
-                                                    Icon(Icons.Default.MoreVert, null)
-                                                },
-                                            ) {
-                                                model.loadReply(comment).join()
-                                            }
-                                            return@ListItem
-                                        }
-                                        FavoriteButton(
-                                            isFavorite = false,
-                                            nonFavoriteIcon = {
-                                                Icon(Icons.Default.Edit, null)
+                                        AnimatedContent(
+                                            targetState = when {
+                                                comment == (state as? CommentViewState.Success.HasReply)?.replyTarget -> 1
+                                                comment.hasReplies -> 0
+                                                else -> -1
                                             },
+                                            transitionSpec = { fadeIn() togetherWith fadeOut() }
                                         ) {
-                                            model.loadReply(comment).join()
+                                            when (it) {
+                                                -1 -> FavoriteButton(
+                                                    isFavorite = false,
+                                                    nonFavoriteIcon = {
+                                                        Icon(Icons.Default.MoreVert, null)
+                                                    },
+                                                ) {
+                                                    model.loadReply(comment).join()
+                                                }
+
+                                                0 -> FavoriteButton(
+                                                    isFavorite = false,
+                                                    nonFavoriteIcon = {
+                                                        Icon(Icons.Default.Edit, null)
+                                                    },
+                                                ) {
+                                                    model.loadReply(comment).join()
+                                                }
+
+                                                1 -> FavoriteButton(
+                                                    isFavorite = false,
+                                                    nonFavoriteIcon = {
+                                                        Icon(Icons.Default.Close, null)
+                                                    },
+                                                ) {
+                                                    model.clearReply().join()
+                                                }
+                                            }
                                         }
+
+
                                     },
                                     modifier = Modifier.fillMaxWidth()
                                 )
@@ -140,44 +161,60 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                         )
                                     }
                                 }
-                                if (state.replyTarget?.id == comment.id) {
-                                    val replyList = remember(state.replyList) {
-                                        state.replyList ?: emptyList()
-                                    }
-                                    Column(Modifier.fillMaxWidth()) {
-                                        for (i in replyList) {
-                                            ListItem(
-                                                headlineContent = {
-                                                    Text(i.user.name, style = MaterialTheme.typography.labelSmall)
-                                                },
-                                                leadingContent = {
-                                                    ProgressedAsyncImage(
-                                                        url = i.user.profileImageUrls.content,
-                                                        modifier = Modifier.size(25.dp).clickable {
-                                                            nav.push(AuthorScreen(i.user.id))
-                                                        }
-                                                    )
-                                                },
-                                                supportingContent = {
-                                                    if (i.stamp == null) {
-                                                        Text(i.comment)
-                                                    } else {
+
+                                if (state is CommentViewState.Success.HasReply) {
+                                    if (state.replyTarget.id == comment.id) {
+                                        Column(Modifier.fillMaxWidth()) reply@{
+                                            for (i in state.replyList) {
+                                                ListItem(
+                                                    headlineContent = {
+                                                        Text(i.user.name, style = MaterialTheme.typography.labelSmall)
+                                                    },
+                                                    leadingContent = {
                                                         ProgressedAsyncImage(
-                                                            url = i.stamp!!.url,
-                                                            modifier = Modifier.size(80.dp)
+                                                            url = i.user.profileImageUrls.content,
+                                                            modifier = Modifier.size(25.dp).clickable {
+                                                                nav.push(AuthorScreen(i.user.id))
+                                                            }
                                                         )
-                                                    }
-                                                },
+                                                    },
+                                                    supportingContent = {
+                                                        if (i.stamp == null) {
+                                                            Text(i.comment)
+                                                        } else {
+                                                            ProgressedAsyncImage(
+                                                                url = i.stamp!!.url,
+                                                                modifier = Modifier.size(80.dp)
+                                                            )
+                                                        }
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth()
+                                                )
+                                            }
+
+                                            LaunchedEffect(Unit) {
+                                                if (!state.replyNoMoreData) {
+                                                    model.loadReplyMore()
+                                                }
+                                            }
+                                            if (!state.replyNoMoreData) {
+                                                Loading()
+                                                return@reply
+                                            }
+                                            Text(
+                                                textAlign = TextAlign.Center,
                                                 modifier = Modifier.fillMaxWidth()
+                                                    .padding(ButtonDefaults.TextButtonContentPadding),
+                                                text = "没有更多了"
                                             )
-                                        }
-                                        TextButton(
-                                            onClick = {
-                                                model.loadReplyMore()
-                                            },
-                                            modifier = Modifier.align(Alignment.CenterHorizontally)
-                                        ) {
-                                            Text("加载更多")
+//                                            TextButton(
+//                                                onClick = {
+//                                                    model.loadReplyMore()
+//                                                },
+//                                                modifier = Modifier.align(Alignment.CenterHorizontally)
+//                                            ) {
+//                                                Text("加载更多")
+//                                            }
                                         }
                                     }
                                 }
@@ -237,16 +274,28 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     },
                     modifier = Modifier.fillMaxWidth().padding(5.dp),
                     label = {
-                        Text(
-                            if (state.replyTarget == null) {
-                                "评论"
-                            } else {
-                                "回复 ${state.replyTarget.user.name} 的评论"
+                        AnimatedContent(
+                            state,
+                            transitionSpec = {
+                                (fadeIn() + slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)) togetherWith (fadeOut() + slideOutOfContainer(
+                                    AnimatedContentTransitionScope.SlideDirection.Up
+                                ))
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            when (it) {
+                                is CommentViewState.Success.HasReply -> {
+                                    Text("回复 ${it.replyTarget.user.name} 的评论")
+                                }
+
+                                else -> {
+                                    Text("评论")
+                                }
                             }
-                        )
+                        }
                     },
                     leadingIcon = {
-                        AnimatedVisibility(state.replyTarget != null) {
+                        AnimatedVisibility((state as? CommentViewState.Success.HasReply)?.replyTarget != null) {
                             IconButton(
                                 onClick = {
                                     model.clearReply()
@@ -260,7 +309,8 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         IconButton(
                             onClick = {
                                 model.sendComment(text)
-                            }
+                            },
+                            enabled = text.isNotBlank()
                         ) {
                             Icon(Icons.AutoMirrored.Filled.Send, null)
                         }

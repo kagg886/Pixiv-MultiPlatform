@@ -44,13 +44,21 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
             }
         }
         reduce {
-            CommentViewState.Success(id, repo!!.take(20).toList(), repo!!.noMoreData)
+            CommentViewState.Success.Generic(repo!!.take(20).toList(), repo!!.noMoreData)
         }
     }
 
     @OptIn(OrbitExperimental::class)
     fun loadMore() = intent {
-        runOn<CommentViewState.Success> {
+        runOn<CommentViewState.Success.Generic> {
+            reduce {
+                state.copy(
+                    comments = state.comments + repo!!.take(20).toList(),
+                )
+            }
+        }
+
+        runOn<CommentViewState.Success.HasReply> {
             reduce {
                 state.copy(
                     comments = state.comments + repo!!.take(20).toList(),
@@ -61,12 +69,13 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
 
     @OptIn(OrbitExperimental::class)
     fun clearReply() = intent {
-        runOn<CommentViewState.Success> {
+        runOn<CommentViewState.Success.HasReply> {
             replyRepo = null
             reduce {
-                state.copy(
-                    replyList = null,
-                    replyTarget = null
+                CommentViewState.Success.Generic(
+                    state.comments,
+                    state.noMoreData,
+                    state.scrollerState
                 )
             }
         }
@@ -74,12 +83,19 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
 
     @OptIn(OrbitExperimental::class)
     fun loadReply(comment: Comment) = intent {
-        runOn<CommentViewState.Success> {
+        runOn<CommentViewState.Success.HasReply> {
+            clearReply().join()
+        }
+        runOn<CommentViewState.Success.Generic> {
             replyRepo = fetchCommentReply(comment.id)
             reduce {
-                state.copy(
-                    replyList = replyRepo!!.take(20).toList(),
-                    replyTarget = comment
+                CommentViewState.Success.HasReply(
+                    state.comments,
+                    state.noMoreData,
+                    state.scrollerState,
+                    replyRepo!!.take(20).toList(),
+                    replyRepo!!.noMoreData,
+                    comment
                 )
             }
         }
@@ -87,11 +103,12 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
 
     @OptIn(OrbitExperimental::class)
     fun loadReplyMore() = intent {
-        runOn<CommentViewState.Success> {
-            val l = state.replyList?: emptyList()
+        runOn<CommentViewState.Success.HasReply> {
+            val l = state.replyList ?: emptyList()
             reduce {
                 state.copy(
                     replyList = l + repo!!.take(20).toList(),
+                    replyNoMoreData = state.replyNoMoreData
                 )
             }
         }
@@ -101,7 +118,7 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
     fun sendComment(text: String) = intent {
         runOn<CommentViewState.Success> {
             val result = kotlin.runCatching {
-                sendComment(state.replyTarget?.id, id, text)
+                sendComment((state as? CommentViewState.Success.HasReply)?.replyTarget?.id, id, text)
             }
             if (result.isSuccess) {
                 postSideEffect(CommentSideEffect.Toast("评论成功"))
@@ -113,17 +130,30 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
     }
 }
 
-sealed class CommentViewState {
-    data object Loading : CommentViewState()
-    data class Success(
-        val illustId: Long,
-        val comments: List<Comment>,
-        val noMoreData: Boolean,
-        val scrollerState: LazyListState = LazyListState(),
+sealed interface CommentViewState {
+    data object Loading : CommentViewState
+    sealed interface Success : CommentViewState {
+        val comments: List<Comment>
+        val noMoreData: Boolean
+        val scrollerState: LazyListState
 
-        val replyList: List<Comment>? = null,
-        val replyTarget: Comment? = null
-    ) : CommentViewState()
+        data class Generic(
+            override val comments: List<Comment>,
+            override val noMoreData: Boolean,
+            override val scrollerState: LazyListState = LazyListState()
+        ) : Success
+
+        data class HasReply(
+            override val comments: List<Comment>,
+            override val noMoreData: Boolean,
+            override val scrollerState: LazyListState,
+
+
+            val replyList: List<Comment>,
+            val replyNoMoreData: Boolean,
+            val replyTarget: Comment,
+        ) : Success
+    }
 }
 
 sealed class CommentSideEffect {

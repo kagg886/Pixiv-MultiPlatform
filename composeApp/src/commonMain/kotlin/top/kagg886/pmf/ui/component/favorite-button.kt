@@ -1,6 +1,9 @@
 package top.kagg886.pmf.ui.component
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
@@ -53,7 +56,8 @@ fun FavoriteButton(
     val scope = rememberCoroutineScope()
     AnimatedContent(
         targetState = state,
-        modifier = modifier.size(30.dp)
+        modifier = modifier.size(30.dp),
+        transitionSpec = { fadeIn() togetherWith fadeOut() }
     ) {
         when (it) {
             FavoriteState.Favorite -> {
