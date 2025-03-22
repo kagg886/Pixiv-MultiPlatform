@@ -1,6 +1,8 @@
 package top.kagg886.pmf.ui.component
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
@@ -14,6 +16,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
@@ -60,6 +63,7 @@ fun BackToTopOrRefreshButton(
                         onRefresh()
                     }
                 }
+                Spacer(Modifier.size(56.dp,56.dp)) //placeholder
             }
             SHOW_BTT -> {
                 KeyListenerFromGlobalPipe {
