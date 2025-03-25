@@ -1,14 +1,13 @@
 package top.kagg886.pmf.ui.component.dialog
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import org.koin.mp.KoinPlatform.getKoin
@@ -44,7 +43,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         updateModel.dismiss()
                     },
                     title = {
-                        Text("更新：${BuildConfig.APP_VERSION_NAME} --> ${state.release.versionName}")
+                        Text("更新：v${BuildConfig.APP_VERSION_NAME} --> ${state.release.tagName}")
                     },
                     text = {
                         Text(state.release.body)
@@ -54,9 +53,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                             it.name.startsWith(currentPlatform.name)
                         }
                         if (uri == null) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Text("暂不支持该平台")
-                            }
+                            Text("暂不支持该平台", modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding))
                             return@AlertDialog
                         }
                         val handler = LocalUriHandler.current

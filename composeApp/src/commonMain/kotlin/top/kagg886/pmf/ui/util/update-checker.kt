@@ -1,7 +1,6 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.lifecycle.ViewModel
-import co.touchlab.kermit.Logger
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.nullableString
 import io.ktor.client.*
@@ -17,8 +16,8 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.PlatformEngine
+import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.util.logger
 
 @Serializable
@@ -34,9 +33,8 @@ data class Release(
     @SerialName("html_url")
     val url: String,
     @SerialName("tag_name")
-    val versionCode: String,
-    @SerialName("name")
-    val versionName: String,
+    val tagName: String,
+    val name: String,
     val assets: List<Asset>,
     val body: String
 )
@@ -94,7 +92,7 @@ class UpdateCheckViewModel(
         }
         val data = result.getOrThrow()
 
-        if ("v${BuildConfig.APP_VERSION_NAME}" != data.versionName) {
+        if ("v${BuildConfig.APP_VERSION_NAME}" != data.tagName) {
             reduce {
                 UpdateCheckState.HaveUpdate(data)
             }
