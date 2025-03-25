@@ -1,0 +1,12 @@
+<h3>Features</h3>
+<ul>
+<li>Login via built-in browser</li>
+<li>Recommendation, illustration rank, timeline on homepage</li>
+<li>Search</li>
+<li>Illustration details, download original illustration, favorite, like, comment</li>
+<li>Novel details, read, export, favorite, comment</li>
+<li>Personal center, profile, favorite, follow, history, download manager</li>
+<li>Illustration/novel filter (deleted illustration, no permission illustration, R18, R18G, AI)</li>
+<li>Direct connection with DoH</li>
+</ul>
+
