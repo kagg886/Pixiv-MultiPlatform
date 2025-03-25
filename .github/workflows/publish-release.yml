@@ -150,10 +150,13 @@ jobs:
           path: build
       - name: Show file list
         run: ls -lR
+      - name: Set versionCode env
+        run: echo "VERSION_CODE=$(echo ${{ github.ref_name }} | sed 's/[v.]//g')" >> $GITHUB_ENV
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }} - ${{ env.VERSION_CODE }}
           files: |
             build/windows.zip/windows.zip
             build/windows.msi/windows.msi
