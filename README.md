@@ -37,7 +37,7 @@
 
 ## 一. 下载链接
 
-**戳此处进行下载-->**[![release](https://img.shields.io/github/v/release/kagg886/Pixiv-MultiPlatform)](https://github.com/kagg886/Pixiv-MultiPlatform/releases/latest)
+**戳此处进行下载-->** [![release](https://img.shields.io/github/v/release/kagg886/Pixiv-MultiPlatform)](https://github.com/kagg886/Pixiv-MultiPlatform/releases/latest) [![F-Droid](https://img.shields.io/f-droid/v/top.kagg886.pmf.svg?logo=F-Droid)](https://f-droid.org/packages/top.kagg886.pmf/) 
 
 ## 二. 功能截图(宽窄屏配色不同的原因是主题不同)
 
