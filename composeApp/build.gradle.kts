@@ -237,6 +237,11 @@ android {
 
         manifestPlaceholders["APP_NAME"] = rootProject.name
 
+        ndk {
+            //只支持arm64和x64
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
+
     }
     packaging {
         resources {
