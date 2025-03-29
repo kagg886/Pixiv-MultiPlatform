@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.icon.Github
-import kotlin.system.exitProcess
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,3 +91,5 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
         )
     }
 }
+
+expect fun exitProcess(i: Int):Nothing
