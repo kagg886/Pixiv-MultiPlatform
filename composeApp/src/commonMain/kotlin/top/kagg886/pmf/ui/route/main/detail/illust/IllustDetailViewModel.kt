@@ -2,29 +2,26 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import com.github.panpf.sketch.fetch.newBase64Uri
 import com.github.panpf.sketch.fetch.newFileUri
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
+import moe.tarsin.gif.GifEncodeRequest
+import moe.tarsin.gif.encodeGifPlatform
 import okio.*
-import okio.Path.Companion.toPath
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.e404.skiko.gif.gif
-import top.e404.skiko.gif.listener.GIFMakingStep
-import top.kagg886.gif.ImageBitmapDelegate
-import top.kagg886.gif.toImageBitmap
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.ugoira.UgoiraFrame
 import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
@@ -40,8 +37,8 @@ import top.kagg886.pmf.backend.useTempDir
 import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.unzip
 import top.kagg886.pmf.util.writeBytes
 
 class IllustDetailViewModel(private val illust: Illust) :
@@ -70,42 +67,16 @@ class IllustDetailViewModel(private val illust: Illust) :
             if (!gif.exists()) {
                 loadingState.data.tryEmit("获取动图元数据")
                 val meta = client.getUgoiraMetadata(illust)
-                useTempFile { path ->
+                useTempFile { zip ->
                     loadingState.data.tryEmit("下载动图帧数据")
-                    val zip = with(path) {
-                        writeBytes(net.get(meta.url.content).bodyAsBytes())
-                        FileSystem.SYSTEM.openZip(this)
-                    }
+                    zip.writeBytes(net.get(meta.url.content).bodyAsBytes())
 
-                    val frames = meta.frames.map {
-                        { ImageBitmapDelegate(zip.source(it.file.toPath()).use { it.toImageBitmap() }) } to it.delay
-                    }
-
-                    val data = useTempDir {
-                        gif(illust.width, illust.height) {
-                            table(frames[0].first())
-                            loop(0)
-                            workDir(it)
-                            frame(frames[0].first)
-                            scope(screenModelScope + Dispatchers.Default)
-                            progress {
-                                when (it) {
-                                    is GIFMakingStep.CompressImage -> loadingState.data.tryEmit("处理动图像素帧: ${it.done} / ${it.total}")
-                                    is GIFMakingStep.WritingData -> loadingState.data.tryEmit("写出动图: ${it.done} / ${it.total}")
-                                }
-                            }
-
-                            for (i in 1 until frames.size) {
-                                frame(frames[i].first) {
-                                    duration = frames[i].second
-                                }
-                            }
+                    useTempDir { workDir ->
+                        zip.unzip(workDir)
+                        val frames = meta.frames.map { (file, delay) ->
+                            UgoiraFrame("$workDir/$file", delay)
                         }
-                    }
-
-                    gif.sink().buffer().use {
-                        data.buildToSink(it)
-                        it.flush()
+                        encodeGifPlatform(GifEncodeRequest(frames, 30, "$gif"))
                     }
                 }
             }

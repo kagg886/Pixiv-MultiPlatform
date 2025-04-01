@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -11,6 +12,7 @@ version = "1.0"
 fun prop(key: String) = project.findProperty(key) as String
 
 android {
+    ndkVersion = "28.0.13004108"
     namespace = "top.kagg886.gif"
 
     compileSdk = prop("TARGET_SDK").toInt()
@@ -24,6 +26,12 @@ android {
             isMinifyEnabled = false
 
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = File("src/rust/CMakeLists.txt")
         }
     }
 }
@@ -47,6 +55,8 @@ kotlin {
                 implementation(project(":lib:okio-enhancement-util"))
                 api(libs.korlibs.io)
                 implementation(libs.kermit)
+                implementation(libs.pixko)
+                implementation(libs.kotlinx.serialization.cbor)
             }
         }
 
@@ -77,3 +87,22 @@ kotlin {
     }
 }
 
+val jvmNonAndroidNatveLibBuild = tasks.register<Exec>("jvmNonAndroidNatveLibBuild") {
+    onlyIf { System.getProperty("os.name").startsWith("Linux") }
+    workingDir = project.file("src/rust")
+    commandLine(
+        "bash", "-c",
+        """
+            mkdir -p build && \
+            cd build && \
+            cmake -DCMAKE_BUILD_TYPE=Release .. && \
+            make
+        """.trimIndent()
+    )
+}
+
+// 配置JVM的processResources任务
+tasks.named<ProcessResources>("jvmProcessResources") {
+    dependsOn(jvmNonAndroidNatveLibBuild)
+    from(project.file("src/rust/build/libgif_rust.so"))
+}
