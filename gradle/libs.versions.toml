@@ -1,7 +1,7 @@
 [versions]
 aboutlibraries = "12.0.0-a04"
 agp = "8.8.0-alpha05"
-androidx-lifecycle = "2.9.0-alpha04"
+androidx-lifecycle = "2.9.0-alpha05"
 compose-settings = "2.10.0"
 composeWebviewMultiplatform = "1.9.40"
 filekitCompose = "0.8.8"
@@ -19,16 +19,15 @@ orbitCore = "9.0.0"
 pixko = "2.6"
 room = "2.7.0-rc03"
 sketchCompose = "4.0.4"
-sqliteBundled = "2.5.0-rc02"
+sqliteBundled = "2.5.0-rc03"
+versionCatalogUpdate = "1.0.0"
 voyagerVersion = "1.1.0-beta03"
 zoomimageComposeSketch = "1.1.2"
-benmanesVersions = "0.52.0"
-versionCatalogUpdate = "0.8.5"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 aboutlibraries-core = { module = "com.mikepenz:aboutlibraries-core", version.ref = "aboutlibraries" }
-androidx-activity-compose = "androidx.activity:activity-compose:1.11.0-alpha01"
+androidx-activity-compose = "androidx.activity:activity-compose:1.11.0-alpha02"
 androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
@@ -72,12 +71,12 @@ zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compo
 aboutlibrariesPlugin = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-buildConfig = "com.github.gmazzo.buildconfig:5.5.4"
+benmanes-versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
+buildConfig = "com.github.gmazzo.buildconfig:5.6.1"
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-jetbrainsCompose = "org.jetbrains.compose:1.8.0-alpha04"
+jetbrainsCompose = "org.jetbrains.compose:1.8.0-beta01"
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
-benmanes-versions = { id = "com.github.ben-manes.versions", version.ref = "benmanesVersions"}
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
