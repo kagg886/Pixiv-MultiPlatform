@@ -37,6 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
+import moe.tarsin.gif.loadNativeGifEncoder
 import okio.Path
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
@@ -347,6 +348,7 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
 }
 
 fun setupEnv() {
+    loadNativeGifEncoder()
     // init logger
     initFileLogger()
 
