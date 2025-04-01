@@ -15,8 +15,10 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
 
 class NovelSeriesScreenModel(
-    private val seriesId: Int
-) : ViewModel(), ScreenModel, KoinComponent,
+    private val seriesId: Int,
+) : ViewModel(),
+    ScreenModel,
+    KoinComponent,
     ContainerHost<NovelSeriesScreenState, NovelSeriesScreenSideEffect> {
     private val client = PixivConfig.newAccountFromConfig()
     override val container: Container<NovelSeriesScreenState, NovelSeriesScreenSideEffect> =
@@ -48,7 +50,7 @@ class NovelSeriesScreenModel(
     fun followUser(private: Boolean = false) = intent {
         runOn<NovelSeriesScreenState.LoadingSuccess> {
             val result = kotlin.runCatching {
-                client.followUser(state.info.user.id,if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
+                client.followUser(state.info.user.id, if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
             }
             if (result.isFailure) {
                 postSideEffect(NovelSeriesScreenSideEffect.Toast("关注失败~"))

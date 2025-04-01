@@ -13,9 +13,9 @@ import top.kagg886.pixko.module.illust.BookmarkVisibility
 @Composable
 fun TagFavoriteDialog(
     tags: List<Tag>,
-    title:@Composable () -> Unit,
-    confirm: suspend (List<Tag>,BookmarkVisibility) -> Unit,
-    cancel: () -> Unit
+    title: @Composable () -> Unit,
+    confirm: suspend (List<Tag>, BookmarkVisibility) -> Unit,
+    cancel: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val selectTags = remember {
@@ -30,9 +30,9 @@ fun TagFavoriteDialog(
             TextButton(
                 onClick = {
                     scope.launch {
-                        confirm(selectTags,restrict)
+                        confirm(selectTags, restrict)
                     }
-                }
+                },
             ) {
                 Text("确定")
             }
@@ -52,7 +52,7 @@ fun TagFavoriteDialog(
                     supportingContent = {
                         PrimaryTabRow(
                             selectedTabIndex = restrict.ordinal,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             for (i in BookmarkVisibility.entries) {
                                 Tab(
@@ -62,11 +62,11 @@ fun TagFavoriteDialog(
                                     },
                                     text = {
                                         Text(text = i.name)
-                                    }
+                                    },
                                 )
                             }
                         }
-                    }
+                    },
                 )
                 ListItem(
                     headlineContent = {
@@ -88,13 +88,13 @@ fun TagFavoriteDialog(
                                         } else {
                                             selectTags.add(tag)
                                         }
-                                    }
+                                    },
                                 )
                             }
                         }
-                    }
+                    },
                 )
             }
-        }
+        },
     )
 }

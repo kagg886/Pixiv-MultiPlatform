@@ -89,10 +89,10 @@ class BookmarkScreen : Screen {
                                                                 UserLikePublicity.PUBLIC -> Text("公开")
                                                                 UserLikePublicity.PRIVATE -> Text("私密")
                                                             }
-                                                        }
+                                                        },
                                                     )
                                                 }
-                                            }
+                                            },
                                         )
                                     },
                                 )
@@ -118,12 +118,12 @@ class BookmarkScreen : Screen {
                                                                 Illust -> Text("插画")
                                                                 Novel -> Text("小说")
                                                             }
-                                                        }
+                                                        },
                                                     )
                                                 }
-                                            }
+                                            },
                                         )
-                                    }
+                                    },
                                 )
                                 TagsFetchDrawerSheetContainer(tagModel)
                             }
@@ -141,11 +141,11 @@ class BookmarkScreen : Screen {
                                     IconButton(
                                         onClick = {
                                             goBack()
-                                        }
+                                        },
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                            contentDescription = null
+                                            contentDescription = null,
                                         )
                                     }
                                 },
@@ -155,16 +155,16 @@ class BookmarkScreen : Screen {
                                             scope.launch {
                                                 drawerState.open()
                                             }
-                                        }
+                                        },
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Star,
-                                            contentDescription = null
+                                            contentDescription = null,
                                         )
                                     }
-                                }
+                                },
                             )
-                        }
+                        },
                     ) {
                         Box(Modifier.padding(it).fillMaxSize()) {
                             val tagState by tagModel.collectAsState()
@@ -192,7 +192,6 @@ class BookmarkScreen : Screen {
                                     NovelFetchScreen(novelModel)
                                 }
                             }
-
                         }
                     }
                 }

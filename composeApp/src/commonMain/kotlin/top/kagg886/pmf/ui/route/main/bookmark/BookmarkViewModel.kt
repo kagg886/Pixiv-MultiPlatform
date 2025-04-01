@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.route.main.bookmark
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlin.coroutines.CoroutineContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -15,7 +16,6 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
 import top.kagg886.pmf.ui.util.container
-import kotlin.coroutines.CoroutineContext
 
 class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, ViewModel(), ScreenModel {
     override val container: Container<BookmarkViewState, BookmarkSideEffect> = container(BookmarkViewState.LoadSuccess())
@@ -25,7 +25,7 @@ class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, 
         runOn<BookmarkViewState.LoadSuccess> {
             reduce {
                 state.copy(
-                    tagFilter = tagFilter
+                    tagFilter = tagFilter,
                 )
             }
         }
@@ -36,7 +36,7 @@ class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, 
         runOn<BookmarkViewState.LoadSuccess> {
             reduce {
                 state.copy(
-                    mode = mode
+                    mode = mode,
                 )
             }
         }
@@ -47,7 +47,7 @@ class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, 
         runOn<BookmarkViewState.LoadSuccess> {
             reduce {
                 state.copy(
-                    restrict = publicity
+                    restrict = publicity,
                 )
             }
         }
@@ -60,18 +60,22 @@ sealed interface CanAccessTagFilterViewModel {
 
 class BookmarkIllustViewModel(
     val restrict: UserLikePublicity = UserLikePublicity.PUBLIC,
-    override val tagFilter: TagFilter = TagFilter.NoFilter
+    override val tagFilter: TagFilter = TagFilter.NoFilter,
 ) : IllustFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>(coroutineContext) {
             private var ctx: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
-                ctx = if (ctx == null) client.getUserLikeIllust(
-                    id,
-                    restrict,
-                    tagFilter
-                ) else client.getUserLikeIllustNext(ctx!!)
+                ctx = if (ctx == null) {
+                    client.getUserLikeIllust(
+                        id,
+                        restrict,
+                        tagFilter,
+                    )
+                } else {
+                    client.getUserLikeIllustNext(ctx!!)
+                }
                 return ctx?.illusts
             }
         }
@@ -80,18 +84,22 @@ class BookmarkIllustViewModel(
 
 class BookmarkNovelViewModel(
     private val restrict: UserLikePublicity = UserLikePublicity.PUBLIC,
-    override val tagFilter: TagFilter = TagFilter.NoFilter
+    override val tagFilter: TagFilter = TagFilter.NoFilter,
 ) : NovelFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
         return object : InfinityRepository<Novel>(coroutineContext) {
             private var ctx: NovelResult? = null
             override suspend fun onFetchList(): List<Novel>? {
-                ctx = if (ctx == null) client.getUserLikeNovel(
-                    id,
-                    restrict,
-                    tagFilter
-                ) else client.getUserLikeNovelNext(ctx!!)
+                ctx = if (ctx == null) {
+                    client.getUserLikeNovel(
+                        id,
+                        restrict,
+                        tagFilter,
+                    )
+                } else {
+                    client.getUserLikeNovelNext(ctx!!)
+                }
                 return ctx?.novels
             }
         }
@@ -104,7 +112,7 @@ sealed interface BookmarkViewState {
     data class LoadSuccess(
         val restrict: UserLikePublicity = UserLikePublicity.PUBLIC,
         val tagFilter: TagFilter = TagFilter.NoFilter,
-        val mode: FavoriteTagsType = FavoriteTagsType.Illust
+        val mode: FavoriteTagsType = FavoriteTagsType.Illust,
     ) : BookmarkViewState
 }
 

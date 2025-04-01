@@ -18,7 +18,7 @@ private val DefaultTimeFormatter = DateTimeComponents.Format {
     second()
 }
 
-fun Instant.toReadableString():String = this.format(
+fun Instant.toReadableString(): String = this.format(
     format = DefaultTimeFormatter,
-    offset = TimeZone.currentSystemDefault().offsetAt(this)
+    offset = TimeZone.currentSystemDefault().offsetAt(this),
 )

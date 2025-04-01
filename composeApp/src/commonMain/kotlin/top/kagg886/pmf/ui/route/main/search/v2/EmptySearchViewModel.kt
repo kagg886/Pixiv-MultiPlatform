@@ -11,7 +11,10 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.SearchHistory
 import top.kagg886.pmf.ui.util.container
 
-class EmptySearchViewModel : ViewModel(), ScreenModel, KoinComponent,
+class EmptySearchViewModel :
+    ViewModel(),
+    ScreenModel,
+    KoinComponent,
     ContainerHost<EmptySearchState, EmptySearchSideEffect> {
 
     private val database by inject<AppDatabase>()

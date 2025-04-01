@@ -1,14 +1,14 @@
 package top.kagg886.pmf
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import okio.Path
 import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.*
 import java.io.ByteArrayInputStream
 import java.net.URI
 import javax.imageio.ImageIO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okio.Path
 
 actual fun openBrowser(link: String) {
     Desktop.getDesktop().browse(URI.create(link))
@@ -22,7 +22,7 @@ actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
     withContext(Dispatchers.IO) {
         Toolkit.getDefaultToolkit().systemClipboard.setContents(
             TransferableImage(bitmap),
-            DesktopClipBoardOwner
+            DesktopClipBoardOwner,
         )
     }
 }
@@ -52,8 +52,5 @@ private data class TransferableImage(private val image: ByteArray) : Transferabl
         return image.contentEquals(other.image)
     }
 
-    override fun hashCode(): Int {
-        return image.contentHashCode()
-    }
-
+    override fun hashCode(): Int = image.contentHashCode()
 }

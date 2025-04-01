@@ -1,12 +1,11 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.okhttp.*
-import top.kagg886.pmf.util.logger
 import java.net.InetSocketAddress
 import java.net.Proxy
+import top.kagg886.pmf.util.logger
 
 private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
     engine {
@@ -17,16 +16,16 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
 
                 is AppConfig.BypassSetting.SNIReplace -> {
                     bypassSNIOnAndroid(
-                        queryUrl =  config.url,
+                        queryUrl = config.url,
                         unsafeSSL = config.nonStrictSSL,
                         fallback = config.fallback,
-                        dohTimeout = config.dohTimeout
+                        dohTimeout = config.dohTimeout,
                     )
                 }
 
                 is AppConfig.BypassSetting.Proxy -> {
                     this.proxy(
-                        Proxy(Proxy.Type.valueOf(config.type.toString()),InetSocketAddress.createUnresolved(config.host,config.port))
+                        Proxy(Proxy.Type.valueOf(config.type.toString()), InetSocketAddress.createUnresolved(config.host, config.port)),
                     )
                 }
             }

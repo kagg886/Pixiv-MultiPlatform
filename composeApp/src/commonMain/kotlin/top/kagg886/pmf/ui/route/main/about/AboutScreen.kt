@@ -13,10 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -24,20 +22,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.entity.Library
-import com.mikepenz.aboutlibraries.entity.License
-import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.m3.rememberLibraries
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.BuildConfig
-import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.kotlin
-import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Telegram
@@ -59,31 +51,31 @@ class AboutScreen : Screen {
             background = {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     OutlinedCard(
                         it.fillMaxWidth(0.9f)
                             .padding(top = TopAppBarDefaults.MediumAppBarCollapsedHeight + 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
                     ) {
                         Spacer(Modifier.height(16.dp))
                         Image(
                             painter = painterResource(Res.drawable.kotlin),
                             contentDescription = null,
-                            modifier = Modifier.size(96.dp).align(Alignment.CenterHorizontally)
+                            modifier = Modifier.size(96.dp).align(Alignment.CenterHorizontally),
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
                             text = BuildConfig.APP_NAME,
                             style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
                             "${BuildConfig.APP_VERSION_NAME} | ${BuildConfig.APP_VERSION_CODE} (Code by kagg886)",
                             style = MaterialTheme.typography.bodyMedium,
                             color = ListItemDefaults.colors().supportingTextColor,
-                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
                         )
                         Spacer(Modifier.height(16.dp))
                         Row(Modifier.align(Alignment.CenterHorizontally)) {
@@ -91,21 +83,21 @@ class AboutScreen : Screen {
                             IconButton(
                                 onClick = {
                                     uri.openUri("https://github.com/kagg886/Pixiv-MultiPlatform")
-                                }
+                                },
                             ) {
                                 Icon(imageVector = Github, contentDescription = null)
                             }
                             IconButton(
                                 onClick = {
                                     uri.openUri("https://pmf.kagg886.top")
-                                }
+                                },
                             ) {
                                 Icon(imageVector = Icons.Default.Home, contentDescription = null)
                             }
                             IconButton(
                                 onClick = {
                                     uri.openUri("https://t.me/+n_xsrc1Z590xNTY9")
-                                }
+                                },
                             ) {
                                 Icon(imageVector = Telegram, contentDescription = null)
                             }
@@ -119,11 +111,11 @@ class AboutScreen : Screen {
             navigationIcon = {
                 val nav = LocalNavigator.currentOrThrow
                 IconButton(
-                    onClick = { nav.pop() }
+                    onClick = { nav.pop() },
                 ) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                 }
-            }
+            },
         ) {
             val state = rememberLazyListState()
             LazyColumn(it.fillMaxWidth().fixComposeListScrollToTopBug(state), state = state) {
@@ -132,7 +124,7 @@ class AboutScreen : Screen {
                     OutlinedCard(
                         Modifier.fillMaxWidth().padding(8.dp).clickable {
                             it.website?.let { u -> uri.openUri(u) }
-                        }
+                        },
                     ) {
                         ListItem(
                             headlineContent = {
@@ -142,15 +134,15 @@ class AboutScreen : Screen {
                                 Text(
                                     text = it.description?.ifBlank { "No Descriptions." } ?: "No Descriptions.",
                                     maxLines = 3,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             },
                             trailingContent = {
                                 it.artifactVersion?.let { u -> Text(u) }
-                            }
+                            },
                         )
                         FlowRow(
-                            modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
                         ) {
                             for (i in it.licenses) {
                                 AssistChip(
@@ -227,7 +219,5 @@ class AboutScreen : Screen {
 //                }
 //            )
 //        }
-
-
     }
 }

@@ -28,7 +28,7 @@ class HistoryScreen : Screen {
         TabContainer(
             modifier = Modifier.fillMaxSize(),
             state = page.page,
-            tab = listOf("插画", "小说")
+            tab = listOf("插画", "小说"),
         ) {
             val snackbarHostState = LocalSnackBarHost.current
             when (it) {

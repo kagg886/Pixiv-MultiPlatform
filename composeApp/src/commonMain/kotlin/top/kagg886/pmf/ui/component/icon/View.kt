@@ -11,11 +11,22 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 val View: ImageVector by lazy {
-    Builder(name = "View", defaultWidth = 24.0.dp, defaultHeight = 24.0.dp,
-        viewportWidth = 24.0f, viewportHeight = 24.0f).apply {
-        path(fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,
-            strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-            pathFillType = NonZero) {
+    Builder(
+        name = "View",
+        defaultWidth = 24.0.dp,
+        defaultHeight = 24.0.dp,
+        viewportWidth = 24.0f,
+        viewportHeight = 24.0f,
+    ).apply {
+        path(
+            fill = SolidColor(Color(0xFF5f6368)),
+            stroke = null,
+            strokeLineWidth = 0.0f,
+            strokeLineCap = Butt,
+            strokeLineJoin = Miter,
+            strokeLineMiter = 4.0f,
+            pathFillType = NonZero,
+        ) {
             moveTo(12.0f, 4.5f)
             curveTo(7.0f, 4.5f, 2.73f, 7.61f, 1.0f, 12.0f)
             curveToRelative(1.73f, 4.39f, 6.0f, 7.5f, 11.0f, 7.5f)

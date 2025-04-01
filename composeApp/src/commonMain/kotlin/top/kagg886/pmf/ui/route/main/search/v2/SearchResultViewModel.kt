@@ -24,11 +24,11 @@ import top.kagg886.pmf.ui.util.container
 class SearchResultViewModel(
     private val keyword: List<String>,
     private val sort: SearchSort,
-    private val target: SearchTarget
+    private val target: SearchTarget,
 ) : ViewModel(), ScreenModel, KoinComponent, ContainerHost<SearchResultState, SearchResultSideEffect> {
 
     private val database by inject<AppDatabase>()
-    
+
     override val container: Container<SearchResultState, SearchResultSideEffect> = container(
         initialState = SearchResultState(
             keyword = keyword,
@@ -36,22 +36,22 @@ class SearchResultViewModel(
             target = target,
             illustRepo = null,
             novelRepo = null,
-            authorRepo = null
-        )
+            authorRepo = null,
+        ),
     ) {
         val (illust, novel, author) = calcThreeRepo(keyword, sort, target)
-        
+
         reduce {
             state.copy(
                 illustRepo = illust,
                 novelRepo = novel,
-                authorRepo = author
+                authorRepo = author,
             )
         }
-        
+
         saveHistoryIfConfigOn(keyword, sort, target)
     }
-    
+
     private fun saveHistoryIfConfigOn(tag: List<String>, sort: SearchSort, target: SearchTarget) {
         if (!AppConfig.recordSearchHistory) {
             return
@@ -61,12 +61,12 @@ class SearchResultViewModel(
                 SearchHistory(
                     initialSort = sort,
                     initialTarget = target,
-                    keyword = tag
-                )
+                    keyword = tag,
+                ),
             )
         }
     }
-    
+
     private fun calcThreeRepo(
         keyWord: List<String>,
         sort: SearchSort,
@@ -114,9 +114,9 @@ data class SearchResultState(
     val target: SearchTarget,
     val illustRepo: IllustFetchViewModel?,
     val novelRepo: NovelFetchViewModel?,
-    val authorRepo: AuthorFetchViewModel?
+    val authorRepo: AuthorFetchViewModel?,
 )
 
 sealed interface SearchResultSideEffect {
     data class Toast(val message: String) : SearchResultSideEffect
-} 
+}

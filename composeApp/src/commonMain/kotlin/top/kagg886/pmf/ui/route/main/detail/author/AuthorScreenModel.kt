@@ -10,7 +10,9 @@ import top.kagg886.pixko.module.user.*
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.container
 
-class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorScreenSideEffect>, ViewModel(),
+class AuthorScreenModel(val id: Int) :
+    ContainerHost<AuthorScreenState, AuthorScreenSideEffect>,
+    ViewModel(),
     ScreenModel,
     KoinComponent {
     override val container: Container<AuthorScreenState, AuthorScreenSideEffect> =
@@ -42,7 +44,7 @@ class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorSc
             val result = kotlin.runCatching {
                 client.followUser(
                     state.user.user.id,
-                    if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC
+                    if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC,
                 )
             }
             if (result.isFailure) {
@@ -58,9 +60,9 @@ class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorSc
                 state.copy(
                     user = state.user.copy(
                         user = state.user.user.copy(
-                            isFollowed = true
-                        )
-                    )
+                            isFollowed = true,
+                        ),
+                    ),
                 )
             }
         }
@@ -81,9 +83,9 @@ class AuthorScreenModel(val id: Int) : ContainerHost<AuthorScreenState, AuthorSc
                 state.copy(
                     user = state.user.copy(
                         user = state.user.user.copy(
-                            isFollowed = false
-                        )
-                    )
+                            isFollowed = false,
+                        ),
+                    ),
                 )
             }
         }

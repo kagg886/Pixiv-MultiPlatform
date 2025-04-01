@@ -1,7 +1,6 @@
-import korlibs.io.file.std.applicationVfs
 import korlibs.io.file.std.uniVfs
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
+import kotlinx.coroutines.runBlocking
 
 class ZipTest {
     @Test

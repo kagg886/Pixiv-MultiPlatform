@@ -11,7 +11,7 @@ val Telegram by lazy {
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,
         viewportWidth = 1024f,
-        viewportHeight = 1024f
+        viewportHeight = 1024f,
     ).apply {
         path(
             fill = SolidColor(Color.Black),
@@ -22,7 +22,7 @@ val Telegram by lazy {
             strokeLineCap = StrokeCap.Butt,
             strokeLineJoin = StrokeJoin.Miter,
             strokeLineMiter = 1.0f,
-            pathFillType = PathFillType.NonZero
+            pathFillType = PathFillType.NonZero,
         ) {
             moveTo(679.428571f, 746.857143f)
             lineToRelative(84f, -396f)

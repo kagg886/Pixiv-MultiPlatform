@@ -8,13 +8,12 @@ import co.touchlab.kermit.Logger
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
+import kotlin.system.exitProcess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.ui.route.crash.CrashApp
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
-import kotlin.system.exitProcess
-
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
@@ -39,7 +38,7 @@ fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
                     exitApplication()
                 }
             },
-            LocalKeyStateFlow provides remember { MutableSharedFlow() }
+            LocalKeyStateFlow provides remember { MutableSharedFlow() },
         ) {
             CompositionLocalProvider {
                 val flow = LocalKeyStateFlow.current as MutableSharedFlow
@@ -53,7 +52,7 @@ fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
                             flow.emit(it)
                         }
                         true
-                    }
+                    },
                 ) {
                     App(init())
                 }

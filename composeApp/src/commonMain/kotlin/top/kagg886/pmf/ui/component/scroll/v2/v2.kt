@@ -25,13 +25,13 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.geometry.Offset
+import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 /**
  * Defines how to scroll the scrollable component and how to display a scrollbar for it.
@@ -70,7 +70,6 @@ interface ScrollbarAdapter {
      * scroll range.
      */
     suspend fun scrollTo(scrollOffset: Double)
-
 }
 
 /**
@@ -80,7 +79,7 @@ val ScrollbarAdapter.maxScrollOffset: Double
     get() = (contentSize - viewportSize).coerceAtLeast(0.0)
 
 internal class ScrollableScrollbarAdapter(
-    private val scrollState: ScrollState
+    private val scrollState: ScrollState,
 ) : ScrollbarAdapter {
 
     override val scrollOffset: Double get() = scrollState.value.toDouble()
@@ -98,7 +97,6 @@ internal class ScrollableScrollbarAdapter(
 
     override val viewportSize: Double
         get() = scrollState.viewportSize.toDouble()
-
 }
 
 /**
@@ -115,7 +113,7 @@ internal abstract class LazyLineContentAdapter : ScrollbarAdapter {
 
     class VisibleLine(
         val index: Int,
-        val offset: Int
+        val offset: Int,
     )
 
     /**
@@ -154,10 +152,11 @@ internal abstract class LazyLineContentAdapter : ScrollbarAdapter {
     protected abstract val lineSpacing: Int
 
     private val averageVisibleLineSize by derivedStateOf {
-        if (totalLineCount() == 0)
+        if (totalLineCount() == 0) {
             0.0
-        else
+        } else {
             averageVisibleLineSize()
+        }
     }
 
     private val averageVisibleLineSizeWithSpacing get() = averageVisibleLineSize + lineSpacing
@@ -165,18 +164,19 @@ internal abstract class LazyLineContentAdapter : ScrollbarAdapter {
     override val scrollOffset: Double
         get() {
             val firstVisibleLine = firstVisibleLine()
-            return if (firstVisibleLine == null)
+            return if (firstVisibleLine == null) {
                 0.0
-            else
+            } else {
                 firstVisibleLine.index * averageVisibleLineSizeWithSpacing - firstVisibleLine.offset
+            }
         }
 
     override val contentSize: Double
         get() {
             val totalLineCount = totalLineCount()
             return averageVisibleLineSize * totalLineCount +
-                    lineSpacing * (totalLineCount - 1).coerceAtLeast(0) +
-                    contentPadding()
+                lineSpacing * (totalLineCount - 1).coerceAtLeast(0) +
+                contentPadding()
         }
 
     override suspend fun scrollTo(scrollOffset: Double) {
@@ -208,19 +208,19 @@ internal abstract class LazyLineContentAdapter : ScrollbarAdapter {
 
         snapToLine(lineIndex = index, scrollOffset = offset)
     }
-
 }
 
 internal class LazyListScrollbarAdapter(
-    private val scrollState: LazyListState
+    private val scrollState: LazyListState,
 ) : LazyLineContentAdapter() {
 
     override val viewportSize: Double
         get() = with(scrollState.layoutInfo) {
-            if (orientation == Orientation.Vertical)
+            if (orientation == Orientation.Vertical) {
                 viewportSize.height
-            else
+            } else {
                 viewportSize.width
+            }
         }.toDouble()
 
     /**
@@ -250,10 +250,11 @@ internal class LazyListScrollbarAdapter(
                 // sticky, so we return 1
                 if ((first.index < second.index - 1) ||
                     (first.offset + first.size + lineSpacing > second.offset)
-                )
+                ) {
                     1
-                else
+                } else {
                     0
+                }
             }
         }
     }
@@ -263,7 +264,7 @@ internal class LazyListScrollbarAdapter(
         val firstFloatingItem = scrollState.layoutInfo.visibleItemsInfo[firstFloatingVisibleIndex]
         return VisibleLine(
             index = firstFloatingItem.index,
-            offset = firstFloatingItem.offset
+            offset = firstFloatingItem.offset,
         )
     }
 
@@ -290,19 +291,19 @@ internal class LazyListScrollbarAdapter(
     }
 
     override val lineSpacing get() = scrollState.layoutInfo.mainAxisItemSpacing
-
 }
 
 internal class LazyStaggerGirdListScrollbarAdapter(
-    private val scrollState: LazyStaggeredGridState
+    private val scrollState: LazyStaggeredGridState,
 ) : LazyLineContentAdapter() {
 
     override val viewportSize: Double
         get() = with(scrollState.layoutInfo) {
-            if (orientation == Orientation.Vertical)
+            if (orientation == Orientation.Vertical) {
                 viewportSize.height
-            else
+            } else {
                 viewportSize.width
+            }
         }.toDouble()
 
     /**
@@ -332,10 +333,11 @@ internal class LazyStaggerGirdListScrollbarAdapter(
                 // sticky, so we return 1
                 if ((first.index < second.index - 1) ||
                     (first.offset.y + first.size.height + lineSpacing > second.offset.y)
-                )
+                ) {
                     1
-                else
+                } else {
                     0
+                }
             }
         }
     }
@@ -345,7 +347,7 @@ internal class LazyStaggerGirdListScrollbarAdapter(
         val firstFloatingItem = scrollState.layoutInfo.visibleItemsInfo[firstFloatingVisibleIndex]
         return VisibleLine(
             index = firstFloatingItem.index,
-            offset = firstFloatingItem.offset.y
+            offset = firstFloatingItem.offset.y,
         )
     }
 
@@ -372,20 +374,19 @@ internal class LazyStaggerGirdListScrollbarAdapter(
     }
 
     override val lineSpacing get() = scrollState.layoutInfo.mainAxisItemSpacing
-
 }
 
-
 internal class LazyGridScrollbarAdapter(
-    private val scrollState: LazyGridState
+    private val scrollState: LazyGridState,
 ) : LazyLineContentAdapter() {
 
     override val viewportSize: Double
         get() = with(scrollState.layoutInfo) {
-            if (orientation == Orientation.Vertical)
+            if (orientation == Orientation.Vertical) {
                 viewportSize.height
-            else
+            } else {
                 viewportSize.width
+            }
         }.toDouble()
 
     private val isVertical = scrollState.layoutInfo.orientation == Orientation.Vertical
@@ -410,23 +411,22 @@ internal class LazyGridScrollbarAdapter(
     @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
     private fun indexOfFirstInLine(line: Int) = line * scrollState.slotsPerLine
 
-    override fun firstVisibleLine(): VisibleLine? {
-        return scrollState.layoutInfo.visibleItemsInfo
-            .firstOrNull { it.line() != unknownLine } // Skip exiting items
-            ?.let { firstVisibleItem ->
-                VisibleLine(
-                    index = firstVisibleItem.line(),
-                    offset = firstVisibleItem.mainAxisOffset()
-                )
-            }
-    }
+    override fun firstVisibleLine(): VisibleLine? = scrollState.layoutInfo.visibleItemsInfo
+        .firstOrNull { it.line() != unknownLine } // Skip exiting items
+        ?.let { firstVisibleItem ->
+            VisibleLine(
+                index = firstVisibleItem.line(),
+                offset = firstVisibleItem.mainAxisOffset(),
+            )
+        }
 
     override fun totalLineCount(): Int {
         val itemCount = scrollState.layoutInfo.totalItemsCount
-        return if (itemCount == 0)
+        return if (itemCount == 0) {
             0
-        else
+        } else {
             lineOfIndex(itemCount - 1) + 1
+        }
     }
 
     override fun contentPadding() = with(scrollState.layoutInfo) {
@@ -436,7 +436,7 @@ internal class LazyGridScrollbarAdapter(
     override suspend fun snapToLine(lineIndex: Int, scrollOffset: Int) {
         scrollState.scrollToItem(
             index = indexOfFirstInLine(lineIndex),
-            scrollOffset = scrollOffset
+            scrollOffset = scrollOffset,
         )
     }
 
@@ -447,9 +447,10 @@ internal class LazyGridScrollbarAdapter(
     override fun averageVisibleLineSize(): Double {
         val visibleItemsInfo = scrollState.layoutInfo.visibleItemsInfo
         val indexOfFirstKnownLineItem = visibleItemsInfo.indexOfFirst { it.line() != unknownLine }
-        if (indexOfFirstKnownLineItem == -1)
+        if (indexOfFirstKnownLineItem == -1) {
             return 0.0
-        val reallyVisibleItemsInfo =  // Non-exiting visible items
+        }
+        val reallyVisibleItemsInfo = // Non-exiting visible items
             visibleItemsInfo.subList(indexOfFirstKnownLineItem, visibleItemsInfo.size)
 
         // Compute the size of the last line
@@ -465,12 +466,11 @@ internal class LazyGridScrollbarAdapter(
         val lineCount = last.line() - first.line() + 1
         val lineSpacingSum = (lineCount - 1) * lineSpacing
         return (
-                last.mainAxisOffset() + lastLineSize - first.mainAxisOffset() - lineSpacingSum
-                ).toDouble() / lineCount
+            last.mainAxisOffset() + lastLineSize - first.mainAxisOffset() - lineSpacingSum
+            ).toDouble() / lineCount
     }
 
     override val lineSpacing get() = scrollState.layoutInfo.mainAxisItemSpacing
-
 }
 
 internal class SliderAdapter(
@@ -479,17 +479,18 @@ internal class SliderAdapter(
     private val minHeight: Float,
     private val reverseLayout: Boolean,
     private val isVertical: Boolean,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) {
 
     private val contentSize get() = adapter.contentSize
     private val visiblePart: Double
         get() {
             val contentSize = contentSize
-            return if (contentSize == 0.0)
+            return if (contentSize == 0.0) {
                 1.0
-            else
+            } else {
                 (adapter.viewportSize / contentSize).coerceAtMost(1.0)
+            }
         }
 
     val thumbSize
@@ -498,7 +499,7 @@ internal class SliderAdapter(
     private val scrollScale: Double
         get() {
             val extraScrollbarSpace = trackSize - thumbSize
-            val extraContentSpace = adapter.maxScrollOffset  // == contentSize - viewportSize
+            val extraContentSpace = adapter.maxScrollOffset // == contentSize - viewportSize
             return if (extraContentSpace == 0.0) 1.0 else extraScrollbarSpace / extraContentSpace
         }
 
@@ -541,7 +542,7 @@ internal class SliderAdapter(
                 val targetPosition =
                     (currentPosition + dragDelta + unscrolledDragDistance).coerceIn(
                         0.0,
-                        maxScrollPosition
+                        maxScrollPosition,
                     )
                 val sliderDelta = targetPosition - currentPosition
 
@@ -552,5 +553,4 @@ internal class SliderAdapter(
             }
         }
     }
-
 }

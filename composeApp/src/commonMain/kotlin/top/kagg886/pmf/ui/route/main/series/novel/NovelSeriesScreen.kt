@@ -19,7 +19,6 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.openBrowser
-
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
@@ -72,7 +71,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
         PermanentNavigationDrawer(
             drawerContent = {
                 NovelSeriesScreenDrawerContent(info)
-            }
+            },
         ) {
             NovelFetchScreen(model)
         }
@@ -101,11 +100,11 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                                     scope.launch {
                                         state.open()
                                     }
-                                }
+                                },
                             ) {
                                 Icon(
                                     Icons.Default.Menu,
-                                    null
+                                    null,
                                 )
                             }
                         },
@@ -120,19 +119,19 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                             }
                             DropdownMenu(
                                 expanded = expanded,
-                                onDismissRequest = { expanded = false }
+                                onDismissRequest = { expanded = false },
                             ) {
                                 DropdownMenuItem(
                                     text = { Text("在浏览器中打开") },
                                     onClick = {
-                                        openBrowser("https://www.pixiv.net/novel/series/${id}")
+                                        openBrowser("https://www.pixiv.net/novel/series/$id")
                                         expanded = false
-                                    }
+                                    },
                                 )
                             }
-                        }
+                        },
                     )
-                }
+                },
             ) {
                 Box(Modifier.padding(it)) {
                     NovelFetchScreen(model)
@@ -140,7 +139,6 @@ class NovelSeriesScreen(private val id: Int) : Screen {
             }
         }
     }
-
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -151,7 +149,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                     title = {
                         Text(
                             text = info.title,
-                            style = MaterialTheme.typography.titleMedium
+                            style = MaterialTheme.typography.titleMedium,
                         )
                     },
                     navigationIcon = {
@@ -159,14 +157,14 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                         IconButton(
                             onClick = {
                                 nav.pop()
-                            }
+                            },
                         ) {
                             Icon(
                                 Icons.AutoMirrored.Filled.ArrowBack,
-                                null
+                                null,
                             )
                         }
-                    }
+                    },
                 )
 
                 LazyColumn {
@@ -175,14 +173,14 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                             ListItem(
                                 headlineContent = {
                                     Text(info.caption)
-                                }
+                                },
                             )
                         }
                     }
 
                     item {
                         Spacer(Modifier.height(16.dp))
-                        //TODO 添加关注
+                        // TODO 添加关注
                         val model = rememberScreenModel {
                             NovelSeriesScreenModel(id)
                         }
@@ -197,7 +195,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                             onFavoritePrivateClick = {
                                 val job = model.followUser(true)
                                 job.join()
-                            }
+                            },
                         )
                     }
 

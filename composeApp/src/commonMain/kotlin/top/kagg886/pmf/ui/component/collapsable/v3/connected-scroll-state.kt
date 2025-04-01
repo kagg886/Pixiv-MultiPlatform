@@ -23,10 +23,8 @@ import kotlin.math.roundToInt
 @Composable
 fun rememberConnectedScrollState(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
-): ConnectedScrollState {
-    return remember (flingBehavior) {
-        ConnectedScrollState(flingBehavior)
-    }
+): ConnectedScrollState = remember(flingBehavior) {
+    ConnectedScrollState(flingBehavior)
 }
 
 @Stable
@@ -85,13 +83,11 @@ class ConnectedScrollState(
     val nestedScrollConnection = object : NestedScrollConnection {
         override fun onPreScroll(
             available: Offset,
-            source: NestedScrollSource
-        ): Offset {
-            return if (available.y < 0) {
-                Offset(0f, scrollableState.dispatchRawDelta(available.y))
-            } else {
-                Offset.Zero
-            }
+            source: NestedScrollSource,
+        ): Offset = if (available.y < 0) {
+            Offset(0f, scrollableState.dispatchRawDelta(available.y))
+        } else {
+            Offset.Zero
         }
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -111,7 +107,7 @@ class ConnectedScrollState(
         override fun onPostScroll(
             consumed: Offset,
             available: Offset,
-            source: NestedScrollSource
+            source: NestedScrollSource,
         ): Offset {
             if (available.y > 0) {
                 // 手指往下, 让 header 显示
@@ -126,28 +122,21 @@ class ConnectedScrollState(
 /**
  * 当 [ConnectedScrollState.nestedScrollConnection] 滚动时, 调整此 composable 的位置.
  */
-fun Modifier.connectedScrollContainer(state: ConnectedScrollState): Modifier {
-    return layout { measurable, constraints ->
-        val placeable = measurable.measure(constraints)
-        val width = placeable.width
-        val height = (placeable.height - state.scrolledOffset.roundToInt().absoluteValue).coerceAtLeast(0)
-        layout(width,height) {
-            placeable.place(0, y = state.scrolledOffset.roundToInt())
-        }
+fun Modifier.connectedScrollContainer(state: ConnectedScrollState): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    val width = placeable.width
+    val height = (placeable.height - state.scrolledOffset.roundToInt().absoluteValue).coerceAtLeast(0)
+    layout(width, height) {
+        placeable.place(0, y = state.scrolledOffset.roundToInt())
     }
 }
 
 /**
  * 将该 composable 的高度作为可滚动的高度.
  */
-fun Modifier.connectedScrollTarget(state: ConnectedScrollState): Modifier {
-    return onSizeChanged { state.containerHeight = it.height }
-}
-
+fun Modifier.connectedScrollTarget(state: ConnectedScrollState): Modifier = onSizeChanged { state.containerHeight = it.height }
 
 /**
  * 同时应用 [connectedScrollContainer] 和 [connectedScrollTarget]
  */
-fun Modifier.connectedScroll(state: ConnectedScrollState): Modifier {
-    return connectedScrollContainer(state).connectedScrollTarget(state)
-}
+fun Modifier.connectedScroll(state: ConnectedScrollState): Modifier = connectedScrollContainer(state).connectedScrollTarget(state)

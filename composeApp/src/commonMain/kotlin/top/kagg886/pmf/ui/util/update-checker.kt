@@ -25,7 +25,7 @@ data class Asset(
     val name: String,
 
     @SerialName("browser_download_url")
-    val download: String
+    val download: String,
 )
 
 @Serializable
@@ -36,11 +36,11 @@ data class Release(
     val tagName: String,
     val name: String,
     val assets: List<Asset>,
-    val body: String
+    val body: String,
 )
 
 class UpdateCheckViewModel(
-    config: Settings = SystemConfig.getConfig()
+    config: Settings = SystemConfig.getConfig(),
 ) : ContainerHost<UpdateCheckState, UpdateCheckSideEffect>, ViewModel() {
     override val container: Container<UpdateCheckState, UpdateCheckSideEffect> = container(UpdateCheckState.Loading) {
         if (AppConfig.checkUpdateOnStart) {
@@ -55,7 +55,7 @@ class UpdateCheckViewModel(
             json(
                 Json {
                     ignoreUnknownKeys = true
-                }
+                },
             )
         }
     }

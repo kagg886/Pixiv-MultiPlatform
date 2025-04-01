@@ -1,17 +1,17 @@
 package top.kagg886.pmf.ui.route.main.search
 
+import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.search.searchNovel
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
-import kotlin.coroutines.CoroutineContext
 
 class SearchResultNovelModel(
     val word: String,
     val searchTarget: SearchTarget,
-    val sort: SearchSort
+    val sort: SearchSort,
 ) : NovelFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
         return object : InfinityRepository<Novel>(coroutineContext) {
@@ -27,5 +27,4 @@ class SearchResultNovelModel(
             }
         }
     }
-
 }

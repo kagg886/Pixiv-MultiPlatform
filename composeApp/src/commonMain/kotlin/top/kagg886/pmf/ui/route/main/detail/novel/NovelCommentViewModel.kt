@@ -10,19 +10,12 @@ import top.kagg886.pmf.ui.util.CommentViewModel
 
 class NovelCommentViewModel(id: Long) : CommentViewModel(id) {
     val client = PixivConfig.newAccountFromConfig()
-    override suspend fun fetchComments(id: Long, page: Int): List<Comment> {
-        return client.getNovelComment(id, page)
-    }
+    override suspend fun fetchComments(id: Long, page: Int): List<Comment> = client.getNovelComment(id, page)
 
-    override suspend fun fetchCommentReply(commentId: Long): InfinityRepository<Comment> {
-        return object : InfinityRepository<Comment>() {
-            var page = 1
-            override suspend fun onFetchList(): List<Comment> {
-                return client.getNovelCommentReply(commentId, page).apply {
-                    page += 1
-                }
-            }
-
+    override suspend fun fetchCommentReply(commentId: Long): InfinityRepository<Comment> = object : InfinityRepository<Comment>() {
+        var page = 1
+        override suspend fun onFetchList(): List<Comment> = client.getNovelCommentReply(commentId, page).apply {
+            page += 1
         }
     }
 
@@ -33,5 +26,4 @@ class NovelCommentViewModel(id: Long) : CommentViewModel(id) {
             comment = text
         }
     }
-
 }

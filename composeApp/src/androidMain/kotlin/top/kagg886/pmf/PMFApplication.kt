@@ -9,7 +9,6 @@ import android.util.Log
 import com.github.panpf.sketch.PlatformContext
 import com.github.panpf.sketch.SingletonSketch
 import com.github.panpf.sketch.Sketch
-import top.kagg886.pmf.util.initFileLogger
 import kotlin.concurrent.thread
 
 class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtExceptionHandler {
@@ -30,9 +29,7 @@ class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtEx
         }
     }
 
-    override fun createSketch(context: PlatformContext): Sketch {
-        return Sketch.Builder(context).applyCustomSketchConfig()
-    }
+    override fun createSketch(context: PlatformContext): Sketch = Sketch.Builder(context).applyCustomSketchConfig()
 
     companion object {
         @SuppressLint("DiscouragedPrivateApi", "PrivateApi")

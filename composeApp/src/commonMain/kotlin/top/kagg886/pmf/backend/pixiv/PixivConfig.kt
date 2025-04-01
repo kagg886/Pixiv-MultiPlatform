@@ -11,8 +11,8 @@ import top.kagg886.pixko.PixivAccount
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.PlatformConfig
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.PlatformEngine
+import top.kagg886.pmf.backend.SystemConfig
 
 object PixivConfig : Settings by SystemConfig.getConfig("pixiv_token"), KoinComponent {
     var accessToken by string("access_token", "")
@@ -22,10 +22,8 @@ object PixivConfig : Settings by SystemConfig.getConfig("pixiv_token"), KoinComp
     var pixiv_user by nullableSerializedValue<SimpleMeProfile>("pixiv_user")
     private val token by inject<PixivTokenStorage>()
 
-    fun newAccountFromConfig(tokenStorage: PixivTokenStorage = token):PixivAccount {
-        return PixivAccountFactory.newAccountFromConfig(PlatformEngine) {
-            this.storage = tokenStorage
-            config = PlatformConfig
-        }
+    fun newAccountFromConfig(tokenStorage: PixivTokenStorage = token): PixivAccount = PixivAccountFactory.newAccountFromConfig(PlatformEngine) {
+        this.storage = tokenStorage
+        config = PlatformConfig
     }
 }

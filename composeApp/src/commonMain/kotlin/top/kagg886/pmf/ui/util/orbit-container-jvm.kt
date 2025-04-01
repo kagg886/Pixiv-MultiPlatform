@@ -16,15 +16,13 @@ import org.orbitmvi.orbit.syntax.Syntax
 fun <STATE : Any, SIDE_EFFECT : Any> ViewModel.container(
     initialState: STATE,
     buildSettings: SettingsBuilder.() -> Unit = {},
-    onCreate: (suspend Syntax<STATE, SIDE_EFFECT>.() -> Unit)? = null
-): Container<STATE, SIDE_EFFECT> {
-    return viewModelScope.container(initialState, buildSettings, onCreate)
-}
+    onCreate: (suspend Syntax<STATE, SIDE_EFFECT>.() -> Unit)? = null,
+): Container<STATE, SIDE_EFFECT> = viewModelScope.container(initialState, buildSettings, onCreate)
 
 @Composable
 fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.collectSideEffect(
     lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
-    sideEffect: (suspend (sideEffect: SIDE_EFFECT) -> Unit)
+    sideEffect: (suspend (sideEffect: SIDE_EFFECT) -> Unit),
 ) {
     val sideEffectFlow = container.refCountSideEffectFlow
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -40,7 +38,5 @@ fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.collectSi
 
 @Composable
 fun <STATE : Any, SIDE_EFFECT : Any> ContainerHost<STATE, SIDE_EFFECT>.collectAsState(
-    lifecycleState: Lifecycle.State = Lifecycle.State.STARTED
-): State<STATE> {
-    return container.refCountStateFlow.collectAsStateWithLifecycle(minActiveState = lifecycleState)
-}
+    lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
+): State<STATE> = container.refCountStateFlow.collectAsStateWithLifecycle(minActiveState = lifecycleState)

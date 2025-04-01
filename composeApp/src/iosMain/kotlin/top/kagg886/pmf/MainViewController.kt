@@ -19,7 +19,7 @@ fun MainViewController(): UIViewController {
     return ComposeUIViewController {
         CompositionLocalProvider(
             LocalKeyStateFlow provides keyStateFlow,
-            content = { App() }
+            content = { App() },
         )
     }
 }

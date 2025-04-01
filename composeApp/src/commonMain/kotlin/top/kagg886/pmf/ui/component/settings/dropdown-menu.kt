@@ -8,15 +8,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
 
-
 @Composable
 inline fun <reified T> SettingsDropdownMenu(
     modifier: Modifier = Modifier,
-
     noinline title: @Composable () -> Unit,
     noinline subTitle: @Composable () -> Unit = {},
     noinline optionsFormat: @Composable (T) -> String = { it.toString() },
-
     current: T,
     data: List<T>,
     crossinline onSelected: (T) -> Unit,
@@ -47,10 +44,9 @@ inline fun <reified T> SettingsDropdownMenu(
                     onClick = {
                         onSelected(i)
                         expand = false
-                    }
+                    },
                 )
             }
         }
     }
-
 }

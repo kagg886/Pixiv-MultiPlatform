@@ -5,14 +5,10 @@ import kotlin.reflect.KProperty
 
 actual class SerializableWrapper<T : Any> {
     private var value: T? = null
-    actual operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return value!!
-    }
+    actual operator fun getValue(thisRef: Any?, property: KProperty<*>): T = value!!
     actual companion object {
-        actual fun <T : Any> makeItSerializable(value: T, clazz: KClass<T>): SerializableWrapper<T> {
-            return SerializableWrapper<T>().apply {
-                this.value = value
-            }
+        actual fun <T : Any> makeItSerializable(value: T, clazz: KClass<T>): SerializableWrapper<T> = SerializableWrapper<T>().apply {
+            this.value = value
         }
     }
 }

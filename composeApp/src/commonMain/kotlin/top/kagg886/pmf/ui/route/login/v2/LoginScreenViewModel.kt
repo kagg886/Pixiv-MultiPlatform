@@ -2,10 +2,10 @@ package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import co.touchlab.kermit.Logger
 import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import okio.Path
@@ -28,12 +28,10 @@ import top.kagg886.pmf.ui.route.login.v2.LoginType.*
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
-import kotlin.time.Duration.Companion.seconds
 
 class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, ViewModel(), ScreenModel, KoinComponent {
     private val storage by inject<PixivTokenStorage>()
     override val container: Container<LoginViewState, LoginSideEffect> = container(LoginViewState.WaitChooseLogin)
-
 
     @OptIn(OrbitExperimental::class)
     fun selectLoginType(loginType: LoginType) = intent {
@@ -130,14 +128,14 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             postSideEffect(LoginSideEffect.Toast("未选择文件"))
             return@intent
         }
-        useTempFile { tmp->
+        useTempFile { tmp ->
             tmp.sink().buffer().use {
                 val stream = platformFile.getStream()
                 val buffer = ByteArray(2048)
-                var len:Int
+                var len: Int
                 while (stream.hasBytesAvailable()) {
-                    len = stream.readInto(buffer,buffer.size)
-                    it.write(buffer,0,len)
+                    len = stream.readInto(buffer, buffer.size)
+                    it.write(buffer, 0, len)
                 }
 
                 it.flush()
@@ -149,11 +147,11 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
 
 enum class LoginType {
     InputTokenLogin,
-    BrowserLogin
+    BrowserLogin,
 }
 
 expect fun LoginScreenViewModel.initKCEF(): Job
-expect fun LoginScreenViewModel.initKCEFLocal(file:Path):Job
+expect fun LoginScreenViewModel.initKCEFLocal(file: Path): Job
 
 sealed interface LoginViewState {
     data object WaitChooseLogin : LoginViewState

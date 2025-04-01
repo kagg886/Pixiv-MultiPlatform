@@ -23,7 +23,7 @@ fun AuthorCard(
     user: User,
     onCardClick: (nav: Navigator) -> Unit = { it.push(AuthorScreen(user.id)) },
     onFavoritePrivateClick: suspend () -> Unit = {},
-    onFavoriteClick: suspend (Boolean) -> Unit = {}
+    onFavoriteClick: suspend (Boolean) -> Unit = {},
 ) {
     val nav = LocalNavigator.currentOrThrow
     OutlinedCard(modifier = modifier.clickable { onCardClick(nav) }) {
@@ -37,7 +37,7 @@ fun AuthorCard(
             leadingContent = {
                 ProgressedAsyncImage(
                     url = user.profileImageUrls.content,
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
                 )
             },
             trailingContent = {
@@ -48,9 +48,9 @@ fun AuthorCard(
                     },
                     onDoubleClick = {
                         onFavoritePrivateClick()
-                    }
+                    },
                 )
-            }
+            },
         )
     }
 }

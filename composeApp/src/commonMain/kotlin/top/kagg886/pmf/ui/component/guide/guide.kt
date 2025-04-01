@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-//thanks to StageGuard(from Animeko)
-//link: https://www.figma.com/design/LET1n9mmDa6npDTIlUuJjU/Animeko?node-id=349-9250&t=hBPSAEVlsmuEWPJt-0
+// thanks to StageGuard(from Animeko)
+// link: https://www.figma.com/design/LET1n9mmDa6npDTIlUuJjU/Animeko?node-id=349-9250&t=hBPSAEVlsmuEWPJt-0
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GuideScaffold(
@@ -19,7 +19,7 @@ fun GuideScaffold(
     confirmButton: @Composable () -> Unit,
     skipButton: (@Composable () -> Unit)? = null,
     backButton: (@Composable () -> Unit)? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -29,7 +29,7 @@ fun GuideScaffold(
             Column {
                 HorizontalDivider()
                 BottomAppBar(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background,
                 ) {
                     Box(
                         Modifier.padding(start = 32.dp),
@@ -39,10 +39,10 @@ fun GuideScaffold(
 
                     Row(
                         Modifier.weight(1f).padding(end = 32.dp),
-                        horizontalArrangement = Arrangement.End
+                        horizontalArrangement = Arrangement.End,
                     ) {
                         Box(
-                            Modifier.padding(horizontal = 8.dp)
+                            Modifier.padding(horizontal = 8.dp),
                         ) {
                             skipButton?.invoke()
                         }
@@ -51,19 +51,19 @@ fun GuideScaffold(
                 }
             }
         },
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
-            Modifier.padding(it).padding(horizontal = 16.dp)
+            Modifier.padding(it).padding(horizontal = 16.dp),
         ) {
             Column(Modifier.padding(bottom = 16.dp)) {
                 CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.titleMedium.copy(color = ButtonDefaults.textButtonColors().contentColor)
+                    LocalTextStyle provides MaterialTheme.typography.titleMedium.copy(color = ButtonDefaults.textButtonColors().contentColor),
                 ) {
                     subTitle()
                 }
                 CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.headlineMedium.copy(lineHeight = 36.sp)
+                    LocalTextStyle provides MaterialTheme.typography.headlineMedium.copy(lineHeight = 36.sp),
                 ) {
                     title()
                 }

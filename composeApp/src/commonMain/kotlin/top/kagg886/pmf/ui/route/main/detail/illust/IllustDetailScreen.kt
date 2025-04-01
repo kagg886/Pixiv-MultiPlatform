@@ -53,7 +53,7 @@ import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
-//class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
+// class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
 
     class PreFetch(private val id: Long) : Screen, KoinComponent {
@@ -83,7 +83,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         scope.cancel()
                         nav.pop()
                     },
-                    modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+                    modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                 }
@@ -135,7 +135,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 IllustDetail(state.illust, state)
             }
         }
-
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -153,7 +152,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 var enabled by remember { mutableStateOf(false) }
                 IconButton(
                     onClick = { enabled = true },
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp),
                 ) {
                     Icon(Icons.Default.Menu, null)
                 }
@@ -161,16 +160,15 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     expanded = enabled,
                     onDismissRequest = { enabled = false },
                 ) {
-
                     DropdownMenuItem(
                         text = { Text("在浏览器中打开") },
                         onClick = {
                             openBrowser("https://pixiv.net/artworks/${illust.id}")
                             enabled = false
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -179,7 +177,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         Scaffold(
             topBar = {
                 IllustTopAppBar(illust)
-            }
+            },
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
@@ -213,12 +211,12 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
             },
             rtlLayout = true,
-            drawerState = state
+            drawerState = state,
         ) {
             Scaffold(
                 topBar = {
                     IllustTopAppBar(illust)
-                }
+                },
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
                     when (val s = illustState) {
@@ -259,13 +257,12 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         url = state.data,
                         modifier = Modifier.fillMaxWidth()
                             .aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
-                            .clickable { show = true }
+                            .clickable { show = true },
                     )
                 }
 
                 previewCommonItem(illust)
             }
-
         }
     }
 
@@ -281,7 +278,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 user = illust.user,
                 onFavoritePrivateClick = {
                     model.followUser(true).join()
-                }
+                },
             ) {
                 if (it) {
                     model.followUser().join()
@@ -306,14 +303,14 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     clipboard.setText(
                                         buildAnnotatedString {
                                             append(illust.id.toString())
-                                        }
+                                        },
                                     )
                                     model.intent {
                                         postSideEffect(IllustDetailSideEffect.Toast("复制pid成功"))
                                     }
                                 }
                             },
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
                         )
                     },
                     headlineContent = {
@@ -323,7 +320,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     clipboard.setText(
                                         buildAnnotatedString {
                                             append(illust.title)
-                                        }
+                                        },
                                     )
                                     model.intent {
                                         postSideEffect(IllustDetailSideEffect.Toast("复制标题成功"))
@@ -336,13 +333,13 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         Row(
                             Modifier.size(120.dp, 68.dp),
                             horizontalArrangement = Arrangement.SpaceEvenly,
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(
                                     imageVector = View,
                                     contentDescription = null,
-                                    modifier = Modifier.size(30.dp)
+                                    modifier = Modifier.size(30.dp),
                                 )
                                 Text(illust.totalView.toString())
                             }
@@ -360,7 +357,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         },
                                         cancel = {
                                             betterFavoriteDialog = false
-                                        }
+                                        },
                                     )
                                 }
 
@@ -369,7 +366,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     modifier = Modifier.size(30.dp),
                                     onDoubleClick = {
                                         betterFavoriteDialog = true
-                                    }
+                                    },
                                 ) {
                                     if (it == FavoriteState.Favorite) {
                                         model.likeIllust().join()
@@ -389,7 +386,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         downloadModel.startDownload(illust)
                                     },
                                     enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
-                                    modifier = Modifier.size(30.dp)
+                                    modifier = Modifier.size(30.dp),
                                 ) {
                                     Icon(Download, null)
                                 }
@@ -405,7 +402,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 color = ListItemDefaults.colors().supportingTextColor,
                             )
                         }
-                    }
+                    },
                 )
             }
         }
@@ -427,8 +424,8 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                             SearchResultScreen(
                                                 keyword = listOf(tag.name),
                                                 sort = SearchSort.DATE_DESC,
-                                                target = SearchTarget.PARTIAL_MATCH_FOR_TAGS
-                                            )
+                                                target = SearchTarget.PARTIAL_MATCH_FOR_TAGS,
+                                            ),
                                         )
                                     },
                                     label = {
@@ -438,12 +435,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                                 Text(it, style = MaterialTheme.typography.labelSmall)
                                             }
                                         }
-                                    }
+                                    },
                                 )
                             }
                         }
-
-                    }
+                    },
                 )
             }
         }
@@ -456,9 +452,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     },
                     headlineContent = {
                         Text(
-                            illust.createTime.toReadableString()
+                            illust.createTime.toReadableString(),
                         )
-                    }
+                    },
                 )
             }
         }
@@ -477,7 +473,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             KeyListenerFromGlobalPipe(controller)
 
-
             var expand by remember {
                 mutableStateOf(false)
             }
@@ -485,10 +480,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 mutableStateOf(
                     illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!.let {
                         if (!expand) it.take(3) else it
-                    }
+                    },
                 )
             }
-
 
             var preview by remember { mutableStateOf(false) }
             var startIndex by remember { mutableStateOf(0) }
@@ -497,7 +491,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     onDismiss = { preview = false },
                     url = img,
                     modifier = Modifier.fillMaxSize(),
-                    startIndex = startIndex
+                    startIndex = startIndex,
                 )
             }
 
@@ -525,7 +519,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             .clickable {
                                 startIndex = img.indexOf(it)
                                 preview = true
-                            }
+                            },
                     )
                 }
                 if (illust.contentImages.size > 3 && !expand) {
@@ -535,7 +529,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             onClick = {
                                 expand = true
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text("展开更多", textAlign = TextAlign.Center)
                         }
@@ -547,7 +541,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             VerticalScrollbar(
                 adapter = rememberScrollbarAdapter(scroll),
-                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp).fillMaxHeight()
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp).fillMaxHeight(),
             )
         }
     }
@@ -560,8 +554,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
         CommentPanel(
             model = model,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
-

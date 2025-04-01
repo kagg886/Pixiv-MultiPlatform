@@ -11,13 +11,20 @@ import androidx.compose.ui.unit.dp
 
 val Robot by lazy {
     Builder(
-        name = "Robot", defaultWidth = 24.0.dp,
-        defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
+        name = "Robot",
+        defaultWidth = 24.0.dp,
+        defaultHeight = 24.0.dp,
+        viewportWidth = 24.0f,
+        viewportHeight = 24.0f,
     ).apply {
         path(
-            fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,
-            strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-            pathFillType = NonZero
+            fill = SolidColor(Color(0xFF5f6368)),
+            stroke = null,
+            strokeLineWidth = 0.0f,
+            strokeLineCap = Butt,
+            strokeLineJoin = Miter,
+            strokeLineMiter = 4.0f,
+            pathFillType = NonZero,
         ) {
             moveTo(20.0f, 9.0f)
             verticalLineTo(7.0f)

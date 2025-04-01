@@ -32,6 +32,7 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
@@ -80,7 +81,6 @@ import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.toColorScheme
-import kotlin.reflect.KClass
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
     error("not provided")
@@ -123,7 +123,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
         }
         PixivMultiPlatformTheme(colorScheme = theme) {
             Surface(
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.background,
             ) {
                 Navigator(initScreen) {
                     CompositionLocalProvider(
@@ -147,7 +147,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                                     get() = toast.msg
                                                 override val withDismissAction: Boolean
                                                     get() = true
-                                            }
+                                            },
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
                                             it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
@@ -162,7 +162,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                             ScreenTransition(
                                 navigator = it,
                                 transition = { fadeIn() togetherWith fadeOut() },
-                                modifier = modifier.fillMaxSize()
+                                modifier = modifier.fillMaxSize(),
                             )
                         }
                     }
@@ -179,7 +179,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(hostState = LocalSnackBarHost.current)
-            }
+            },
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 if (NavigationItem.entries.any { item -> item.screenClass.isInstance(nav.lastItemOrNull) }) {
@@ -199,7 +199,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                 },
                                 label = {
                                     Text(entry.title)
-                                }
+                                },
                             )
                         }
                         Spacer(Modifier.weight(1f))
@@ -208,7 +208,6 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                 }
                 content(Modifier.fillMaxSize())
             }
-
         }
         return
     }
@@ -220,7 +219,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
         snackbarHost = {
             SnackbarHost(
-                LocalSnackBarHost.current
+                LocalSnackBarHost.current,
             )
         },
         topBar = {
@@ -234,7 +233,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                     },
                     actions = {
                         SearchButton()
-                    }
+                    },
                 )
             }
         },
@@ -256,17 +255,15 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                             },
                             label = {
                                 Text(entry.title)
-                            }
+                            },
                         )
                     }
                 }
             }
-        }
+        },
     ) {
         content(Modifier.padding(it))
     }
-
-
 }
 
 @Composable
@@ -277,10 +274,10 @@ fun ProfileAvatar() {
     IconButton(
         onClick = {
             nav.push(ProfileScreen(profile))
-        }
+        },
     ) {
         ProgressedAsyncImage(
-            url = profile.profileImageUrls.content
+            url = profile.profileImageUrls.content,
         )
     }
 }
@@ -291,12 +288,11 @@ fun SearchButton() {
     IconButton(
         onClick = {
             nav.push(EmptySearchScreen())
-        }
+        },
     ) {
         Icon(imageVector = Icons.Default.Search, contentDescription = null)
     }
 }
-
 
 fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
     logger(
@@ -307,7 +303,7 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
                 level: com.github.panpf.sketch.util.Logger.Level,
                 tag: String,
                 msg: String,
-                tr: Throwable?
+                tr: Throwable?,
             ) {
                 logger.processLog(
                     severity = when (level) {
@@ -320,27 +316,27 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
                     },
                     tag = tag,
                     throwable = tr,
-                    message = msg
+                    message = msg,
                 )
             }
 
             override fun flush() {
                 logger.v("")
             }
-        }
+        },
     )
 
     downloadCacheOptions(
         DiskCache.Options(
             directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize
-        )
+            maxSize = AppConfig.cacheSize,
+        ),
     )
     resultCacheOptions(
         DiskCache.Options(
             directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize
-        )
+            maxSize = AppConfig.cacheSize,
+        ),
     )
 
     components {
@@ -351,10 +347,10 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
 }
 
 fun setupEnv() {
-    //init logger
+    // init logger
     initFileLogger()
 
-    //init koin
+    // init koin
     startKoin {
         logger(
             object : Logger() {
@@ -372,13 +368,13 @@ fun setupEnv() {
                         },
                         tag = Koin::class.getFullName(),
                         throwable = null,
-                        message = msg
+                        message = msg,
                     )
                 }
-            }
+            },
         )
         modules(
-            //vm
+            // vm
             module {
                 single {
                     WelcomeModel()
@@ -406,7 +402,7 @@ fun setupEnv() {
                     NewestIllustViewModel()
                 }
             },
-            //pixiv
+            // pixiv
             module(createdAtStart = true) {
                 single { PixivTokenStorage() }
                 single {
@@ -421,14 +417,14 @@ fun setupEnv() {
                             json(
                                 Json {
                                     ignoreUnknownKeys = true
-                                }
+                                },
                             )
                         }
                     }
                 }
             },
 
-            //data base
+            // data base
             module(createdAtStart = true) {
                 single {
                     getDataBaseBuilder()
@@ -444,7 +440,7 @@ fun setupEnv() {
                 single {
                     UpdateCheckViewModel()
                 }
-            }
+            },
         )
     }
 }
@@ -460,7 +456,6 @@ expect fun openBrowser(link: String)
  */
 expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 
-
 /**
  * # 复制图片到剪切板。
  *
@@ -473,7 +468,7 @@ enum class NavigationItem(
     val title: String,
     val icon: ImageVector,
     val screenClass: KClass<out Screen>,
-    val newInstance: () -> Screen
+    val newInstance: () -> Screen,
 ) {
     RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
         RecommendScreen()
@@ -483,5 +478,5 @@ enum class NavigationItem(
     }),
     SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
         SpaceScreen()
-    })
+    }),
 }

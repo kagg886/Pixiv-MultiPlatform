@@ -19,5 +19,5 @@ data class NovelHistory(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
     val novel: Novel,
-    val createTime:Long
+    val createTime: Long,
 )

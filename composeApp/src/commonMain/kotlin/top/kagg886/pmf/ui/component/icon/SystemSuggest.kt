@@ -10,12 +10,24 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 public val SystemSuggest by lazy {
-    Builder(name = "SettingsSuggest24dp5f6368", defaultWidth =
-        24.0.dp, defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight =
-        24.0f).apply {
-        path(fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,
-            strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-            pathFillType = NonZero) {
+    Builder(
+        name = "SettingsSuggest24dp5f6368",
+        defaultWidth =
+        24.0.dp,
+        defaultHeight = 24.0.dp,
+        viewportWidth = 24.0f,
+        viewportHeight =
+        24.0f,
+    ).apply {
+        path(
+            fill = SolidColor(Color(0xFF5f6368)),
+            stroke = null,
+            strokeLineWidth = 0.0f,
+            strokeLineCap = Butt,
+            strokeLineJoin = Miter,
+            strokeLineMiter = 4.0f,
+            pathFillType = NonZero,
+        ) {
             moveTo(17.41f, 6.59f)
             lineTo(15.0f, 5.5f)
             lineToRelative(2.41f, -1.09f)

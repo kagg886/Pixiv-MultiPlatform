@@ -6,8 +6,6 @@ import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import okio.Path
-import java.io.File
-
 
 actual fun shareFile(file: Path, name: String, mime: String) {
     with(PMFApplication.getApp()) {
@@ -29,9 +27,9 @@ actual fun shareFile(file: Path, name: String, mime: String) {
             "android.intent.extra.STREAM",
             FileProvider.getUriForFile(
                 this,
-                "${packageName}.fileprovider",
-                cache
-            )
+                "$packageName.fileprovider",
+                cache,
+            ),
         )
         intent.flags = FLAG_ACTIVITY_NEW_TASK
         intent.setType(mime)
@@ -39,15 +37,15 @@ actual fun shareFile(file: Path, name: String, mime: String) {
     }
 }
 
-actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
-    throw UnsupportedOperationException()
-}
+actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw UnsupportedOperationException()
 
 actual fun openBrowser(link: String) {
     with(PMFApplication.getApp()) {
         val uri = Uri.parse(link)
-        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
-            flags = FLAG_ACTIVITY_NEW_TASK
-        })
+        startActivity(
+            Intent(Intent.ACTION_VIEW, uri).apply {
+                flags = FLAG_ACTIVITY_NEW_TASK
+            },
+        )
     }
 }

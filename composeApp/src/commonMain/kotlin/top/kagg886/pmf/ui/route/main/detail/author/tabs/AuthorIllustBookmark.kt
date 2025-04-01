@@ -1,8 +1,8 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustResult
 import top.kagg886.pixko.module.user.UserInfo
@@ -12,7 +12,6 @@ import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
-import kotlin.coroutines.CoroutineContext
 
 @Composable
 fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
@@ -36,5 +35,4 @@ private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewMode
             }
         }
     }
-
 }

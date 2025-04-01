@@ -4,15 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.trending.TrendingTags
@@ -32,7 +29,6 @@ fun SearchPropertiesPanel(
     sort: SearchSort,
     target: SearchTarget,
     tag: TagPropertiesState,
-
     onSortChange: (SearchSort) -> Unit,
     onTargetChange: (SearchTarget) -> Unit,
     onTagRequestRefresh: () -> Unit,
@@ -54,7 +50,7 @@ fun SearchPropertiesPanel(
                             label = {
                                 Text(i.toDisplayString())
                             },
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier.padding(4.dp),
                         )
                     }
                 }
@@ -75,22 +71,21 @@ fun SearchPropertiesPanel(
                             label = {
                                 Text(i.toDisplayString())
                             },
-                            modifier = Modifier.padding(4.dp)
+                            modifier = Modifier.padding(4.dp),
                         )
                     }
                 }
-
             },
         )
         SupportListItem(
             trailingContent = {
                 IconButton(
                     onClick = { onTagRequestRefresh() },
-                    enabled = tag != TagPropertiesState.Loading
+                    enabled = tag != TagPropertiesState.Loading,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        null
+                        null,
                     )
                 }
             },
@@ -98,7 +93,7 @@ fun SearchPropertiesPanel(
                 Text("热门tag")
             },
             supportingContent = {
-                when(tag) {
+                when (tag) {
                     TagPropertiesState.Loading -> {
                         LinearProgressIndicator()
                     }
@@ -115,16 +110,14 @@ fun SearchPropertiesPanel(
                                             }
                                         }
                                     },
-                                    modifier = Modifier.padding(4.dp)
+                                    modifier = Modifier.padding(4.dp),
                                 )
                             }
                         }
-
                     }
-                    is TagPropertiesState.Failed ->  Text("加载失败")
+                    is TagPropertiesState.Failed -> Text("加载失败")
                 }
             },
         )
     }
-
 }

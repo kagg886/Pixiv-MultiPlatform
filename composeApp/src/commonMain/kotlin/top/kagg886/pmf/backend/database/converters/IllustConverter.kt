@@ -7,11 +7,8 @@ import top.kagg886.pixko.module.illust.Illust
 
 class IllustConverter {
     @TypeConverter
-    fun stringToIllust(value: String): Illust {
-       return Json.decodeFromString<Illust>(value)
-    }
+    fun stringToIllust(value: String): Illust = Json.decodeFromString<Illust>(value)
+
     @TypeConverter
-    fun illustToString(value:Illust): String {
-        return Json.encodeToString(value)
-    }
+    fun illustToString(value: Illust): String = Json.encodeToString(value)
 }

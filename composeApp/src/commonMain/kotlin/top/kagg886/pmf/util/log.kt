@@ -50,7 +50,7 @@ class FileLogger(baseFile: Path) : LogWriter(), AutoCloseable {
     private val archive =
         archivePath.resolve("${Clock.System.now().toLogFileString()}.log").sink(append = true).buffer()
 
-    //2023-10-01 12:34:56 INFO  com.example.MyClass - User login successfully
+    // 2023-10-01 12:34:56 INFO  com.example.MyClass - User login successfully
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
         val time = Clock.System.now().toLogTimeString()
         val lines = message.lines()
@@ -61,7 +61,6 @@ class FileLogger(baseFile: Path) : LogWriter(), AutoCloseable {
         val mainBody = "$header${lines[0]}${if (body.isNotBlank()) "\n$body" else ""}"
 
         val print = (if (throwable == null) "$mainBody\n" else "$mainBody\n${throwable.stackTraceToString()}\n").toByteArray()
-
 
         lock.withLock {
             latest.write(print)
@@ -85,10 +84,12 @@ private fun Instant.toLogTimeString() = toLocalDateTime(TimeZone.currentSystemDe
     .toString()
     .substringBefore(".")
 
-private fun Instant.toLogFileString() = format(DateTimeComponents.Format {
-    year()
-    char('-')
-    monthNumber()
-    char('-')
-    dayOfMonth()
-})
+private fun Instant.toLogFileString() = format(
+    DateTimeComponents.Format {
+        year()
+        char('-')
+        monthNumber()
+        char('-')
+        dayOfMonth()
+    },
+)

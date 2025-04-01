@@ -43,7 +43,6 @@ import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.*
 import top.kagg886.pmf.util.toReadableString
 
-
 class NovelDetailScreen(private val id: Long) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
@@ -88,7 +87,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
             },
             rtlLayout = true,
-            drawerState = drawer
+            drawerState = drawer,
         ) {
             Scaffold(
                 topBar = {
@@ -116,24 +115,23 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     }
                                     DropdownMenu(
                                         expanded = expanded,
-                                        onDismissRequest = { expanded = false }
+                                        onDismissRequest = { expanded = false },
                                     ) {
                                         DropdownMenuItem(
                                             text = { Text("导出为epub") },
                                             onClick = {
                                                 model.exportToEpub()
                                                 expanded = false
-                                            }
+                                            },
                                         )
                                         DropdownMenuItem(
                                             text = { Text("在浏览器中打开") },
                                             onClick = {
                                                 openBrowser("https://www.pixiv.net/novel/show.php?id=$id")
                                                 expanded = false
-                                            }
+                                            },
                                         )
                                     }
-
                                 }
 
                                 IconButton(onClick = {
@@ -144,14 +142,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     Icon(Icons.Default.Edit, null)
                                 }
                             }
-                        }
+                        },
                     )
-                }
+                },
             ) {
                 NovelDetailContent(model, state, Modifier.padding(it))
             }
         }
-
     }
 
     private class PageScreenModel : ScreenModel {
@@ -178,7 +175,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
                 TabContainer(
                     state = page.page,
-                    tab = listOf("简介", "评论:${state.novel.totalComments}")
+                    tab = listOf("简介", "评论:${state.novel.totalComments}"),
                 ) {
                     when (it) {
                         0 -> {
@@ -190,7 +187,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         ImagePreviewer(
                                             onDismiss = { preview = false },
                                             url = listOf(state.novel.imageUrls.contentLarge),
-                                            startIndex = page.page.value
+                                            startIndex = page.page.value,
                                         )
                                     }
                                     Column(modifier = Modifier.fillMaxWidth()) {
@@ -202,7 +199,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                 .height(256.dp).padding(top = 16.dp)
                                                 .clickable {
                                                     preview = true
-                                                }
+                                                },
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         Text(
@@ -218,7 +215,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             },
                                             modifier = Modifier.align(Alignment.CenterHorizontally)
                                                 .padding(horizontal = 8.dp),
-                                            style = MaterialTheme.typography.titleLarge
+                                            style = MaterialTheme.typography.titleLarge,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
@@ -234,7 +231,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             },
                                             onFavoritePrivateClick = {
                                                 model.followUser(true).join()
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -249,10 +246,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             headlineContent = {
                                                 SelectionContainer {
                                                     HTMLRichText(
-                                                        html = state.novel.caption.ifEmpty { "没有简介" }
+                                                        html = state.novel.caption.ifEmpty { "没有简介" },
                                                     )
                                                 }
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -260,13 +257,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     Row(
                                         Modifier.fillMaxSize().padding(horizontal = 64.dp, vertical = 8.dp),
                                         horizontalArrangement = Arrangement.SpaceEvenly,
-                                        verticalAlignment = Alignment.CenterVertically
+                                        verticalAlignment = Alignment.CenterVertically,
                                     ) {
                                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                             Icon(
                                                 imageVector = View,
                                                 contentDescription = null,
-                                                modifier = Modifier.size(30.dp)
+                                                modifier = Modifier.size(30.dp),
                                             )
                                             Text(state.novel.totalView.toString())
                                         }
@@ -284,7 +281,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                     },
                                                     cancel = {
                                                         betterFavoriteDialog = false
-                                                    }
+                                                    },
                                                 )
                                             }
                                             FavoriteButton(
@@ -292,7 +289,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                 modifier = Modifier.size(30.dp),
                                                 onDoubleClick = {
                                                     betterFavoriteDialog = true
-                                                }
+                                                },
                                             ) {
                                                 if (it == FavoriteState.Favorite) {
                                                     model.likeNovel().join()
@@ -329,13 +326,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                             clip.setText(buildAnnotatedString { append(state.novel.id.toString()) })
                                                             model.intent {
                                                                 postSideEffect(
-                                                                    NovelDetailSideEffect.Toast("已复制pid")
+                                                                    NovelDetailSideEffect.Toast("已复制pid"),
                                                                 )
                                                             }
                                                         }
-                                                    }
+                                                    },
                                                 )
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -360,15 +357,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                                     SearchResultScreen(
                                                                         keyword = listOf(tag.name),
                                                                         sort = SearchSort.DATE_DESC,
-                                                                        target = SearchTarget.PARTIAL_MATCH_FOR_TAGS
-                                                                    )
+                                                                        target = SearchTarget.PARTIAL_MATCH_FOR_TAGS,
+                                                                    ),
                                                                 )
-                                                            }
+                                                            },
                                                         )
                                                     }
                                                 }
-
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -387,10 +383,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                 modifier = Modifier.clickable {
                                                     nav.push(
                                                         NovelSeriesScreen(
-                                                            state.novel.series.id!!.toInt()
-                                                        )
+                                                            state.novel.series.id!!.toInt(),
+                                                        ),
                                                     )
-                                                }
+                                                },
                                             )
                                         }
                                     }
@@ -405,7 +401,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             },
                                             supportingContent = {
                                                 Text(state.novel.createDate.toReadableString())
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -413,7 +409,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                 item {
                                     Spacer(Modifier.height(16.dp))
                                 }
-
                             }
                         }
 
@@ -421,7 +416,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
                             NovelComment(state.novel, model)
                         }
                     }
-
                 }
             }
         }
@@ -447,9 +441,8 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
             is NovelDetailViewState.Loading -> {
                 val text by state.text.collectAsState()
-                Loading(modifier,text)
+                Loading(modifier, text)
             }
-
 
             is NovelDetailViewState.Success -> {
                 Box(modifier.fillMaxWidth()) {
@@ -464,12 +457,12 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
                     RichText(
                         state = state.nodeMap,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll)
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll),
                     )
 
                     VerticalScrollbar(
                         adapter = rememberScrollbarAdapter(scroll),
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).fillMaxHeight()
+                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).fillMaxHeight(),
                     )
                 }
             }

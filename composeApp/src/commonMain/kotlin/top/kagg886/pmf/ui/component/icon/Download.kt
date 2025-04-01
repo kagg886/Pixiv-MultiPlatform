@@ -11,7 +11,11 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 val Download: ImageVector = Builder(
-    name = "Download", defaultWidth = 24.0.dp, defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
+    name = "Download",
+    defaultWidth = 24.0.dp,
+    defaultHeight = 24.0.dp,
+    viewportWidth = 24.0f,
+    viewportHeight = 24.0f,
 ).apply {
     path(
         fill = SolidColor(Color(0xFF5f6368)),
@@ -20,7 +24,7 @@ val Download: ImageVector = Builder(
         strokeLineCap = Butt,
         strokeLineJoin = Miter,
         strokeLineMiter = 4.0f,
-        pathFillType = NonZero
+        pathFillType = NonZero,
     ) {
         moveTo(5.0f, 20.0f)
         horizontalLineToRelative(14.0f)

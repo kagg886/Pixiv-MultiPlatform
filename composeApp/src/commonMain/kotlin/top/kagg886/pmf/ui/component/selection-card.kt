@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
@@ -23,7 +21,7 @@ fun SelectionCard(
         transitionSpec = {
             fadeIn() togetherWith fadeOut()
         },
-        modifier = modifier
+        modifier = modifier,
     ) {
         when (it) {
             true -> {

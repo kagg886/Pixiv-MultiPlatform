@@ -57,7 +57,7 @@ fun FavoriteButton(
     AnimatedContent(
         targetState = state,
         modifier = modifier.size(30.dp),
-        transitionSpec = { fadeIn() togetherWith fadeOut() }
+        transitionSpec = { fadeIn() togetherWith fadeOut() },
     ) {
         when (it) {
             FavoriteState.Favorite -> {
@@ -69,7 +69,7 @@ fun FavoriteButton(
                         }.invokeOnCompletion {
                             loading = false
                         }
-                    }
+                    },
                 ) {
                     favoriteIcon()
                 }
@@ -111,7 +111,7 @@ fun FavoriteButton(
 
                 IconButton(
                     interactionSource = interactionSource,
-                    onClick = {}
+                    onClick = {},
                 ) {
                     nonFavoriteIcon()
                 }

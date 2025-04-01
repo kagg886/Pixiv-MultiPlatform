@@ -32,5 +32,5 @@ data class DownloadItem(
     val illust: Illust,
     val success: Boolean,
     val progress: Float = -1f,
-    val createTime: Long = Clock.System.now().toEpochMilliseconds()
+    val createTime: Long = Clock.System.now().toEpochMilliseconds(),
 )

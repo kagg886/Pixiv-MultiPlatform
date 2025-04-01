@@ -34,7 +34,7 @@ fun TagsFetchDrawerSheetContainer(model: TagsFetchViewModel, preview: (@Composab
 private fun TagsFetchContent0(
     state: TagsFetchViewState,
     model: TagsFetchViewModel,
-    preview: (@Composable () -> Unit)? = null
+    preview: (@Composable () -> Unit)? = null,
 ) {
     when (state) {
         TagsFetchViewState.Loading -> {
@@ -53,7 +53,6 @@ private fun TagsFetchContent0(
             }
 
             KeyListenerFromGlobalPipe(controller)
-
 
             PullToRefreshBox(
                 isRefreshing = isRefresh,
@@ -76,7 +75,7 @@ private fun TagsFetchContent0(
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
-                    state = state.scrollerState
+                    state = state.scrollerState,
                 ) {
                     preview?.let {
                         item {
@@ -91,7 +90,7 @@ private fun TagsFetchContent0(
                             selected = state.selectedTagsFilter == TagFilter.NoFilter,
                             onClick = {
                                 model.clearTags()
-                            }
+                            },
                         )
                     }
                     item {
@@ -102,7 +101,7 @@ private fun TagsFetchContent0(
                             selected = state.selectedTagsFilter == TagFilter.FilterWithoutTagged,
                             onClick = {
                                 model.selectNonTargetTags()
-                            }
+                            },
                         )
                     }
                     items(state.data, key = { it.name.hashCode() }) {
@@ -116,7 +115,7 @@ private fun TagsFetchContent0(
                             },
                             onClick = {
                                 model.selectTags(it)
-                            }
+                            },
                         )
                     }
                     item {
@@ -132,14 +131,14 @@ private fun TagsFetchContent0(
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了"
+                            text = "没有更多了",
                         )
                     }
                 }
 
                 VerticalScrollbar(
                     adapter = rememberScrollbarAdapter(scroll),
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp)
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp),
                 )
 
                 BackToTopOrRefreshButton(
@@ -157,7 +156,7 @@ private fun TagsFetchContent0(
                         }.invokeOnCompletion {
                             isRefresh = false
                         }
-                    }
+                    },
                 )
             }
         }

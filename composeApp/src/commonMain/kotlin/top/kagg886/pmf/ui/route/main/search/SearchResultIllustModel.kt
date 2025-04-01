@@ -1,17 +1,17 @@
 package top.kagg886.pmf.ui.route.main.search
 
+import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.search.searchIllust
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
-import kotlin.coroutines.CoroutineContext
 
 class SearchResultIllustModel(
     val word: String,
     val searchTarget: SearchTarget,
-    val sort: SearchSort
+    val sort: SearchSort,
 ) : IllustFetchViewModel() {
     override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>(coroutineContext) {
@@ -27,5 +27,4 @@ class SearchResultIllustModel(
             }
         }
     }
-
 }

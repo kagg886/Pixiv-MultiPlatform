@@ -11,11 +11,22 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 val LightMode: ImageVector by lazy {
-    Builder(name = "LightMode24dp5f6368", defaultWidth = 24.0.dp,
-        defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f).apply {
-        path(fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,
-            strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-            pathFillType = NonZero) {
+    Builder(
+        name = "LightMode24dp5f6368",
+        defaultWidth = 24.0.dp,
+        defaultHeight = 24.0.dp,
+        viewportWidth = 24.0f,
+        viewportHeight = 24.0f,
+    ).apply {
+        path(
+            fill = SolidColor(Color(0xFF5f6368)),
+            stroke = null,
+            strokeLineWidth = 0.0f,
+            strokeLineCap = Butt,
+            strokeLineJoin = Miter,
+            strokeLineMiter = 4.0f,
+            pathFillType = NonZero,
+        ) {
             moveTo(12.0f, 7.0f)
             curveToRelative(-2.76f, 0.0f, -5.0f, 2.24f, -5.0f, 5.0f)
             reflectiveCurveToRelative(2.24f, 5.0f, 5.0f, 5.0f)

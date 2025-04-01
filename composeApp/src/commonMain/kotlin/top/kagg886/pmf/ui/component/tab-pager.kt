@@ -15,10 +15,10 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.zIndex
-import kotlinx.coroutines.launch
-import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.launch
+import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 
 @Composable
 fun TabContainer(
@@ -46,7 +46,7 @@ fun TabContainer(
                     },
                     text = {
                         Text(text = tab[i])
-                    }
+                    },
                 )
             }
         }
@@ -55,13 +55,13 @@ fun TabContainer(
                 selectedTabIndex = pageIndex,
                 modifier = Modifier.fillMaxWidth().zIndex(2f),
                 divider = {},
-                tabs = content
+                tabs = content,
             )
         } else {
             TabRow(
                 selectedTabIndex = pageIndex,
                 modifier = Modifier.fillMaxWidth().zIndex(2f),
-                tabs = content
+                tabs = content,
             )
         }
 
@@ -69,7 +69,7 @@ fun TabContainer(
             if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
             when (it.key) {
                 Key.DirectionRight -> {
-                    pagerState.animateScrollToPage(min(pagerState.currentPage + 1, pagerState.pageCount-1))
+                    pagerState.animateScrollToPage(min(pagerState.currentPage + 1, pagerState.pageCount - 1))
                 }
                 Key.DirectionLeft -> {
                     pagerState.animateScrollToPage(max(pagerState.currentPage - 1, 0))
@@ -78,7 +78,7 @@ fun TabContainer(
         }
 
         HorizontalPager(
-            state = pagerState
+            state = pagerState,
         ) {
             page(it)
         }

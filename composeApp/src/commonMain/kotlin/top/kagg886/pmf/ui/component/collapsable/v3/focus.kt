@@ -20,12 +20,11 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 
-
 /**
  * Moves focus to the next component when the [Key.Tab] or [Key.Enter] key is pressed.
  */
 fun Modifier.moveFocusOnEnter(
-    direction: FocusDirection = FocusDirection.Down
+    direction: FocusDirection = FocusDirection.Down,
 ): Modifier = composed {
     val focusManager = LocalFocusManager.current
     onPreviewKeyEvent { keyEvent ->
@@ -44,7 +43,7 @@ fun Modifier.moveFocusOnEnter(
  * Request focus on this component by default.
  */
 fun Modifier.defaultFocus(
-    requester: FocusRequester = FocusRequester()
+    requester: FocusRequester = FocusRequester(),
 ): Modifier = composed {
     LaunchedEffect(key1 = true) {
         requester.requestFocus()
@@ -59,7 +58,7 @@ typealias ComposeKey = Key
  */
 fun Modifier.onKey(
     key: Key,
-    onEnter: () -> Unit
+    onEnter: () -> Unit,
 ): Modifier = onPreviewKeyEvent { keyEvent ->
     if (keyEvent.type == KeyEventType.KeyDown && (keyEvent.key == key)) {
         true // Consume event to prevent it from being handled by other components
@@ -74,7 +73,7 @@ fun Modifier.onKey(
 fun Modifier.onPointerEventMultiplatform(
     eventType: PointerEventType,
     pass: PointerEventPass = PointerEventPass.Main,
-    onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit
+    onEvent: AwaitPointerEventScope.(event: PointerEvent) -> Unit,
 ): Modifier = composed {
     val currentEventType by rememberUpdatedState(eventType)
     val currentOnEvent by rememberUpdatedState(onEvent)

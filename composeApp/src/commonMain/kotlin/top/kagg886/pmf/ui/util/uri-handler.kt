@@ -41,11 +41,11 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                 TextButton(
                     onClick = {
                         origin.openUri(wantToOpenLink)
-                    }
+                    },
                 ) {
                     Text("确定")
                 }
-            }
+            },
         )
     }
 
