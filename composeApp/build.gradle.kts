@@ -7,8 +7,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 val pkgName: String = "top.kagg886.pmf"
 val androidTargetVersion: Int = 35
 
-//val pkgVersion: String = "1.0.0"
-//val pkgCode: Int = 1
+// val pkgVersion: String = "1.0.0"
+// val pkgCode: Int = 1
 
 val appVersionName = System.getenv("APP_VERSION_NAME") ?: project.findProperty("APP_VERSION_NAME") as? String ?: ""
 check(appVersionName.startsWith("v")) {
@@ -24,7 +24,6 @@ val pkgCode: Int = with(pkgVersion.split(".")) {
 
 println("APP_VERSION: $pkgVersion($pkgCode)")
 
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
@@ -32,6 +31,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.buildConfig)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.room)
     alias(libs.plugins.aboutlibrariesPlugin)
@@ -41,7 +41,6 @@ plugins {
 room {
     schemaDirectory("$projectDir/schemas")
 }
-
 
 dependencies {
     ksp(libs.androidx.room.compiler)
@@ -53,7 +52,6 @@ buildConfig {
     buildConfigField("APP_BASE_PACKAGE", pkgName)
     buildConfigField("APP_VERSION_NAME", pkgVersion)
     buildConfigField("APP_VERSION_CODE", pkgCode)
-
 
     buildConfigField("DATABASE_VERSION", 6)
 }
@@ -80,12 +78,12 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
-            //kotlin stdlib
+            // kotlin stdlib
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
 
-            //compose
+            // compose
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
@@ -95,34 +93,34 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            //voyager
+            // voyager
             implementation(libs.voyager.navigator)
             implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.koin)
             implementation(libs.voyager.transitions)
             implementation(libs.koin.core)
 
-            //orbit
+            // orbit
             implementation(libs.orbit.core)
 
-            //pixiv
+            // pixiv
             implementation(libs.pixko)
 
-            //storage
+            // storage
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.serialization)
 
-            //settings-ui
+            // settings-ui
             implementation(libs.compose.settings.ui)
             implementation(libs.compose.settings.extended)
 
-            //search-page-ui
+            // search-page-ui
             implementation(project(":lib:chip-text-field"))
 
-            //webview
+            // webview
             api(libs.compose.webview.multiplatform)
 
-            //image-loader
+            // image-loader
             implementation(libs.sketch.compose)
             implementation(libs.sketch.svg)
             implementation(libs.sketch.resources)
@@ -131,37 +129,34 @@ kotlin {
             implementation(libs.sketch.http.ktor3)
             implementation(libs.zoomimage.compose.sketch)
 
-            //gif-exporter
+            // gif-exporter
             implementation(project(":lib:gif"))
 
-
-            //ktor
+            // ktor
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.ktor.client.logging)
 
-            //room
+            // room
             implementation(libs.androidx.room.runtime)
 
-
-            //save file to storage
+            // save file to storage
             implementation(libs.filekit.compose)
 
-            //logging
+            // logging
             implementation(libs.kermit)
 
-            //epub module
+            // epub module
             implementation(project(":lib:epub"))
-
 
             implementation(project(":lib:okio-enhancement-util"))
 
-            //zip files
+            // zip files
             implementation(libs.korlibs.io)
-            //use to HTML parse
+            // use to HTML parse
             implementation(libs.ksoup)
 
-            //about page
+            // about page
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
         }
@@ -188,7 +183,6 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
-
     }
 }
 
@@ -240,10 +234,9 @@ android {
         manifestPlaceholders["APP_NAME"] = rootProject.name
 
         ndk {
-            //只支持arm64和x64
+            // 只支持arm64和x64
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
-
     }
     packaging {
         resources {
@@ -252,7 +245,6 @@ android {
     }
     buildTypes {
         val signConfig = signingConfigs.getByName("test")
-
 
         getByName("release") {
             isMinifyEnabled = true
@@ -285,7 +277,7 @@ compose.resources {
 }
 compose.desktop {
     application {
-        mainClass = "${pkgName}.MainKt"
+        mainClass = "$pkgName.MainKt"
         nativeDistributions {
             includeAllModules = true
             targetFormats(
@@ -295,7 +287,7 @@ compose.desktop {
                     if (!System.getProperty("os.name").contains("Mac")) {
                         add(TargetFormat.AppImage)
                     }
-                }.toTypedArray()
+                }.toTypedArray(),
             )
             packageName = rootProject.name
             packageVersion = pkgVersion
@@ -317,7 +309,7 @@ compose.desktop {
             isEnabled = false
         }
 
-        //release mode
+        // release mode
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
         jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
 
@@ -327,10 +319,11 @@ compose.desktop {
         }
         afterEvaluate {
             tasks.withType<JavaExec> {
-                //debug mode
+                // debug mode
                 jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
                 jvmArgs(
-                    "--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED"
+                    "--add-opens",
+                    "java.desktop/java.awt.peer=ALL-UNNAMED",
                 )
 
                 if (System.getProperty("os.name").contains("Mac")) {
@@ -349,4 +342,17 @@ configureComposeWindowsInstaller {
     shortcutName = rootProject.name
     iconFile = project.file("icons/pixiv.ico")
     manufacturer = "kagg886"
+}
+
+val ktlintVersion = libs.ktlint.get().version
+
+spotless {
+    kotlin {
+        // https://github.com/diffplug/spotless/issues/111
+        target("src/**/*.kt")
+        ktlint(ktlintVersion)
+    }
+    kotlinGradle {
+        ktlint(ktlintVersion)
+    }
 }
