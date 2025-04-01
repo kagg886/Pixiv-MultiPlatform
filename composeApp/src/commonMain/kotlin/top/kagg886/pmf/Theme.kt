@@ -10,17 +10,17 @@ import top.kagg886.pmf.ui.component.scroll.defaultScrollbarStyle
 @Composable
 fun PixivMultiPlatformTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colorScheme = colorScheme
+        colorScheme = colorScheme,
     ) {
         CompositionLocalProvider(
             LocalScrollbarStyle provides defaultScrollbarStyle().copy(
                 unhoverColor = MaterialTheme.colorScheme.surfaceVariant,
                 hoverColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
-            content
+            content,
         )
     }
 }

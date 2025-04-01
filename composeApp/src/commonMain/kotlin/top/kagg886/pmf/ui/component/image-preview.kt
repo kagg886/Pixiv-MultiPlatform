@@ -31,6 +31,8 @@ import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import com.github.panpf.zoomimage.rememberSketchZoomState
 import io.github.vinceglb.filekit.core.FileKit
 import io.ktor.http.*
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import okio.Buffer
 import okio.ByteString.Companion.decodeBase64
@@ -48,8 +50,6 @@ import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.transfer
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
@@ -57,7 +57,7 @@ fun ImagePreviewer(
     onDismiss: () -> Unit,
     url: List<String>,
     startIndex: Int = 0,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val ctx = LocalPlatformContext.current
     val request = remember(url.hashCode()) {
@@ -69,7 +69,7 @@ fun ImagePreviewer(
         onDismissRequest = onDismiss,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
-        )
+        ),
     ) {
         val pagerState = rememberPagerState(startIndex) { url.size }
 
@@ -90,7 +90,6 @@ fun ImagePreviewer(
                         val platform = LocalPlatformContext.current
                         val scope = rememberCoroutineScope()
 
-
                         if (currentPlatform is Platform.Desktop) {
                             SettingsMenuLink(
                                 title = {
@@ -99,7 +98,7 @@ fun ImagePreviewer(
                                 icon = {
                                     Icon(
                                         imageVector = Copy,
-                                        null
+                                        null,
                                     )
                                 },
                                 onClick = {
@@ -108,7 +107,7 @@ fun ImagePreviewer(
                                             isBase64Uri(url[pagerState.currentPage].toUri()) -> {
                                                 val (_, data) = url[pagerState.currentPage].decodeBase64Uri()
                                                 val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray()
+                                                    data.decodeBase64()!!.toByteArray(),
                                                 )
 
                                                 kotlin.runCatching {
@@ -154,7 +153,7 @@ fun ImagePreviewer(
 //                                        }
                                         showBottomDialog = false
                                     }
-                                }
+                                },
                             )
                         }
                         SettingsMenuLink(
@@ -170,13 +169,13 @@ fun ImagePreviewer(
                                         isBase64Uri(url[pagerState.currentPage].toUri()) -> {
                                             val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
                                             val source = Buffer().write(
-                                                data.decodeBase64()!!.toByteArray()
+                                                data.decodeBase64()!!.toByteArray(),
                                             )
 
                                             FileKit.saveFile(
                                                 bytes = source.readByteArray(),
                                                 extension = MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin",
-                                                baseName = Uuid.random().toHexString()
+                                                baseName = Uuid.random().toHexString(),
                                             )
                                         }
 
@@ -192,15 +191,15 @@ fun ImagePreviewer(
                                                 extension = "png",
                                                 baseName = Url(url[pagerState.currentPage]).encodedPath.replace(
                                                     "/",
-                                                    "_"
-                                                )
+                                                    "_",
+                                                ),
                                             )
                                         }
                                     }
 
                                     showBottomDialog = false
                                 }
-                            }
+                            },
                         )
                         if (currentPlatform is Platform.Android) {
                             SettingsMenuLink(
@@ -216,7 +215,7 @@ fun ImagePreviewer(
                                             isBase64Uri(url[pagerState.currentPage].toUri()) -> {
                                                 val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
                                                 val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray()
+                                                    data.decodeBase64()!!.toByteArray(),
                                                 )
 
                                                 useTempFile { tmp ->
@@ -224,7 +223,7 @@ fun ImagePreviewer(
                                                     shareFile(
                                                         tmp,
                                                         name = "${Uuid.random().toHexString()}.${MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin"}",
-                                                        mime = mime
+                                                        mime = mime,
                                                     )
                                                 }
                                             }
@@ -256,7 +255,7 @@ fun ImagePreviewer(
 
                                         showBottomDialog = false
                                     }
-                                }
+                                },
                             )
                         }
                         SettingsMenuLink(
@@ -266,7 +265,7 @@ fun ImagePreviewer(
                             icon = {
                                 Icon(Icons.AutoMirrored.Filled.ExitToApp, null)
                             },
-                            onClick = onDismiss
+                            onClick = onDismiss,
                         )
                     }
                 }
@@ -288,9 +287,8 @@ fun ImagePreviewer(
                             return@SketchZoomAsyncImage
                         }
                         showBottomDialog = true
-                    }
+                    },
                 )
-
             }
 
             Card(
@@ -298,13 +296,13 @@ fun ImagePreviewer(
                     this.alpha = 0.6f
                 }.run {
                     if (currentPlatform is Platform.Android) {
-                        //can't execute smart cast
+                        // can't execute smart cast
                         if ((currentPlatform as Platform.Android).version == 35) {
                             return@run this.padding(bottom = 90.dp)
                         }
                     }
                     this.padding(bottom = 10.dp)
-                }
+                },
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val scope = rememberCoroutineScope()
@@ -314,7 +312,7 @@ fun ImagePreviewer(
                                 pagerState.animateScrollToPage(pagerState.currentPage - 1)
                             }
                         },
-                        enabled = pagerState.currentPage > 0
+                        enabled = pagerState.currentPage > 0,
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                     }
@@ -329,14 +327,13 @@ fun ImagePreviewer(
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
                         },
-                        enabled = pagerState.currentPage < url.size - 1
+                        enabled = pagerState.currentPage < url.size - 1,
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
                     }
                 }
             }
         }
-
     }
 }
 

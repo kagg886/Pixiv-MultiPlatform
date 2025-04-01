@@ -7,12 +7,11 @@ import com.russhwolf.settings.boolean
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.ui.util.container
 
 class WelcomeModel(
-    settings: Settings = SystemConfig.getConfig()
+    settings: Settings = SystemConfig.getConfig(),
 ) : ContainerHost<WelcomeViewState, WelcomeSideEffect>, ViewModel(), ScreenModel {
 
     private var isInited by settings.boolean("welcome_init", false)
@@ -64,11 +63,11 @@ sealed interface WelcomeViewState {
     data object Loading : WelcomeViewState
 
     enum class ConfigureSetting : WelcomeViewState {
-        WELCOME, //欢迎
-        THEME, //配置主题
-        BYPASS, //SNI绕过
-        SHIELD, //屏蔽R18，AI等
-        FINISH //完成
+        WELCOME, // 欢迎
+        THEME, // 配置主题
+        BYPASS, // SNI绕过
+        SHIELD, // 屏蔽R18，AI等
+        FINISH, // 完成
     }
 }
 

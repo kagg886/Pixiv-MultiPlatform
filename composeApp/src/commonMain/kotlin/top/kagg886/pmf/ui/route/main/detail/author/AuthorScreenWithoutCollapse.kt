@@ -76,18 +76,17 @@ class AuthorScreenWithoutCollapse(override val id: Int) : AuthorScreen(id) {
                         },
                         "关注" to {
                             AuthorFollow(state.user)
-                        }
+                        },
                     ).toList()
                 }
                 TabContainer(
                     state = key,
                     tab = data.map { it.first },
-                    scrollable = true
+                    scrollable = true,
                 ) {
                     data[it].second.invoke()
                 }
             }
         }
     }
-
 }

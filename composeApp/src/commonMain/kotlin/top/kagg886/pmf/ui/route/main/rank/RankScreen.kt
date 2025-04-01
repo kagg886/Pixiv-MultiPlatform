@@ -40,5 +40,4 @@ class RankScreen : Screen {
         }
         IllustFetchScreen(model)
     }
-
 }

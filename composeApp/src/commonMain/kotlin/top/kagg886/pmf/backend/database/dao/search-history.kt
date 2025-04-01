@@ -7,12 +7,10 @@ import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.backend.database.converters.HistoryConverter
 
-
 @Dao
 interface SearchHistoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: SearchHistory)
-
 
     @Query("SELECT * FROM SearchHistory ORDER BY createTime DESC")
     fun allFlow(): Flow<List<SearchHistory>>

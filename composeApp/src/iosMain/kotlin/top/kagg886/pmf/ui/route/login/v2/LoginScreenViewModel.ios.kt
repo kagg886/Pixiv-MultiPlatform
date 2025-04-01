@@ -7,6 +7,4 @@ actual fun LoginScreenViewModel.initKCEF(): Job {
     error("IOS can't init KCEF!")
 }
 
-actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job {
-    throw UnsupportedOperationException()
-}
+actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job = throw UnsupportedOperationException()

@@ -1,12 +1,5 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import okhttp3.Dns
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import top.kagg886.pmf.util.logger
 import java.io.IOException
 import java.net.InetAddress
 import java.net.Socket
@@ -18,12 +11,16 @@ import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.X509TrustManager
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
-
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import okhttp3.Dns
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import top.kagg886.pmf.util.logger
 
 private val json = Json {
     ignoreUnknownKeys = true
 }
-
 
 @Serializable
 private data class CloudFlareDNSResponse(
@@ -34,7 +31,7 @@ private data class CloudFlareDNSResponse(
     val RA: Boolean,
     val RD: Boolean,
     val Status: Int,
-    val TC: Boolean
+    val TC: Boolean,
 ) {
 
     @Serializable
@@ -42,29 +39,28 @@ private data class CloudFlareDNSResponse(
         val TTL: Int,
         val data: String,
         val name: String,
-        val type: Int
+        val type: Int,
     )
 
     @Serializable
     data class DNSQuestion(
         val name: String,
-        val type: Int
+        val type: Int,
     )
 }
 
 fun OkHttpClient.Builder.bypassSNIOnDesktop(
     queryUrl: String,
-    dohTimeout:Int = 5,
+    dohTimeout: Int = 5,
     unsafeSSL: Boolean = true,
-    fallback: Map<String, List<String>>
-) = dns(SNIReplaceDNS(queryUrl,dohTimeout, unsafeSSL, fallback)).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
-
+    fallback: Map<String, List<String>>,
+) = dns(SNIReplaceDNS(queryUrl, dohTimeout, unsafeSSL, fallback)).sslSocketFactory(BypassSSLSocketFactory, BypassTrustManager)
 
 private data class SNIReplaceDNS(
     val queryUrl: String,
-    val dohTimeout:Int = 5,
+    val dohTimeout: Int = 5,
     val unsafeSSL: Boolean = true,
-    val fallback: Map<String, List<String>>
+    val fallback: Map<String, List<String>>,
 ) : Dns {
     private val client = OkHttpClient.Builder().apply {
         if (unsafeSSL) {
@@ -83,9 +79,9 @@ private data class SNIReplaceDNS(
             }
             val resp = client.newCall(
                 Request.Builder()
-                    .url("${queryUrl}?name=$host&type=A")
+                    .url("$queryUrl?name=$host&type=A")
                     .header("Accept", "application/dns-json")
-                    .build()
+                    .build(),
             ).execute()
             val json = json.decodeFromString<CloudFlareDNSResponse>(resp.body!!.string())
             json.Answer.map {
@@ -98,31 +94,30 @@ private data class SNIReplaceDNS(
         }
         return data
     }
-
 }
 fun OkHttpClient.Builder.ignoreSSL() {
     val sslContext = SSLContext.getInstance("SSL")
     val trust = object : X509TrustManager {
         override fun checkClientTrusted(
             p0: Array<out X509Certificate>?,
-            p1: String?
+            p1: String?,
         ) = Unit
 
         override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
 
         override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-
     }
     sslContext.init(
-        null, arrayOf(
-            trust
-        ), SecureRandom()
+        null,
+        arrayOf(
+            trust,
+        ),
+        SecureRandom(),
     )
 
     sslSocketFactory(sslContext.socketFactory, trust)
     hostnameVerifier { _, _ -> true }
 }
-
 
 private object BypassSSLSocketFactory : SSLSocketFactory() {
     @Throws(IOException::class)
@@ -139,7 +134,7 @@ private object BypassSSLSocketFactory : SSLSocketFactory() {
         paramString: String?,
         paramInt1: Int,
         paramInetAddress: InetAddress?,
-        paramInt2: Int
+        paramInt2: Int,
     ): Socket? = null
 
     override fun createSocket(paramInetAddress: InetAddress?, paramInt: Int): Socket? = null
@@ -148,17 +143,14 @@ private object BypassSSLSocketFactory : SSLSocketFactory() {
         paramInetAddress1: InetAddress?,
         paramInt1: Int,
         paramInetAddress2: InetAddress?,
-        paramInt2: Int
+        paramInt2: Int,
     ): Socket? = null
 
-    override fun getDefaultCipherSuites(): Array<String> {
-        return arrayOf()
-    }
+    override fun getDefaultCipherSuites(): Array<String> = arrayOf()
 
-    override fun getSupportedCipherSuites(): Array<String> {
-        return arrayOf()
-    }
+    override fun getSupportedCipherSuites(): Array<String> = arrayOf()
 }
+
 @Suppress("CustomX509TrustManager")
 private object BypassTrustManager : X509TrustManager {
     @Suppress("TrustAllX509TrustManager")

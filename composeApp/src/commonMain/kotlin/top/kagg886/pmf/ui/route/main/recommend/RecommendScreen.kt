@@ -15,7 +15,6 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
 
-
 class RecommendScreen : Screen {
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
@@ -30,7 +29,7 @@ class RecommendScreen : Screen {
         TabContainer(
             modifier = Modifier.fillMaxSize(),
             state = page.page,
-            tab = listOf("插画", "小说")
+            tab = listOf("插画", "小说"),
         ) {
             when (it) {
                 0 -> {
@@ -59,8 +58,6 @@ class RecommendScreen : Screen {
                     NovelFetchScreen(model)
                 }
             }
-
         }
-
     }
 }

@@ -7,12 +7,11 @@ import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUserDomainMask
 
-
 actual val dataPath: Path by lazy {
     val path = NSSearchPathForDirectoriesInDomains(
         directory = NSDocumentDirectory,
         domainMask = NSUserDomainMask,
-        true
+        true,
     )
     with(Path) {
         path[0]!!.toString().toPath()

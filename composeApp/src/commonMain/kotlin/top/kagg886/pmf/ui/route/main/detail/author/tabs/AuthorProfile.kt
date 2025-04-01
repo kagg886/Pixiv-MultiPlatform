@@ -1,8 +1,6 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItem
@@ -17,10 +15,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.profile.CountryCode
 import top.kagg886.pixko.module.user.UserInfo
-import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.util.withClickable
-import top.kagg886.pmf.ui.util.withLink
 
 @Composable
 fun AuthorProfile(user: UserInfo) {
@@ -37,7 +33,7 @@ fun AuthorProfile(user: UserInfo) {
         Value("地区", user.profile.region)
         Value(
             "地区",
-            "${user.profile.country.display} ${if (user.profile.country === CountryCode.JAPAN) "---${user.profile.address}" else ""}"
+            "${user.profile.country.display} ${if (user.profile.country === CountryCode.JAPAN) "---${user.profile.address}" else ""}",
         )
         Value("主页", user.profile.webpage ?: "未知")
         Value("twitter账号", user.profile.twitterAccount)
@@ -80,14 +76,14 @@ private fun Item(
                                 clip.setText(
                                     buildAnnotatedString {
                                         append(supporting)
-                                    }
+                                    },
                                 )
                                 scope.launch {
                                     snack.showSnackbar("已将${headline}复制到剪切板")
                                 }
-                            }
+                            },
                         )
-                    }
+                    },
                 )
             }
         },

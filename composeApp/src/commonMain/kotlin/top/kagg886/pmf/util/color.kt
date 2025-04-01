@@ -2,6 +2,7 @@ package top.kagg886.pmf.util
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
+import kotlin.math.roundToInt
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.descriptors.PrimitiveKind
@@ -9,7 +10,6 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlin.math.roundToInt
 
 object ColorAsStringSerializer : KSerializer<Color> {
     override val descriptor: SerialDescriptor =
@@ -24,10 +24,10 @@ object ColorAsStringSerializer : KSerializer<Color> {
         encoder.encodeString(
             buildString {
                 append("#")
-                for (i in listOf(r,g,b,a)) {
+                for (i in listOf(r, g, b, a)) {
                     append(i.toString(16).padStart(2, '0'))
                 }
-            }
+            },
         )
     }
 
@@ -40,10 +40,13 @@ object ColorAsStringSerializer : KSerializer<Color> {
         val b = hex.substring(5, 7).toInt(16)
         val a = if (hex.length == 9) {
             hex.substring(7, 9).toInt(16)
-        } else 255
+        } else {
+            255
+        }
         return Color(r, g, b, a)
     }
 }
+
 @Serializable
 data class SerializedTheme(
     @Serializable(with = ColorAsStringSerializer::class) val primary: Color,
@@ -120,7 +123,7 @@ fun ColorScheme.toSerialized() = SerializedTheme(
     surfaceContainerHigh,
     surfaceContainerHighest,
     surfaceContainerLow,
-    surfaceContainerLowest
+    surfaceContainerLowest,
 )
 
 fun SerializedTheme.toColorScheme() = ColorScheme(
@@ -159,5 +162,5 @@ fun SerializedTheme.toColorScheme() = ColorScheme(
     surfaceContainerHigh,
     surfaceContainerHighest,
     surfaceContainerLow,
-    surfaceContainerLowest
+    surfaceContainerLowest,
 )

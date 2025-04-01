@@ -9,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
@@ -26,6 +25,8 @@ import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
 import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 import kotlinx.datetime.Clock
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -36,8 +37,6 @@ import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
-import kotlin.math.absoluteValue
-import kotlin.random.Random
 
 sealed interface NovelNodeElement {
     data class Plain(val text: String) : NovelNodeElement
@@ -61,12 +60,12 @@ fun AnnotatedString.Builder.withClickable(
             styles = TextLinkStyles(
                 hoveredStyle = SpanStyle(
                     color = colors.primaryContainer,
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
                 ),
             ),
             linkInteractionListener = {
                 onClick()
-            }
+            },
         ),
     ) {
         this.append(text)
@@ -85,9 +84,9 @@ fun AnnotatedString.Builder.withLink(
                 style = SpanStyle(color = colors.primary),
                 hoveredStyle = SpanStyle(
                     color = colors.primaryContainer,
-                    textDecoration = TextDecoration.Underline
+                    textDecoration = TextDecoration.Underline,
                 ),
-            )
+            ),
         ),
     ) {
         this.append(display)
@@ -107,7 +106,7 @@ fun RichText(
         ImagePreviewer(
             url = previews,
             onDismiss = { previewIndex = -1 },
-            startIndex = previewIndex
+            startIndex = previewIndex,
         )
     }
     val textSize = remember {
@@ -133,23 +132,23 @@ fun RichText(
                                 Placeholder(
                                     screenWidth,
                                     with(density) { ((i.illust.height * (screenWidth * 0.85).toPx().absoluteValue / i.illust.width)).toSp() },
-                                    PlaceholderVerticalAlign.Center
-                                )
+                                    PlaceholderVerticalAlign.Center,
+                                ),
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     val nav = LocalNavigator.currentOrThrow
                                     ProgressedAsyncImage(
                                         url = i.illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]?.get(
-                                            0
+                                            0,
                                         ),
                                         modifier = Modifier.fillMaxWidth(0.8f)
                                             .aspectRatio(i.illust.width.toFloat() / i.illust.height)
                                             .clickable {
                                                 nav.push(IllustDetailScreen(i.illust))
-                                            }
+                                            },
                                     )
                                 }
-                            }
+                            },
                         )
                     }
 
@@ -160,8 +159,8 @@ fun RichText(
                                 Placeholder(
                                     screenWidth,
                                     with(density) { ((i.size.height * (screenWidth * 0.85).toPx().absoluteValue / i.size.width)).toSp() },
-                                    PlaceholderVerticalAlign.Center
-                                )
+                                    PlaceholderVerticalAlign.Center,
+                                ),
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     ProgressedAsyncImage(
@@ -174,7 +173,7 @@ fun RichText(
                                             },
                                     )
                                 }
-                            }
+                            },
                         )
                     }
 
@@ -183,7 +182,7 @@ fun RichText(
                             "page_${i.index}",
                             InlineTextContent(Placeholder(screenWidth, 2.sp, PlaceholderVerticalAlign.Top)) {
                                 HorizontalDivider(Modifier.fillMaxWidth())
-                            }
+                            },
                         )
                     }
 
@@ -203,7 +202,7 @@ fun RichText(
                         withLink(
                             colors = colors,
                             link = i.uri,
-                            display = i.text
+                            display = i.text,
                         )
                     }
 
@@ -230,7 +229,7 @@ fun RichText(
                     }
 
                     is NovelNodeElement.Plain -> {
-                        fun String.replaceBigLines() = replace("(\\s*\\r?\\n){2,}\n".toRegex(),"\n")
+                        fun String.replaceBigLines() = replace("(\\s*\\r?\\n){2,}\n".toRegex(), "\n")
                         if (AppConfig.autoTypo) {
                             with(i.text.replaceBigLines().lines()) {
                                 appendLine(this[0])
@@ -238,7 +237,7 @@ fun RichText(
                                     if (currentPlatform is Platform.Android) {
                                         return@map it.trim()
                                     }
-                                    //8个空格
+                                    // 8个空格
                                     return@map "        ${it.trim()}"
                                 }.forEach(this@buildAnnotatedString::appendLine)
                             }
@@ -270,7 +269,7 @@ fun RichText(
 
             else -> defaultTextStyle.copy(
                 fontSize = textSize,
-                lineHeight = 1.5.em
+                lineHeight = 1.5.em,
             )
         }
     }
@@ -284,7 +283,7 @@ fun RichText(
                 val offset = it.positionInParent()
                 (it.boundsInParent().width - offset.x).toSp()
             }
-        }
+        },
     )
 }
 
@@ -293,7 +292,7 @@ fun HTMLRichText(
     html: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    style: TextStyle = LocalTextStyle.current
+    style: TextStyle = LocalTextStyle.current,
 ) {
     val scheme = MaterialTheme.colorScheme
     val dom = remember(html) {
@@ -320,7 +319,7 @@ fun HTMLRichText(
                         "a" -> withLink(
                             scheme,
                             node.attr("href"),
-                            node.text()
+                            node.text(),
                         )
 
                         else -> append(node.html())
@@ -337,6 +336,6 @@ fun HTMLRichText(
         },
         style = style,
         color = color,
-        modifier = modifier
+        modifier = modifier,
     )
 }

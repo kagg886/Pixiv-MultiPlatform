@@ -15,27 +15,25 @@ actual fun openBrowser(link: String): Unit = runBlocking {
     UIApplication.sharedApplication.openURL(
         url = NSURL.URLWithString(link)!!,
         options = mapOf<Any?, String>(),
-        completionHandler = null
+        completionHandler = null,
     )
 }
 
-actual fun shareFile(file: Path, name: String, mime: String): Unit {
+actual fun shareFile(file: Path, name: String, mime: String) {
     val url = NSURL.fileURLWithPath(file.absolutePath().toString())
 
     val controller = UIActivityViewController(
         activityItems = listOf(url),
-        applicationActivities = null
+        applicationActivities = null,
     )
 
     scope.launch {
         UIApplication.sharedApplication.keyWindow?.rootViewController?.presentViewController(
             controller,
             true,
-            null
+            null,
         )
     }
 }
 
-actual suspend fun copyImageToClipboard(bitmap: ByteArray) {
-    throw UnsupportedOperationException()
-}
+actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw UnsupportedOperationException()

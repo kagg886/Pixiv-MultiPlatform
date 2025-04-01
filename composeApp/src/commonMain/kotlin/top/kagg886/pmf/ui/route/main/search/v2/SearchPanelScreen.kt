@@ -23,6 +23,7 @@ import cafe.adriel.voyager.navigator.internal.BackHandler
 import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -42,13 +43,12 @@ import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
-import kotlin.time.Duration.Companion.seconds
 
 class SearchPanelScreen(
     private val sort: SearchSort = SearchSort.DATE_DESC,
     private val target: SearchTarget = SearchTarget.PARTIAL_MATCH_FOR_TAGS,
     private val keyword: List<String> = listOf(),
-    private val initialText: String = ""
+    private val initialText: String = "",
 ) : Screen {
     @OptIn(InternalVoyagerApi::class, FlowPreview::class)
     @Composable
@@ -108,7 +108,7 @@ class SearchPanelScreen(
                                 IconButton(
                                     onClick = {
                                         navigator.pop()
-                                    }
+                                    },
                                 ) {
                                     Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                                 }
@@ -121,16 +121,16 @@ class SearchPanelScreen(
                                                 SearchResultScreen(
                                                     state.keyword,
                                                     state.sort,
-                                                    state.target
-                                                )
+                                                    state.target,
+                                                ),
                                             )
                                         }
                                     },
-                                    enabled = state.keyword.isNotEmpty() && state.panelState !is SearchPanelState.RedirectToPage
+                                    enabled = state.keyword.isNotEmpty() && state.panelState !is SearchPanelState.RedirectToPage,
                                 ) {
                                     Icon(Icons.Default.Search, null)
                                 }
-                            }
+                            },
                         )
                     }
                     else -> {
@@ -146,7 +146,7 @@ class SearchPanelScreen(
                                 IconButton(
                                     onClick = {
                                         navigator.pop()
-                                    }
+                                    },
                                 ) {
                                     Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                                 }
@@ -159,20 +159,20 @@ class SearchPanelScreen(
                                                 SearchResultScreen(
                                                     listOf(state.text),
                                                     state.sort,
-                                                    state.target
-                                                )
+                                                    state.target,
+                                                ),
                                             )
                                         }
                                     },
-                                    enabled = state.text.isNotEmpty()
+                                    enabled = state.text.isNotEmpty(),
                                 ) {
                                     Icon(Icons.Default.Search, null)
                                 }
-                            }
+                            },
                         )
                     }
                 }
-            }
+            },
         ) { paddingValues ->
             Column(Modifier.padding(paddingValues)) {
                 AnimatedContent(state.panelState) { currentState ->
@@ -186,7 +186,7 @@ class SearchPanelScreen(
                                 onSortChange = { model.updateSort(it) },
                                 onTargetChange = { model.updateTarget(it) },
                                 onTagRequestRefresh = { model.refreshHotTag() },
-                                onTagClicked = { t -> model.selectTag(t.tag) }
+                                onTagClicked = { t -> model.selectTag(t.tag) },
                             )
                         }
 
@@ -199,7 +199,7 @@ class SearchPanelScreen(
                                 text = currentState.msg,
                                 onClick = {
                                     model.searchTagOrExactSearch(state.text)
-                                }
+                                },
                             )
                         }
 
@@ -215,7 +215,7 @@ class SearchPanelScreen(
                                         },
                                         modifier = Modifier.clickable {
                                             model.selectTag(it)
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -233,8 +233,8 @@ class SearchPanelScreen(
                                                 ProgressedAsyncImage(
                                                     url = currentState.illust.contentImages.get()!![0],
                                                     modifier = Modifier.height(144.dp).aspectRatio(
-                                                        ratio = currentState.illust.width / currentState.illust.height.toFloat()
-                                                    )
+                                                        ratio = currentState.illust.width / currentState.illust.height.toFloat(),
+                                                    ),
                                                 )
                                             },
                                             headlineContent = {
@@ -247,7 +247,7 @@ class SearchPanelScreen(
                                             },
                                             modifier = Modifier.clickable {
                                                 navigator.push(IllustDetailScreen(currentState.illust))
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -261,7 +261,7 @@ class SearchPanelScreen(
                                             leadingContent = {
                                                 ProgressedAsyncImage(
                                                     url = currentState.novel.imageUrls.medium!!,
-                                                    modifier = Modifier.height(144.dp).aspectRatio(70 / 144f)
+                                                    modifier = Modifier.height(144.dp).aspectRatio(70 / 144f),
                                                 )
                                             },
                                             headlineContent = {
@@ -272,7 +272,7 @@ class SearchPanelScreen(
                                             },
                                             modifier = Modifier.clickable {
                                                 navigator.push(NovelDetailScreen(currentState.novel.id.toLong()))
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -288,7 +288,7 @@ class SearchPanelScreen(
                                             },
                                             modifier = Modifier.clickable {
                                                 navigator.push(NovelSeriesScreen(currentState.series.novelSeriesDetail.id))
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -306,16 +306,19 @@ class SearchPanelScreen(
                                                     user = currentState.user.user,
                                                     onFavoriteClick = {
                                                         toast.showSnackbar("请前往详情页面收藏作者！")
-                                                    }
+                                                    },
                                                 )
-                                            }
+                                            },
                                         )
                                     }
                                 }
 
                                 item {
-                                    if (currentState.illust == null && currentState.novel == null &&
-                                        currentState.user == null && currentState.series == null) {
+                                    if (currentState.illust == null &&
+                                        currentState.novel == null &&
+                                        currentState.user == null &&
+                                        currentState.series == null
+                                    ) {
                                         ErrorPage(
                                             text = "没有搜索结果",
                                         ) {}

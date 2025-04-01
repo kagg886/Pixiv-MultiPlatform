@@ -53,7 +53,7 @@ class EmptySearchScreen : Screen {
                         IconButton(
                             onClick = {
                                 navigator.pop()
-                            }
+                            },
                         ) {
                             Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                         }
@@ -62,7 +62,7 @@ class EmptySearchScreen : Screen {
                         IconButton(
                             onClick = {
                                 model.clearHistory()
-                            }
+                            },
                         ) {
                             Icon(Icons.Default.Delete, null)
                         }
@@ -73,11 +73,11 @@ class EmptySearchScreen : Screen {
                 FloatingActionButton(
                     onClick = {
                         navigator.push(SearchPanelScreen())
-                    }
+                    },
                 ) {
                     Icon(Icons.Default.Search, null)
                 }
-            }
+            },
         ) { paddingValues ->
             when (state) {
                 is EmptySearchState.Loading -> Loading()
@@ -89,7 +89,7 @@ class EmptySearchScreen : Screen {
                     if (histories.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize().padding(paddingValues),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("暂无历史记录")
@@ -108,11 +108,11 @@ class EmptySearchScreen : Screen {
                                             SearchPanelScreen(
                                                 sort = item.initialSort,
                                                 target = item.initialTarget,
-                                                keyword = item.keyword
-                                            )
+                                                keyword = item.keyword,
+                                            ),
                                         )
                                     },
-                                    item = item
+                                    item = item,
                                 )
                             }
                         }

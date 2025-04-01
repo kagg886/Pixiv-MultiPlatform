@@ -7,5 +7,5 @@ import kotlin.experimental.ExperimentalTypeInference
 @OverloadResolutionByLambdaReturnType
 inline fun Modifier.ifThen(
     condition: Boolean,
-    modifier: Modifier.Companion.() -> Modifier?
+    modifier: Modifier.Companion.() -> Modifier?,
 ): Modifier = if (condition) this.then(modifier(Modifier.Companion) ?: Modifier) else this

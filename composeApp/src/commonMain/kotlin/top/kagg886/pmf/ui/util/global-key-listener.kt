@@ -25,7 +25,7 @@ fun KeyListenerFromGlobalPipe(block: suspend (KeyEvent) -> Unit) {
 
 fun keyboardScrollerController(
     scrollableState: ScrollableState,
-    viewPortHeightFunc: () -> Float
+    viewPortHeightFunc: () -> Float,
 ): suspend (KeyEvent) -> Unit {
     return block@{
         val viewPortHeight = viewPortHeightFunc()

@@ -21,7 +21,7 @@ fun HistoryItem(
     modifier: Modifier = Modifier,
     onHistoryDelete: () -> Unit,
     onHistoryClicked: () -> Unit,
-    item: SearchHistory
+    item: SearchHistory,
 ) {
     ListItem(
         modifier = modifier.clickable(onClick = onHistoryClicked),
@@ -40,17 +40,16 @@ fun HistoryItem(
                     label = {
                         Text(item.initialSort.toDisplayString())
                     },
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
                 SuggestionChip(
                     onClick = {},
                     label = {
                         Text(item.initialTarget.toDisplayString())
                     },
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 )
             }
         },
     )
-
 }

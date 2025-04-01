@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.plus
@@ -16,16 +17,16 @@ import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import kotlin.coroutines.CoroutineContext
 
-abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>, ViewModel(),
+abstract class AuthorFetchViewModel :
+    ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>,
+    ViewModel(),
     ScreenModel {
     private val scope = viewModelScope + Dispatchers.IO
 
     protected val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<User>? = null
-
 
     override val container: Container<AuthorFetchViewState, AuthorFetchSideEffect> =
         container(AuthorFetchViewState.Loading) {
@@ -44,7 +45,7 @@ abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, Author
         reduce {
             AuthorFetchViewState.ShowAuthorList(
                 repo!!.take(20).toList(),
-                noMoreData = repo!!.noMoreData
+                noMoreData = repo!!.noMoreData,
             )
         }
     }
@@ -55,14 +56,14 @@ abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, Author
             reduce {
                 state.copy(
                     data = state.data + repo!!.take(20).toList(),
-                    noMoreData = repo!!.noMoreData
+                    noMoreData = repo!!.noMoreData,
                 )
             }
         }
     }
 
     @OptIn(OrbitExperimental::class)
-    fun followUser(author: User,private: Boolean = false) = intent {
+    fun followUser(author: User, private: Boolean = false) = intent {
         runOn<AuthorFetchViewState.ShowAuthorList> {
             val result = kotlin.runCatching {
                 client.followUser(author.id, if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
@@ -85,7 +86,7 @@ abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, Author
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -111,7 +112,7 @@ abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, Author
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -123,7 +124,7 @@ sealed class AuthorFetchViewState {
     data class ShowAuthorList(
         val data: List<User>,
         val noMoreData: Boolean = false,
-        val scrollerState: LazyListState = LazyListState()
+        val scrollerState: LazyListState = LazyListState(),
     ) : AuthorFetchViewState()
 }
 

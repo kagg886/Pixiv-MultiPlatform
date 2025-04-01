@@ -12,6 +12,9 @@ import com.github.panpf.sketch.request.execute
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlin.collections.set
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,12 +45,12 @@ import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.logger
-import kotlin.collections.set
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
-    ContainerHost<NovelDetailViewState, NovelDetailSideEffect>, KoinComponent {
+class NovelDetailViewModel(val id: Long) :
+    ViewModel(),
+    ScreenModel,
+    ContainerHost<NovelDetailViewState, NovelDetailSideEffect>,
+    KoinComponent {
     override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
         container(NovelDetailViewState.Loading(MutableStateFlow("Loading...")))
     private val client = PixivConfig.newAccountFromConfig()
@@ -85,7 +88,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             return@intent
         }
 
-        //异步获取image
+        // 异步获取image
         coroutineScope {
             var parsed by atomic(0)
             for ((index, i) in data.getOrThrow().withIndex()) {
@@ -93,7 +96,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                     is JumpUriNode -> {
                         nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
                         parsed++
-                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                     }
 
                     is UploadImageNode -> {
@@ -102,7 +105,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             NovelImagesSize.N1200x1200,
                             NovelImagesSize.N128x128,
                             NovelImagesSize.NOriginal,
-                            NovelImagesSize.N240Mw
+                            NovelImagesSize.N240Mw,
                         )
                         val img = priority.firstNotNullOf {
                             kotlin.runCatching {
@@ -117,7 +120,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                                 NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
 
                             parsed++
-                            loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                            loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
 
                             continue
                         }
@@ -128,37 +131,36 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                         launch {
                             val illust = client.getIllustDetail(i.id.toLong())
                             nodeMap[index] = NovelNodeElement.PixivImage(
-                                illust
+                                illust,
                             )
                             parsed++
-                            loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                            loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                         }
                     }
 
                     is NewPageNode -> {
                         nodeMap[index] = NovelNodeElement.NewPage(index + 1)
                         parsed++
-                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                     }
 
                     is TextNode -> {
                         nodeMap[index] = NovelNodeElement.Plain(i.text.toPlainString())
                         parsed++
-                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                     }
 
                     is TitleNode -> {
                         nodeMap[index] = NovelNodeElement.Title(i.text.toPlainString())
                         parsed++
-                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                     }
 
                     is JumpPageNode -> {
                         nodeMap[index] = NovelNodeElement.JumpPage(i.page)
                         parsed++
-                        loading.text.emit("解析小说节点中...${parsed}/${data.getOrThrow().size}")
+                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
                     }
-
                 }
             }
         }
@@ -166,7 +168,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             NovelDetailViewState.Success(
                 detail,
                 content,
-                nodeMap.toList().sortedBy { it.first }.map { it.second }
+                nodeMap.toList().sortedBy { it.first }.map { it.second },
             )
         }
         if (AppConfig.recordNovelHistory) {
@@ -183,7 +185,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                 file = Buffer().write(img.get(with(state.novel.imageUrls) { original ?: contentLarge }).bodyAsBytes()),
                 extension = "png",
                 mediaType = "image/png",
-                properties = "cover-image"
+                properties = "cover-image",
             )
 
             val inlineImages = state.nodeMap.map {
@@ -193,7 +195,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             it to ResourceItem(
                                 file = Buffer().write(img.post(it.illust.imageUrls.content).bodyAsBytes()),
                                 extension = "png",
-                                mediaType = "image/png"
+                                mediaType = "image/png",
                             )
                         }
 
@@ -201,7 +203,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                             it to ResourceItem(
                                 file = Buffer().write(img.post(it.url).bodyAsBytes()),
                                 extension = "png",
-                                mediaType = "image/png"
+                                mediaType = "image/png",
                             )
                         }
 
@@ -262,7 +264,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             val docResource = ResourceItem(
                 file = Buffer().write(doc.html().encodeToByteArray()),
                 extension = "html",
-                mediaType = "application/xhtml+xml"
+                mediaType = "application/xhtml+xml",
             )
 
             val epub = EpubBuilder(cachePath.resolve(Uuid.random().toHexString())) {
@@ -294,7 +296,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
     @OptIn(OrbitExperimental::class)
     fun likeNovel(
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
-        tags: List<Tag>? = null
+        tags: List<Tag>? = null,
     ) = intent {
         runOn<NovelDetailViewState.Success> {
             val result = kotlin.runCatching {
@@ -310,7 +312,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             }
             reduce {
                 state.copy(
-                    novel = state.novel.copy(isBookmarked = true)
+                    novel = state.novel.copy(isBookmarked = true),
                 )
             }
             postSideEffect(NovelDetailSideEffect.Toast("收藏成功~"))
@@ -330,7 +332,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             }
             reduce {
                 state.copy(
-                    novel = state.novel.copy(isBookmarked = false)
+                    novel = state.novel.copy(isBookmarked = false),
                 )
             }
             postSideEffect(NovelDetailSideEffect.Toast("取消收藏成功~"))
@@ -343,7 +345,7 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
             val result = kotlin.runCatching {
                 client.followUser(
                     state.novel.user.id,
-                    publicity = if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC
+                    publicity = if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC,
                 )
             }
             if (result.isFailure) {
@@ -359,9 +361,9 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                 state.copy(
                     novel = state.novel.copy(
                         user = state.novel.user.copy(
-                            isFollowed = true
-                        )
-                    )
+                            isFollowed = true,
+                        ),
+                    ),
                 )
             }
         }
@@ -382,9 +384,9 @@ class NovelDetailViewModel(val id: Long) : ViewModel(), ScreenModel,
                 state.copy(
                     novel = state.novel.copy(
                         user = state.novel.user.copy(
-                            isFollowed = false
-                        )
-                    )
+                            isFollowed = false,
+                        ),
+                    ),
                 )
             }
         }

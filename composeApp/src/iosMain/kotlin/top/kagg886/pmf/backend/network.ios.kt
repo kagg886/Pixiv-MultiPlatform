@@ -1,6 +1,5 @@
 package top.kagg886.pmf.backend
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.engine.darwin.*
@@ -29,7 +28,6 @@ private val InternalType: HttpClientConfig<DarwinClientEngineConfig>.() -> Unit 
                             put("HTTPEnable", true)
                             put("HTTPProxy", config.host)
                             put("HTTPPort", config.port)
-
 
                             put("HTTPSEnable", true)
                             put("HTTPSProxy", config.host)

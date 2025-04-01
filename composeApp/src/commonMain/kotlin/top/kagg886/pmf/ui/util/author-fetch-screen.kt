@@ -68,7 +68,7 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                 },
                 modifier = Modifier
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 if (state.data.isEmpty()) {
                     ErrorPage(text = "页面为空") {
@@ -85,7 +85,7 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                             user = it,
                             onFavoritePrivateClick = {
                                 model.followUser(it, true)
-                            }
+                            },
                         ) { isRequestFavorite ->
                             if (isRequestFavorite) {
                                 model.followUser(it).join()
@@ -108,13 +108,13 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了"
+                            text = "没有更多了",
                         )
                     }
                 }
                 VerticalScrollbar(
                     adapter = rememberScrollbarAdapter(scroll),
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(4.dp)
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(4.dp),
                 )
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
@@ -131,7 +131,7 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                         }.invokeOnCompletion {
                             refresh = false
                         }
-                    }
+                    },
                 )
             }
         }

@@ -19,7 +19,6 @@ class TagsFetchViewModel(
 
     private var repo: InfinityRepository<FavoriteTags>? = null
 
-
     override val container: Container<TagsFetchViewState, TagsFetchSideEffect> =
         container(TagsFetchViewState.Loading) {
             initTags()
@@ -32,7 +31,6 @@ class TagsFetchViewModel(
             page++
             return res
         }
-
     }
 
     fun initTags(pullDown: Boolean = false) = intent {
@@ -45,7 +43,7 @@ class TagsFetchViewModel(
         reduce {
             TagsFetchViewState.ShowTagsList(
                 repo!!.take(20).toList(),
-                noMoreData = repo!!.noMoreData
+                noMoreData = repo!!.noMoreData,
             )
         }
     }
@@ -56,7 +54,7 @@ class TagsFetchViewModel(
             reduce {
                 state.copy(
                     data = state.data + repo!!.take(20).toList(),
-                    noMoreData = repo!!.noMoreData
+                    noMoreData = repo!!.noMoreData,
                 )
             }
         }
@@ -67,7 +65,7 @@ class TagsFetchViewModel(
         runOn<TagsFetchViewState.ShowTagsList> {
             reduce {
                 state.copy(
-                    selectedTagsFilter = TagFilter.FilterWithTag(Tag(tags.name))
+                    selectedTagsFilter = TagFilter.FilterWithTag(Tag(tags.name)),
                 )
             }
         }
@@ -78,7 +76,7 @@ class TagsFetchViewModel(
         runOn<TagsFetchViewState.ShowTagsList> {
             reduce {
                 state.copy(
-                    selectedTagsFilter = TagFilter.NoFilter
+                    selectedTagsFilter = TagFilter.NoFilter,
                 )
             }
         }
@@ -89,7 +87,7 @@ class TagsFetchViewModel(
         runOn<TagsFetchViewState.ShowTagsList> {
             reduce {
                 state.copy(
-                    selectedTagsFilter = TagFilter.FilterWithoutTagged
+                    selectedTagsFilter = TagFilter.FilterWithoutTagged,
                 )
             }
         }

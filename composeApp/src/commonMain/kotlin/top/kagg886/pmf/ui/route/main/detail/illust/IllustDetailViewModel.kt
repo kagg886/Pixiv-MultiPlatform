@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.github.panpf.sketch.fetch.newBase64Uri
-import com.github.panpf.sketch.util.Uri
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -44,16 +43,16 @@ import top.kagg886.pmf.util.writeBytes
 
 class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,
-    ViewModel(), ScreenModel, KoinComponent {
+    ViewModel(),
+    ScreenModel,
+    KoinComponent {
     override val container: Container<IllustDetailViewState, IllustDetailSideEffect> =
         container(IllustDetailViewState.Loading()) {
             load()
         }
 
-
     private val client = PixivConfig.newAccountFromConfig()
     private val net by inject<HttpClient>()
-
 
     fun load(showLoading: Boolean = true) = intent {
         val loadingState = IllustDetailViewState.Loading()
@@ -89,7 +88,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                             progress {
                                 when (it) {
                                     is GIFMakingStep.CompressImage -> loadingState.data.tryEmit("处理动图像素帧: ${it.done} / ${it.total}")
-                                    is GIFMakingStep.WritingData ->  loadingState.data.tryEmit("写出动图: ${it.done} / ${it.total}")
+                                    is GIFMakingStep.WritingData -> loadingState.data.tryEmit("写出动图: ${it.done} / ${it.total}")
                                 }
                             }
 
@@ -111,7 +110,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             reduce {
                 loadingState.data.tryEmit("编码gif中")
                 gif.source().use {
-                    IllustDetailViewState.Success.GIF(illust, newBase64Uri("image/gif",it.buffer().readByteString().base64()) )
+                    IllustDetailViewState.Success.GIF(illust, newBase64Uri("image/gif", it.buffer().readByteString().base64()))
                 }
             }
             saveDataBase(illust)
@@ -139,7 +138,6 @@ class IllustDetailViewModel(private val illust: Illust) :
                 IllustDetailViewState.Success.Normal(i)
             }
         }
-
     }
 
 //    fun loadByIllustId(id: Long, silent: Boolean = true) = intent {
@@ -176,15 +174,15 @@ class IllustDetailViewModel(private val illust: Illust) :
             IllustHistory(
                 id = i.id,
                 illust = i,
-                createTime = Clock.System.now().toEpochMilliseconds()
-            )
+                createTime = Clock.System.now().toEpochMilliseconds(),
+            ),
         )
     }
 
     @OptIn(OrbitExperimental::class)
     fun likeIllust(
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
-        tags: List<Tag>? = null
+        tags: List<Tag>? = null,
     ) = intent {
         runOn<IllustDetailViewState.Success> {
             val result = kotlin.runCatching {
@@ -203,7 +201,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                 when (val s = state) {
                     is IllustDetailViewState.Success.Normal -> {
                         s.copy(
-                            illust = state.illust.copy(isBookMarked = true)
+                            illust = state.illust.copy(isBookMarked = true),
                         )
                     }
 
@@ -229,7 +227,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                 when (val s = state) {
                     is IllustDetailViewState.Success.Normal -> {
                         s.copy(
-                            illust = state.illust.copy(isBookMarked = false)
+                            illust = state.illust.copy(isBookMarked = false),
                         )
                     }
 
@@ -246,7 +244,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             val result = kotlin.runCatching {
                 client.followUser(
                     state.illust.user.id,
-                    if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC
+                    if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC,
                 )
             }
             if (result.isFailure) {
@@ -264,9 +262,9 @@ class IllustDetailViewModel(private val illust: Illust) :
                         s.copy(
                             illust = state.illust.copy(
                                 user = state.illust.user.copy(
-                                    isFollowed = true
-                                )
-                            )
+                                    isFollowed = true,
+                                ),
+                            ),
                         )
                     }
 
@@ -300,9 +298,9 @@ class IllustDetailViewModel(private val illust: Illust) :
                         s.copy(
                             illust = state.illust.copy(
                                 user = state.illust.user.copy(
-                                    isFollowed = false
-                                )
-                            )
+                                    isFollowed = false,
+                                ),
+                            ),
                         )
                     }
 

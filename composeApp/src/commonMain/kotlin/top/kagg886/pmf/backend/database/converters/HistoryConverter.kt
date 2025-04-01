@@ -6,11 +6,8 @@ import kotlinx.serialization.json.Json
 
 class HistoryConverter {
     @TypeConverter
-    fun stringToListString(value: String): List<String> {
-        return Json.decodeFromString(value)
-    }
+    fun stringToListString(value: String): List<String> = Json.decodeFromString(value)
+
     @TypeConverter
-    fun listStringToString(value:List<String>): String {
-        return Json.encodeToString(value)
-    }
+    fun listStringToString(value: List<String>): String = Json.encodeToString(value)
 }

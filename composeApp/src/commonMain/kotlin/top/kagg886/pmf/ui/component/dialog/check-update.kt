@@ -60,7 +60,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         TextButton(
                             onClick = {
                                 handler.openUri(uri.download)
-                            }
+                            },
                         ) {
                             Text("下载")
                         }
@@ -70,12 +70,12 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                             TextButton(
                                 onClick = {
                                     updateModel.dismiss()
-                                }
+                                },
                             ) {
                                 Text("当前版本不再提示")
                             }
                         }
-                    }
+                    },
                 )
             }
         }

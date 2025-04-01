@@ -1,29 +1,29 @@
 import io.ktor.utils.io.*
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
 import kotlinx.io.readByteArray
 import okio.*
-import kotlin.random.Random
-import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
 
 class ByteReadChannelReadTest {
     private val clock = Random(Clock.System.now().toEpochMilliseconds())
+
     @Test
     fun testRead() {
         val test = clock.nextBytes(512)
         val okioSource = ByteReadChannel(test).asOkioSource()
         val buf = Buffer()
 
-        val rd = okioSource.read(buf,2048)
-        assertEquals(512,rd)
-        val rd1 = okioSource.read(buf,2048)
-        assertEquals(-1,rd1)
+        val rd = okioSource.read(buf, 2048)
+        assertEquals(512, rd)
+        val rd1 = okioSource.read(buf, 2048)
+        assertEquals(-1, rd1)
     }
-
 
     @Test
     fun testReadAsOkio(): Unit = runBlocking {
@@ -34,7 +34,6 @@ class ByteReadChannelReadTest {
         assertContentEquals(test, okioSource.buffer().use { it.readByteArray() })
         println("test complete")
     }
-
 
     private fun ByteReadChannel.asOkioSource(): Source {
         val channel = this
@@ -58,5 +57,4 @@ class ByteReadChannelReadTest {
             override fun timeout(): Timeout = Timeout.NONE
         }
     }
-
 }

@@ -4,8 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -73,7 +71,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                 },
                 modifier = Modifier
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 if (state.novels.isEmpty()) {
                     ErrorPage(text = "页面为空") {
@@ -85,7 +83,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                 }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
-                    state = scroll
+                    state = scroll,
                 ) {
                     items(state.novels, key = { it.id }) {
                         Column {
@@ -97,7 +95,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = R18,
                                                 contentDescription = null,
-                                                tint = Color.Red
+                                                tint = Color.Red,
                                             )
                                         }
                                         if (it.isR18G) {
@@ -105,7 +103,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = R18G,
                                                 contentDescription = null,
-                                                tint = Color.Red
+                                                tint = Color.Red,
                                             )
                                         }
                                         if (it.isAI) {
@@ -113,7 +111,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = Robot,
                                                 contentDescription = null,
-                                                tint = Color.Yellow
+                                                tint = Color.Yellow,
                                             )
                                         }
                                         if (!it.series.isNull) {
@@ -131,7 +129,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     ProgressedAsyncImage(
                                         url = it.imageUrls.content,
                                         contentScale = ContentScale.FillHeight,
-                                        modifier = Modifier.widthIn(max = 70.dp).height(90.dp).padding(8.dp)
+                                        modifier = Modifier.widthIn(max = 70.dp).height(90.dp).padding(8.dp),
                                     )
                                 },
                                 trailingContent = {
@@ -148,7 +146,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                             },
                                             cancel = {
                                                 betterFavoriteDialog = false
-                                            }
+                                            },
                                         )
                                     }
                                     FavoriteButton(
@@ -162,12 +160,12 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         },
                                         onDoubleClick = {
                                             betterFavoriteDialog = true
-                                        }
+                                        },
                                     )
                                 },
                                 modifier = Modifier.padding(5.dp).clickable {
                                     nav.push(NovelDetailScreen(it.id.toLong()))
-                                }
+                                },
                             )
                         }
                     }
@@ -184,14 +182,14 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了"
+                            text = "没有更多了",
                         )
                     }
                 }
 
                 VerticalScrollbar(
                     adapter = rememberScrollbarAdapter(scroll),
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp)
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp),
                 )
 
                 BackToTopOrRefreshButton(
@@ -209,7 +207,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                         }.invokeOnCompletion {
                             isRefresh = false
                         }
-                    }
+                    },
                 )
             }
         }

@@ -24,7 +24,7 @@ import top.kagg886.pmf.ui.util.*
 class SearchResultScreen(
     private val keyword: List<String>,
     private val sort: SearchSort,
-    private val target: SearchTarget
+    private val target: SearchTarget,
 ) : Screen {
     @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
     @Composable
@@ -60,24 +60,24 @@ class SearchResultScreen(
                         IconButton(
                             onClick = {
                                 navigator.pop()
-                            }
+                            },
                         ) {
                             Icon(Icons.AutoMirrored.Default.ArrowBack, null)
                         }
-                    }
+                    },
                 )
-            }
+            },
         ) { paddingValues ->
             val data = listOfNotNull<Pair<String, @Composable (() -> Unit)>>(
                 state.illustRepo?.let { "插画" to { IllustFetchScreen(it) } },
                 state.novelRepo?.let { "小说" to { NovelFetchScreen(it) } },
-                state.authorRepo?.let { "用户" to { AuthorFetchScreen(it) } }
+                state.authorRepo?.let { "用户" to { AuthorFetchScreen(it) } },
             )
 
             TabContainer(
                 state = tab,
                 tab = data.map { pair -> pair.first },
-                modifier = Modifier.padding(paddingValues)
+                modifier = Modifier.padding(paddingValues),
             ) { index ->
                 data[index].second.invoke()
             }

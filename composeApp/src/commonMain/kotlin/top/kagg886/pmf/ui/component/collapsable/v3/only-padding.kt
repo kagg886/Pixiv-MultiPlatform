@@ -14,7 +14,7 @@ fun PaddingValues.only(sides: PaddingValuesSides): PaddingValues = OnlyPaddingVa
 
 private class OnlyPaddingValues(
     private val delegate: PaddingValues,
-    private val sides: PaddingValuesSides
+    private val sides: PaddingValuesSides,
 ) : PaddingValues {
     override fun calculateBottomPadding(): Dp {
         if (sides.hasAny(PaddingValuesSides.Bottom)) {
@@ -67,11 +67,9 @@ value class PaddingValuesSides private constructor(private val value: Int) {
      * Returns a [PaddingValuesSides] containing sides defied in [sides] and the
      * sides in `this`.
      */
-    operator fun plus(sides: PaddingValuesSides): PaddingValuesSides =
-        PaddingValuesSides(value or sides.value)
+    operator fun plus(sides: PaddingValuesSides): PaddingValuesSides = PaddingValuesSides(value or sides.value)
 
-    internal fun hasAny(sides: PaddingValuesSides): Boolean =
-        (value and sides.value) != 0
+    internal fun hasAny(sides: PaddingValuesSides): Boolean = (value and sides.value) != 0
 
     override fun toString(): String = "PaddingValuesSides(${valueToString()})"
 

@@ -42,12 +42,12 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.*
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.scroll.v2.*
-import kotlin.math.roundToInt
 
 /**
  * [CompositionLocal] used to pass [ScrollbarStyle] down the tree.
@@ -67,7 +67,7 @@ data class ScrollbarStyle(
     val shape: Shape,
     val hoverDurationMillis: Int,
     val unhoverColor: Color,
-    val hoverColor: Color
+    val hoverColor: Color,
 )
 
 /**
@@ -79,7 +79,7 @@ fun defaultScrollbarStyle() = ScrollbarStyle(
     shape = RoundedCornerShape(4.dp),
     hoverDurationMillis = 300,
     unhoverColor = Color.Black.copy(alpha = 0.12f),
-    hoverColor = Color.Black.copy(alpha = 0.50f)
+    hoverColor = Color.Black.copy(alpha = 0.50f),
 )
 
 /**
@@ -112,23 +112,25 @@ fun defaultScrollbarStyle() = ScrollbarStyle(
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
-@Deprecated("Use VerticalScrollbar(" +
+@Deprecated(
+    "Use VerticalScrollbar(" +
         "adapter: top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter)" +
-        " instead")
+        " instead",
+)
 @Composable
 fun VerticalScrollbar(
     @Suppress("DEPRECATION") adapter: ScrollbarAdapter,
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = OldScrollbar(
     adapter,
     modifier,
     reverseLayout,
     style,
     interactionSource,
-    isVertical = true
+    isVertical = true,
 )
 
 /**
@@ -161,22 +163,24 @@ fun VerticalScrollbar(
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  * [DragInteraction.Start] when this Scrollbar is being dragged.
  */
-@Deprecated("Use HorizontalScrollbar(" +
-        "adapter: top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter) instead")
+@Deprecated(
+    "Use HorizontalScrollbar(" +
+        "adapter: top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter) instead",
+)
 @Composable
 fun HorizontalScrollbar(
     @Suppress("DEPRECATION") adapter: ScrollbarAdapter,
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = OldScrollbar(
     adapter,
     modifier,
     if (LocalLayoutDirection.current == LayoutDirection.Rtl) !reverseLayout else reverseLayout,
     style,
     interactionSource,
-    isVertical = false
+    isVertical = false,
 )
 
 @Suppress("DEPRECATION")
@@ -187,7 +191,7 @@ private fun OldScrollbar(
     reverseLayout: Boolean,
     style: ScrollbarStyle,
     interactionSource: MutableInteractionSource,
-    isVertical: Boolean
+    isVertical: Boolean,
 ) = OldOrNewScrollbar(
     oldOrNewAdapter = oldAdapter,
     newScrollbarAdapterFactory = ScrollbarAdapter::asNewAdapter,
@@ -195,7 +199,7 @@ private fun OldScrollbar(
     reverseLayout = reverseLayout,
     style = style,
     interactionSource = interactionSource,
-    isVertical = isVertical
+    isVertical = isVertical,
 )
 
 /**
@@ -235,14 +239,14 @@ fun VerticalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = NewScrollbar(
     newAdapter = adapter,
     modifier,
     reverseLayout,
     style,
     interactionSource,
-    isVertical = true
+    isVertical = true,
 )
 
 /**
@@ -282,14 +286,14 @@ fun HorizontalScrollbar(
     modifier: Modifier = Modifier,
     reverseLayout: Boolean = false,
     style: ScrollbarStyle = LocalScrollbarStyle.current,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = NewScrollbar(
     newAdapter = adapter,
     modifier,
     if (LocalLayoutDirection.current == LayoutDirection.Rtl) !reverseLayout else reverseLayout,
     style,
     interactionSource,
-    isVertical = false
+    isVertical = false,
 )
 
 @Composable
@@ -299,7 +303,7 @@ private fun NewScrollbar(
     reverseLayout: Boolean,
     style: ScrollbarStyle,
     interactionSource: MutableInteractionSource,
-    isVertical: Boolean
+    isVertical: Boolean,
 ) = OldOrNewScrollbar(
     oldOrNewAdapter = newAdapter,
     newScrollbarAdapterFactory = { adapter, _ -> adapter },
@@ -307,7 +311,7 @@ private fun NewScrollbar(
     reverseLayout = reverseLayout,
     style = style,
     interactionSource = interactionSource,
-    isVertical = isVertical
+    isVertical = isVertical,
 )
 
 private typealias NewScrollbarAdapterFactory<T> = (
@@ -355,12 +359,17 @@ internal fun <T> OldOrNewScrollbar(
 
     val minimalHeight = style.minimalHeight.toPx()
 
-    val adapter = remember(oldOrNewAdapter, containerSize){
+    val adapter = remember(oldOrNewAdapter, containerSize) {
         newScrollbarAdapterFactory(oldOrNewAdapter, containerSize)
     }
     val coroutineScope = rememberCoroutineScope()
     val sliderAdapter = remember(
-        adapter, containerSize, minimalHeight, reverseLayout, isVertical, coroutineScope
+        adapter,
+        containerSize,
+        minimalHeight,
+        reverseLayout,
+        isVertical,
+        coroutineScope,
     ) {
         SliderAdapter(adapter, containerSize, minimalHeight, reverseLayout, isVertical, coroutineScope)
     }
@@ -378,7 +387,7 @@ internal fun <T> OldOrNewScrollbar(
 
     val color by animateColorAsState(
         if (isHighlighted) style.hoverColor else style.unhoverColor,
-        animationSpec = TweenSpec(durationMillis = style.hoverDurationMillis)
+        animationSpec = TweenSpec(durationMillis = style.hoverDurationMillis),
     )
 
     val isVisible = sliderAdapter.thumbSize < containerSize
@@ -392,13 +401,13 @@ internal fun <T> OldOrNewScrollbar(
                         interactionSource = interactionSource,
                         draggedInteraction = dragInteraction,
                         sliderAdapter = sliderAdapter,
-                    )
+                    ),
             )
         },
         modifier
             .hoverable(interactionSource = interactionSource)
             .scrollOnPressTrack(isVertical, reverseLayout, sliderAdapter),
-        measurePolicy
+        measurePolicy,
     )
 }
 
@@ -408,7 +417,7 @@ internal fun <T> OldOrNewScrollbar(
  */
 private class OldScrollbarAdapterAsNew(
     @Suppress("DEPRECATION") val oldAdapter: ScrollbarAdapter,
-    private val trackSize: Int
+    private val trackSize: Int,
 ) : top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter {
 
     override val scrollOffset: Double
@@ -423,7 +432,6 @@ private class OldScrollbarAdapterAsNew(
     override suspend fun scrollTo(scrollOffset: Double) {
         oldAdapter.scrollTo(trackSize, scrollOffset.toFloat())
     }
-
 }
 
 /**
@@ -435,20 +443,20 @@ private class OldScrollbarAdapterAsNew(
  */
 @Suppress("DEPRECATION")
 private fun ScrollbarAdapter.asNewAdapter(
-    trackSize: Int
-): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter =
-    if (this is NewScrollbarAdapterAsOld)
-        this.newAdapter  // Just unwrap
-    else
-        OldScrollbarAdapterAsNew(this, trackSize)
+    trackSize: Int,
+): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = if (this is NewScrollbarAdapterAsOld) {
+    this.newAdapter // Just unwrap
+} else {
+    OldScrollbarAdapterAsNew(this, trackSize)
+}
 
 /**
  * Adapts a new scrollbar adapter to the old interface.
  */
 @Suppress("DEPRECATION")
 private class NewScrollbarAdapterAsOld(
-    val newAdapter: top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter
-): ScrollbarAdapter {
+    val newAdapter: top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter,
+) : ScrollbarAdapter {
 
     override val scrollOffset: Float
         get() = newAdapter.scrollOffset.toFloat()
@@ -457,21 +465,18 @@ private class NewScrollbarAdapterAsOld(
         newAdapter.scrollTo(scrollOffset.toDouble())
     }
 
-    override fun maxScrollOffset(containerSize: Int): Float {
-        return newAdapter.maxScrollOffset.toFloat()
-    }
-
+    override fun maxScrollOffset(containerSize: Int): Float = newAdapter.maxScrollOffset.toFloat()
 }
 
 /**
  * Converts an instance of the new scrollbar adapter to an old one.
  */
 @Suppress("DEPRECATION")
-private fun top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter.asOldAdapter(): ScrollbarAdapter =
-    if (this is OldScrollbarAdapterAsNew)
-        this.oldAdapter  // Just unwrap
-    else
-        NewScrollbarAdapterAsOld(this)
+private fun top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter.asOldAdapter(): ScrollbarAdapter = if (this is OldScrollbarAdapterAsNew) {
+    this.oldAdapter // Just unwrap
+} else {
+    NewScrollbarAdapterAsOld(this)
+}
 
 /**
  * Create and [remember] (old) [ScrollbarAdapter] for scrollable container and current instance of
@@ -481,13 +486,13 @@ private fun top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter.asOldAdapter
     message = "Use rememberScrollbarAdapter instead",
     replaceWith = ReplaceWith(
         expression = "rememberScrollbarAdapter(scrollState)",
-        "androidx.compose.foundation.rememberScrollbarAdapter"
-    )
+        "androidx.compose.foundation.rememberScrollbarAdapter",
+    ),
 )
 @Suppress("DEPRECATION")
 @Composable
 fun rememberOldScrollbarAdapter(
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ): ScrollbarAdapter = remember(scrollState) {
     OldScrollbarAdapter(scrollState)
 }
@@ -497,20 +502,18 @@ fun rememberOldScrollbarAdapter(
  * of [scrollState]
  */
 @Deprecated(
-    message ="Use rememberScrollbarAdapter instead",
+    message = "Use rememberScrollbarAdapter instead",
     replaceWith = ReplaceWith(
         expression = "rememberScrollbarAdapter(scrollState)",
-        "androidx.compose.foundation.rememberScrollbarAdapter"
-    )
+        "androidx.compose.foundation.rememberScrollbarAdapter",
+    ),
 )
 @Suppress("DEPRECATION")
 @Composable
 fun rememberOldScrollbarAdapter(
     scrollState: LazyListState,
-): ScrollbarAdapter {
-    return remember(scrollState) {
-        OldScrollbarAdapter(scrollState)
-    }
+): ScrollbarAdapter = remember(scrollState) {
+    OldScrollbarAdapter(scrollState)
 }
 
 /**
@@ -536,12 +539,12 @@ fun rememberOldScrollbarAdapter(
     message = "Use ScrollbarAdapter() instead",
     replaceWith = ReplaceWith(
         expression = "ScrollbarAdapter(scrollState)",
-        "androidx.compose.foundation.ScrollbarAdapter"
-    )
+        "androidx.compose.foundation.ScrollbarAdapter",
+    ),
 )
 @Suppress("DEPRECATION")
 fun OldScrollbarAdapter(
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ): ScrollbarAdapter = ScrollbarAdapter(scrollState).asOldAdapter()
 
 /**
@@ -567,12 +570,12 @@ fun OldScrollbarAdapter(
     message = "Use ScrollbarAdapter() instead",
     replaceWith = ReplaceWith(
         expression = "ScrollbarAdapter(scrollState)",
-        "androidx.compose.foundation.ScrollbarAdapter"
-    )
+        "androidx.compose.foundation.ScrollbarAdapter",
+    ),
 )
 @Suppress("DEPRECATION")
 fun OldScrollbarAdapter(
-    scrollState: LazyListState
+    scrollState: LazyListState,
 ): ScrollbarAdapter = ScrollbarAdapter(scrollState).asOldAdapter()
 
 /**
@@ -581,7 +584,7 @@ fun OldScrollbarAdapter(
  */
 @Composable
 fun rememberScrollbarAdapter(
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = remember(scrollState) {
     ScrollbarAdapter(scrollState)
 }
@@ -635,7 +638,7 @@ fun rememberScrollbarAdapter(
  *     }
  */
 fun ScrollbarAdapter(
-    scrollState: ScrollState
+    scrollState: ScrollState,
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = ScrollableScrollbarAdapter(scrollState)
 
 /**
@@ -658,13 +661,12 @@ fun ScrollbarAdapter(
  *     }
  */
 fun ScrollbarAdapter(
-    scrollState: LazyListState
+    scrollState: LazyListState,
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyListScrollbarAdapter(scrollState)
 
 fun ScrollbarAdapter(
-    scrollState: LazyStaggeredGridState
+    scrollState: LazyStaggeredGridState,
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyStaggerGirdListScrollbarAdapter(scrollState)
-
 
 /**
  * ScrollbarAdapter for lazy grids.
@@ -686,7 +688,7 @@ fun ScrollbarAdapter(
  *     }
  */
 fun ScrollbarAdapter(
-    scrollState: LazyGridState
+    scrollState: LazyGridState,
 ): top.kagg886.pmf.ui.component.scroll.v2.ScrollbarAdapter = LazyGridScrollbarAdapter(scrollState)
 
 /**
@@ -718,7 +720,6 @@ interface ScrollbarAdapter {
      *  (for example, it is height of ScrollableColumn if we use VerticalScrollbar)
      */
     fun maxScrollOffset(containerSize: Int): Float
-
 }
 
 private val SliderAdapter.thumbPixelRange: IntRange
@@ -734,15 +735,15 @@ private val IntRange.size get() = last + 1 - first
 private fun verticalMeasurePolicy(
     sliderAdapter: SliderAdapter,
     setContainerSize: (Int) -> Unit,
-    scrollThickness: Int
+    scrollThickness: Int,
 ) = MeasurePolicy { measurables, constraints ->
     setContainerSize(constraints.maxHeight)
     val pixelRange = sliderAdapter.thumbPixelRange
     val placeable = measurables.first().measure(
         Constraints.fixed(
             constraints.constrainWidth(scrollThickness),
-            pixelRange.size
-        )
+            pixelRange.size,
+        ),
     )
     layout(placeable.width, constraints.maxHeight) {
         placeable.place(0, pixelRange.first)
@@ -752,15 +753,15 @@ private fun verticalMeasurePolicy(
 private fun horizontalMeasurePolicy(
     sliderAdapter: SliderAdapter,
     setContainerSize: (Int) -> Unit,
-    scrollThickness: Int
+    scrollThickness: Int,
 ) = MeasurePolicy { measurables, constraints ->
     setContainerSize(constraints.maxWidth)
     val pixelRange = sliderAdapter.thumbPixelRange
     val placeable = measurables.first().measure(
         Constraints.fixed(
             pixelRange.size,
-            constraints.constrainHeight(scrollThickness)
-        )
+            constraints.constrainHeight(scrollThickness),
+        ),
     )
     layout(constraints.maxWidth, placeable.height) {
         placeable.place(pixelRange.first, 0)
@@ -810,7 +811,7 @@ private fun Modifier.scrollOnPressTrack(
     Modifier.pointerInput(scroller) {
         detectScrollViaTrackGestures(
             isVertical = isVertical,
-            scroller = scroller
+            scroller = scroller,
         )
     }
 }
@@ -857,8 +858,9 @@ private class TrackPressScroller(
     private suspend fun scrollTowardsCurrentOffset() {
         offset?.let {
             val currentDirection = directionOfScrollTowards(it)
-            if (currentDirection != direction)
+            if (currentDirection != direction) {
                 return
+            }
             with(sliderAdapter.adapter) {
                 scrollTo(scrollOffset + currentDirection * viewportSize)
             }
@@ -887,8 +889,9 @@ private class TrackPressScroller(
         this.offset = offset
         this.direction = directionOfScrollTowards(offset)
 
-        if (direction != 0)
+        if (direction != 0) {
             startScrolling()
+        }
     }
 
     /**
@@ -901,7 +904,7 @@ private class TrackPressScroller(
     /**
      * Cleans up when the gesture finishes.
      */
-    private fun cleanupAfterGesture(){
+    private fun cleanupAfterGesture() {
         job?.cancel()
         direction = 0
         offset = null
@@ -921,7 +924,6 @@ private class TrackPressScroller(
         cleanupAfterGesture()
         // Maybe revert to the initial position?
     }
-
 }
 
 /**
@@ -930,7 +932,7 @@ private class TrackPressScroller(
  */
 private suspend fun PointerInputScope.detectScrollViaTrackGestures(
     isVertical: Boolean,
-    scroller: TrackPressScroller
+    scroller: TrackPressScroller,
 ) {
     fun Offset.onScrollAxis() = if (isVertical) y else x
 
@@ -940,10 +942,11 @@ private suspend fun PointerInputScope.detectScrollViaTrackGestures(
 
         while (true) {
             val drag =
-                if (isVertical)
+                if (isVertical) {
                     awaitVerticalDragOrCancellation(down.id)
-                else
+                } else {
                     awaitHorizontalDragOrCancellation(down.id)
+                }
 
             if (drag == null) {
                 scroller.onGestureCancelled()
@@ -951,8 +954,9 @@ private suspend fun PointerInputScope.detectScrollViaTrackGestures(
             } else if (!drag.pressed) {
                 scroller.onRelease()
                 break
-            } else
+            } else {
                 scroller.onMovePressed(drag.position.onScrollAxis())
+            }
         }
     }
 }

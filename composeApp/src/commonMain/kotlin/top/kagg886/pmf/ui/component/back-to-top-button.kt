@@ -26,7 +26,7 @@ import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 enum class BackToTopState {
     HIDE,
     SHOW_BTT,
-    SHOW_RFH
+    SHOW_RFH,
 }
 
 @Composable
@@ -51,19 +51,19 @@ fun BackToTopOrRefreshButton(
         modifier = modifier,
         transitionSpec = {
             slideInVertically { it / 2 } + fadeIn() togetherWith
-                    slideOutVertically { it / 2 } + fadeOut()
-        }
+                slideOutVertically { it / 2 } + fadeOut()
+        },
     ) { state ->
         when (state) {
             HIDE -> {
-                //Android use this state
+                // Android use this state
                 KeyListenerFromGlobalPipe {
                     if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
                     if (it.key == Key.R) {
                         onRefresh()
                     }
                 }
-                Spacer(Modifier.size(56.dp,56.dp)) //placeholder
+                Spacer(Modifier.size(56.dp, 56.dp)) // placeholder
             }
             SHOW_BTT -> {
                 KeyListenerFromGlobalPipe {
@@ -77,7 +77,7 @@ fun BackToTopOrRefreshButton(
                         scope.launch {
                             onBackToTop()
                         }
-                    }
+                    },
                 ) {
                     Icon(Icons.Default.KeyboardArrowUp, null)
                 }
@@ -95,7 +95,7 @@ fun BackToTopOrRefreshButton(
                         scope.launch {
                             onRefresh()
                         }
-                    }
+                    },
                 ) {
                     Icon(Icons.Default.Refresh, null)
                 }

@@ -3,11 +3,11 @@ package top.kagg886.pmf.util
 import kotlin.jvm.JvmInline
 import kotlin.math.roundToInt
 
-//值为byte
+// 值为byte
 @JvmInline
 value class Size(val bytes: Long) : Comparable<Size> {
 
-    private fun Float.formatToString(count:Int):String {
+    private fun Float.formatToString(count: Int): String {
         val str = this.toString()
         if (!str.contains(".")) {
             return this.roundToInt().toString()
@@ -17,12 +17,10 @@ value class Size(val bytes: Long) : Comparable<Size> {
         }
     }
 
-    override fun toString(): String {
-        return when {
-            bytes < 1024 -> "$bytes B"
-            bytes < 1024 * 1024 -> "${kb.formatToString(2)} MB"
-            else -> "${mb.formatToString(2)} MB"
-        }
+    override fun toString(): String = when {
+        bytes < 1024 -> "$bytes B"
+        bytes < 1024 * 1024 -> "${kb.formatToString(2)} MB"
+        else -> "${mb.formatToString(2)} MB"
     }
 
     val kb: Float
@@ -30,13 +28,9 @@ value class Size(val bytes: Long) : Comparable<Size> {
     val mb: Float
         get() = kb / 1024f
 
-    override fun compareTo(other: Size): Int {
-        return bytes.compareTo(other.bytes)
-    }
+    override fun compareTo(other: Size): Int = bytes.compareTo(other.bytes)
 
-    operator fun contains(other: LongRange): Boolean {
-        return bytes in other
-    }
+    operator fun contains(other: LongRange): Boolean = bytes in other
 
     operator fun rangeTo(other: Size): ClosedRange<Long> = ClosedSizeRange(this.bytes, other.bytes)
 }
@@ -52,5 +46,5 @@ val Number.b: Size
 
 class ClosedSizeRange(
     private val a: Long,
-    private val b: Long
+    private val b: Long,
 ) : ClosedRange<Long> by LongRange(a, b)

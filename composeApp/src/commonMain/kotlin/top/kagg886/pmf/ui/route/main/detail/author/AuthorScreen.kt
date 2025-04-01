@@ -23,6 +23,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlin.math.max
+import kotlin.math.min
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.openBrowser
@@ -37,8 +39,6 @@ import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
-import kotlin.math.max
-import kotlin.math.min
 
 open class AuthorScreen(open val id: Int) : Screen {
 
@@ -95,7 +95,6 @@ open class AuthorScreen(open val id: Int) : Screen {
                     }
                 }
 
-
                 var infoDialog by remember {
                     mutableStateOf(false)
                 }
@@ -115,7 +114,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                             Box(Modifier.fillMaxHeight(0.8f)) {
                                 AuthorProfile(state.user)
                             }
-                        }
+                        },
                     )
                 }
 
@@ -126,7 +125,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                             if (preview && state.user.profile.backgroundImageUrl != null) {
                                 ImagePreviewer(
                                     url = listOf(state.user.profile.backgroundImageUrl!!),
-                                    onDismiss = { preview = false }
+                                    onDismiss = { preview = false },
                                 )
                             }
 
@@ -136,7 +135,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                                 modifier = Modifier.fillMaxSize()
                                     .clickable(interactionSource = MutableInteractionSource(), indication = null) {
                                         preview = true
-                                    }
+                                    },
                             )
                             AuthorCard(
                                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),
@@ -146,7 +145,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                                 },
                                 onFavoritePrivateClick = {
                                     model.followUser(true).join()
-                                }
+                                },
                             ) {
                                 if (it) {
                                     model.followUser().join()
@@ -180,32 +179,32 @@ open class AuthorScreen(open val id: Int) : Screen {
                                 },
                                 onClick = {
                                     openBrowser(
-                                        "https://www.pixiv.net/users/${state.user.user.id}"
+                                        "https://www.pixiv.net/users/${state.user.user.id}",
                                     )
                                     show = false
-                                }
+                                },
                             )
                         }
                         IconButton(
                             onClick = {
                                 show = true
-                            }
+                            },
                         ) {
                             Icon(Icons.Default.Menu, null)
                         }
                     },
                     title = {
                         Text(state.user.user.name)
-                    }
+                    },
                 ) {
                     Column(it) {
                         ScrollableTabRow(
                             selectedTabIndex = pager.currentPage,
                             modifier = Modifier.fillMaxWidth(),
-                            divider = {}
+                            divider = {},
                         ) {
                             val scope = rememberCoroutineScope()
-                            //插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
+                            // 插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
                             val tabList = listOf("插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
                             tabList.forEachIndexed { index, s ->
                                 Tab(
@@ -215,16 +214,17 @@ open class AuthorScreen(open val id: Int) : Screen {
                                         scope.launch {
                                             pager.animateScrollToPage(index)
                                         }
-                                    }) {
+                                    },
+                                ) {
                                     Text(s)
                                 }
                             }
                         }
-                        //修复电脑端滚轮
+                        // 修复电脑端滚轮
                         CompositionLocalProvider(LocalConnectedStateKey provides this@CollapsableTopAppBarScaffold.connectedScrollState) {
                             HorizontalPager(
                                 state = pager,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
                             ) { index ->
                                 when (index) {
                                     0 -> AuthorIllust(state.user)

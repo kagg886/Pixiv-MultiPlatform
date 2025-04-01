@@ -9,6 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
+import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
@@ -28,13 +29,13 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.*
-import kotlin.time.Duration.Companion.hours
 
-fun DownloadItem.downloadRootPath(): Path {
-    return dataPath.resolve("download").resolve(id.toString())
-}
+fun DownloadItem.downloadRootPath(): Path = dataPath.resolve("download").resolve(id.toString())
 
-class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSideEffect>, ViewModel(), ScreenModel,
+class DownloadScreenModel :
+    ContainerHost<DownloadScreenState, DownloadScreenSideEffect>,
+    ViewModel(),
+    ScreenModel,
     KoinComponent {
     private val database by inject<AppDatabase>()
 
@@ -55,32 +56,32 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 postSideEffect(DownloadScreenSideEffect.Toast("下载已开始，是否跳转到下载页？", true))
                 val dao = database.downloadDAO()
 
-                //查找历史记录任务，若无任务的话则新建任务并插入
+                // 查找历史记录任务，若无任务的话则新建任务并插入
                 val task = dao.find(illust.id.toLong())?.copy(success = false) ?: DownloadItem(
                     id = illust.id.toLong(),
                     illust = illust,
-                    success = false
+                    success = false,
                 ).apply {
                     logger.d("create a record for illust:${illust.id} where not exists in database")
                     dao.insert(this)
                 }
 
-                //获取下载的根目录
+                // 获取下载的根目录
                 val file = task.downloadRootPath()
                 logger.d("the illust:${illust.id} will be download to $file")
                 if (file.exists()) {
                     logger.d("the illust:${illust.id} has been downloaded, delete it")
-                    //有的话就递归删除重下
+                    // 有的话就递归删除重下
                     file.deleteRecursively()
                 }
                 file.mkdirs()
 
-                //获取所有下载链接
+                // 获取所有下载链接
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
 
                 logger.d("the illust:${illust.id}'s download link: $urls")
 
-                //更新DAO层
+                // 更新DAO层
                 dao.update(task.copy(progress = 0f))
                 val result = kotlin.runCatching {
                     coroutineScope {
@@ -102,7 +103,7 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                                     lock.withLock { size += length }
                                     logger.d("the illust:${illust.id}'s download link: $it, length is: $length")
 
-                                    val source = resp.bodyAsChannel().asOkioSource() //closed when around execute block
+                                    val source = resp.bodyAsChannel().asOkioSource() // closed when around execute block
                                     val sink = file.resolve("$index.png").sink().buffer()
 
                                     sink.use {
@@ -117,8 +118,8 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                                                 download += len
                                                 dao.update(
                                                     task.copy(
-                                                        progress = download.toFloat() / size.toFloat()
-                                                    )
+                                                        progress = download.toFloat() / size.toFloat(),
+                                                    ),
                                                 )
 //                                                logger.d("the illust:${illust.id}'s progress: ${download.toFloat() / size.toFloat()}")
                                             }
@@ -130,10 +131,10 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                     }
                 }
 
-                //移除注册的任务
+                // 移除注册的任务
                 jobs.remove(illust.id.toLong())
                 if (result.isFailure) {
-                    //失败则报错
+                    // 失败则报错
                     dao.update(task.copy(progress = -1f))
                     logger.e(result.exceptionOrNull()!!) { "Illust: [${illust.title}(${illust.id})] download failed: ${result.exceptionOrNull()?.message}" }
                     postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载失败"))
@@ -154,17 +155,17 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
             FileKit.saveFile(
                 bytes = listFiles[0].source().buffer().readByteArray(),
                 baseName = it.illust.title,
-                extension = "png"
+                extension = "png",
             )
             return@intent
         }
         FileKit.saveFile(
             bytes = it.downloadRootPath().zip(
                 target = cachePath.resolve("share")
-                    .resolve("${it.id}.zip")
+                    .resolve("${it.id}.zip"),
             ).source().buffer().readByteArray(),
             baseName = "${it.illust.title}(${it.id})",
-            extension = "zip"
+            extension = "zip",
         )
     }
 
@@ -176,8 +177,8 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
         }
         top.kagg886.pmf.shareFile(
             it.downloadRootPath().zip(
-                target = cachePath.resolve("${it.id}.zip")
-            )
+                target = cachePath.resolve("${it.id}.zip"),
+            ),
         )
     }
 
@@ -193,7 +194,6 @@ class DownloadScreenModel : ContainerHost<DownloadScreenState, DownloadScreenSid
                 DownloadScreenState.Loaded(database.downloadDAO().all())
             }
         }
-
 }
 
 sealed class DownloadScreenState {
@@ -204,7 +204,6 @@ sealed class DownloadScreenState {
 sealed class DownloadScreenSideEffect {
     data class Toast(val msg: String, val jump: Boolean = false) : DownloadScreenSideEffect()
 }
-
 
 private fun ByteReadChannel.asOkioSource(): Source {
     val channel = this

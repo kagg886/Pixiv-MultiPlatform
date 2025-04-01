@@ -14,8 +14,11 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Comment
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 
-abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentViewState, CommentSideEffect>, ViewModel(),
-    KoinComponent, ScreenModel {
+abstract class CommentViewModel(private val id: Long) :
+    ContainerHost<CommentViewState, CommentSideEffect>,
+    ViewModel(),
+    KoinComponent,
+    ScreenModel {
     override val container: Container<CommentViewState, CommentSideEffect> = container(CommentViewState.Loading) {
         load()
     }
@@ -37,10 +40,8 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
         }
         repo = object : InfinityRepository<Comment>(scope.coroutineContext) {
             var page: Int = 1
-            override suspend fun onFetchList(): List<Comment> {
-                return fetchComments(id, page).apply {
-                    page += 1
-                }
+            override suspend fun onFetchList(): List<Comment> = fetchComments(id, page).apply {
+                page += 1
             }
         }
         reduce {
@@ -75,7 +76,7 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
                 CommentViewState.Success.Generic(
                     state.comments,
                     state.noMoreData,
-                    state.scrollerState
+                    state.scrollerState,
                 )
             }
         }
@@ -95,7 +96,7 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
                     state.scrollerState,
                     replyRepo!!.take(20).toList(),
                     replyRepo!!.noMoreData,
-                    comment
+                    comment,
                 )
             }
         }
@@ -108,7 +109,7 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
             reduce {
                 state.copy(
                     replyList = l + repo!!.take(20).toList(),
-                    replyNoMoreData = state.replyNoMoreData
+                    replyNoMoreData = state.replyNoMoreData,
                 )
             }
         }
@@ -140,14 +141,13 @@ sealed interface CommentViewState {
         data class Generic(
             override val comments: List<Comment>,
             override val noMoreData: Boolean,
-            override val scrollerState: LazyListState = LazyListState()
+            override val scrollerState: LazyListState = LazyListState(),
         ) : Success
 
         data class HasReply(
             override val comments: List<Comment>,
             override val noMoreData: Boolean,
             override val scrollerState: LazyListState,
-
 
             val replyList: List<Comment>,
             val replyNoMoreData: Boolean,

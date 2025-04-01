@@ -29,7 +29,7 @@ class SearchPanelViewModel(
     initialSort: SearchSort,
     initialTarget: SearchTarget,
     initialKeyword: List<String>,
-    initialText: String
+    initialText: String,
 ) : ViewModel(), ScreenModel, KoinComponent, ContainerHost<SearchPanelViewState, SearchPanelSideEffect> {
 
     private val database by inject<AppDatabase>()
@@ -42,8 +42,8 @@ class SearchPanelViewModel(
             text = initialText,
             sort = initialSort,
             target = initialTarget,
-            hotTag = TagPropertiesState.Loading
-        )
+            hotTag = TagPropertiesState.Loading,
+        ),
     ) {
         refreshHotTag()
     }
@@ -100,7 +100,7 @@ class SearchPanelViewModel(
                     val illust: Illust?,
                     val novel: Novel?,
                     val author: UserInfo?,
-                    val series: SeriesInfo?
+                    val series: SeriesInfo?,
                 )
 
                 val (illust, novel, author, series) = coroutineScope {
@@ -145,8 +145,8 @@ class SearchPanelViewModel(
                             illust = illust,
                             novel = novel,
                             user = author,
-                            series = series
-                        )
+                            series = series,
+                        ),
                     )
                 }
                 return@intent
@@ -174,7 +174,8 @@ class SearchPanelViewModel(
 
         reduce {
             val newTarget = if (state.target != SearchTarget.PARTIAL_MATCH_FOR_TAGS &&
-                               state.target != SearchTarget.EXACT_MATCH_FOR_TAGS) {
+                state.target != SearchTarget.EXACT_MATCH_FOR_TAGS
+            ) {
                 SearchTarget.PARTIAL_MATCH_FOR_TAGS
             } else {
                 state.target
@@ -191,13 +192,14 @@ class SearchPanelViewModel(
                 keyword = updatedKeywords,
                 text = "",
                 target = newTarget,
-                panelState = newPanelState
+                panelState = newPanelState,
             )
         }
 
         // If we just switched to settings state, refresh the hot tags
         if (state.panelState is SearchPanelState.SettingProperties &&
-            state.panelState != SearchPanelState.SettingProperties) {
+            state.panelState != SearchPanelState.SettingProperties
+        ) {
             refreshHotTag()
         }
     }
@@ -209,7 +211,7 @@ data class SearchPanelViewState(
     val text: String,
     val sort: SearchSort,
     val target: SearchTarget,
-    val hotTag: TagPropertiesState
+    val hotTag: TagPropertiesState,
 )
 
 sealed interface SearchPanelSideEffect {
@@ -225,6 +227,6 @@ sealed interface SearchPanelState {
         val illust: Illust?,
         val novel: Novel?,
         val user: UserInfo?,
-        val series: SeriesInfo?
+        val series: SeriesInfo?,
     ) : SearchPanelState
 }

@@ -21,7 +21,8 @@ fun ErrorPage(
     modifier: Modifier = Modifier,
     showBackButton: Boolean = false,
     text: String,
-    onClick: () -> Unit) {
+    onClick: () -> Unit,
+) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(text)
@@ -37,7 +38,7 @@ fun ErrorPage(
                 onClick = {
                     nav.pop()
                 },
-                modifier = Modifier.align(Alignment.TopStart).padding(16.dp)
+                modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
             ) {
                 Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
             }

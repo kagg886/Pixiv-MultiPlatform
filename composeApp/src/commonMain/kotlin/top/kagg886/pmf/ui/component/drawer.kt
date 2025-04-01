@@ -12,12 +12,12 @@ import androidx.compose.ui.unit.LayoutDirection
 @Composable
 fun SupportRTLModalNavigationDrawer(
     drawerContent: @Composable () -> Unit,
-    rtlLayout:Boolean = false,
+    rtlLayout: Boolean = false,
     modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     gesturesEnabled: Boolean = true,
     scrimColor: Color = DrawerDefaults.scrimColor,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val layout = remember(rtlLayout) {
         if (rtlLayout) LayoutDirection.Rtl else LayoutDirection.Ltr
@@ -40,7 +40,5 @@ fun SupportRTLModalNavigationDrawer(
                 content()
             }
         }
-
     }
-
 }

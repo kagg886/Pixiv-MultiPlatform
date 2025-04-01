@@ -3,18 +3,13 @@ package top.kagg886.pmf.ui.route.login.v2
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
@@ -25,17 +20,13 @@ import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.pickFile
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
-import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.withClickable
@@ -78,7 +69,7 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
 private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
     AnimatedContent(
         targetState = a,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) { state ->
         when (state) {
             LoginViewState.WaitChooseLogin -> {
@@ -91,7 +82,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                         Button(
                             onClick = {
                                 model.selectLoginType(LoginType.BrowserLogin)
-                            }
+                            },
                         ) {
                             Text("使用嵌入式浏览器登录")
                         }
@@ -100,7 +91,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                         TextButton(
                             onClick = {
                                 model.selectLoginType(LoginType.InputTokenLogin)
-                            }
+                            },
                         ) {
                             Text("使用token登录")
                         }
@@ -113,7 +104,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 appendLine("        1. 嵌入式浏览器登录适用于第一次使用Pixiv-MultiPlatform的情况。在浏览器中输入账号密码后，程序就会自动解析token并进行登录操作。")
                                 appendLine("注意：在电脑端使用嵌入式浏览器登录需要下载大约300M的Chromium内核。若您介意，请在手机登录后使用token登录。")
                                 appendLine("        2. token登录适用于已经在手机里使用Pixiv-MultiPlatform但不想在电脑重复输入账号密码的情况。")
-                            }
+                            },
                         )
                     },
                 )
@@ -131,7 +122,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 Button(
                                     onClick = {
                                         model.challengeRefreshToken(text)
-                                    }
+                                    },
                                 ) {
                                     Text("确定")
                                 }
@@ -141,7 +132,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 TextButton(
                                     onClick = {
                                         uri.openUri("https://pmf.kagg886.top/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
-                                    }
+                                    },
                                 ) {
                                     Text("帮助")
                                 }
@@ -156,9 +147,9 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                     label = {
                                         Text("请输入token")
                                     },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 )
-                            }
+                            },
                         )
                     }
 
@@ -185,7 +176,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                         TextButton(
                                             onClick = {
                                                 model.installKCEFLocal()
-                                            }
+                                            },
                                         ) {
                                             Text("选择压缩包路径")
                                         }
@@ -194,7 +185,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                         Button(
                                             onClick = {
                                                 model.selectLoginType(LoginType.BrowserLogin)
-                                            }
+                                            },
                                         ) {
                                             Text("重试")
                                         }
@@ -206,29 +197,29 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                         }
                                         if (detailsDialog) {
                                             AlertDialog(
-                                                    onDismissRequest = {
-                                                        detailsDialog = false
-                                                    },
-                                                    title = {
-                                                        Text("错误详情")
-                                                    },
-                                                    text = {
-                                                        Text(state.exception.stackTraceToString(), modifier = Modifier.verticalScroll(rememberScrollState()))
-                                                    },
-                                                    confirmButton = {
-                                                        val clip = LocalClipboardManager.current
-                                                        TextButton(
-                                                            onClick = {
-                                                                clip.setText(
-                                                                    buildAnnotatedString {
-                                                                        append(state.exception.stackTraceToString())
-                                                                    }
-                                                                )
-                                                            }
-                                                        ) {
-                                                            Text("复制")
-                                                        }
+                                                onDismissRequest = {
+                                                    detailsDialog = false
+                                                },
+                                                title = {
+                                                    Text("错误详情")
+                                                },
+                                                text = {
+                                                    Text(state.exception.stackTraceToString(), modifier = Modifier.verticalScroll(rememberScrollState()))
+                                                },
+                                                confirmButton = {
+                                                    val clip = LocalClipboardManager.current
+                                                    TextButton(
+                                                        onClick = {
+                                                            clip.setText(
+                                                                buildAnnotatedString {
+                                                                    append(state.exception.stackTraceToString())
+                                                                },
+                                                            )
+                                                        },
+                                                    ) {
+                                                        Text("复制")
                                                     }
+                                                },
                                             )
                                         }
                                         Text(
@@ -236,16 +227,16 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                 appendLine("由于一些未知的原因，无法初始化嵌入式浏览器。")
                                                 appendLine("请关闭程序后尝试使用token登录。")
                                                 append("或者参阅")
-                                                withLink(theme,"https://pmf.kagg886.top/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98","此链接")
+                                                withLink(theme, "https://pmf.kagg886.top/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98", "此链接")
                                                 append("的内容以手动安装嵌入式浏览器。")
                                                 appendLine()
                                                 appendLine()
-                                                withClickable(theme,"点击此文本以查看详细信息") {
+                                                withClickable(theme, "点击此文本以查看详细信息") {
                                                     detailsDialog = true
                                                 }
                                             },
                                         )
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -270,7 +261,7 @@ private fun WebViewLogin(model: LoginScreenViewModel) {
         requestInterceptor = object : RequestInterceptor {
             override fun onInterceptUrlRequest(
                 request: WebRequest,
-                navigator: WebViewNavigator
+                navigator: WebViewNavigator,
             ): WebRequestInterceptResult {
                 if (request.url.startsWith("pixiv://")) {
                     model.challengePixivLoginUrl(auth, request.url)
@@ -278,8 +269,7 @@ private fun WebViewLogin(model: LoginScreenViewModel) {
                 }
                 return WebRequestInterceptResult.Allow
             }
-
-        }
+        },
     )
 
     val progress = remember(state.loadingState) {
@@ -296,7 +286,7 @@ private fun WebViewLogin(model: LoginScreenViewModel) {
         WebView(
             modifier = Modifier.fillMaxSize(),
             state = state,
-            navigator = webNav
+            navigator = webNav,
         )
     }
 }

@@ -2,17 +2,16 @@
 
 package top.kagg886.pmf.ui.route.login.v2
 
-import androidx.compose.ui.text.intl.Locale
 import dev.datlag.kcef.KCEF
 import dev.datlag.kcef.KCEFException
 import dev.datlag.kcef.Platform
+import dev.datlag.kcef.common.unquarantine
+import dev.datlag.kcef.step.extract.TarGzExtractor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import okio.Path
 import top.kagg886.pmf.backend.dataPath
-import dev.datlag.kcef.step.extract.TarGzExtractor
-import dev.datlag.kcef.common.unquarantine
 import top.kagg886.pmf.util.absolutePath
 
 private val WEBVIEW_INSTALL_DIR = dataPath.resolve("web-view").toFile()
@@ -81,11 +80,11 @@ actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job = intent {
     TarGzExtractor.extract(
         WEBVIEW_INSTALL_DIR,
         file.toFile(),
-        4096
+        4096,
     )
     state.msg.tryEmit("安装浏览器内核中")
     TarGzExtractor.move(
-        WEBVIEW_INSTALL_DIR
+        WEBVIEW_INSTALL_DIR,
     )
 
     if (Platform.getCurrentPlatform().os.isMacOSX) {

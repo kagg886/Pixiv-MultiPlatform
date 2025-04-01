@@ -73,7 +73,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                 },
                 modifier = Modifier
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize()
+                    .fillMaxSize(),
             ) {
                 if (state.illusts.isEmpty()) {
                     ErrorPage(text = "页面为空") {
@@ -92,22 +92,24 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                 LazyVerticalStaggeredGrid(
                     columns = columns,
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
-                    state = scroll
+                    state = scroll,
                 ) {
                     items(
                         state.illusts,
-                        key = { it.id }
+                        key = { it.id },
                     ) {
-                        Box(modifier = Modifier.padding(5.dp).clickable {
-                            nav.push(IllustDetailScreen(it))
-                        }) {
+                        Box(
+                            modifier = Modifier.padding(5.dp).clickable {
+                                nav.push(IllustDetailScreen(it))
+                            },
+                        ) {
                             Card(
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
                             ) {
                                 ProgressedAsyncImage(
                                     url = it.imageUrls.content,
                                     modifier = Modifier.fillMaxWidth()
-                                        .aspectRatio(it.width.toFloat() / it.height.toFloat())
+                                        .aspectRatio(it.width.toFloat() / it.height.toFloat()),
                                 )
                             }
 
@@ -118,14 +120,14 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                             modifier = Modifier.padding(end = 4.dp),
                                             imageVector = R18G,
                                             contentDescription = null,
-                                            tint = Color.Red
+                                            tint = Color.Red,
                                         )
                                     }
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
                                         imageVector = R18,
                                         contentDescription = null,
-                                        tint = Color.Red
+                                        tint = Color.Red,
                                     )
                                 }
                                 if (it.isAI) {
@@ -133,7 +135,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                         modifier = Modifier.padding(end = 4.dp),
                                         imageVector = Robot,
                                         contentDescription = null,
-                                        tint = Color.Yellow
+                                        tint = Color.Yellow,
                                     )
                                 }
                             }
@@ -151,7 +153,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                     },
                                     cancel = {
                                         betterFavoriteDialog = false
-                                    }
+                                    },
                                 )
                             }
 
@@ -167,7 +169,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                 },
                                 onDoubleClick = {
                                     betterFavoriteDialog = true
-                                }
+                                },
                             )
                         }
                     }
@@ -184,14 +186,14 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了"
+                            text = "没有更多了",
                         )
                     }
                 }
 
                 VerticalScrollbar(
                     adapter = rememberScrollbarAdapter(scroll),
-                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp)
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight().padding(end = 4.dp),
                 )
 
                 BackToTopOrRefreshButton(
@@ -205,7 +207,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         model.initIllust(true).invokeOnCompletion {
                             isRefresh = false
                         }
-                    }
+                    },
                 )
             }
         }

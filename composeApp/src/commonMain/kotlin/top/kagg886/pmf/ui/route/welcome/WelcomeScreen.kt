@@ -56,7 +56,7 @@ class WelcomeScreen : Screen {
                 WelcomeSideEffect.NavigateToMain -> {
                     val token = PixivConfig.pixiv_user
                     navigator.replace(
-                        if (token == null) LoginScreen(true) else RecommendScreen()
+                        if (token == null) LoginScreen(true) else RecommendScreen(),
                     )
                 }
             }
@@ -68,7 +68,7 @@ class WelcomeScreen : Screen {
     fun WelcomeContent(model: WelcomeModel, state0: WelcomeViewState) {
         when (state0) {
             WelcomeViewState.Loading -> {
-                //安卓端无法进入时需要在这里提交副作用
+                // 安卓端无法进入时需要在这里提交副作用
                 LaunchedEffect(Unit) {
                     model.initInCompose()
                 }
@@ -79,7 +79,7 @@ class WelcomeScreen : Screen {
                     targetState = state0,
                     transitionSpec = {
                         fadeIn() togetherWith fadeOut()
-                    }
+                    },
                 ) { state ->
                     GuideScaffold(
                         modifier = Modifier.fillMaxSize(),
@@ -91,7 +91,7 @@ class WelcomeScreen : Screen {
                                     BYPASS -> "SNI绕过"
                                     SHIELD -> "屏蔽配置"
                                     FINISH -> "大功告成！"
-                                }
+                                },
                             )
                         },
                         subTitle = {
@@ -101,7 +101,7 @@ class WelcomeScreen : Screen {
                             Button(
                                 onClick = {
                                     model.nextStep()
-                                }
+                                },
                             ) {
                                 Text("下一步")
                             }
@@ -110,7 +110,7 @@ class WelcomeScreen : Screen {
                             TextButton(
                                 onClick = {
                                     model.skipAll()
-                                }
+                                },
                             ) {
                                 Text("跳过设置")
                             }
@@ -120,15 +120,14 @@ class WelcomeScreen : Screen {
                                 onClick = {
                                     model.goback()
                                 },
-                                enabled = state != WELCOME
+                                enabled = state != WELCOME,
                             ) {
                                 Text("上一步")
                             }
-                        }
+                        },
                     ) {
                         WelcomeElementContent(model, state)
                     }
-
                 }
             }
         }
@@ -146,7 +145,7 @@ class WelcomeScreen : Screen {
                         withLink(
                             colors = colors,
                             link = "https://github.com/kagg886/pixko",
-                            display = " Pixko "
+                            display = " Pixko ",
                         )
                         append("强力驱动。")
 
@@ -162,9 +161,9 @@ class WelcomeScreen : Screen {
                         appendLine()
 
                         append("        出现问题了? 请前往")
-                        withLink(scheme,"https://t.me/+n_xsrc1Z590xNTY9","TG交流群")
+                        withLink(scheme, "https://t.me/+n_xsrc1Z590xNTY9", "TG交流群")
                         append("描述您的问题。")
-                    }
+                    },
                 )
             }
 
@@ -172,13 +171,12 @@ class WelcomeScreen : Screen {
                 Text(
                     buildAnnotatedString {
                         append("        选择一份APP的主题吧！")
-
-                    }
+                    },
                 )
                 Spacer(Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                 ) {
                     var darkMode by LocalDarkSettings.current
 
@@ -191,9 +189,8 @@ class WelcomeScreen : Screen {
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             darkMode = AppConfig.DarkMode.Light
-                        }
+                        },
                     ) {
-
                         var colorScheme by LocalColorScheme.current
                         ListItem(
                             leadingContent = {
@@ -219,7 +216,7 @@ class WelcomeScreen : Screen {
                                                 ignoreUnknownKeys = true
                                             }
                                             Json.decodeFromString<JsonObject>(
-                                                it.readBytes().decodeToString()
+                                                it.readBytes().decodeToString(),
                                             )["schemes"]!!.jsonObject["light"]!!.jsonObject.let {
                                                 j.decodeFromJsonElement<SerializedTheme>(it)
                                             }
@@ -239,7 +236,7 @@ class WelcomeScreen : Screen {
                                         IconButton(
                                             onClick = {
                                                 colorScheme = null
-                                            }
+                                            },
                                         ) {
                                             Icon(imageVector = Icons.Default.Delete, null)
                                         }
@@ -248,13 +245,13 @@ class WelcomeScreen : Screen {
                                     IconButton(
                                         onClick = {
                                             launcher.launch()
-                                        }
+                                        },
                                     ) {
                                         Icon(imageVector = Icons.Default.Edit, null)
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
 
@@ -263,7 +260,7 @@ class WelcomeScreen : Screen {
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             darkMode = AppConfig.DarkMode.Dark
-                        }
+                        },
                     ) {
                         ListItem(
                             leadingContent = {
@@ -272,7 +269,7 @@ class WelcomeScreen : Screen {
                             headlineContent = {
                                 Text("夜间模式")
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
 
@@ -281,7 +278,7 @@ class WelcomeScreen : Screen {
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             darkMode = AppConfig.DarkMode.System
-                        }
+                        },
                     ) {
                         ListItem(
                             leadingContent = {
@@ -290,7 +287,7 @@ class WelcomeScreen : Screen {
                             headlineContent = {
                                 Text("跟随系统")
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
                 }
@@ -305,7 +302,7 @@ class WelcomeScreen : Screen {
                             )
                             append(" 处生成。(仅支持json格式的主题)")
                         },
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
                     )
                 }
             }
@@ -320,7 +317,7 @@ class WelcomeScreen : Screen {
                         append("        SNI Bypass：该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁")
                         appendLine()
                         append("        代理：该功能通过代理的方式，将Pixiv的请求转发到Pixiv服务器，从而绕过封锁。")
-                    }
+                    },
                 )
 
                 var bypassSettings by remember {
@@ -332,14 +329,14 @@ class WelcomeScreen : Screen {
                 Spacer(Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
                 ) {
                     SelectionCard(
                         select = bypassSettings is AppConfig.BypassSetting.None,
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             bypassSettings = AppConfig.BypassSetting.None
-                        }
+                        },
                     ) {
                         ListItem(
                             leadingContent = {
@@ -348,7 +345,7 @@ class WelcomeScreen : Screen {
                             headlineContent = {
                                 Text("不使用绕过措施")
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
 
@@ -357,7 +354,7 @@ class WelcomeScreen : Screen {
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             bypassSettings = AppConfig.BypassSetting.SNIReplace()
-                        }
+                        },
                     ) {
                         ListItem(
                             leadingContent = {
@@ -366,7 +363,7 @@ class WelcomeScreen : Screen {
                             headlineContent = {
                                 Text("使用SNI阻断")
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
 
@@ -375,7 +372,7 @@ class WelcomeScreen : Screen {
                         modifier = Modifier.weight(1f).fillMaxHeight().padding(horizontal = 8.dp),
                         onClick = {
                             bypassSettings = AppConfig.BypassSetting.Proxy()
-                        }
+                        },
                     ) {
                         ListItem(
                             leadingContent = {
@@ -384,7 +381,7 @@ class WelcomeScreen : Screen {
                             headlineContent = {
                                 Text("使用代理")
                             },
-                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically)
+                            modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
                     }
                 }
@@ -395,7 +392,8 @@ class WelcomeScreen : Screen {
                         buildAnnotatedString {
                             appendLine("该功能不会影响内置浏览器的Pixiv登录功能。因此在登录Pixiv时，你仍然需要使用VPN等工具。")
                             appendLine("启用/禁用功能后，你需要重启客户端以生效")
-                        }, modifier = Modifier.padding(8.dp)
+                        },
+                        modifier = Modifier.padding(8.dp),
                     )
                 }
             }
@@ -404,7 +402,7 @@ class WelcomeScreen : Screen {
                 Text(
                     buildAnnotatedString {
                         append("        通过这三个问题，让我们帮您选择最适合您的屏蔽设置。更高级的小说屏蔽功能，请在登录后前往设置页面。")
-                    }
+                    },
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -443,7 +441,7 @@ class WelcomeScreen : Screen {
                             Text("涩涩，达咩！")
                         }
                     },
-                    modifier = Modifier.zIndex(0f)
+                    modifier = Modifier.zIndex(0f),
                 ) {
                     likeR18 = it
                     if (likeR18.not()) {
@@ -454,14 +452,14 @@ class WelcomeScreen : Screen {
                 AnimatedVisibility(
                     visible = likeR18,
                     enter = expandVertically(),
-                    exit =  shrinkVertically(),
+                    exit = shrinkVertically(),
                 ) {
                     SettingsSwitch(
                         state = likeR18G,
                         title = {
                             Text("您对 R18G 作品的接受程度如何呢？")
                         },
-                        modifier = Modifier.zIndex(-1f)
+                        modifier = Modifier.zIndex(-1f),
                     ) {
                         likeR18G = it
                     }
@@ -478,7 +476,7 @@ class WelcomeScreen : Screen {
                         } else {
                             Text("AI，达咩！")
                         }
-                    }
+                    },
                 ) {
                     likeAI = it
                 }
@@ -491,7 +489,7 @@ class WelcomeScreen : Screen {
                         if (currentPlatform is Platform.Desktop) {
                             appendLine("        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。")
                         }
-                    }
+                    },
                 )
             }
         }

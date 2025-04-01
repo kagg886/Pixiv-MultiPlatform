@@ -10,12 +10,24 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
 val R18G by lazy {
-    Builder(name = "R18G", defaultWidth =
-    24.0.dp, defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight =
-    24.0f).apply {
-        path(fill = SolidColor(Color(0xFF5f6368)), stroke = null, strokeLineWidth = 0.0f,
-            strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-            pathFillType = NonZero) {
+    Builder(
+        name = "R18G",
+        defaultWidth =
+        24.0.dp,
+        defaultHeight = 24.0.dp,
+        viewportWidth = 24.0f,
+        viewportHeight =
+        24.0f,
+    ).apply {
+        path(
+            fill = SolidColor(Color(0xFF5f6368)),
+            stroke = null,
+            strokeLineWidth = 0.0f,
+            strokeLineCap = Butt,
+            strokeLineJoin = Miter,
+            strokeLineMiter = 4.0f,
+            pathFillType = NonZero,
+        ) {
             moveTo(21.99f, 12.34f)
             curveTo(22.0f, 12.23f, 22.0f, 12.11f, 22.0f, 12.0f)
             curveToRelative(0.0f, -5.52f, -4.48f, -10.0f, -10.0f, -10.0f)

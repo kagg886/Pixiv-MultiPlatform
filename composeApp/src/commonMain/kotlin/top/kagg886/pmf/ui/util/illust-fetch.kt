@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.plus
@@ -18,16 +19,16 @@ import top.kagg886.pixko.module.illust.deleteBookmarkIllust
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import kotlin.coroutines.CoroutineContext
 
-abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(),
+abstract class IllustFetchViewModel :
+    ContainerHost<IllustFetchViewState, IllustFetchSideEffect>,
+    ViewModel(),
     ScreenModel {
     private val scope = viewModelScope + Dispatchers.IO
 
     protected val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<Illust>? = null
-
 
     override val container: Container<IllustFetchViewState, IllustFetchSideEffect> =
         container(IllustFetchViewState.Loading) {
@@ -69,7 +70,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         reduce {
             IllustFetchViewState.ShowIllustList(
                 repo!!.filterUserCustomSettings().take(20).toList(),
-                noMoreData = repo!!.noMoreData
+                noMoreData = repo!!.noMoreData,
             )
         }
     }
@@ -80,7 +81,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
             reduce {
                 state.copy(
                     illusts = state.illusts + repo!!.filterUserCustomSettings().take(20).toList(),
-                    noMoreData = repo!!.noMoreData
+                    noMoreData = repo!!.noMoreData,
                 )
             }
         }
@@ -90,7 +91,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
     fun likeIllust(
         illust: Illust,
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
-        tags: List<Tag>? = null
+        tags: List<Tag>? = null,
     ) = intent {
         runOn<IllustFetchViewState.ShowIllustList> {
             val result = kotlin.runCatching {
@@ -113,7 +114,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -139,7 +140,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -151,7 +152,7 @@ sealed class IllustFetchViewState {
     data class ShowIllustList(
         val illusts: List<Illust>,
         val noMoreData: Boolean = false,
-        val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState()
+        val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState(),
     ) : IllustFetchViewState()
 }
 

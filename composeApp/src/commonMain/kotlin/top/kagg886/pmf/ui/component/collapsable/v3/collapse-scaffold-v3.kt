@@ -22,7 +22,7 @@ val LocalConnectedStateKey = compositionLocalOf<ConnectedScrollState?> {
 }
 
 data class CollapseTopAppBarScaffoldScope(
-    val connectedScrollState: ConnectedScrollState
+    val connectedScrollState: ConnectedScrollState,
 ) {
     fun Modifier.fixComposeListScrollToTopBug(state: ScrollableState) = this
         .nestedScrollWorkaround(state, connectedScrollState)
@@ -41,7 +41,6 @@ data class CollapseTopAppBarScaffoldScope(
 fun CollapsableTopAppBarScaffold(
     modifier: Modifier = Modifier,
     background: @Composable (Modifier) -> Unit,
-
     title: @Composable () -> Unit = {},
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
@@ -55,13 +54,12 @@ fun CollapsableTopAppBarScaffold(
         CollapseTopAppBarScaffoldScope(connectedScrollState)
     }
 
-
     Box(modifier) {
         background(
-            //see connectedScrollTarget(connectedScrollState)
+            // see connectedScrollTarget(connectedScrollState)
             Modifier.connectedScrollContainer(connectedScrollState).onSizeChanged {
                 connectedScrollState.containerHeight = it.height - topAppBarHeight
-            }
+            },
         )
 
         content(
@@ -70,12 +68,12 @@ fun CollapsableTopAppBarScaffold(
                 .padding(
                     top = with(LocalDensity.current) {
                         (connectedScrollState.containerHeight - connectedScrollState.scrolledOffset.absoluteValue + topAppBarHeight).toDp()
-                    }
+                    },
                 )
-                .nestedScroll(connectedScrollState.nestedScrollConnection)
+                .nestedScroll(connectedScrollState.nestedScrollConnection),
         )
 
-        //透明标题栏，无论如何都会显示
+        // 透明标题栏，无论如何都会显示
         TopAppBar(
             title = {},
             navigationIcon = navigationIcon,
@@ -83,7 +81,7 @@ fun CollapsableTopAppBarScaffold(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         )
 
-        //只有滑到顶才会出现的标题栏
+        // 只有滑到顶才会出现的标题栏
         AnimatedVisibility(
             visible = connectedScrollState.isScrolledTop,
             enter = fadeIn(),

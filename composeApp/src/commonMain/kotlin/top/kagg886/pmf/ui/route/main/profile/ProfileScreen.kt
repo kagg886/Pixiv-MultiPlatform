@@ -54,7 +54,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                 ModalDrawerSheet {
                     val nav = LocalNavigator.currentOrThrow
                     OutlinedCard(
-                        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp)
+                        modifier = Modifier.padding(vertical = 16.dp, horizontal = 8.dp),
                     ) {
                         ListItem(
                             headlineContent = {
@@ -65,7 +65,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             },
                             leadingContent = {
                                 IconButton(
-                                    onClick = { nav.pop() }
+                                    onClick = { nav.pop() },
                                 ) {
                                     Icon(Icons.AutoMirrored.Default.ArrowBack, "")
                                 }
@@ -73,9 +73,9 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             trailingContent = {
                                 ProgressedAsyncImage(
                                     url = me.profileImageUrls.content,
-                                    modifier = Modifier.size(35.dp)
+                                    modifier = Modifier.size(35.dp),
                                 )
-                            }
+                            },
                         )
                     }
                     HorizontalDivider()
@@ -94,7 +94,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             scope.launch {
                                 drawer.close()
                             }
-                        }
+                        },
                     )
 
                     NavigationDrawerItem(
@@ -110,7 +110,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             scope.launch {
                                 drawer.close()
                             }
-                        }
+                        },
                     )
 
                     NavigationDrawerItem(
@@ -126,7 +126,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             scope.launch {
                                 drawer.close()
                             }
-                        }
+                        },
                     )
 
                     NavigationDrawerItem(
@@ -142,7 +142,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             scope.launch {
                                 drawer.close()
                             }
-                        }
+                        },
                     )
 
                     NavigationDrawerItem(
@@ -158,9 +158,8 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             scope.launch {
                                 drawer.close()
                             }
-                        }
+                        },
                     )
-
                 }
             },
             content = {
@@ -170,7 +169,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                         targetState = page,
                         transitionSpec = {
                             slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End) togetherWith slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
-                        }
+                        },
                     ) {
                         when (it) {
                             ViewProfile -> {
@@ -206,7 +205,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                                         History -> "历史记录"
                                         Download -> "下载管理"
                                         Setting -> "程序设置"
-                                    }
+                                    },
                                 )
                             },
                             navigationIcon = {
@@ -216,33 +215,32 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                                         scope.launch {
                                             drawer.open()
                                         }
-                                    }
+                                    },
                                 ) {
                                     Icon(Icons.Default.Menu, "")
                                 }
-                            }
+                            },
                         )
-                    }
+                    },
                 ) {
                     Box(Modifier.fillMaxSize().padding(it)) {
                         Content()
                     }
                 }
-            }
+            },
         )
     }
-
 
     @Composable
     fun ProfileScreenContainDrawerScaffold(
         state: DrawerState,
         content: @Composable () -> Unit,
-        drawerContent: @Composable () -> Unit
+        drawerContent: @Composable () -> Unit,
     ) {
         if (useWideScreenMode) {
             PermanentNavigationDrawer(
                 drawerContent = drawerContent,
-                content = content
+                content = content,
             )
             return
         }
@@ -250,8 +248,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
             drawerContent = drawerContent,
             drawerState = state,
             gesturesEnabled = true,
-            content = content
+            content = content,
         )
     }
-
 }

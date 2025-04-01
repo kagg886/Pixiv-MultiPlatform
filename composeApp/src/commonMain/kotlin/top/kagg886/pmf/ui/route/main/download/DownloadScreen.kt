@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,11 +18,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.github.vinceglb.filekit.core.FileKit
-import kotlinx.coroutines.launch
-import okio.buffer
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -33,9 +28,6 @@ import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.listFile
-import top.kagg886.pmf.util.source
-import top.kagg886.pmf.util.zip
 
 class DownloadScreen : Screen {
     @Composable
@@ -43,7 +35,8 @@ class DownloadScreen : Screen {
         val model = koinScreenModel<DownloadScreenModel>()
         val state by model.collectAsState()
         DownloadContent(
-            model, state
+            model,
+            state,
         )
     }
 
@@ -58,24 +51,25 @@ class DownloadScreen : Screen {
                 val data by state.illust.collectAsState(emptyList())
                 if (data.isEmpty()) {
                     ErrorPage(text = "没有项目！") {
-
                     }
                     return
                 }
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(5.dp)) {
                     items(data) {
                         val nav = LocalNavigator.currentOrThrow
-                        OutlinedCard(Modifier.padding(5.dp).clickable {
-                            nav.push(IllustDetailScreen(it.illust))
-                        }) {
+                        OutlinedCard(
+                            Modifier.padding(5.dp).clickable {
+                                nav.push(IllustDetailScreen(it.illust))
+                            },
+                        ) {
                             Row(
                                 modifier = Modifier.padding(5.dp).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 ProgressedAsyncImage(
                                     url = it.illust.contentImages.get()!![0],
                                     modifier = Modifier.size(75.dp, 120.dp),
-                                    contentScale = ContentScale.Inside
+                                    contentScale = ContentScale.Inside,
                                 )
                                 ListItem(
                                     overlineContent = {
@@ -90,11 +84,11 @@ class DownloadScreen : Screen {
                                                 IconButton(
                                                     onClick = {
                                                         model.startDownload(it.illust)
-                                                    }
+                                                    },
                                                 ) {
                                                     Icon(
                                                         imageVector = Download,
-                                                        contentDescription = null
+                                                        contentDescription = null,
                                                     )
                                                 }
                                             }
@@ -108,11 +102,11 @@ class DownloadScreen : Screen {
                                                                 return@IconButton
                                                             }
                                                             model.saveToExternalFile(it)
-                                                        }
+                                                        },
                                                     ) {
                                                         Icon(
                                                             imageVector = Save,
-                                                            contentDescription = null
+                                                            contentDescription = null,
                                                         )
                                                     }
                                                     IconButton(
@@ -122,11 +116,11 @@ class DownloadScreen : Screen {
                                                                 return@IconButton
                                                             }
                                                             model.shareFile(it)
-                                                        }
+                                                        },
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Share,
-                                                            contentDescription = null
+                                                            contentDescription = null,
                                                         )
                                                     }
                                                 }
@@ -143,18 +137,16 @@ class DownloadScreen : Screen {
                                         if (it.progress != -1f) {
                                             LinearProgressIndicator(
                                                 modifier = Modifier.fillMaxWidth(0.8f),
-                                                progress = { it.progress })
+                                                progress = { it.progress },
+                                            )
                                         }
-                                    }
+                                    },
                                 )
                             }
-
                         }
-
                     }
                 }
             }
         }
     }
-
 }

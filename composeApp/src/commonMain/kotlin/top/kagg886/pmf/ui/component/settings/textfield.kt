@@ -15,11 +15,9 @@ fun SettingsTextField(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
-
     dialogTitle: @Composable () -> Unit = { Text("编辑属性") },
     dialogLabel: @Composable () -> Unit = {},
     dialogPlaceHolder: @Composable () -> Unit = { Text("请输入") },
-
     value: String,
     onValueChange: (String) -> Unit,
 ) {
@@ -38,7 +36,7 @@ fun SettingsTextField(
                     onClick = {
                         expand = false
                         onValueChange(v)
-                    }
+                    },
                 ) {
                     Text("确定")
                 }

@@ -10,11 +10,22 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val Github: ImageVector = Builder(name = "Github", defaultWidth = 24.0.dp, defaultHeight = 24.0.dp,
-    viewportWidth = 1024.0f, viewportHeight = 1024.0f).apply {
-    path(fill = SolidColor(Color(0xFF000000)), stroke = null, strokeLineWidth = 0.0f,
-        strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-        pathFillType = NonZero) {
+val Github: ImageVector = Builder(
+    name = "Github",
+    defaultWidth = 24.0.dp,
+    defaultHeight = 24.0.dp,
+    viewportWidth = 1024.0f,
+    viewportHeight = 1024.0f,
+).apply {
+    path(
+        fill = SolidColor(Color(0xFF000000)),
+        stroke = null,
+        strokeLineWidth = 0.0f,
+        strokeLineCap = Butt,
+        strokeLineJoin = Miter,
+        strokeLineMiter = 4.0f,
+        pathFillType = NonZero,
+    ) {
         moveTo(950.86f, 512.0f)
         quadToRelative(0.0f, 143.43f, -83.71f, 258.0f)
         reflectiveQuadToRelative(-216.29f, 158.57f)

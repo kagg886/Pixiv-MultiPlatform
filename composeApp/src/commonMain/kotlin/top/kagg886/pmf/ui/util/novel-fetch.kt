@@ -4,6 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.plus
@@ -18,16 +19,16 @@ import top.kagg886.pixko.module.novel.deleteBookmarkNovel
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import kotlin.coroutines.CoroutineContext
 
-abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(),
+abstract class NovelFetchViewModel :
+    ContainerHost<NovelFetchViewState, NovelFetchSideEffect>,
+    ViewModel(),
     ScreenModel {
     private val scope = viewModelScope + Dispatchers.IO
 
     protected val client = PixivConfig.newAccountFromConfig()
 
     private var repo: InfinityRepository<Novel>? = null
-
 
     override val container: Container<NovelFetchViewState, NovelFetchSideEffect> =
         container(NovelFetchViewState.Loading) {
@@ -76,7 +77,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         reduce {
             NovelFetchViewState.ShowNovelList(
                 repo!!.filterByUserConfig().take(20).toList(),
-                noMoreData = repo!!.noMoreData
+                noMoreData = repo!!.noMoreData,
             )
         }
     }
@@ -87,7 +88,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
             reduce {
                 state.copy(
                     novels = state.novels + repo!!.filterByUserConfig().take(20).toList(),
-                    noMoreData = repo!!.noMoreData
+                    noMoreData = repo!!.noMoreData,
                 )
             }
         }
@@ -97,7 +98,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
     fun likeNovel(
         novel: Novel,
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
-        tags: List<Tag>? = null
+        tags: List<Tag>? = null,
     ) = intent {
         runOn<NovelFetchViewState.ShowNovelList> {
             val result = kotlin.runCatching {
@@ -120,7 +121,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -146,7 +147,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
                         } else {
                             it
                         }
-                    }
+                    },
                 )
             }
         }
@@ -158,7 +159,7 @@ sealed class NovelFetchViewState {
     data class ShowNovelList(
         val novels: List<Novel>,
         val noMoreData: Boolean = false,
-        val scrollerState: LazyListState = LazyListState()
+        val scrollerState: LazyListState = LazyListState(),
     ) : NovelFetchViewState()
 }
 

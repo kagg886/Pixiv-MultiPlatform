@@ -19,5 +19,4 @@ sealed class Platform(open val name: String) {
     }
 }
 
-
 expect val currentPlatform: Platform

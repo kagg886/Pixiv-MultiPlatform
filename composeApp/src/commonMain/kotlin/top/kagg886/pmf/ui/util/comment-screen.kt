@@ -67,7 +67,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             isRefresh = false
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().weight(1f)
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                 ) {
                     if (state.comments.isEmpty()) {
                         ErrorPage(text = "页面为空") {
@@ -86,11 +86,10 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
 
                     KeyListenerFromGlobalPipe(controller)
 
-
                     LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
                         items(state.comments) { comment ->
                             OutlinedCard(
-                                modifier = Modifier.fillMaxWidth().padding(5.dp)
+                                modifier = Modifier.fillMaxWidth().padding(5.dp),
                             ) {
                                 val nav = LocalNavigator.currentOrThrow
                                 ListItem(
@@ -105,7 +104,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                             url = comment.user.profileImageUrls.content,
                                             modifier = Modifier.size(35.dp).clickable {
                                                 nav.push(AuthorScreen(comment.user.id))
-                                            }
+                                            },
                                         )
                                     },
                                     trailingContent = {
@@ -115,7 +114,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                 comment == (state as? CommentViewState.Success.HasReply)?.replyTarget -> 1
                                                 else -> 0
                                             },
-                                            transitionSpec = { fadeIn() togetherWith fadeOut() }
+                                            transitionSpec = { fadeIn() togetherWith fadeOut() },
                                         ) {
                                             when (it) {
                                                 -1 -> FavoriteButton(
@@ -146,10 +145,8 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                 }
                                             }
                                         }
-
-
                                     },
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier.fillMaxWidth(),
                                 )
                                 Box(modifier = Modifier.padding(5.dp)) {
                                     if (comment.stamp == null) {
@@ -157,7 +154,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     } else {
                                         ProgressedAsyncImage(
                                             url = comment.stamp!!.url,
-                                            modifier = Modifier.size(100.dp)
+                                            modifier = Modifier.size(100.dp),
                                         )
                                     }
                                 }
@@ -175,7 +172,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                             url = i.user.profileImageUrls.content,
                                                             modifier = Modifier.size(25.dp).clickable {
                                                                 nav.push(AuthorScreen(i.user.id))
-                                                            }
+                                                            },
                                                         )
                                                     },
                                                     supportingContent = {
@@ -184,11 +181,11 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                         } else {
                                                             ProgressedAsyncImage(
                                                                 url = i.stamp!!.url,
-                                                                modifier = Modifier.size(80.dp)
+                                                                modifier = Modifier.size(80.dp),
                                                             )
                                                         }
                                                     },
-                                                    modifier = Modifier.fillMaxWidth()
+                                                    modifier = Modifier.fillMaxWidth(),
                                                 )
                                             }
 
@@ -205,7 +202,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                 textAlign = TextAlign.Center,
                                                 modifier = Modifier.fillMaxWidth()
                                                     .padding(ButtonDefaults.TextButtonContentPadding),
-                                                text = "没有更多了"
+                                                text = "没有更多了",
                                             )
 //                                            TextButton(
 //                                                onClick = {
@@ -234,7 +231,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             Text(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth(),
-                                text = "没有更多了"
+                                text = "没有更多了",
                             )
                         }
                     }
@@ -259,10 +256,9 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             }.invokeOnCompletion {
                                 isRefresh = false
                             }
-                        }
+                        },
                     )
                 }
-
 
                 var text by remember {
                     mutableStateOf("")
@@ -277,11 +273,13 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         AnimatedContent(
                             state,
                             transitionSpec = {
-                                (fadeIn() + slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)) togetherWith (fadeOut() + slideOutOfContainer(
-                                    AnimatedContentTransitionScope.SlideDirection.Up
-                                ))
+                                (fadeIn() + slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)) togetherWith (
+                                    fadeOut() + slideOutOfContainer(
+                                        AnimatedContentTransitionScope.SlideDirection.Up,
+                                    )
+                                    )
                             },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
                             when (it) {
                                 is CommentViewState.Success.HasReply -> {
@@ -299,7 +297,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             IconButton(
                                 onClick = {
                                     model.clearReply()
-                                }
+                                },
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, null)
                             }
@@ -310,11 +308,11 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             onClick = {
                                 model.sendComment(text)
                             },
-                            enabled = text.isNotBlank()
+                            enabled = text.isNotBlank(),
                         ) {
                             Icon(Icons.AutoMirrored.Filled.Send, null)
                         }
-                    }
+                    },
                 )
             }
         }

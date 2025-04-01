@@ -35,7 +35,7 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
                     buildAnnotatedString {
                         appendLine("很遗憾的通知您：Pixiv-MultiPlatform 在运行时出现了无法恢复的错误，因此应用程序即将关闭。")
                         appendLine("为了帮助我们修复这个bug以避免这种情况的再次发生，请关闭对话框并点击右上角的按钮，以提交本次错误报告。")
-                    }
+                    },
                 )
             },
             confirmButton = {
@@ -74,22 +74,22 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
                             clip.setText(
                                 buildAnnotatedString {
                                     append(throwable)
-                                }
+                                },
                             )
                             handler.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose")
                         }) {
                             Icon(imageVector = Github, contentDescription = null)
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) {
         Text(
             text = throwable.replace("\t", "    "),
-            modifier = Modifier.padding(it).padding(horizontal = 5.dp).verticalScroll(rememberScrollState())
+            modifier = Modifier.padding(it).padding(horizontal = 5.dp).verticalScroll(rememberScrollState()),
         )
     }
 }
 
-expect fun exitProcess(i: Int):Nothing
+expect fun exitProcess(i: Int): Nothing

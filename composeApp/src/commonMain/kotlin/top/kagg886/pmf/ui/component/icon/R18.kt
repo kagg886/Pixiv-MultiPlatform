@@ -12,7 +12,11 @@ import androidx.compose.ui.unit.dp
 
 val R18: ImageVector by lazy {
     Builder(
-        name = "R18", defaultWidth = 24.dp, defaultHeight = 24.dp, viewportWidth = 1024.0f, viewportHeight = 1024.0f
+        name = "R18",
+        defaultWidth = 24.dp,
+        defaultHeight = 24.dp,
+        viewportWidth = 1024.0f,
+        viewportHeight = 1024.0f,
     ).apply {
         path(
             fill = SolidColor(Color(0xFF2c2c2c)),
@@ -21,7 +25,7 @@ val R18: ImageVector by lazy {
             strokeLineCap = Butt,
             strokeLineJoin = Miter,
             strokeLineMiter = 4.0f,
-            pathFillType = NonZero
+            pathFillType = NonZero,
         ) {
             moveTo(853.3f, 42.7f)
             arcToRelative(42.7f, 42.7f, 0.0f, true, true, 85.3f, 0.0f)
@@ -53,7 +57,7 @@ val R18: ImageVector by lazy {
             strokeLineCap = Butt,
             strokeLineJoin = Miter,
             strokeLineMiter = 4.0f,
-            pathFillType = NonZero
+            pathFillType = NonZero,
         ) {
             moveTo(329.0f, 390.2f)
             lineToRelative(-17.7f, 8.9f)

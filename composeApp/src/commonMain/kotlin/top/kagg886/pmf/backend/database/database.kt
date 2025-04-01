@@ -10,7 +10,7 @@ import top.kagg886.pmf.backend.database.dao.*
 
 @Database(
     entities = [IllustHistory::class, NovelHistory::class, DownloadItem::class, SearchHistory::class],
-    version = BuildConfig.DATABASE_VERSION
+    version = BuildConfig.DATABASE_VERSION,
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {

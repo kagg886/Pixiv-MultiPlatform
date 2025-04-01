@@ -23,6 +23,8 @@ import com.alorma.compose.settings.ui.SettingsMenuLink
 import com.alorma.compose.settings.ui.SettingsSlider
 import com.alorma.compose.settings.ui.SettingsSwitch
 import korlibs.io.net.MimeType
+import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
@@ -45,9 +47,6 @@ import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.*
-import kotlin.math.roundToInt
-import kotlin.math.roundToLong
-
 
 class SettingScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +77,7 @@ class SettingScreen : Screen {
                                     AppConfig.DarkMode.Light -> "日间模式"
                                     AppConfig.DarkMode.Dark -> "夜间模式"
                                 }
-                            }"
+                            }",
                         )
                     },
                     optionsFormat = {
@@ -111,7 +110,7 @@ class SettingScreen : Screen {
                     extensions = listOf("zip", "json"),
                     subTitle = {
                         AnimatedContent(
-                            inNight
+                            inNight,
                         ) {
                             if (it) {
                                 Text("夜间模式的主题暂不支持设置")
@@ -128,19 +127,19 @@ class SettingScreen : Screen {
                                                 style = SpanStyle(color = colors.primary),
                                                 hoveredStyle = SpanStyle(
                                                     color = colors.primaryContainer,
-                                                    textDecoration = TextDecoration.Underline
+                                                    textDecoration = TextDecoration.Underline,
                                                 ),
-                                            )
+                                            ),
                                         ),
                                     ) {
                                         append("https://material-foundation.github.io/material-theme-builder/")
                                     }
                                     appendLine("下载主题")
                                     append("导出的格式只有为json时才能正确解析！")
-                                }
+                                },
                             )
                         }
-                    }
+                    },
                 ) {
                     val theme = kotlin.runCatching {
                         val j = Json {
@@ -163,7 +162,7 @@ class SettingScreen : Screen {
                     title = { Text("还原主题") },
                     subtitle = { Text("将主题重置为默认") },
                     onClick = { colorScheme = null },
-                    enabled = colorScheme != null
+                    enabled = colorScheme != null,
                 )
             }
             SettingsGroup(title = { Text(text = "画廊设置") }) {
@@ -184,10 +183,10 @@ class SettingScreen : Screen {
                     data = listOf(AppConfig.Gallery.FixColumnCount(3), AppConfig.Gallery.FixWidth(100)),
                     onSelected = {
                         data = it
-                    }
+                    },
                 )
                 AnimatedContent(
-                    targetState = data
+                    targetState = data,
                 ) {
                     when (it) {
                         is AppConfig.Gallery.FixColumnCount -> {
@@ -207,7 +206,7 @@ class SettingScreen : Screen {
                                 steps = 2,
                                 onValueChange = {
                                     defaultGalleryWidth = it
-                                }
+                                },
                             )
                         }
 
@@ -228,13 +227,11 @@ class SettingScreen : Screen {
                                 steps = 949,
                                 onValueChange = {
                                     defaultGalleryWidth = it.roundToInt()
-                                }
+                                },
                             )
                         }
                     }
-
                 }
-
 
                 var cacheSize by remember {
                     mutableStateOf(AppConfig.cacheSize)
@@ -263,7 +260,7 @@ class SettingScreen : Screen {
                             size = 1024.mb.bytes
                         }
                         cacheSize = size
-                    }
+                    },
                 )
 
                 var filterAi by remember {
@@ -282,7 +279,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterAi = it
-                    }
+                    },
                 )
 
                 var filterR18 by remember {
@@ -307,14 +304,14 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterR18 = it
-                    }
+                    },
                 )
                 LaunchedEffect(filterR18G) {
                     AppConfig.filterR18G = filterR18G
                 }
                 SettingsSwitch(
                     state = filterR18G,
-                    enabled = !filterR18, //不过滤r18时启用
+                    enabled = !filterR18, // 不过滤r18时启用
                     title = {
                         Text("R18G插画过滤")
                     },
@@ -326,7 +323,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterR18G = it
-                    }
+                    },
                 )
 
                 var gifSupport by remember {
@@ -346,12 +343,12 @@ class SettingScreen : Screen {
                                 appendLine("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
                                 appendLine("该功能在Android上运行较为缓慢(合成4帧约8秒)，请酌情开启。")
                                 appendLine("如有必要请选择其他Pixiv动图导出工具。")
-                            }
+                            },
                         )
                     },
                     onCheckedChange = {
                         gifSupport = it
-                    }
+                    },
                 )
             }
             SettingsGroup(title = { Text("小说设置") }) {
@@ -371,7 +368,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterAiNovel = it
-                    }
+                    },
                 )
 
                 var filterR18Novel by remember {
@@ -396,14 +393,14 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterR18Novel = it
-                    }
+                    },
                 )
                 LaunchedEffect(filterR18GNovel) {
                     AppConfig.filterR18GNovel = filterR18GNovel
                 }
                 SettingsSwitch(
                     state = filterR18GNovel,
-                    enabled = !filterR18Novel, //不过滤r18时启用
+                    enabled = !filterR18Novel, // 不过滤r18时启用
                     title = {
                         Text("R18G小说过滤")
                     },
@@ -415,7 +412,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterR18GNovel = it
-                    }
+                    },
                 )
                 var autoTypo by remember {
                     mutableStateOf(AppConfig.autoTypo)
@@ -439,9 +436,8 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         autoTypo = it
-                    }
+                    },
                 )
-
 
                 SettingsSlider(
                     value = textSize.toFloat(),
@@ -454,7 +450,7 @@ class SettingScreen : Screen {
                     },
                     subtitle = {
                         Text("${textSize}sp", fontSize = textSize.sp)
-                    }
+                    },
                 )
                 var filterLongTag by remember {
                     mutableStateOf(AppConfig.filterLongTag)
@@ -478,7 +474,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterLongTag = it
-                    }
+                    },
                 )
                 SettingsSlider(
                     enabled = filterLongTag,
@@ -495,7 +491,7 @@ class SettingScreen : Screen {
                     valueRange = 5f..25f,
                     onValueChange = {
                         filterLongTagLength = it.roundToInt()
-                    }
+                    },
                 )
 
                 var filterShortNovel by remember {
@@ -520,7 +516,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         filterShortNovel = it
-                    }
+                    },
                 )
                 SettingsSlider(
                     enabled = filterShortNovel,
@@ -538,7 +534,7 @@ class SettingScreen : Screen {
                     steps = 968,
                     onValueChange = {
                         filterShortNovelLength = it.roundToInt()
-                    }
+                    },
                 )
             }
             SettingsGroup(title = { Text(text = "历史记录") }) {
@@ -558,7 +554,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         recordIllustHistory = it
-                    }
+                    },
                 )
 
                 var recordNovelHistory by remember {
@@ -577,7 +573,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         recordNovelHistory = it
-                    }
+                    },
                 )
 
                 var recordSearchHistory by remember {
@@ -596,7 +592,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         recordSearchHistory = it
-                    }
+                    },
                 )
             }
             SettingsGroup(title = { Text(text = "网络设置") }) {
@@ -616,7 +612,7 @@ class SettingScreen : Screen {
                     data = listOf(
                         AppConfig.BypassSetting.None,
                         AppConfig.BypassSetting.Proxy(),
-                        AppConfig.BypassSetting.SNIReplace()
+                        AppConfig.BypassSetting.SNIReplace(),
                     ),
                     current = bypassSetting,
                     onSelected = {
@@ -633,7 +629,7 @@ class SettingScreen : Screen {
 
                 AnimatedContent(
                     targetState = bypassSettingsKey,
-                    transitionSpec = { expandVertically() togetherWith shrinkVertically() }
+                    transitionSpec = { expandVertically() togetherWith shrinkVertically() },
                 ) {
                     Column {
                         when (val readOnlySettings = bypassSetting) {
@@ -645,7 +641,7 @@ class SettingScreen : Screen {
                                     data = AppConfig.BypassSetting.Proxy.ProxyType.entries,
                                     onSelected = {
                                         bypassSetting = readOnlySettings.copy(type = it)
-                                    }
+                                    },
                                 )
 
                                 SettingsTextField(
@@ -653,7 +649,7 @@ class SettingScreen : Screen {
                                     value = readOnlySettings.host,
                                     onValueChange = {
                                         bypassSetting = readOnlySettings.copy(host = it)
-                                    }
+                                    },
                                 )
                                 SettingsTextField(
                                     title = { Text("代理端口") },
@@ -661,12 +657,11 @@ class SettingScreen : Screen {
                                     onValueChange = {
                                         val port = it.toIntOrNull() ?: return@SettingsTextField
                                         bypassSetting = readOnlySettings.copy(port = port)
-                                    }
+                                    },
                                 )
                             }
 
                             is AppConfig.BypassSetting.SNIReplace -> {
-
                                 val snack = LocalSnackBarHost.current
                                 val scope = rememberCoroutineScope()
                                 SettingsTextField(
@@ -676,13 +671,13 @@ class SettingScreen : Screen {
                                             buildAnnotatedString {
                                                 appendLine("通过DoH来解析Pixiv真实ip。")
                                                 appendLine("若默认DoH不可用，请尝试更换此值为合法且能解析pixivvision.net的DoH服务器。")
-                                            }
+                                            },
                                         )
                                     },
                                     value = readOnlySettings.url,
                                     onValueChange = {
                                         bypassSetting = readOnlySettings.copy(url = it)
-                                    }
+                                    },
                                 )
 
                                 SettingsTextField(
@@ -692,7 +687,7 @@ class SettingScreen : Screen {
                                             buildAnnotatedString {
                                                 appendLine("设置DoH的超时时间，单位为秒")
                                                 appendLine("若DoH解析失败，请尝试调高DoH解析时间以给予更多超时时间以解析DoH")
-                                            }
+                                            },
                                         )
                                     },
                                     value = readOnlySettings.dohTimeout.toString(),
@@ -704,7 +699,7 @@ class SettingScreen : Screen {
                                             return@run 5
                                         }
                                         bypassSetting = readOnlySettings.copy(dohTimeout = data)
-                                    }
+                                    },
                                 )
                                 SettingsSwitch(
                                     state = readOnlySettings.nonStrictSSL,
@@ -716,7 +711,7 @@ class SettingScreen : Screen {
                                     },
                                     onCheckedChange = {
                                         bypassSetting = readOnlySettings.copy(nonStrictSSL = it)
-                                    }
+                                    },
                                 )
                                 SettingsTextField(
                                     title = { Text("内置IP池列表") },
@@ -725,7 +720,7 @@ class SettingScreen : Screen {
                                             buildAnnotatedString {
                                                 appendLine("DoH不可用时直接提供此表中的IP")
                                                 appendLine("作为最后的防御手段，该ip一定要可以直连")
-                                            }
+                                            },
                                         )
                                     },
                                     value = Json.encodeToString(readOnlySettings.fallback),
@@ -739,11 +734,10 @@ class SettingScreen : Screen {
                                             return@SettingsTextField
                                         }
                                         bypassSetting = readOnlySettings.copy(fallback = fallback)
-                                    }
+                                    },
                                 )
                             }
                         }
-
                     }
                 }
             }
@@ -763,11 +757,11 @@ class SettingScreen : Screen {
                             clip.setText(
                                 buildAnnotatedString {
                                     append(PixivConfig.refreshToken)
-                                }
+                                },
                             )
                             snack.showSnackbar("已将会话信息已复制到剪切板。注意：请勿将此会话发送到公开场合，这可能会导致您的账户被恶意修改。")
                         }
-                    }
+                    },
                 )
 
                 var show by remember { mutableStateOf(false) }
@@ -787,7 +781,7 @@ class SettingScreen : Screen {
                             TextButton(
                                 onClick = {
                                     nav.replaceAll(LoginScreen(true))
-                                }
+                                },
                             ) {
                                 Text("确定")
                             }
@@ -796,11 +790,11 @@ class SettingScreen : Screen {
                             TextButton(
                                 onClick = {
                                     show = false
-                                }
+                                },
                             ) {
                                 Text("取消")
                             }
-                        }
+                        },
                     )
                 }
                 SettingsMenuLink(
@@ -812,7 +806,7 @@ class SettingScreen : Screen {
                     },
                     onClick = {
                         show = true
-                    }
+                    },
                 )
             }
             SettingsGroup(title = { Text("高级") }) {
@@ -842,7 +836,6 @@ class SettingScreen : Screen {
                     },
                 )
 
-
                 SettingsMenuLink(
                     title = {
                         Text("导出单次日志")
@@ -851,9 +844,9 @@ class SettingScreen : Screen {
                         Text("可能会很卡")
                     },
                     onClick = {
-                       scope.launch {
-                           shareFile(cachePath.resolve("log").resolve("latest.log"), mime = MimeType.TEXT_PLAIN.mime)
-                       }
+                        scope.launch {
+                            shareFile(cachePath.resolve("log").resolve("latest.log"), mime = MimeType.TEXT_PLAIN.mime)
+                        }
                     },
                 )
                 SettingsMenuLink(
@@ -864,11 +857,12 @@ class SettingScreen : Screen {
                         Text("日志可能会占用存储空间")
                     },
                     onClick = {
-                       scope.launch {
-                           runCatching { //windows平台无法删除正在hold的文件
-                               cachePath.resolve("log").deleteRecursively()
-                           }
-                       }
+                        scope.launch {
+                            runCatching {
+                                // windows平台无法删除正在hold的文件
+                                cachePath.resolve("log").deleteRecursively()
+                            }
+                        }
                     },
                 )
                 SettingsMenuLink(
@@ -921,7 +915,7 @@ class SettingScreen : Screen {
                     },
                     onCheckedChange = {
                         checkUpdateOnStart = it
-                    }
+                    },
                 )
 
                 AnimatedVisibility(
@@ -937,7 +931,7 @@ class SettingScreen : Screen {
                         },
                         onCheckedChange = {
                             showCheckSuccessToast = it
-                        }
+                        },
                     )
 
                     SettingsSwitch(
@@ -948,10 +942,9 @@ class SettingScreen : Screen {
                         },
                         onCheckedChange = {
                             showCheckFailedToast = it
-                        }
+                        },
                     )
                 }
-
 
                 SettingsMenuLink(
                     title = {
@@ -962,7 +955,7 @@ class SettingScreen : Screen {
                     },
                     icon = {
                         Icon(Icons.Default.Build, "")
-                    }
+                    },
                 )
                 val nav = LocalNavigator.currentOrThrow
                 SettingsMenuLink(
@@ -974,11 +967,9 @@ class SettingScreen : Screen {
                     },
                     icon = {
                         Icon(Icons.Default.Info, "")
-                    }
+                    },
                 )
             }
         }
     }
 }
-
-
