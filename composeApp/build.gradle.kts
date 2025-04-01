@@ -142,7 +142,7 @@ kotlin {
 
             //room
             implementation(libs.androidx.room.runtime)
-            implementation(libs.androidx.sqlite.bundled)
+
 
             //save file to storage
             implementation(libs.filekit.compose)
@@ -171,6 +171,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.androidx.sqlite.bundled)
         }
 
         androidMain.dependencies {
@@ -181,6 +182,7 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.androidx.sqlite.bundled)
         }
 
         commonTest.dependencies {

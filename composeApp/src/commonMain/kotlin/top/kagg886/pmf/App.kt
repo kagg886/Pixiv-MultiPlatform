@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
@@ -436,7 +435,6 @@ fun setupEnv() {
                         .fallbackToDestructiveMigrationOnDowngrade(true)
                         .fallbackToDestructiveMigration(true)
                         .fallbackToDestructiveMigrationFrom(true, 1)
-                        .setDriver(BundledSQLiteDriver())
                         .setQueryCoroutineContext(Dispatchers.IO)
                         .build()
                 }
