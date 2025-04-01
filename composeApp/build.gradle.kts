@@ -1,8 +1,6 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule.GROUP
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val pkgName: String = "top.kagg886.pmf"
 val androidTargetVersion: Int = 36
@@ -56,13 +54,8 @@ buildConfig {
     buildConfigField("DATABASE_VERSION", 6)
 }
 kotlin {
-    androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-        }
-    }
-
+    jvmToolchain(17)
+    androidTarget()
     jvm("desktop")
 
     listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
@@ -258,10 +251,6 @@ android {
             manifestPlaceholders["APP_NAME"] = "${rootProject.name} (Debug)"
             applicationIdSuffix = ".debug"
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
