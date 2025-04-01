@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 val pkgName: String = "top.kagg886.pmf"
-val androidTargetVersion: Int = 35
+val androidTargetVersion: Int = 36
 
 // val pkgVersion: String = "1.0.0"
 // val pkgCode: Int = 1
