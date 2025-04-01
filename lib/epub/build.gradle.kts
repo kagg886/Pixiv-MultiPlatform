@@ -6,13 +6,15 @@ plugins {
 group = "top.kagg886.epub"
 version = "1.0"
 
+fun prop(key: String) = project.findProperty(key) as String
+
 android {
     namespace = "top.kagg886.epub"
 
-    compileSdk = 34
+    compileSdk = prop("TARGET_SDK").toInt()
 
     defaultConfig {
-        minSdk = 21
+        minSdk = prop("MIN_SDK").toInt()
     }
 
     buildTypes {

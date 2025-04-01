@@ -2,16 +2,15 @@ import com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule.GROUP
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
+fun prop(key: String) = project.findProperty(key) as String
+
 val pkgName: String = "top.kagg886.pmf"
-val androidTargetVersion: Int = 36
 
 // val pkgVersion: String = "1.0.0"
 // val pkgCode: Int = 1
 
-val appVersionName = System.getenv("APP_VERSION_NAME") ?: project.findProperty("APP_VERSION_NAME") as? String ?: ""
-check(appVersionName.startsWith("v")) {
-    "APP_VERSION not supported, current is $appVersionName"
-}
+val appVersionName = System.getenv("APP_VERSION_NAME") ?: prop("APP_VERSION_NAME")
+check(appVersionName.startsWith("v")) { "APP_VERSION not supported, current is $appVersionName" }
 val pkgVersion: String = appVersionName.substring(1)
 val pkgCode: Int = with(pkgVersion.split(".")) {
     val x = this[0].toInt()
@@ -186,7 +185,7 @@ aboutLibraries {
 
 android {
     namespace = pkgName
-    compileSdk = androidTargetVersion
+    compileSdk = prop("TARGET_SDK").toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
 //    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
@@ -219,8 +218,8 @@ android {
 
     defaultConfig {
         applicationId = pkgName
-        minSdk = 24
-        targetSdk = androidTargetVersion
+        minSdk = prop("MIN_SDK").toInt()
+        targetSdk = prop("TARGET_SDK").toInt()
         versionCode = pkgCode
         versionName = pkgVersion
 
