@@ -9,7 +9,7 @@ crate-type = ["staticlib"]
 [dependencies]
 image = { default-features = false, version = "0.25", features = ["png", "jpeg"] }
 gif = "0.13"
-rayon = "1.10"
+futures = "0.3"
 serde_cbor = "0.11"
 serde = { version = "1.0", features = ["derive"] }
 anyhow = "1.0"
