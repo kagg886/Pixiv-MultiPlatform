@@ -1,6 +1,6 @@
-use std::{fs::File, ptr::slice_from_raw_parts, time::Duration};
+use std::{fs::File, ptr::slice_from_raw_parts};
 use anyhow::Result;
-use image::{codecs::gif::{GifEncoder, Repeat}, Delay, Frame};
+use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -16,18 +16,21 @@ struct GifEncodeRequest {
     metadata: Vec<UgoiraFrame>,
     speed: i32,
     dstPath: String,
+    width: u16,
+    height: u16,
 }
 
 fn encode_animated_image(src_buffer: &[u8]) -> Result<()> {
-    let request: GifEncodeRequest = serde_cbor::from_slice(src_buffer)?;
-    let dst_file = File::create(request.dstPath)?;
-    let mut encoder = GifEncoder::new_with_speed(dst_file, request.speed);
+    let GifEncodeRequest { metadata, speed, dstPath, width, height } = serde_cbor::from_slice(src_buffer)?;
+    let dst_file = File::create(dstPath)?;
+    let mut encoder = Encoder::new(dst_file, width, height, &[])?;
     encoder.set_repeat(Repeat::Infinite)?;
-    for frame_info in request.metadata {
+    for frame_info in metadata {
         let image = image::open(frame_info.file)?;
-        let delay = Delay::from_saturating_duration(Duration::from_millis(frame_info.delay));
-        let frame = Frame::from_parts(image.into_rgba8(), 0, 0, delay);
-        encoder.encode_frame(frame)?
+        let mut frame = Frame::from_rgba_speed(width, height, &mut image.to_rgba8(), speed);
+        frame.delay = (frame_info.delay / 10) as u16;
+        frame.dispose = DisposalMethod::Background;
+        encoder.write_frame(&frame)?;
     }
     Ok(())
 }
