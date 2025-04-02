@@ -72,17 +72,18 @@ class IllustDetailViewModel(private val illust: Illust) :
                     zip.writeBytes(net.get(meta.url.content).bodyAsBytes())
 
                     useTempDir { workDir ->
+                        loadingState.data.tryEmit("解压动图帧数据至临时工作区")
                         zip.unzip(workDir)
                         val frames = meta.frames.map { (file, delay) ->
                             UgoiraFrame("$workDir/$file", delay)
                         }
-                        encodeGifPlatform(GifEncodeRequest(frames, 30, "$gif"))
+                        loadingState.data.tryEmit("重新编码为GIF中")
+                        encodeGifPlatform(GifEncodeRequest(frames, 15, "$gif"))
                     }
                 }
             }
 
             reduce {
-                loadingState.data.tryEmit("编码gif中")
                 val uri = when (currentPlatform) {
                     // https://github.com/panpf/sketch/issues/239
                     Platform.Desktop.Windows -> gif.source().use { newBase64Uri("image/gif", it.buffer().readByteString().base64()) }
