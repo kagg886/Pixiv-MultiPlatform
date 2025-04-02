@@ -8,8 +8,6 @@ data class GifEncodeRequest(
     val metadata: List<UgoiraFrame>,
     val speed: Int,
     val dstPath: String,
-    val width: Int,
-    val height: Int,
 )
 
 expect fun encodeGifPlatform(request: GifEncodeRequest)

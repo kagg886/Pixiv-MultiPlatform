@@ -76,7 +76,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                         val frames = meta.frames.map { (file, delay) ->
                             UgoiraFrame("$workDir/$file", delay)
                         }
-                        encodeGifPlatform(GifEncodeRequest(frames, 30, "$gif", illust.width, illust.height))
+                        encodeGifPlatform(GifEncodeRequest(frames, 30, "$gif"))
                     }
                 }
             }
