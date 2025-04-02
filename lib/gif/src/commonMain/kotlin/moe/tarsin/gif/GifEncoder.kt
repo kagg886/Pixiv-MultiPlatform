@@ -7,7 +7,7 @@ import top.kagg886.pixko.module.ugoira.UgoiraFrame
 data class GifEncodeRequest(
     val metadata: List<UgoiraFrame>,
     val speed: Int,
-    val dstPath: String
+    val dstPath: String,
 )
 
 expect fun encodeGifPlatform(request: GifEncodeRequest)
