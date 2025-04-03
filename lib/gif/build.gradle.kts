@@ -48,7 +48,7 @@ kotlin {
             compilations.all {
                 cinterops {
                     val gif by creating {
-                        defFile(project.file("src/nativeMain/interop/libgif_rust.def"))
+                        defFile("src/nativeMain/interop/libgif_rust.def")
                         packageName("moe.tarsin.gif.cinterop")
                         includeDirs("src/nativeMain/interop/include")
                         extraOpts("-libraryPath", "src/rust/target/release")
