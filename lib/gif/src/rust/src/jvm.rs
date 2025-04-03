@@ -1,13 +1,13 @@
 #![cfg(feature = "jvm")]
 use crate::encode_animated_image_unsafe;
 use jni::{
+    JNIEnv,
     objects::{JByteBuffer, JClass},
     sys::jint,
-    JNIEnv,
 };
 use jni_fn::jni_fn;
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("moe.tarsin.gif.NativeBridgeKt")]
 pub fn encode(env: JNIEnv, _class: JClass, buffer: JByteBuffer, limit: jint) {
