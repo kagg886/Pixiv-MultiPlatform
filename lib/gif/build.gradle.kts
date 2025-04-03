@@ -77,25 +77,25 @@ kotlin {
     }
 }
 
-val jvmNonAndroidNatveLibBuild = tasks.register<Exec>("jvmNonAndroidNatveLibBuild") {
+val linuxJvmCargoTask = tasks.register<Exec>("linuxJvmCargoTask") {
     onlyIf { System.getProperty("os.name").startsWith("Linux") }
     workingDir = project.file("src/rust")
     commandLine("bash", "-c", "cargo build --release --features jvm")
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
-    dependsOn(jvmNonAndroidNatveLibBuild)
+    dependsOn(linuxJvmCargoTask)
     from(project.file("src/rust/target/release/libgif_rust.so"))
 }
 
-val linuxNativeRustBuild = tasks.register<Exec>("linuxNativeRustBuild") {
+val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
     onlyIf { System.getProperty("os.name").startsWith("Linux") }
     workingDir = project.file("src/rust")
-    commandLine("bash", "-c", "cargo build")
+    commandLine("bash", "-c", "cargo build --release")
 }
 
 tasks.named<ProcessResources>("linuxX64ProcessResources") {
-    dependsOn(linuxNativeRustBuild)
+    dependsOn(linuxNativeCargoTask)
 }
 
 val ktlintVersion = libs.ktlint.get().version
