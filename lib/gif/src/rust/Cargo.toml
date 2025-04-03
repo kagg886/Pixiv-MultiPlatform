@@ -16,7 +16,6 @@ image = { default-features = false, version = "0.25", features = ["png", "jpeg"]
 gif = "0.13"
 serde_cbor = "0.11"
 serde = { version = "1.0", features = ["derive"] }
-anyhow = "1.0"
 tokio = { version = "1.44", features = ["rt-multi-thread"] }
 
 [profile.release]
