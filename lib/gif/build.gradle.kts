@@ -90,19 +90,11 @@ kotlin {
 val jvmNonAndroidNatveLibBuild = tasks.register<Exec>("jvmNonAndroidNatveLibBuild") {
     onlyIf { System.getProperty("os.name").startsWith("Linux") }
     workingDir = project.file("src/rust")
-    commandLine(
-        "bash", "-c",
-        """
-            mkdir -p build && \
-            cd build && \
-            cmake -DCMAKE_BUILD_TYPE=Release .. && \
-            make
-        """.trimIndent()
-    )
+    commandLine("bash", "-c", "cargo build --release --features jvm")
 }
 
 // 配置JVM的processResources任务
 tasks.named<ProcessResources>("jvmProcessResources") {
     dependsOn(jvmNonAndroidNatveLibBuild)
-    from(project.file("src/rust/build/libgif_rust.so"))
+    from(project.file("src/rust/target/release/libgif_rust.so"))
 }
