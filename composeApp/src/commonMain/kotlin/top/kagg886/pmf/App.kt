@@ -37,8 +37,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
+import moe.tarsin.gif.Platform as GifPlatform
 import moe.tarsin.gif.loadNativeGifEncoder
 import okio.Path
+import okio.Path.Companion.toPath
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -50,9 +52,12 @@ import org.koin.dsl.module
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
@@ -348,7 +353,16 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
 }
 
 fun setupEnv() {
-    loadNativeGifEncoder()
+    loadNativeGifEncoder(
+        "../lib/app/".toPath(),
+        dataPath,
+        when (currentPlatform) {
+            Platform.Desktop.Windows -> GifPlatform.Windows
+            Platform.Desktop.Linux -> GifPlatform.Linux
+            Platform.Desktop.MacOS -> GifPlatform.MacOS
+            else -> GifPlatform.Other
+        },
+    )
     // init logger
     initFileLogger()
 

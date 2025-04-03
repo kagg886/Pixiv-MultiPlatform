@@ -1,6 +1,7 @@
 package moe.tarsin.gif
 
 import kotlinx.serialization.Serializable
+import okio.Path
 import top.kagg886.pixko.module.ugoira.UgoiraFrame
 
 @Serializable
@@ -10,5 +11,12 @@ data class GifEncodeRequest(
     val dstPath: String,
 )
 
+enum class Platform {
+    Windows,
+    Linux,
+    MacOS,
+    Other,
+}
+
 expect fun encodeGifPlatform(request: GifEncodeRequest)
-expect fun loadNativeGifEncoder()
+expect fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform)

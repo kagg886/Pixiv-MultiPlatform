@@ -1,7 +1,10 @@
 package moe.tarsin.gif
 
+import okio.Path
+
 actual fun encodeGifPlatform(request: GifEncodeRequest) {
     TODO("Not yet implemented")
 }
 
-actual fun loadNativeGifEncoder() = Unit
+// Nothing to do, already linked.
+actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform) = Unit

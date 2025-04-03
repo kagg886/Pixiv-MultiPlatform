@@ -56,6 +56,7 @@ kotlin {
                 implementation(libs.kermit)
                 implementation(libs.pixko)
                 implementation(libs.kotlinx.serialization.cbor)
+                implementation(libs.okio)
             }
         }
     }
