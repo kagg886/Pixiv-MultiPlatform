@@ -1,6 +1,11 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule.GROUP
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
 
 fun prop(key: String) = project.findProperty(key) as String
 
@@ -342,5 +347,106 @@ spotless {
     }
     kotlinGradle {
         ktlint(ktlintVersion)
+    }
+}
+
+
+// ------------------ IOS Packages Build ------------------
+
+// context path is rootProject.dir("iosApp")
+fun ipaArguments(
+    destination: String = "generic/platform=iOS",
+    sdk: String = "iphoneos",
+): Array<String> {
+    return arrayOf(
+        "xcodebuild",
+        "-project","Pixiv-MultiPlatform.xcodeproj",
+        "-scheme", "Pixiv-MultiPlatform",
+        "-destination", destination,
+        "-sdk", sdk,
+        "CODE_SIGNING_ALLOWED=NO",
+        "CODE_SIGNING_REQUIRED=NO",
+    )
+}
+
+val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
+    group = "build"
+    description = "Builds the iOS framework for Release"
+    workingDir(rootProject.file("iosApp"))
+
+    val output = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
+    outputs.dir(output)
+    commandLine(
+        *ipaArguments(),
+        "archive",
+        "-configuration", "Release",
+        "-archivePath", output.get().asFile.absolutePath,
+    )
+}
+
+tasks.register("buildReleaseIpa", BuildIpaTask::class) {
+    description = "Manually packages the .app from the .xcarchive into an unsigned .ipa"
+    group = "build"
+
+    // Adjust these paths as needed
+    archiveDir = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
+    outputIpa = layout.buildDirectory.file("archives/release/Pixiv-MultiPlatform.ipa")
+    dependsOn(buildReleaseArchive)
+}
+
+
+@CacheableTask
+abstract class BuildIpaTask : DefaultTask() {
+
+    @get:PathSensitive(PathSensitivity.ABSOLUTE)
+    @get:InputDirectory
+    abstract val archiveDir: DirectoryProperty
+
+    @get:OutputFile
+    abstract val outputIpa: RegularFileProperty
+
+    @TaskAction
+    fun buildIpa() {
+        // 1. Locate the .app in the .xcarchive
+        val appDir = archiveDir.get().asFile.resolve("Products/Applications/Pixiv-MultiPlatform.app")
+        if (!appDir.exists()) {
+            throw GradleException("Could not find Pixiv-MultiPlatform.app in archive at: ${appDir.absolutePath}")
+        }
+
+        // 2. Create a temporary Payload folder
+        val payloadDir = File(temporaryDir, "Payload").apply { mkdirs() }
+        val destApp = File(payloadDir, "Pixiv-MultiPlatform.app")
+
+        // 3. Copy the .app into Payload/
+        appDir.copyRecursively(destApp, overwrite = true)
+
+        // 4. Zip the Payload folder
+        val zipFile = File(temporaryDir, "Pixiv-MultiPlatform.zip")
+        zipDirectory(payloadDir, zipFile)
+
+        // 5. Rename .zip to .ipa
+        val ipaFile = outputIpa.get().asFile
+        ipaFile.parentFile.mkdirs()
+        if (ipaFile.exists()) ipaFile.delete()
+        zipFile.renameTo(ipaFile)
+
+        logger.lifecycle("Created unsigned IPA at: ${ipaFile.absolutePath}")
+    }
+
+    /**
+     * Zips the given [sourceDir] (including all subdirectories) into [outputFile].
+     */
+    private fun zipDirectory(sourceDir: File, outputFile: File) {
+        ZipOutputStream(BufferedOutputStream(FileOutputStream(outputFile))).use { zipOut ->
+            sourceDir.walkTopDown().forEach { file ->
+                if (file.isFile) {
+                    val relativePath = file.relativeTo(sourceDir.parentFile).path
+                    val zipEntry = ZipEntry(relativePath)
+                    zipOut.putNextEntry(zipEntry)
+                    file.inputStream().use { it.copyTo(zipOut) }
+                    zipOut.closeEntry()
+                }
+            }
+        }
     }
 }

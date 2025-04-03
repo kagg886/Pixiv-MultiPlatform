@@ -6,25 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		93CAA9472D9D5EA500D9B16D /* ComposeApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93CAA9462D9D5EA500D9B16D /* ComposeApp.framework */; };
-		93CAA9482D9D5EA500D9B16D /* ComposeApp.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 93CAA9462D9D5EA500D9B16D /* ComposeApp.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		93CAA9492D9D5EA500D9B16D /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				93CAA9482D9D5EA500D9B16D /* ComposeApp.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		93CAA9212D9D566F00D9B16D /* Pixiv-MultiPlatform.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pixiv-MultiPlatform.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93CAA9462D9D5EA500D9B16D /* ComposeApp.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ComposeApp.framework; path = "../composeApp/build/xcode-frameworks/Debug/iphonesimulator18.2/ComposeApp.framework"; sourceTree = "<group>"; };
@@ -56,7 +37,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				93CAA9472D9D5EA500D9B16D /* ComposeApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +79,6 @@
 				93CAA91D2D9D566F00D9B16D /* Sources */,
 				93CAA91E2D9D566F00D9B16D /* Frameworks */,
 				93CAA91F2D9D566F00D9B16D /* Resources */,
-				93CAA9492D9D5EA500D9B16D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
