@@ -3,7 +3,7 @@ mod jvm;
 use anyhow::Result;
 use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
-use std::{fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
+use std::{collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
 use tokio::runtime::Runtime;
 
 #[derive(Deserialize, Clone)]
@@ -37,7 +37,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
     let f = |frame_info: UgoiraFrame| {
         let dimen = dimen.clone();
         move || {
-            let file = &frame_info.file;
+            let file = frame_info.file;
             let image = image::open(file.clone()).ok()?;
             let (width, height) = (image.width() as u16, image.height() as u16);
             dimen.get_or_init(|| (width, height));
@@ -48,12 +48,19 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
             Some(frame)
         }
     };
-    for batch in metadata.chunks(8) {
-        let stream: Vec<_> = batch.iter().map(|u| rt.spawn_blocking(f(u.clone()))).collect();
-        for hnd in stream {
-            let frame = hnd.await.unwrap().unwrap();
-            LazyLock::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok();
+    let mut c = |frame: Frame<'_>| {
+        LazyLock::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok().unwrap()
+    };
+    let mut deque = VecDeque::new();
+    for frame_info in metadata {
+        deque.push_back(rt.spawn_blocking(f(frame_info)));
+        if deque.len() == 8 {
+            let hnd = deque.pop_front().unwrap();
+            c(hnd.await.unwrap().unwrap())
         }
+    }
+    for hnd in deque {
+        c(hnd.await.unwrap().unwrap());
     }
     Ok(())
 }
