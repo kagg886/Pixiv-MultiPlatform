@@ -16,4 +16,4 @@ actual fun encodeGifPlatform(request: GifEncodeRequest) {
     }
 }
 
-actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform) = System.loadLibrary("gif_rust")
+actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform, debug: Boolean) = System.loadLibrary("gif_rust")

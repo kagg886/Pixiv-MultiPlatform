@@ -362,6 +362,7 @@ fun setupEnv() {
             Platform.Desktop.MacOS -> GifPlatform.MacOS
             else -> GifPlatform.Other
         },
+        false,
     )
     // init logger
     initFileLogger()

@@ -7,4 +7,4 @@ actual fun encodeGifPlatform(request: GifEncodeRequest) {
 }
 
 // Nothing to do, already linked.
-actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform) = Unit
+actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform, debug: Boolean) = Unit

@@ -19,4 +19,4 @@ enum class Platform {
 }
 
 expect fun encodeGifPlatform(request: GifEncodeRequest)
-expect fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform)
+expect fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform, debug: Boolean)
