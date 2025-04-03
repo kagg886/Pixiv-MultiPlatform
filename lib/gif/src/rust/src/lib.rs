@@ -1,4 +1,5 @@
 #![feature(lazy_get)]
+mod jvm;
 use anyhow::Result;
 use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
@@ -64,8 +65,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
     Ok(())
 }
 
-#[no_mangle]
-pub extern "C" fn encode_animated_image_unsafe(ptr: *const u8, len: i32) {
+pub fn encode_request_from_buffer(ptr: *const u8, len: i32) {
     let slice = unsafe { &*slice_from_raw_parts(ptr, len as usize) };
     static RT: OnceLock<Runtime> = OnceLock::new();
     let rt = RT.get_or_init(|| Runtime::new().unwrap());

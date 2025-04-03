@@ -1,12 +1,17 @@
 [package]
-name = "gif_encoder"
+name = "gif_rust"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-crate-type = ["staticlib"]
+crate-type = ["staticlib", "cdylib"]
+
+[features]
+jvm = ["dep:jni", "dep:jni_fn"]
 
 [dependencies]
+jni = { version = "0.21", optional = true }
+jni_fn = { version = "0.1", optional = true }
 image = { default-features = false, version = "0.25", features = ["png", "jpeg"] }
 gif = "0.13"
 serde_cbor = "0.11"
@@ -16,5 +21,6 @@ tokio = { version = "1.44", features = ["rt-multi-thread"] }
 
 [profile.release]
 panic = "abort"
+strip = true
 lto = true
 codegen-units = 1
