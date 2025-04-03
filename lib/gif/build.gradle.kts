@@ -70,6 +70,10 @@ kotlin {
                 implementation(libs.okio)
             }
         }
+
+        linuxX64Main.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
 
@@ -79,10 +83,19 @@ val jvmNonAndroidNatveLibBuild = tasks.register<Exec>("jvmNonAndroidNatveLibBuil
     commandLine("bash", "-c", "cargo build --release --features jvm")
 }
 
-// 配置JVM的processResources任务
 tasks.named<ProcessResources>("jvmProcessResources") {
     dependsOn(jvmNonAndroidNatveLibBuild)
     from(project.file("src/rust/target/release/libgif_rust.so"))
+}
+
+val linuxNativeRustBuild = tasks.register<Exec>("linuxNativeRustBuild") {
+    onlyIf { System.getProperty("os.name").startsWith("Linux") }
+    workingDir = project.file("src/rust")
+    commandLine("bash", "-c", "cargo build")
+}
+
+tasks.named<ProcessResources>("linuxX64ProcessResources") {
+    dependsOn(linuxNativeRustBuild)
 }
 
 val ktlintVersion = libs.ktlint.get().version

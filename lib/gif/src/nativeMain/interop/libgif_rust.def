@@ -1,2 +1,3 @@
 headers = gif_rust.h
 staticLibraries = libgif_rust.a
+linkerOpts = -Bstatic -Lsrc/rust/target/release/ -lgif_rust
