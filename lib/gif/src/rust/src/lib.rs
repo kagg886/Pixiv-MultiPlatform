@@ -26,11 +26,7 @@ struct GifEncodeRequest {
 }
 
 async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
-    let GifEncodeRequest {
-        metadata,
-        speed,
-        dstPath,
-    } = serde_cbor::from_slice(src_buffer)?;
+    let GifEncodeRequest { metadata, speed, dstPath } = serde_cbor::from_slice(src_buffer)?;
     let dst_file = File::create(dstPath)?;
     let dimen = Arc::new(OnceLock::new());
     let mut encoder = LazyLock::new(|| {
@@ -56,10 +52,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
         }
     };
     for batch in metadata.chunks(8) {
-        let stream: Vec<_> = batch
-            .iter()
-            .map(|u| rt.spawn_blocking(f(u.clone())))
-            .collect();
+        let stream: Vec<_> = batch.iter().map(|u| rt.spawn_blocking(f(u.clone()))).collect();
         for hnd in stream {
             let frame = hnd.await.unwrap().unwrap();
             LazyLock::force_mut(&mut encoder).write_frame(&frame).ok();
