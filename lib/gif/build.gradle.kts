@@ -1,9 +1,8 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.spotless)
 }
 
 group = "top.kagg886.gif"
@@ -29,7 +28,6 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -43,7 +41,6 @@ android {
 
 kotlin {
     jvmToolchain(17)
-
     jvm()
     iosX64()
     iosArm64()
@@ -56,9 +53,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(compose.ui)
-                implementation(project(":lib:okio-enhancement-util"))
-                api(libs.korlibs.io)
                 implementation(libs.kermit)
                 implementation(libs.pixko)
                 implementation(libs.kotlinx.serialization.cbor)
@@ -77,4 +71,17 @@ val jvmNonAndroidNatveLibBuild = tasks.register<Exec>("jvmNonAndroidNatveLibBuil
 tasks.named<ProcessResources>("jvmProcessResources") {
     dependsOn(jvmNonAndroidNatveLibBuild)
     from(project.file("src/rust/target/release/libgif_rust.so"))
+}
+
+val ktlintVersion = libs.ktlint.get().version
+
+spotless {
+    kotlin {
+        // https://github.com/diffplug/spotless/issues/111
+        target("src/**/*.kt")
+        ktlint(ktlintVersion)
+    }
+    kotlinGradle {
+        ktlint(ktlintVersion)
+    }
 }

@@ -15,4 +15,4 @@ actual fun encodeGifPlatform(request: GifEncodeRequest) {
     }
 }
 
-actual fun loadNativeGifEncoder() = System.loadLibrary("gif_rust")
+actual fun loadNativeGifEncoder() = System.load("/home/tarsin/Pixiv-MultiPlatform/lib/gif/src/rust/target/release/libgif_rust.so")
