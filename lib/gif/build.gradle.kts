@@ -19,6 +19,11 @@ android {
 
     defaultConfig {
         minSdk = prop("MIN_SDK").toInt()
+        externalNativeBuild {
+            cmake {
+                targets += "cargo-build_gif_rust"
+            }
+        }
     }
 
     buildTypes {

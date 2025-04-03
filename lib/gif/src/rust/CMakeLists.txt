@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
+project(gif_rust C)
 include(FetchContent)
 
 FetchContent_Declare(
