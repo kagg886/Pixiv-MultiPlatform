@@ -44,6 +44,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
             let mut frame = Frame::from_rgba_speed(width, height, &mut image.to_rgba8(), speed);
             frame.delay = (frame_info.delay / 10) as u16;
             frame.dispose = DisposalMethod::Background;
+            frame.make_lzw_pre_encoded();
             Some(frame)
         }
     };
@@ -51,7 +52,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
         let stream: Vec<_> = batch.iter().map(|u| rt.spawn_blocking(f(u.clone()))).collect();
         for hnd in stream {
             let frame = hnd.await.unwrap().unwrap();
-            LazyLock::force_mut(&mut encoder).write_frame(&frame).ok();
+            LazyLock::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok();
         }
     }
     Ok(())
