@@ -3,7 +3,7 @@ mod jvm;
 use anyhow::Result;
 use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
-use std::{collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
+use std::{cell::LazyCell, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, OnceLock}};
 use tokio::runtime::Runtime;
 
 #[derive(Deserialize, Clone)]
@@ -25,7 +25,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
     let GifEncodeRequest { metadata, speed, dstPath } = serde_cbor::from_slice(src_buffer)?;
     let dst_file = File::create(dstPath)?;
     let dimen = Arc::new(OnceLock::new());
-    let mut encoder = LazyLock::new(|| {
+    let mut encoder = LazyCell::new(|| {
         let (w, h) = dimen.get().unwrap();
         Encoder::new(dst_file, *w, *h, &[])
             .and_then(|mut encoder| {
@@ -49,7 +49,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
         }
     };
     let mut c = |frame: Frame<'_>| {
-        LazyLock::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok().unwrap()
+        LazyCell::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok().unwrap()
     };
     let mut deque = VecDeque::new();
     for frame_info in metadata {
