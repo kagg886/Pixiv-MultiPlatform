@@ -10,6 +10,7 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
+import moe.tarsin.gif.Frame
 import moe.tarsin.gif.GifEncodeRequest
 import moe.tarsin.gif.encodeGifPlatform
 import okio.*
@@ -77,7 +78,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                             UgoiraFrame("$workDir/$file", delay)
                         }
                         loadingState.data.tryEmit("重新编码为GIF中")
-                        encodeGifPlatform(GifEncodeRequest(frames, 15, "$gif"))
+                        encodeGifPlatform(GifEncodeRequest(frames.map { (a, b) -> Frame(a, b) }, 15, "$gif"))
                     }
                 }
             }

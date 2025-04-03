@@ -1,0 +1,2 @@
+headers = gif_rust.h
+staticLibraries = libgif_rust.a

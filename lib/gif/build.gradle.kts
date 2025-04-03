@@ -42,9 +42,21 @@ android {
 kotlin {
     jvmToolchain(17)
     jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64(), linuxX64()).forEach { t ->
+        t.apply {
+            compilations.all {
+                cinterops {
+                    val gif by creating {
+                        defFile(project.file("src/nativeMain/interop/libgif_rust.def"))
+                        packageName("moe.tarsin.gif.cinterop")
+                        includeDirs("src/nativeMain/interop/include")
+                        extraOpts("-libraryPath", "src/rust/target/release")
+                    }
+                }
+            }
+        }
+    }
 
     androidTarget {
         publishLibraryVariants("release")
@@ -54,7 +66,6 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kermit)
-                implementation(libs.pixko)
                 implementation(libs.kotlinx.serialization.cbor)
                 implementation(libs.okio)
             }

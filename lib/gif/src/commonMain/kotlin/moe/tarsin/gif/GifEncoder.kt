@@ -2,11 +2,16 @@ package moe.tarsin.gif
 
 import kotlinx.serialization.Serializable
 import okio.Path
-import top.kagg886.pixko.module.ugoira.UgoiraFrame
+
+@Serializable
+data class Frame(
+    val file: String,
+    val delay: Int,
+)
 
 @Serializable
 data class GifEncodeRequest(
-    val metadata: List<UgoiraFrame>,
+    val metadata: List<Frame>,
     val speed: Int,
     val dstPath: String,
 )
