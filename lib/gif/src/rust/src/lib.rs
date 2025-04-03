@@ -44,7 +44,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
     });
     let f = |frame_info: UgoiraFrame| {
         let dimen = dimen.clone();
-        async move {
+        move || {
             let file = &frame_info.file;
             let image = image::open(file.clone()).ok()?;
             let (width, height) = (image.width() as u16, image.height() as u16);
@@ -56,7 +56,10 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
         }
     };
     for batch in metadata.chunks(8) {
-        let stream: Vec<_> = batch.iter().map(|u| rt.spawn(f(u.clone()))).collect();
+        let stream: Vec<_> = batch
+            .iter()
+            .map(|u| rt.spawn_blocking(f(u.clone())))
+            .collect();
         for hnd in stream {
             let frame = hnd.await.unwrap().unwrap();
             LazyLock::force_mut(&mut encoder).write_frame(&frame).ok();
