@@ -1,10 +1,10 @@
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule.GROUP
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 
 fun prop(key: String) = project.findProperty(key) as String
@@ -350,24 +350,21 @@ spotless {
     }
 }
 
-
 // ------------------ IOS Packages Build ------------------
 
 // context path is rootProject.dir("iosApp")
 fun ipaArguments(
     destination: String = "generic/platform=iOS",
     sdk: String = "iphoneos",
-): Array<String> {
-    return arrayOf(
-        "xcodebuild",
-        "-project","Pixiv-MultiPlatform.xcodeproj",
-        "-scheme", "Pixiv-MultiPlatform",
-        "-destination", destination,
-        "-sdk", sdk,
-        "CODE_SIGNING_ALLOWED=NO",
-        "CODE_SIGNING_REQUIRED=NO",
-    )
-}
+): Array<String> = arrayOf(
+    "xcodebuild",
+    "-project", "Pixiv-MultiPlatform.xcodeproj",
+    "-scheme", "Pixiv-MultiPlatform",
+    "-destination", destination,
+    "-sdk", sdk,
+    "CODE_SIGNING_ALLOWED=NO",
+    "CODE_SIGNING_REQUIRED=NO",
+)
 
 val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
     group = "build"
@@ -379,8 +376,10 @@ val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
     commandLine(
         *ipaArguments(),
         "archive",
-        "-configuration", "Release",
-        "-archivePath", output.get().asFile.absolutePath,
+        "-configuration",
+        "Release",
+        "-archivePath",
+        output.get().asFile.absolutePath,
     )
 }
 
@@ -393,7 +392,6 @@ tasks.register("buildReleaseIpa", BuildIpaTask::class) {
     outputIpa = layout.buildDirectory.file("archives/release/Pixiv-MultiPlatform.ipa")
     dependsOn(buildReleaseArchive)
 }
-
 
 @CacheableTask
 abstract class BuildIpaTask : DefaultTask() {
