@@ -1,10 +1,6 @@
 #![cfg(feature = "jvm")]
 use crate::encode_animated_image_unsafe;
-use jni::{
-    JNIEnv,
-    objects::{JByteBuffer, JClass},
-    sys::jint,
-};
+use jni::{JNIEnv, objects::{JByteBuffer, JClass}, sys::jint};
 use jni_fn::jni_fn;
 
 #[unsafe(no_mangle)]

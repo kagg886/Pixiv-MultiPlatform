@@ -1,1 +1,3 @@
 use_small_heuristics="Max"
+imports_layout="Horizontal"
+imports_indent="Visual"

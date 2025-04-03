@@ -3,11 +3,7 @@ mod jvm;
 use anyhow::Result;
 use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
-use std::{
-    fs::File,
-    ptr::slice_from_raw_parts,
-    sync::{Arc, LazyLock, OnceLock},
-};
+use std::{fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
 use tokio::runtime::Runtime;
 
 #[derive(Deserialize, Clone)]
