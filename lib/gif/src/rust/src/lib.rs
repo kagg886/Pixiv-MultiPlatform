@@ -3,7 +3,7 @@ mod jvm;
 use anyhow::Result;
 use gif::{DisposalMethod, Encoder, Frame, Repeat};
 use serde::Deserialize;
-use std::{cell::LazyCell, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, OnceLock}};
+use std::{cell::LazyCell, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
 use tokio::runtime::Runtime;
 
 #[derive(Deserialize, Clone)]
@@ -68,7 +68,6 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) -> Result<()> {
 #[unsafe(no_mangle)]
 pub extern "C" fn encode_animated_image_unsafe(ptr: *const u8, len: i32) {
     let slice = unsafe { &*slice_from_raw_parts(ptr, len as usize) };
-    static RT: OnceLock<Runtime> = OnceLock::new();
-    let rt = RT.get_or_init(|| Runtime::new().unwrap());
-    rt.block_on(encode_animated_image(slice, rt)).unwrap();
+    static RT: LazyLock<Runtime> = LazyLock::new(|| Runtime::new().unwrap());
+    RT.block_on(encode_animated_image(slice, &RT)).unwrap();
 }
