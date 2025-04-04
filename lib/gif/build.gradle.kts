@@ -50,7 +50,7 @@ android {
 val kotlinArchToRustArch = mapOf(
     "iosX64" to "x86_64-apple-ios",
     "iosArm64" to "aarch64-apple-ios",
-    "iosSimulatorArm64" to "aarch64-apple-ios-sim"
+    "iosSimulatorArm64" to "aarch64-apple-ios-sim",
 )
 
 kotlin {
@@ -66,7 +66,7 @@ kotlin {
                         packageName("moe.tarsin.gif.cinterop")
                         includeDirs("src/iosMain/interop/include")
 
-                        extraOpts("-libraryPath", "src/rust/target/${kotlinArchToRustArch[t.targetName]!!}/release") //FIXME: custom target rust
+                        extraOpts("-libraryPath", "src/rust/target/${kotlinArchToRustArch[t.targetName]!!}/release") // FIXME: custom target rust
                     }
                 }
             }
@@ -152,8 +152,7 @@ tasks.named<ProcessResources>("jvmProcessResources") {
     from(project.file("src/rust/target/release/$libName"), project.file("src/rust/target/release/gif-build.hash"))
 }
 
-
-for ((kotlinArch,rustArch) in kotlinArchToRustArch) {
+for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
     val iosNativeCargoTask = tasks.register<Exec>("${kotlinArch}NativeCargoTask") {
         onlyIf { System.getProperty("os.name").startsWith("Mac") }
         workingDir = project.file("src/rust")
@@ -164,8 +163,6 @@ for ((kotlinArch,rustArch) in kotlinArchToRustArch) {
         dependsOn(iosNativeCargoTask)
     }
 }
-
-
 
 val ktlintVersion = libs.ktlint.get().version
 
