@@ -1,7 +1,14 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -9,7 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +32,15 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.ui.component.*
+import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
+import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.FavoriteButton
+import top.kagg886.pmf.ui.component.FavoriteState
+import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
@@ -74,7 +95,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                     .fillMaxSize(),
             ) {
                 if (state.novels.isEmpty()) {
-                    ErrorPage(text = "页面为空") {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                         scope.launch {
                             model.initNovel()
                         }
