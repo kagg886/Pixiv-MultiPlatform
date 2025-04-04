@@ -176,14 +176,10 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             reduce {
+                val illust = state.illust.copy(isBookMarked = true)
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(isBookMarked = true),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
             postSideEffect(IllustDetailSideEffect.Toast("收藏成功~"))
@@ -202,14 +198,10 @@ class IllustDetailViewModel(private val illust: Illust) :
                 return@runOn
             }
             reduce {
+                val illust = state.illust.copy(isBookMarked = false)
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(isBookMarked = false),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
             postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
@@ -235,26 +227,11 @@ class IllustDetailViewModel(private val illust: Illust) :
                 postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
             }
             reduce {
+                val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(
-                                user = state.illust.user.copy(
-                                    isFollowed = true,
-                                ),
-                            ),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
-//                state.copy(
-//                    illust = state.illust.copy(
-//                        user = state.illust.user.copy(
-//                            isFollowed = true
-//                        )
-//                    )
-//                )
             }
         }
     }
@@ -271,18 +248,10 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
             postSideEffect(IllustDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
             reduce {
+                val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(
-                                user = state.illust.user.copy(
-                                    isFollowed = false,
-                                ),
-                            ),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
         }
@@ -295,11 +264,9 @@ class IllustDetailViewModel(private val illust: Illust) :
 
 sealed class IllustDetailViewState {
     data class Loading(val data: MutableStateFlow<String> = MutableStateFlow("")) : IllustDetailViewState()
-
     data object Error : IllustDetailViewState()
     sealed class Success : IllustDetailViewState() {
         abstract val illust: Illust
-
         data class Normal(override val illust: Illust) : Success()
         data class GIF(override val illust: Illust, val data: String) : Success()
     }
