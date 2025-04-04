@@ -38,7 +38,6 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
-import okio.Path.Companion.toPath
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -50,12 +49,9 @@ import org.koin.dsl.module
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage

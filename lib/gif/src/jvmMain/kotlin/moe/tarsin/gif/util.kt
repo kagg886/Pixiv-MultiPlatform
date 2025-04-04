@@ -13,5 +13,5 @@ internal val jvmTarget by lazy {
 enum class JvmTarget {
     MACOS,
     WINDOWS,
-    LINUX;
+    LINUX,
 }

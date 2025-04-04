@@ -1,7 +1,7 @@
+import kotlin.test.*
 import moe.tarsin.gif.Frame
 import moe.tarsin.gif.GifEncodeRequest
 import moe.tarsin.gif.encodeGifPlatform
-import kotlin.test.*
 
 class NativeTest {
 

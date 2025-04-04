@@ -24,7 +24,6 @@ internal actual fun encodeGifPlatform(request: GifEncodeRequest) {
     }
 }
 
-
 @Suppress("UnsafeDynamicallyLoadedCode")
 internal actual fun loadNativeGifEncoder() {
     val name = when (jvmTarget) {
@@ -43,8 +42,8 @@ internal actual fun loadNativeGifEncoder() {
         val stream = GIFEncoderBuilderScope::class.java.getResourceAsStream("/$name")!!.source()
         libPath.parentFile()!!.mkdirs()
         libPath.createNewFile()
-        stream.use { i->
-            libPath.sink().buffer().use { o->
+        stream.use { i ->
+            libPath.sink().buffer().use { o ->
                 o.write(i.buffer().readByteArray())
                 o.flush()
             }

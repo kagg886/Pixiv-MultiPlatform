@@ -94,15 +94,15 @@ tasks.named<ProcessResources>("jvmProcessResources") {
     from(project.file("src/rust/target/release/$libName"))
 }
 
-//val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
+// val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
 //    onlyIf { System.getProperty("os.name").startsWith("Linux") }
 //    workingDir = project.file("src/rust")
 //    commandLine("bash", "-c", "cargo build --release")
-//}
+// }
 //
-//tasks.named<ProcessResources>("linuxX64ProcessResources") {
+// tasks.named<ProcessResources>("linuxX64ProcessResources") {
 //    dependsOn(linuxNativeCargoTask)
-//}
+// }
 
 val ktlintVersion = libs.ktlint.get().version
 

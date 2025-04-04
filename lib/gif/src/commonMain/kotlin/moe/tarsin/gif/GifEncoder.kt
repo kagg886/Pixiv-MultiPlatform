@@ -15,7 +15,7 @@ internal data class Frame(
 @Serializable
 internal data class GifEncodeRequest(
     val metadata: List<Frame>,
-    //1-30, speed lower than slower.
+    // 1-30, speed lower than slower.
     val speed: Int,
     val dstPath: String,
 )
@@ -29,20 +29,26 @@ class GIFEncoderBuilderScope {
     private var output by Delegates.notNull<Path>()
 
     @GifEncoderDslMarker
-    fun speed(speed:Int) {this.speed = speed}
+    fun speed(speed: Int) {
+        this.speed = speed
+    }
 
     @GifEncoderDslMarker
-    fun output(output:Path) {this.output = output}
+    fun output(output: Path) {
+        this.output = output
+    }
 
     @GifEncoderDslMarker
-    fun frame(path: Path,delay:Int = 1) {this.metadata.add(Frame(path.absolutePath().toString(),delay))}
+    fun frame(path: Path, delay: Int = 1) {
+        this.metadata.add(Frame(path.absolutePath().toString(), delay))
+    }
 
-    internal fun build() = GifEncodeRequest(metadata, speed,output.absolutePath().toString())
+    internal fun build() = GifEncodeRequest(metadata, speed, output.absolutePath().toString())
 }
 
 private var initialize by atomic(false)
 
-fun encodeGifPlatform(block: GIFEncoderBuilderScope.()->Unit) {
+fun encodeGifPlatform(block: GIFEncoderBuilderScope.() -> Unit) {
     if (!initialize) {
         loadNativeGifEncoder()
         initialize = true

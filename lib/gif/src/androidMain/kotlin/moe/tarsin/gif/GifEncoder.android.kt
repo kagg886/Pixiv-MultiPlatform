@@ -4,7 +4,6 @@ import java.nio.ByteBuffer
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
-import okio.Path
 
 @OptIn(ExperimentalSerializationApi::class)
 internal actual fun encodeGifPlatform(request: GifEncodeRequest) {
