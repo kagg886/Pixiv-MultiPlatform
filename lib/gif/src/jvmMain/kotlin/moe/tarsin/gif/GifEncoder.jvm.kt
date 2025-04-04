@@ -2,15 +2,15 @@ package moe.tarsin.gif
 
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
-import java.security.MessageDigest
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.cbor.Cbor
 import kotlinx.serialization.encodeToByteArray
 import okio.BufferedSource
+import okio.HashingSink
 import okio.Path
 import okio.Path.Companion.toPath
+import okio.blackholeSink
 import okio.buffer
-import okio.hashingSource
 import okio.source
 import top.kagg886.pmf.util.absolutePath
 import top.kagg886.pmf.util.createNewFile
@@ -46,7 +46,7 @@ internal actual fun loadNativeGifEncoder() {
         useRes("/$name") { exportLibToPath(libPath) }
     } else {
         val newHash = useRes("/gif-build.hash") { readString(StandardCharsets.UTF_8) }
-        val oldHash = libPath.source().use { it.hashingSource(MessageDigest.getInstance("MD5")).hash.hex().lowercase() }
+        val oldHash = libPath.md5()
         if (newHash != oldHash) useRes("/$name") { exportLibToPath(libPath) }
     }
     System.load(libPath.absolutePath().toString())
@@ -56,4 +56,11 @@ private fun BufferedSource.exportLibToPath(libPath: Path) {
     libPath.parentFile()!!.mkdirs()
     libPath.createNewFile()
     libPath.sink().use(::readAll)
+}
+
+fun Path.md5() = source().buffer().use { src ->
+    HashingSink.md5(blackholeSink()).use { dst ->
+        src.readAll(dst)
+        dst.hash.hex().lowercase()
+    }
 }

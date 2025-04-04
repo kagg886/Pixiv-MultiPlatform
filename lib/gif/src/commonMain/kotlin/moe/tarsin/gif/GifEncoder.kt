@@ -23,7 +23,7 @@ internal data class GifEncodeRequest(
 annotation class GifEncoderDslMarker
 
 class GIFEncoderBuilderScope {
-    private val metadata: MutableList<Frame> = mutableListOf()
+    private val metadata = mutableListOf<Frame>()
     private var speed = 15
     private var output by Delegates.notNull<Path>()
 

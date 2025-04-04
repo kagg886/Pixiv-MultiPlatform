@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.buildConfig)
 }
 
 group = "top.kagg886.gif"
