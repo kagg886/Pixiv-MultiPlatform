@@ -83,10 +83,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.cbor)
             implementation(project(":lib:okio-enhancement-util"))
         }
-
-        commonTest.dependencies {
-            implementation(kotlin("test"))
-        }
     }
 }
 

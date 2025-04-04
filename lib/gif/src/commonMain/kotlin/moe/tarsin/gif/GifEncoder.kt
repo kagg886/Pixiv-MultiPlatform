@@ -39,7 +39,7 @@ class GIFEncoderBuilderScope {
 
     @GifEncoderDslMarker
     fun frame(path: Path, delay: Int = 1) {
-        this.metadata.add(Frame(path.absolutePath().toString(), delay))
+        metadata += Frame(path.absolutePath().toString(), delay)
     }
 
     internal fun build() = GifEncodeRequest(metadata, speed, output.absolutePath().toString())
