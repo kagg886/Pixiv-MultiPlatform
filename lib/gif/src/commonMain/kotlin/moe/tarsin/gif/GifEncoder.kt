@@ -1,7 +1,6 @@
 package moe.tarsin.gif
 
 import kotlin.properties.Delegates
-import kotlinx.atomicfu.atomic
 import kotlinx.serialization.Serializable
 import okio.Path
 import top.kagg886.pmf.util.absolutePath
@@ -46,15 +45,10 @@ class GIFEncoderBuilderScope {
     internal fun build() = GifEncodeRequest(metadata, speed, output.absolutePath().toString())
 }
 
-private var initialize by atomic(false)
+private val init by lazy { loadNativeGifEncoder() }
 
-fun encodeGifPlatform(block: GIFEncoderBuilderScope.() -> Unit) {
-    if (!initialize) {
-        loadNativeGifEncoder()
-        initialize = true
-    }
+fun encodeGifPlatform(block: GIFEncoderBuilderScope.() -> Unit) = with(init) {
     val request = GIFEncoderBuilderScope().apply(block)
-
     encodeGifPlatform(request.build())
 }
 
