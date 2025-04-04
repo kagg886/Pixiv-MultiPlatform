@@ -1,26 +1,27 @@
 #![feature(lazy_get)]
 mod jvm;
-use gif::{DisposalMethod, Encoder, Frame, Repeat};
+use gif::{DisposalMethod, Encoder, Frame as GifFrame, Repeat};
 use serde::Deserialize;
 use std::{cell::LazyCell, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock, OnceLock}};
 use tokio::runtime::Runtime;
 
 #[derive(Deserialize, Clone)]
 #[allow(non_snake_case)]
-struct UgoiraFrame {
-    file: String,
+struct Frame<'a> {
+    file: &'a str,
     delay: u64,
 }
 
 #[derive(Deserialize)]
 #[allow(non_snake_case)]
-struct GifEncodeRequest {
-    metadata: Vec<UgoiraFrame>,
+struct GifEncodeRequest<'a> {
+    #[serde(borrow)]
+    metadata: Vec<Frame<'a>>,
     speed: i32,
-    dstPath: String,
+    dstPath: &'a str,
 }
 
-async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) {
+async fn encode_animated_image(src_buffer: &'static [u8], rt: &Runtime) {
     let GifEncodeRequest { metadata, speed, dstPath } = serde_cbor::from_slice(src_buffer).unwrap();
     let dst_file = File::create(dstPath).unwrap();
     let dimen = Arc::new(OnceLock::new());
@@ -30,7 +31,7 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) {
         encoder.set_repeat(Repeat::Infinite).unwrap();
         encoder
     });
-    let mut c = |frame: Frame<'_>| {
+    let mut c = |frame: GifFrame<'_>| {
         LazyCell::force_mut(&mut encoder).write_lzw_pre_encoded_frame(&frame).ok().unwrap()
     };
     let mut deque = VecDeque::new();
@@ -38,10 +39,10 @@ async fn encode_animated_image(src_buffer: &[u8], rt: &Runtime) {
         let dimen = dimen.clone();
         deque.push_back(rt.spawn_blocking(move || {
             let file = frame_info.file;
-            let image = image::open(file.clone()).unwrap();
+            let image = image::open(file).unwrap();
             let (width, height) = (image.width() as u16, image.height() as u16);
             dimen.get_or_init(|| (width, height));
-            let mut frame = Frame::from_rgba_speed(width, height, &mut image.to_rgba8(), speed);
+            let mut frame = GifFrame::from_rgba_speed(width, height, &mut image.to_rgba8(), speed);
             frame.delay = (frame_info.delay / 10) as u16;
             frame.dispose = DisposalMethod::Background;
             frame.make_lzw_pre_encoded();
