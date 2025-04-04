@@ -47,7 +47,7 @@ class GIFEncoderBuilderScope {
 
 private val init by lazy { loadNativeGifEncoder() }
 
-fun encodeGifPlatform(block: GIFEncoderBuilderScope.() -> Unit) = with(init) {
+fun encodeGif(block: GIFEncoderBuilderScope.() -> Unit) = with(init) {
     val request = GIFEncoderBuilderScope().apply(block)
     encodeGifPlatform(request.build())
 }

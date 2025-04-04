@@ -9,7 +9,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
-import moe.tarsin.gif.encodeGifPlatform
+import moe.tarsin.gif.encodeGif
 import okio.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -71,7 +71,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                         loadingState.data.tryEmit("解压动图帧数据至临时工作区")
                         zip.unzip(workDir)
                         loadingState.data.tryEmit("重新编码为GIF中")
-                        encodeGifPlatform {
+                        encodeGif {
                             output(gif)
                             for (i in meta.frames) {
                                 frame(path = workDir.resolve(i.file), delay = i.delay)
