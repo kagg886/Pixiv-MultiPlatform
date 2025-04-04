@@ -1,12 +1,23 @@
+import java.io.InputStream
+import java.security.MessageDigest
+import java.util.UUID
+import org.jetbrains.kotlin.daemon.common.toHexString
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.buildConfig)
 }
 
 group = "top.kagg886.gif"
 version = "1.0"
+
+buildConfig {
+    packageName("top.kagg886.gif")
+    buildConfigField("LIB_VERSION", UUID.randomUUID().toString().replace("-", ""))
+}
 
 fun prop(key: String) = project.findProperty(key) as String
 
@@ -28,7 +39,10 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 
@@ -75,23 +89,66 @@ kotlin {
     }
 }
 
-val jvmCargoTask = tasks.register<Exec>("jvmCargoTask") {
+enum class JvmDesktopPlatform {
+    WINDOWS,
+    LINUX,
+    MACOS,
+}
+
+val currentJvmPlatform by lazy {
+    val prop = System.getProperty("os.name")
+    when {
+        prop.startsWith("Mac") -> JvmDesktopPlatform.MACOS
+        prop.startsWith("Linux") -> JvmDesktopPlatform.LINUX
+        prop.startsWith("Win") -> JvmDesktopPlatform.WINDOWS
+        else -> error("unsupported platform: $prop")
+    }
+}
+
+val jvmCargoBuildRelease = tasks.register<Exec>("jvmCargoBuildRelease") {
+    val cmd = "cargo build --release --features jvm"
     workingDir = project.file("src/rust")
-    commandLine("bash", "-c", "cargo build --release --features jvm")
+    if (System.getProperty("os.name").startsWith("Win")) {
+        commandLine("cmd", "/c", cmd) // windows should use cmdlet
+        return@register
+    }
+    commandLine("bash", "-c", cmd)
+}
+
+val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
+    dependsOn(jvmCargoBuildRelease)
+
+    fun InputStream.md5(): String {
+        val md5 = MessageDigest.getInstance("MD5")
+        val buffer = ByteArray(1024)
+        var len: Int
+        while (read(buffer).also { len = it } != -1) {
+            md5.update(buffer, 0, len)
+        }
+        return md5.digest().toHexString()
+    }
+
+    doFirst {
+        val libName = when (currentJvmPlatform) {
+            JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
+            JvmDesktopPlatform.LINUX -> "libgif_rust.so"
+            JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
+        }
+
+        val hash = project.file("src/rust/target/release/$libName").inputStream().md5()
+        project.file("src/rust/target/release/gif-build.hash").writeText(hash)
+        logger.lifecycle("rust lib hash is $hash")
+    }
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
-    dependsOn(jvmCargoTask)
-    val libName = run {
-        val prop = System.getProperty("os.name")
-        when {
-            prop.startsWith("Mac") -> "libgif_rust.dylib"
-            prop.startsWith("Linux") -> "libgif_rust.so"
-            prop.startsWith("Win") -> "gif_rust.dll"
-            else -> error("unsupported platform: $prop")
-        }
+    dependsOn(jvmMetadataGenerated)
+    val libName = when (currentJvmPlatform) {
+        JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
+        JvmDesktopPlatform.LINUX -> "libgif_rust.so"
+        JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
     }
-    from(project.file("src/rust/target/release/$libName"))
+    from(project.file("src/rust/target/release/$libName"), project.file("src/rust/target/release/gif-build.hash"))
 }
 
 // val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
