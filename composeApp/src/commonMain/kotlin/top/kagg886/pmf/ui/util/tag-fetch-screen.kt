@@ -16,7 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.TagFilter
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -66,7 +69,7 @@ private fun TagsFetchContent0(
                 },
             ) {
                 if (state.data.isEmpty()) {
-                    ErrorPage(text = "页面为空") {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                         scope.launch {
                             model.initTags()
                         }

@@ -1,9 +1,11 @@
 package top.kagg886.pmf.ui.route.main.space
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -11,7 +13,13 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.follow
+import top.kagg886.pmf.latest
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchSideEffect
@@ -19,7 +27,10 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 
 class SpaceScreen : Screen {
     private class PageScreenModel : ScreenModel {
-        val page: MutableState<Int> = mutableIntStateOf(0)
+        val page: MutableStateFlow<StringResource> = MutableStateFlow(Res.string.follow)
+
+        @Composable
+        fun getPageState(): State<StringResource> = page.collectAsState()
     }
 
     @Composable
@@ -27,14 +38,16 @@ class SpaceScreen : Screen {
         val page = rememberScreenModel {
             PageScreenModel()
         }
-
+        val index by page.getPageState()
         TabContainer(
             modifier = Modifier.fillMaxSize(),
-            tab = listOf("关注", "最新"),
-            state = page.page,
+            tab = listOf(Res.string.follow, Res.string.latest),
+            tabTitle = { Text(stringResource(it)) },
+            current = index,
+            onCurrentChange = { page.page.tryEmit(it) },
         ) {
             when (it) {
-                0 -> {
+                Res.string.follow -> {
                     val nav = LocalNavigator.currentOrThrow
                     val model = nav.koinNavigatorScreenModel<SpaceIllustViewModel>()
                     val snackbarHostState = LocalSnackBarHost.current
@@ -48,7 +61,7 @@ class SpaceScreen : Screen {
                     IllustFetchScreen(model)
                 }
 
-                1 -> {
+                Res.string.latest -> {
                     val nav = LocalNavigator.currentOrThrow
                     val model = nav.koinNavigatorScreenModel<NewestIllustViewModel>()
                     val snackbarHostState = LocalSnackBarHost.current

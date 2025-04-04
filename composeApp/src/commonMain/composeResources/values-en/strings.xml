@@ -1,0 +1,26 @@
+<resources>
+    <string name="recommend">Recommend</string>
+    <string name="rank">Rank</string>
+    <string name="space">Space</string>
+
+    <string name="illust">Illust</string>
+    <string name="novel">Novel</string>
+    <string name="rank_day">Day</string>
+    <string name="rank_week">Week</string>
+    <string name="rank_month">Month</string>
+    <string name="rank_day_male">Male</string>
+    <string name="rank_day_female">Female</string>
+    <string name="rank_week_original">Origin</string>
+    <string name="rank_week_rookie">Fresh Man</string>
+
+    <string name="follow">Following</string>
+    <string name="latest">Latest</string>
+
+    <string name="bookmark_success">Bookmark success!</string>
+    <string name="bookmark_failed">Bookmark failed...</string>
+    <string name="un_bookmark_success">Delete Bookmark success!</string>
+    <string name="un_bookmark_failed">Delete Bookmark failed...</string>
+
+
+    <string name="page_is_empty">page is empty</string>
+</resources>

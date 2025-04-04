@@ -1,0 +1,26 @@
+<resources>
+    <string name="recommend">推荐</string>
+    <string name="rank">排行榜</string>
+    <string name="space">动态</string>
+    
+    <string name="illust">插画</string>
+    <string name="novel">小说</string>
+    <string name="rank_day">日榜</string>
+    <string name="rank_week">周榜</string>
+    <string name="rank_month">月榜</string>
+    <string name="rank_day_male">男性</string>
+    <string name="rank_day_female">女性</string>
+    <string name="rank_week_original">原创</string>
+    <string name="rank_week_rookie">新人</string>
+
+    <string name="follow">关注</string>
+    <string name="latest">最新</string>
+
+    <string name="bookmark_success">收藏成功！</string>
+    <string name="bookmark_failed">收藏失败...</string>
+    <string name="un_bookmark_success">取消收藏成功！</string>
+    <string name="un_bookmark_failed">取消收藏失败...</string>
+
+
+    <string name="page_is_empty">页面为空</string>
+</resources>

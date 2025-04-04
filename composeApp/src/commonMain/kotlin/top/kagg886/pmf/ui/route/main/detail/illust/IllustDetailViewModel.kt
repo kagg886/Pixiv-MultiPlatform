@@ -5,15 +5,20 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.github.panpf.sketch.fetch.newBase64Uri
 import com.github.panpf.sketch.fetch.newFileUri
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.statement.bodyAsBytes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
-import okio.*
+import okio.FileSystem
 import okio.Path.Companion.toPath
+import okio.SYSTEM
+import okio.buffer
+import okio.openZip
+import okio.use
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -24,11 +29,18 @@ import top.e404.skiko.gif.listener.GIFMakingStep
 import top.kagg886.gif.ImageBitmapDelegate
 import top.kagg886.gif.toImageBitmap
 import top.kagg886.pixko.Tag
-import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.illust.BookmarkVisibility
+import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.bookmarkIllust
+import top.kagg886.pixko.module.illust.deleteBookmarkIllust
+import top.kagg886.pixko.module.illust.get
+import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
@@ -38,7 +50,11 @@ import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.useTempDir
 import top.kagg886.pmf.backend.useTempFile
+import top.kagg886.pmf.bookmark_failed
+import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.un_bookmark_failed
+import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.util.exists
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
@@ -199,7 +215,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_failed)))
                 return@runOn
             }
 
@@ -214,7 +230,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                     else -> TODO()
                 }
             }
-            postSideEffect(IllustDetailSideEffect.Toast("收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
         }
     }
 
@@ -226,7 +242,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("取消收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
             reduce {
@@ -240,7 +256,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                     else -> TODO()
                 }
             }
-            postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
         }
     }
 

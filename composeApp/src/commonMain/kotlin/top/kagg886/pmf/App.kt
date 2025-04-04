@@ -4,14 +4,43 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
@@ -26,23 +55,34 @@ import com.github.panpf.sketch.Sketch
 import com.github.panpf.sketch.cache.DiskCache
 import com.github.panpf.sketch.fetch.supportKtorHttpUri
 import com.github.panpf.sketch.http.KtorStack
-import com.github.panpf.sketch.util.Logger.Level.*
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
+import com.github.panpf.sketch.util.Logger.Level.Assert
+import com.github.panpf.sketch.util.Logger.Level.Debug
+import com.github.panpf.sketch.util.Logger.Level.Error
+import com.github.panpf.sketch.util.Logger.Level.Info
+import com.github.panpf.sketch.util.Logger.Level.Verbose
+import com.github.panpf.sketch.util.Logger.Level.Warn
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.header
+import io.ktor.serialization.kotlinx.json.json
 import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.koin.core.logger.Level.*
+import org.koin.core.logger.Level.DEBUG
+import org.koin.core.logger.Level.ERROR
+import org.koin.core.logger.Level.INFO
+import org.koin.core.logger.Level.NONE
+import org.koin.core.logger.Level.WARNING
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
@@ -132,7 +172,8 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                         val s = LocalSnackBarHost.current
                         CheckUpdateDialog()
 
-                        val model = KoinPlatform.getKoin().get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
+                        val model = KoinPlatform.getKoin()
+                            .get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
                         model.collectSideEffect { toast ->
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
@@ -150,7 +191,12 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                             },
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
-                                            it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
+                                            it.push(
+                                                ProfileScreen(
+                                                    PixivConfig.pixiv_user!!,
+                                                    ProfileItem.Download,
+                                                ),
+                                            )
                                         }
                                         return@collectSideEffect
                                     }
@@ -198,7 +244,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                     Icon(imageVector = entry.icon, null)
                                 },
                                 label = {
-                                    Text(entry.title)
+                                    Text(stringResource(entry.title))
                                 },
                             )
                         }
@@ -213,7 +259,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
     }
 
     var title by remember {
-        mutableStateOf("推荐")
+        mutableStateOf(Res.string.recommend)
     }
     Scaffold(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
@@ -226,7 +272,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
             if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
                 TopAppBar(
                     title = {
-                        Text(title)
+                        Text(stringResource(title))
                     },
                     navigationIcon = {
                         ProfileAvatar()
@@ -254,7 +300,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                 Icon(imageVector = entry.icon, null)
                             },
                             label = {
-                                Text(entry.title)
+                                Text(stringResource(entry.title))
                             },
                         )
                     }
@@ -465,18 +511,18 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(
-    val title: String,
+    val title: StringResource,
     val icon: ImageVector,
     val screenClass: KClass<out Screen>,
     val newInstance: () -> Screen,
 ) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
+    RECOMMEND(Res.string.recommend, Icons.Default.Home, RecommendScreen::class, {
         RecommendScreen()
     }),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen::class, {
+    RANK(Res.string.rank, Icons.Default.DateRange, RankScreen::class, {
         RankScreen()
     }),
-    SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
+    SPACE(Res.string.space, Icons.Default.Star, SpaceScreen::class, {
         SpaceScreen()
     }),
 }

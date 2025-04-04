@@ -8,6 +8,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.plus
+import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -15,8 +16,11 @@ import top.kagg886.pixko.User
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.un_bookmark_failed
+import top.kagg886.pmf.un_bookmark_success
 
 abstract class AuthorFetchViewModel :
     ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>,
@@ -100,10 +104,10 @@ abstract class AuthorFetchViewModel :
             }
 
             if (result.isFailure) {
-                postSideEffect(AuthorFetchSideEffect.Toast("取消收藏失败~"))
+                postSideEffect(AuthorFetchSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
-            postSideEffect(AuthorFetchSideEffect.Toast("取消收藏成功~"))
+            postSideEffect(AuthorFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
             reduce {
                 state.copy(
                     data = state.data.map {
