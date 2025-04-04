@@ -1,3 +1,5 @@
 headers = gif_rust.h
 staticLibraries = libgif_rust.a
-linkerOpts = -Bstatic -Lsrc/rust/target/release/ -lgif_rust
+linkerOpts.ios_arm64 = -Bstatic -Lsrc/rust/target/aarch64-apple-ios/release/ -lgif_rust
+linkerOpts.ios_x64 = -Bstatic -Lsrc/rust/target/x86_64-apple-ios/release/ -lgif_rust
+linkerOpts.ios_simulator_arm64 = -Bstatic -Lsrc/rust/target/aarch64-apple-ios-sim/release/ -lgif_rust

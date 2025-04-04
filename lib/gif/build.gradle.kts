@@ -1,6 +1,5 @@
 import java.io.InputStream
 import java.security.MessageDigest
-import java.util.UUID
 import org.jetbrains.kotlin.daemon.common.toHexString
 
 plugins {
@@ -13,11 +12,6 @@ plugins {
 
 group = "top.kagg886.gif"
 version = "1.0"
-
-buildConfig {
-    packageName("top.kagg886.gif")
-    buildConfigField("LIB_VERSION", UUID.randomUUID().toString().replace("-", ""))
-}
 
 fun prop(key: String) = project.findProperty(key) as String
 
@@ -53,6 +47,12 @@ android {
     }
 }
 
+val kotlinArchToRustArch = mapOf(
+    "iosX64" to "x86_64-apple-ios",
+    "iosArm64" to "aarch64-apple-ios",
+    "iosSimulatorArm64" to "aarch64-apple-ios-sim"
+)
+
 kotlin {
     jvmToolchain(17)
     jvm()
@@ -65,7 +65,8 @@ kotlin {
                         defFile("src/iosMain/interop/libgif_rust.def")
                         packageName("moe.tarsin.gif.cinterop")
                         includeDirs("src/iosMain/interop/include")
-                        extraOpts("-libraryPath", "src/rust/target/release")
+
+                        extraOpts("-libraryPath", "src/rust/target/${kotlinArchToRustArch[t.targetName]!!}/release") //FIXME: custom target rust
                     }
                 }
             }
@@ -151,15 +152,20 @@ tasks.named<ProcessResources>("jvmProcessResources") {
     from(project.file("src/rust/target/release/$libName"), project.file("src/rust/target/release/gif-build.hash"))
 }
 
-// val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
-//    onlyIf { System.getProperty("os.name").startsWith("Linux") }
-//    workingDir = project.file("src/rust")
-//    commandLine("bash", "-c", "cargo build --release")
-// }
-//
-// tasks.named<ProcessResources>("linuxX64ProcessResources") {
-//    dependsOn(linuxNativeCargoTask)
-// }
+
+for ((kotlinArch,rustArch) in kotlinArchToRustArch) {
+    val iosNativeCargoTask = tasks.register<Exec>("${kotlinArch}NativeCargoTask") {
+        onlyIf { System.getProperty("os.name").startsWith("Mac") }
+        workingDir = project.file("src/rust")
+        commandLine("bash", "-c", "cargo build --release --target $rustArch")
+    }
+
+    tasks.named("cinteropGif${kotlinArch.capitalize()}") {
+        dependsOn(iosNativeCargoTask)
+    }
+}
+
+
 
 val ktlintVersion = libs.ktlint.get().version
 
