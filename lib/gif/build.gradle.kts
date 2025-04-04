@@ -1,6 +1,7 @@
-import java.io.InputStream
-import java.security.MessageDigest
-import org.jetbrains.kotlin.daemon.common.toHexString
+import okio.HashingSink
+import okio.blackholeSink
+import okio.buffer
+import okio.source
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -111,18 +112,15 @@ val jvmCargoBuildRelease = tasks.register<Exec>("jvmCargoBuildRelease") {
     commandLine("bash", "-c", cmd)
 }
 
+fun File.md5() = source().buffer().use { src ->
+    HashingSink.md5(blackholeSink()).use { dst ->
+        src.readAll(dst)
+        dst.hash.hex().lowercase()
+    }
+}
+
 val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
     dependsOn(jvmCargoBuildRelease)
-
-    fun InputStream.md5(): String {
-        val md5 = MessageDigest.getInstance("MD5")
-        val buffer = ByteArray(1024)
-        var len: Int
-        while (read(buffer).also { len = it } != -1) {
-            md5.update(buffer, 0, len)
-        }
-        return md5.digest().toHexString()
-    }
 
     doFirst {
         val libName = when (currentJvmPlatform) {
@@ -131,7 +129,7 @@ val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
             JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
         }
 
-        val hash = project.file("src/rust/target/release/$libName").inputStream().md5()
+        val hash = project.file("src/rust/target/release/$libName").md5()
         project.file("src/rust/target/release/gif-build.hash").writeText(hash)
         logger.lifecycle("rust lib hash is $hash")
     }
