@@ -7,7 +7,7 @@ import kotlinx.serialization.encodeToByteArray
 import okio.Path
 
 @OptIn(ExperimentalSerializationApi::class)
-actual fun encodeGifPlatform(request: GifEncodeRequest) {
+internal actual fun encodeGifPlatform(request: GifEncodeRequest) {
     val bytes = Cbor.encodeToByteArray(request)
     ByteBuffer.allocateDirect(bytes.size).apply {
         put(bytes)
@@ -16,4 +16,4 @@ actual fun encodeGifPlatform(request: GifEncodeRequest) {
     }
 }
 
-actual fun loadNativeGifEncoder(resourceDir: Path, dataDir: Path, platform: Platform, debug: Boolean) = System.loadLibrary("gif_rust")
+actual fun loadNativeGifEncoder() = System.loadLibrary("gif_rust")

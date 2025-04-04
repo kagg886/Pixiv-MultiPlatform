@@ -37,8 +37,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
-import moe.tarsin.gif.Platform as GifPlatform
-import moe.tarsin.gif.loadNativeGifEncoder
 import okio.Path
 import okio.Path.Companion.toPath
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -353,17 +351,6 @@ fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
 }
 
 fun setupEnv() {
-    loadNativeGifEncoder(
-        "../lib/app/".toPath(),
-        dataPath,
-        when (currentPlatform) {
-            Platform.Desktop.Windows -> GifPlatform.Windows
-            Platform.Desktop.Linux -> GifPlatform.Linux
-            Platform.Desktop.MacOS -> GifPlatform.MacOS
-            else -> GifPlatform.Other
-        },
-        false,
-    )
     // init logger
     initFileLogger()
 

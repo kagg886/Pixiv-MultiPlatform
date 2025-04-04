@@ -8,10 +8,7 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
-import moe.tarsin.gif.Frame
-import moe.tarsin.gif.GifEncodeRequest
 import moe.tarsin.gif.encodeGifPlatform
 import okio.*
 import org.koin.core.component.KoinComponent
@@ -21,7 +18,6 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.*
-import top.kagg886.pixko.module.ugoira.UgoiraFrame
 import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
@@ -74,11 +70,13 @@ class IllustDetailViewModel(private val illust: Illust) :
                     useTempDir { workDir ->
                         loadingState.data.tryEmit("解压动图帧数据至临时工作区")
                         zip.unzip(workDir)
-                        val frames = meta.frames.map { (file, delay) ->
-                            UgoiraFrame("$workDir/$file", delay)
-                        }
                         loadingState.data.tryEmit("重新编码为GIF中")
-                        encodeGifPlatform(GifEncodeRequest(frames.map { (a, b) -> Frame(a, b) }, 15, "$gif"))
+                        encodeGifPlatform {
+                            output(gif)
+                            for (i in meta.frames) {
+                                frame(path = workDir.resolve(i.file), delay = i.delay)
+                            }
+                        }
                     }
                 }
             }

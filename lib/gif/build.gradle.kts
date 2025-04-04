@@ -43,14 +43,14 @@ kotlin {
     jvmToolchain(17)
     jvm()
 
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64(), linuxX64()).forEach { t ->
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { t ->
         t.apply {
             compilations.all {
                 cinterops {
                     val gif by creating {
-                        defFile("src/nativeMain/interop/libgif_rust.def")
+                        defFile("src/iosMain/interop/libgif_rust.def")
                         packageName("moe.tarsin.gif.cinterop")
-                        includeDirs("src/nativeMain/interop/include")
+                        includeDirs("src/iosMain/interop/include")
                         extraOpts("-libraryPath", "src/rust/target/release")
                     }
                 }
@@ -63,40 +63,46 @@ kotlin {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kermit)
-                implementation(libs.kotlinx.serialization.cbor)
-                implementation(libs.okio)
-            }
+        commonMain.dependencies {
+            implementation(libs.kermit)
+            implementation(libs.kotlinx.serialization.cbor)
+            implementation(project(":lib:okio-enhancement-util"))
         }
 
-        linuxX64Main.dependencies {
+        commonTest.dependencies {
             implementation(kotlin("test"))
         }
     }
 }
 
-val linuxJvmCargoTask = tasks.register<Exec>("linuxJvmCargoTask") {
-    onlyIf { System.getProperty("os.name").startsWith("Linux") }
+val jvmCargoTask = tasks.register<Exec>("jvmCargoTask") {
     workingDir = project.file("src/rust")
     commandLine("bash", "-c", "cargo build --release --features jvm")
 }
 
 tasks.named<ProcessResources>("jvmProcessResources") {
-    dependsOn(linuxJvmCargoTask)
-    from(project.file("src/rust/target/release/libgif_rust.so"))
+    dependsOn(jvmCargoTask)
+    val libName = run {
+        val prop = System.getProperty("os.name")
+        when {
+            prop.startsWith("Mac") -> "libgif_rust.dylib"
+            prop.startsWith("Linux") -> "libgif_rust.so"
+            prop.startsWith("Win") -> "gif_rust.dll"
+            else -> error("unsupported platform: $prop")
+        }
+    }
+    from(project.file("src/rust/target/release/$libName"))
 }
 
-val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
-    onlyIf { System.getProperty("os.name").startsWith("Linux") }
-    workingDir = project.file("src/rust")
-    commandLine("bash", "-c", "cargo build --release")
-}
-
-tasks.named<ProcessResources>("linuxX64ProcessResources") {
-    dependsOn(linuxNativeCargoTask)
-}
+//val linuxNativeCargoTask = tasks.register<Exec>("linuxNativeCargoTask") {
+//    onlyIf { System.getProperty("os.name").startsWith("Linux") }
+//    workingDir = project.file("src/rust")
+//    commandLine("bash", "-c", "cargo build --release")
+//}
+//
+//tasks.named<ProcessResources>("linuxX64ProcessResources") {
+//    dependsOn(linuxNativeCargoTask)
+//}
 
 val ktlintVersion = libs.ktlint.get().version
 
