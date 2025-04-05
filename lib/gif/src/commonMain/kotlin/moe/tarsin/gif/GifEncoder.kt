@@ -1,6 +1,5 @@
 package moe.tarsin.gif
 
-import kotlin.properties.Delegates
 import kotlinx.serialization.Serializable
 import okio.Path
 import top.kagg886.pmf.util.absolutePath
@@ -22,19 +21,13 @@ internal data class GifEncodeRequest(
 @DslMarker
 annotation class GifEncoderDslMarker
 
-class GIFEncoderBuilderScope {
+class GIFEncoderBuilderScope internal constructor(private val output: Path) {
     private val metadata = mutableListOf<Frame>()
     private var speed = 15
-    private var output by Delegates.notNull<Path>()
 
     @GifEncoderDslMarker
     fun speed(speed: Int) {
         this.speed = speed
-    }
-
-    @GifEncoderDslMarker
-    fun output(output: Path) {
-        this.output = output
     }
 
     @GifEncoderDslMarker
@@ -47,8 +40,8 @@ class GIFEncoderBuilderScope {
 
 private val init by lazy { loadNativeGifEncoder() }
 
-fun encodeGif(block: GIFEncoderBuilderScope.() -> Unit) = with(init) {
-    val request = GIFEncoderBuilderScope().apply(block)
+fun encodeGif(output: Path, block: GIFEncoderBuilderScope.() -> Unit) = with(init) {
+    val request = GIFEncoderBuilderScope(output).apply(block)
     encodeGifPlatform(request.build())
 }
 
