@@ -100,14 +100,21 @@ val currentJvmPlatform by lazy {
     }
 }
 
+val jvmPlatformLibraryName by lazy {
+    when (currentJvmPlatform) {
+        JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
+        JvmDesktopPlatform.LINUX -> "libgif_rust.so"
+        JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
+    }
+}
+
 val jvmCargoBuildRelease = tasks.register<Exec>("jvmCargoBuildRelease") {
     val cmd = "cargo build --release --features jvm"
     workingDir = project.file("src/rust")
-    if (System.getProperty("os.name").startsWith("Win")) {
-        commandLine("cmd", "/c", cmd) // windows should use cmdlet
-        return@register
+    when (currentJvmPlatform) {
+        JvmDesktopPlatform.WINDOWS -> commandLine("cmd", "/c", cmd)
+        JvmDesktopPlatform.LINUX, JvmDesktopPlatform.MACOS -> commandLine("bash", "-c", cmd)
     }
-    commandLine("bash", "-c", cmd)
 }
 
 fun File.md5() = source().buffer().use { src ->
@@ -119,15 +126,8 @@ fun File.md5() = source().buffer().use { src ->
 
 val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
     dependsOn(jvmCargoBuildRelease)
-
     doFirst {
-        val libName = when (currentJvmPlatform) {
-            JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
-            JvmDesktopPlatform.LINUX -> "libgif_rust.so"
-            JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
-        }
-
-        val hash = project.file("src/rust/target/release/$libName").md5()
+        val hash = project.file("src/rust/target/release/$jvmPlatformLibraryName").md5()
         project.file("src/rust/target/release/gif-build.hash").writeText(hash)
         logger.lifecycle("rust lib hash is $hash")
     }
@@ -135,12 +135,10 @@ val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
 
 tasks.named<ProcessResources>("jvmProcessResources") {
     dependsOn(jvmMetadataGenerated)
-    val libName = when (currentJvmPlatform) {
-        JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
-        JvmDesktopPlatform.LINUX -> "libgif_rust.so"
-        JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
-    }
-    from(project.file("src/rust/target/release/$libName"), project.file("src/rust/target/release/gif-build.hash"))
+    from(
+        project.file("src/rust/target/release/$jvmPlatformLibraryName"),
+        project.file("src/rust/target/release/gif-build.hash"),
+    )
 }
 
 for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
@@ -149,8 +147,7 @@ for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
         workingDir = project.file("src/rust")
         commandLine("bash", "-c", "cargo build --release --target $rustArch")
     }
-
-    tasks.named("cinteropGif${kotlinArch.capitalize()}") {
+    tasks.named("cinteropGif${kotlinArch.replaceFirstChar(Char::uppercaseChar)}") {
         dependsOn(iosNativeCargoTask)
     }
 }
