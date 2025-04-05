@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
@@ -50,6 +51,10 @@ class SearchPanelScreen(
     private val keyword: List<String> = listOf(),
     private val initialText: String = "",
 ) : Screen {
+    override val key: ScreenKey by lazy {
+        "search_panel_${sort}_${target}_${keyword}_$initialText"
+    }
+
     @OptIn(InternalVoyagerApi::class, FlowPreview::class)
     @Composable
     override fun Content() {
@@ -136,7 +141,7 @@ class SearchPanelScreen(
                     else -> {
                         LaunchedEffect(Unit) {
                             model.updateKeywords(listOf())
-                            model.updateText("")
+                            model.updateText(initialText)
                         }
                         TextField(
                             value = state.text,
