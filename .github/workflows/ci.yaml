@@ -20,7 +20,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default nightly && rustup target add armv7-linux-androideabi aarch64-linux-android x86_64-linux-android i686-linux-android && rustup component add rustfmt clippy
+        run: rustup default 1.86.0 && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -61,7 +61,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default nightly && rustup target add armv7-linux-androideabi aarch64-linux-android x86_64-linux-android i686-linux-android && rustup component add rustfmt clippy
+        run: rustup default 1.86.0 && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -98,7 +98,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default nightly && rustup target add armv7-linux-androideabi aarch64-linux-android x86_64-linux-android i686-linux-android && rustup component add rustfmt clippy
+        run: rustup default 1.86.0 && rustup target add armv7-linux-androideabi aarch64-linux-android x86_64-linux-android i686-linux-android && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -134,7 +134,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default nightly && rustup target add armv7-linux-androideabi aarch64-linux-android x86_64-linux-android i686-linux-android && rustup component add rustfmt clippy
+        run: rustup default 1.86.0 && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
