@@ -65,8 +65,6 @@ kotlin {
                         defFile("src/iosMain/interop/libgif_rust.def")
                         packageName("moe.tarsin.gif.cinterop")
                         includeDirs("src/iosMain/interop/include")
-
-                        extraOpts("-libraryPath", "src/rust/target/${kotlinArchToRustArch[t.targetName]!!}/release") // FIXME: custom target rust
                     }
                 }
             }
