@@ -3,8 +3,16 @@ package top.kagg886.pmf.util
 import korlibs.io.file.std.createZipFromTreeTo
 import korlibs.io.file.std.rootLocalVfs
 import kotlinx.coroutines.runBlocking
-import okio.*
+import okio.Buffer
+import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.SYSTEM
+import okio.Sink
+import okio.Source
+import okio.buffer
+import okio.openZip
+import okio.use
 
 inline fun Path.meta() = FileSystem.SYSTEM.metadata(this)
 
@@ -37,7 +45,7 @@ inline fun Path.writeString(s: String) = writeBytes(s.encodeToByteArray())
 
 inline fun Path.source() = FileSystem.SYSTEM.source(this)
 
-inline fun Path.absolutePath() = this
+inline fun Path.absolutePath() = FileSystem.SYSTEM.canonicalize("".toPath()).resolve(this).normalized()
 
 inline fun Path.parentFile() = absolutePath().parent
 
