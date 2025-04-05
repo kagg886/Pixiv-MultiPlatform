@@ -472,3 +472,5 @@ enum class NavigationItem(
         SpaceScreen()
     }),
 }
+
+expect fun ImageLoader.Builder.installGifDecoder()

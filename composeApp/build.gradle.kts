@@ -70,9 +70,6 @@ kotlin {
         }
     }
 
-    sourceSets.named("commonMain").configure {
-//        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-    }
     sourceSets {
         commonMain.dependencies {
             // kotlin stdlib
@@ -166,6 +163,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.coil.gif)
         }
 
         iosMain.dependencies {

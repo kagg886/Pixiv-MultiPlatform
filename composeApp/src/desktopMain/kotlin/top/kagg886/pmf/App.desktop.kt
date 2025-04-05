@@ -1,5 +1,6 @@
 package top.kagg886.pmf
 
+import coil3.ImageLoader
 import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.*
@@ -54,3 +55,5 @@ private data class TransferableImage(private val image: ByteArray) : Transferabl
 
     override fun hashCode(): Int = image.contentHashCode()
 }
+
+actual fun ImageLoader.Builder.installGifDecoder(): Unit = TODO()

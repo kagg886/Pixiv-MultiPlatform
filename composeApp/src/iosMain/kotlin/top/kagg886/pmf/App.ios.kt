@@ -1,5 +1,6 @@
 package top.kagg886.pmf
 
+import coil3.ImageLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,3 +38,4 @@ actual fun shareFile(file: Path, name: String, mime: String) {
 }
 
 actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw UnsupportedOperationException()
+actual fun ImageLoader.Builder.installGifDecoder(): Unit = TODO()
