@@ -24,7 +24,10 @@ import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
+import io.github.vinceglb.filekit.core.FileKit
+import io.ktor.http.Url
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
 import me.saket.telephoto.zoomable.rememberZoomableState
@@ -122,6 +125,26 @@ fun ImagePreviewer(
                             },
                             onClick = {
                                 scope.launch {
+                                    data[pagerState.currentPage].fold(
+                                        { uri ->
+                                            val bytes = ctx.getDownloadImage(uri) ?: run {
+                                                snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                return@fold
+                                            }
+                                            FileKit.saveFile(
+                                                bytes = bytes,
+                                                extension = "png",
+                                                baseName = Url(uri).encodedPath.replace("/", "_"),
+                                            )
+                                        },
+                                        { path ->
+                                            FileKit.saveFile(
+                                                bytes = path.source().buffer().use(BufferedSource::readByteArray),
+                                                extension = "gif",
+                                                baseName = Uuid.random().toHexString(),
+                                            )
+                                        },
+                                    )
                                     showBottomDialog = false
                                 }
                             },
