@@ -4,11 +4,12 @@ import androidx.compose.ui.geometry.Size
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.size.Size as CoilSize
 import com.fleeksoft.ksoup.nodes.Document
-import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.request.ImageRequest
-import com.github.panpf.sketch.request.ImageResult
-import com.github.panpf.sketch.request.execute
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -60,7 +61,7 @@ class NovelDetailViewModel(val id: Long) :
     private fun CombinedText.toPlainString() = this.joinToString("") { it.text }
 
     @OptIn(ExperimentalNovelParserAPI::class)
-    fun reload(sketch: PlatformContext) = intent {
+    fun reload(coil: PlatformContext) = intent {
         val loading = NovelDetailViewState.Loading(MutableStateFlow("获取小说详情和正文中..."))
         reduce { loading }
 
@@ -113,11 +114,10 @@ class NovelDetailViewModel(val id: Long) :
                             }.getOrNull()
                         }
 
-                        val resp = ImageRequest(context = sketch, uri = img).execute()
-                        if (resp is ImageResult.Success) {
-                            val info = (resp as ImageResult.Success).imageInfo
-                            nodeMap[index] =
-                                NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
+                        val resp = SingletonImageLoader.get(coil).execute(ImageRequest.Builder(context = coil).size(CoilSize.ORIGINAL).data(img).build())
+                        if (resp is SuccessResult) {
+                            val info = resp.image
+                            nodeMap[index] = NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
 
                             parsed++
                             loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")

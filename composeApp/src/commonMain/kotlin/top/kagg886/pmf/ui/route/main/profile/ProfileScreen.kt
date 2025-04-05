@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -11,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -73,7 +75,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             trailingContent = {
                                 ProgressedAsyncImage(
                                     url = me.profileImageUrls.content,
-                                    modifier = Modifier.size(35.dp),
+                                    modifier = Modifier.size(35.dp).clip(CircleShape),
                                 )
                             },
                         )

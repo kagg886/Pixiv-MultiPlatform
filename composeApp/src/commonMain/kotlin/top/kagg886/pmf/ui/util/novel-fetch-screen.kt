@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -12,6 +13,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
@@ -163,7 +165,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         },
                                     )
                                 },
-                                modifier = Modifier.padding(5.dp).clickable {
+                                modifier = Modifier.padding(5.dp).clip(CardDefaults.shape).clickable {
                                     nav.push(NovelDetailScreen(it.id.toLong()))
                                 },
                             )

@@ -3,17 +3,17 @@ package top.kagg886.pmf
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.ComposeUIViewController
-import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.SingletonSketch
-import com.github.panpf.sketch.Sketch
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import kotlinx.coroutines.flow.MutableSharedFlow
 import platform.UIKit.UIViewController
 
 @Suppress("unused")
 fun MainViewController(): UIViewController {
     setupEnv()
-    SingletonSketch.setSafe {
-        Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
+    SingletonImageLoader.setSafe {
+        ImageLoader.Builder(PlatformContext.INSTANCE).applyCustomConfig().build()
     }
     val keyStateFlow = MutableSharedFlow<KeyEvent>()
     return ComposeUIViewController {

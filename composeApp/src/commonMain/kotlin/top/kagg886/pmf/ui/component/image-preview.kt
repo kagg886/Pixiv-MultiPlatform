@@ -12,31 +12,29 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import arrow.core.Either
+import arrow.core.identity
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
-import com.github.panpf.sketch.LocalPlatformContext
-import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.SingletonSketch
-import com.github.panpf.sketch.cache.downloadCacheKey
-import com.github.panpf.sketch.fetch.isBase64Uri
-import com.github.panpf.sketch.request.ImageRequest
-import com.github.panpf.sketch.request.UriInvalidException
-import com.github.panpf.sketch.util.MimeTypeMap
-import com.github.panpf.sketch.util.toUri
-import com.github.panpf.zoomimage.SketchZoomAsyncImage
-import com.github.panpf.zoomimage.rememberSketchZoomState
 import io.github.vinceglb.filekit.core.FileKit
-import io.ktor.http.*
+import io.ktor.http.Url
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
+import me.saket.telephoto.zoomable.ZoomableContentLocation
+import me.saket.telephoto.zoomable.rememberZoomableState
+import me.saket.telephoto.zoomable.zoomable
 import okio.Buffer
-import okio.ByteString.Companion.decodeBase64
-import okio.Source
+import okio.BufferedSource
+import okio.Path
 import okio.buffer
 import okio.use
 import top.kagg886.pmf.LocalSnackBarHost
@@ -55,24 +53,17 @@ import top.kagg886.pmf.util.transfer
 @Composable
 fun ImagePreviewer(
     onDismiss: () -> Unit,
-    url: List<String>,
+    // HttpUrl or Path
+    data: List<Either<String, Path>>,
     startIndex: Int = 0,
     modifier: Modifier = Modifier,
 ) {
-    val ctx = LocalPlatformContext.current
-    val request = remember(url.hashCode()) {
-        url.map {
-            ImageRequest.Builder(ctx, it).build()
-        }
-    }
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-        ),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        val pagerState = rememberPagerState(startIndex) { url.size }
-
+        val pagerState = rememberPagerState(startIndex) { data.size }
+        val ctx = LocalPlatformContext.current
         Box {
             HorizontalPager(
                 state = pagerState,
@@ -86,10 +77,8 @@ fun ImagePreviewer(
                     ModalBottomSheet(
                         onDismissRequest = { showBottomDialog = false },
                     ) {
-                        val snack = LocalSnackBarHost.current
-                        val platform = LocalPlatformContext.current
                         val scope = rememberCoroutineScope()
-
+                        val snack = LocalSnackBarHost.current
                         if (currentPlatform is Platform.Desktop) {
                             SettingsMenuLink(
                                 title = {
@@ -103,54 +92,30 @@ fun ImagePreviewer(
                                 },
                                 onClick = {
                                     scope.launch {
-                                        when {
-                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                                val (_, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                                val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray(),
-                                                )
-
-                                                kotlin.runCatching {
-                                                    copyImageToClipboard(source.readByteArray())
+                                        data[pagerState.currentPage].fold(
+                                            { uri ->
+                                                runCatching {
+                                                    val bytes = ctx.getDownloadImage(uri) ?: run {
+                                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                        return@fold
+                                                    }
+                                                    copyImageToClipboard(bytes)
                                                 }.onSuccess {
                                                     snack.showSnackbar("复制成功！")
                                                 }.onFailure {
                                                     snack.showSnackbar("复制失败：${it.message}")
                                                 }
-                                            }
-
-                                            else -> {
-                                                val source =
-                                                    ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                                if (source == null) {
-                                                    snack.showSnackbar("文件仍在下载，请稍等片刻...")
-                                                    return@launch
-                                                }
-                                                kotlin.runCatching {
-                                                    copyImageToClipboard(source.buffer().readByteArray())
+                                            },
+                                            { path ->
+                                                runCatching {
+                                                    copyImageToClipboard(path.source().buffer().use(BufferedSource::readByteArray))
                                                 }.onSuccess {
                                                     snack.showSnackbar("复制成功！")
                                                 }.onFailure {
                                                     snack.showSnackbar("复制失败：${it.message}")
                                                 }
-                                            }
-                                        }
-//                                        val source = when {
-//                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-//                                                Buffer().write(
-//                                                    url[pagerState.currentPage].decodeBase64Uri().decodeBase64()!!
-//                                                        .toByteArray()
-//                                                )
-//                                            }
-//
-//                                            else -> {
-//                                                ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-//                                            }
-//                                        }
-//                                        if (source == null) {
-//                                            snack.showSnackbar("文件仍在下载，请稍等片刻...")
-//                                            return@launch
-//                                        }
+                                            },
+                                        )
                                         showBottomDialog = false
                                     }
                                 },
@@ -165,38 +130,26 @@ fun ImagePreviewer(
                             },
                             onClick = {
                                 scope.launch {
-                                    when {
-                                        isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                            val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                            val source = Buffer().write(
-                                                data.decodeBase64()!!.toByteArray(),
-                                            )
-
-                                            FileKit.saveFile(
-                                                bytes = source.readByteArray(),
-                                                extension = MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin",
-                                                baseName = Uuid.random().toHexString(),
-                                            )
-                                        }
-
-                                        else -> {
-                                            val source =
-                                                ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                            if (source == null) {
+                                    data[pagerState.currentPage].fold(
+                                        { uri ->
+                                            val bytes = ctx.getDownloadImage(uri) ?: run {
                                                 snack.showSnackbar("文件仍在下载，请稍等片刻...")
-                                                return@launch
+                                                return@fold
                                             }
                                             FileKit.saveFile(
-                                                bytes = source.buffer().readByteArray(),
+                                                bytes = bytes,
                                                 extension = "png",
-                                                baseName = Url(url[pagerState.currentPage]).encodedPath.replace(
-                                                    "/",
-                                                    "_",
-                                                ),
+                                                baseName = Url(uri).encodedPath.replace("/", "_"),
                                             )
-                                        }
-                                    }
-
+                                        },
+                                        { path ->
+                                            FileKit.saveFile(
+                                                bytes = path.source().buffer().use(BufferedSource::readByteArray),
+                                                extension = "gif",
+                                                baseName = Uuid.random().toHexString(),
+                                            )
+                                        },
+                                    )
                                     showBottomDialog = false
                                 }
                             },
@@ -211,50 +164,32 @@ fun ImagePreviewer(
                                 },
                                 onClick = {
                                     scope.launch {
-                                        when {
-                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                                val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                                val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray(),
-                                                )
-
-                                                useTempFile { tmp ->
-                                                    tmp.sink().buffer().use { source.transfer(it) }
-                                                    shareFile(
-                                                        tmp,
-                                                        name = "${Uuid.random().toHexString()}.${MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin"}",
-                                                        mime = mime,
-                                                    )
-                                                }
-                                            }
-
-                                            else -> {
-                                                val source =
-                                                    ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                                if (source == null) {
+                                        data[pagerState.currentPage].fold(
+                                            { uri ->
+                                                val bytes = ctx.getDownloadImage(uri) ?: run {
                                                     snack.showSnackbar("文件仍在下载，请稍等片刻...")
-                                                    return@launch
+                                                    return@fold
                                                 }
+                                                val source = Buffer().write(bytes)
                                                 useTempFile { tmp ->
                                                     tmp.sink().buffer().use { source.transfer(it) }
                                                     shareFile(tmp, mime = "image/*")
                                                 }
-                                            }
-                                        }
-//                                        val cache = SingletonSketch.get(platform).downloadCache
-//                                        val cacheKey = request[pagerState.currentPage].downloadCacheKey
-//                                        val file = cache.withLock(cacheKey) {
-//                                            openSnapshot(cacheKey)?.use { snapshot ->
-//                                                snapshot.data
-//                                            }
-//                                        }
-//                                        if (file == null) {
-//                                            snack.showSnackbar("文件仍在下载，请稍等片刻...")
-//                                            return@launch
-//                                        }
-
-                                        showBottomDialog = false
+                                            },
+                                            { path ->
+                                                val source = Buffer().write(path.source().buffer().use(BufferedSource::readByteArray))
+                                                useTempFile { tmp ->
+                                                    tmp.sink().buffer().use { source.transfer(it) }
+                                                    shareFile(
+                                                        tmp,
+                                                        name = "${Uuid.random().toHexString()}.gif",
+                                                        mime = "image/gif",
+                                                    )
+                                                }
+                                            },
+                                        )
                                     }
+                                    showBottomDialog = false
                                 },
                             )
                         }
@@ -270,24 +205,24 @@ fun ImagePreviewer(
                     }
                 }
 
-                val zoom = rememberSketchZoomState()
-
-                SketchZoomAsyncImage(
-                    request[it],
+                val zoomableState = rememberZoomableState()
+                AsyncImage(
+                    model = data[it].fold(::identity, ::identity),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    zoomState = zoom,
-                    onTap = { offset ->
-                        if (offset !in zoom.zoomable.contentDisplayRect.toRect()) {
+                    onSuccess = { s ->
+                        val size = Size(s.result.image.width.toFloat(), s.result.image.height.toFloat())
+                        val location = ZoomableContentLocation.scaledToFitAndCenterAligned(size)
+                        zoomableState.setContentLocation(location)
+                    },
+                    modifier = Modifier.fillMaxSize().zoomable(
+                        state = zoomableState,
+                        onClick = { offset ->
                             onDismiss()
-                        }
-                    },
-                    onLongPress = { offset ->
-                        if (offset !in zoom.zoomable.contentDisplayRect.toRect()) {
-                            return@SketchZoomAsyncImage
-                        }
-                        showBottomDialog = true
-                    },
+                        },
+                        onLongClick = {
+                            showBottomDialog = true
+                        },
+                    ),
                 )
             }
 
@@ -318,7 +253,7 @@ fun ImagePreviewer(
                     }
                     Spacer(Modifier.width(5.dp))
                     TextButton(onClick = {}, enabled = false) {
-                        Text("${pagerState.currentPage + 1}/${url.size}")
+                        Text("${pagerState.currentPage + 1}/${data.size}")
                     }
                     Spacer(Modifier.width(5.dp))
                     IconButton(
@@ -327,7 +262,7 @@ fun ImagePreviewer(
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
                         },
-                        enabled = pagerState.currentPage < url.size - 1,
+                        enabled = pagerState.currentPage < data.size - 1,
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
                     }
@@ -337,27 +272,11 @@ fun ImagePreviewer(
     }
 }
 
-private suspend fun PlatformContext.getDownloadImage(cacheKey: String): Source? {
-    val cache = SingletonSketch.get(this).downloadCache
-    val file = cache.withLock(cacheKey) {
-        openSnapshot(cacheKey)?.use { snapshot ->
-            snapshot.data
+private fun PlatformContext.getDownloadImage(key: String) = run {
+    val coil = SingletonImageLoader.get(this).diskCache!!
+    coil.openSnapshot(key)?.use { snst ->
+        snst.data.source().buffer().use { src ->
+            src.readByteArray()
         }
     }
-    return file?.source()
-}
-
-private fun String.decodeBase64Uri(): Pair<String, String> {
-    val uri = this
-    val colonSymbolIndex = uri.indexOf(":").takeIf { it != -1 }
-        ?: throw UriInvalidException("Invalid base64 image uri: $uri")
-    val semicolonSymbolIndex = uri.indexOf(";").takeIf { it != -1 }
-        ?: throw UriInvalidException("Invalid base64 image uri: $uri")
-    val commaSymbolIndex = uri.indexOf(",").takeIf { it != -1 }
-        ?: throw UriInvalidException("Invalid base64 image uri: $uri")
-    val mimeType = uri.substring(colonSymbolIndex + 1, semicolonSymbolIndex)
-        .replace("img/", "image/")
-    val data = uri.substring(commaSymbolIndex + 1)
-
-    return mimeType to data
 }

@@ -5,9 +5,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.*
 import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
-import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.SingletonSketch
-import com.github.panpf.sketch.Sketch
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import kotlin.system.exitProcess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -18,8 +18,8 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 @OptIn(ExperimentalComposeUiApi::class)
 fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
     setupEnv()
-    SingletonSketch.setSafe {
-        Sketch.Builder(PlatformContext.INSTANCE).applyCustomSketchConfig()
+    SingletonImageLoader.setSafe {
+        ImageLoader.Builder(PlatformContext.INSTANCE).applyCustomConfig().build()
     }
 
     var lastException by mutableStateOf<Throwable?>(null)
