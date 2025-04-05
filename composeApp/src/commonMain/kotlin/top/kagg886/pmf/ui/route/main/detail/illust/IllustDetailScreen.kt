@@ -167,7 +167,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     @Composable
     private fun IllustDetailScreenContent(
         state: IllustDetailViewState,
-        model: IllustDetailViewModel
+        model: IllustDetailViewModel,
     ) {
         when (state) {
             IllustDetailViewState.Error -> {
@@ -230,7 +230,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     private fun WideScreenIllustDetail(
         illust: Illust,
         illustState: IllustDetailViewState.Success,
-        model: IllustDetailViewModel
+        model: IllustDetailViewModel,
     ) {
         Scaffold(
             topBar = {
@@ -243,7 +243,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         is IllustDetailViewState.Success.GIF -> GIFPreview(
                             illust,
                             illustState,
-                            model
+                            model,
                         )
 
                         is IllustDetailViewState.Success.Normal -> IllustPreview(illust, model)
@@ -261,7 +261,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     private fun IllustDetail(
         illust: Illust,
         illustState: IllustDetailViewState.Success,
-        model: IllustDetailViewModel
+        model: IllustDetailViewModel,
     ) {
         val state = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -299,7 +299,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     fun GIFPreview(
         illust: Illust,
         state: IllustDetailViewState.Success.GIF,
-        model: IllustDetailViewModel
+        model: IllustDetailViewModel,
     ) {
         Box(Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
@@ -314,7 +314,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             LazyColumn(
                 state = scroll,
-                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
             ) {
                 item {
                     var show by remember {
@@ -500,12 +500,12 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         Column {
                                             Text(
                                                 tag.name,
-                                                style = MaterialTheme.typography.labelMedium
+                                                style = MaterialTheme.typography.labelMedium,
                                             )
                                             tag.translatedName?.let {
                                                 Text(
                                                     it,
-                                                    style = MaterialTheme.typography.labelSmall
+                                                    style = MaterialTheme.typography.labelSmall,
                                                 )
                                             }
                                         }
@@ -571,7 +571,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             LazyColumn(
                 state = scroll,
-                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
             ) {
                 items(img) {
                     Spacer(Modifier.height(16.dp))
