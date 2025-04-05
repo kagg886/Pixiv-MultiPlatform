@@ -9,6 +9,7 @@ import okio.Path
 import platform.Foundation.NSURL
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
+import top.kagg886.pmf.util.AnimatedSkiaImageDecoder
 import top.kagg886.pmf.util.absolutePath
 
 val scope = CoroutineScope(Dispatchers.Main)
@@ -38,4 +39,4 @@ actual fun shareFile(file: Path, name: String, mime: String) {
 }
 
 actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw UnsupportedOperationException()
-actual fun ComponentRegistry.Builder.installGifDecoder() = apply { }
+actual fun ComponentRegistry.Builder.installGifDecoder() = add(AnimatedSkiaImageDecoder.Factory)
