@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import arrow.core.Either
+import arrow.core.identity
 import coil3.compose.AsyncImage
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import kotlin.uuid.ExperimentalUuidApi
@@ -24,6 +26,7 @@ import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
 import me.saket.telephoto.zoomable.rememberZoomableState
 import me.saket.telephoto.zoomable.zoomable
+import okio.Path
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.icon.Copy
@@ -33,17 +36,16 @@ import top.kagg886.pmf.ui.component.icon.Save
 @Composable
 fun ImagePreviewer(
     onDismiss: () -> Unit,
-    url: List<Any?>,
+    // HttpUrl or Path
+    data: List<Either<String, Path>>,
     startIndex: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-        ),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        val pagerState = rememberPagerState(startIndex) { url.size }
+        val pagerState = rememberPagerState(startIndex) { data.size }
 
         Box {
             HorizontalPager(
@@ -118,7 +120,7 @@ fun ImagePreviewer(
 
                 val zoomableState = rememberZoomableState()
                 AsyncImage(
-                    model = url[it],
+                    model = data[it].fold(::identity, ::identity),
                     contentDescription = null,
                     onSuccess = { s ->
                         val size = Size(s.result.image.width.toFloat(), s.result.image.height.toFloat())
@@ -164,7 +166,7 @@ fun ImagePreviewer(
                     }
                     Spacer(Modifier.width(5.dp))
                     TextButton(onClick = {}, enabled = false) {
-                        Text("${pagerState.currentPage + 1}/${url.size}")
+                        Text("${pagerState.currentPage + 1}/${data.size}")
                     }
                     Spacer(Modifier.width(5.dp))
                     IconButton(
@@ -173,7 +175,7 @@ fun ImagePreviewer(
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
                         },
-                        enabled = pagerState.currentPage < url.size - 1,
+                        enabled = pagerState.currentPage < data.size - 1,
                     ) {
                         Icon(Icons.AutoMirrored.Filled.ArrowForward, null)
                     }

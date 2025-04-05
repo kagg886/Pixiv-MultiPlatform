@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import arrow.core.left
+import arrow.core.right
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -322,7 +324,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     if (show) {
                         ImagePreviewer(
                             onDismiss = { show = false },
-                            url = listOf(state.data),
+                            data = listOf(state.data.right()),
                             startIndex = 0,
                         )
                     }
@@ -562,7 +564,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             if (preview) {
                 ImagePreviewer(
                     onDismiss = { preview = false },
-                    url = img,
+                    data = img.map(String::left),
                     modifier = Modifier.fillMaxSize(),
                     startIndex = startIndex,
                 )

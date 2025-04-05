@@ -18,6 +18,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
+import arrow.core.left
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -186,7 +187,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     if (preview) {
                                         ImagePreviewer(
                                             onDismiss = { preview = false },
-                                            url = listOf(state.novel.imageUrls.contentLarge),
+                                            data = listOf(state.novel.imageUrls.contentLarge.left()),
                                             startIndex = page.page.value,
                                         )
                                     }
