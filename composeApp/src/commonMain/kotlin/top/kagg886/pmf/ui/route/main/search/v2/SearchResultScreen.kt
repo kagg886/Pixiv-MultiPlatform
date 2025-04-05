@@ -28,7 +28,7 @@ class SearchResultScreen(
     private val target: SearchTarget,
 ) : Screen {
     override val key: ScreenKey by lazy {
-        "search_result_${keyword}_${sort}_${target}"
+        "search_result_${keyword}_${sort}_$target"
     }
 
     @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)

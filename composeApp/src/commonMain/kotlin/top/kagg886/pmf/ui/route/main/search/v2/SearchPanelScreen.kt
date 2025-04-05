@@ -52,8 +52,9 @@ class SearchPanelScreen(
     private val initialText: String = "",
 ) : Screen {
     override val key: ScreenKey by lazy {
-        "search_panel_${sort}_${target}_${keyword}_${initialText}"
+        "search_panel_${sort}_${target}_${keyword}_$initialText"
     }
+
     @OptIn(InternalVoyagerApi::class, FlowPreview::class)
     @Composable
     override fun Content() {
