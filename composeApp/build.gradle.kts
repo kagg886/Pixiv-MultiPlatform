@@ -117,6 +117,10 @@ kotlin {
             // webview
             api(libs.compose.webview.multiplatform)
 
+            // https://coil-kt.github.io/coil/changelog/
+            implementation(project.dependencies.platform(libs.coil.bom))
+            implementation(libs.bundles.coil)
+
             // image-loader
             implementation(libs.sketch.compose)
             implementation(libs.sketch.svg)

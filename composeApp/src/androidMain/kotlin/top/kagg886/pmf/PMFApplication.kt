@@ -6,12 +6,12 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.github.panpf.sketch.PlatformContext
-import com.github.panpf.sketch.SingletonSketch
-import com.github.panpf.sketch.Sketch
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import kotlin.concurrent.thread
 
-class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtExceptionHandler {
+class PMFApplication : Application(), SingletonImageLoader.Factory, Thread.UncaughtExceptionHandler {
 
     override fun onCreate() {
         super.onCreate()
@@ -28,8 +28,6 @@ class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtEx
             }
         }
     }
-
-    override fun createSketch(context: PlatformContext): Sketch = Sketch.Builder(context).applyCustomSketchConfig()
 
     companion object {
         @SuppressLint("DiscouragedPrivateApi", "PrivateApi")
@@ -64,4 +62,6 @@ class PMFApplication : Application(), SingletonSketch.Factory, Thread.UncaughtEx
 //            android.os.Process.killProcess(android.os.Process.myPid())
         }
     }
+
+    override fun newImageLoader(context: PlatformContext) = ImageLoader.Builder(context).applyCustomConfig().build()
 }
