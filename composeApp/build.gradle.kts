@@ -122,15 +122,6 @@ kotlin {
             implementation(libs.bundles.coil)
             implementation(libs.telephoto.zoomable)
 
-            // image-loader
-            implementation(libs.sketch.compose)
-            implementation(libs.sketch.svg)
-            implementation(libs.sketch.resources)
-            implementation(libs.sketch.animated.gif)
-            implementation(libs.sketch.extensions.compose)
-            implementation(libs.sketch.http.ktor3)
-            implementation(libs.zoomimage.compose.sketch)
-
             // gif-exporter
             implementation(project(":lib:gif"))
 

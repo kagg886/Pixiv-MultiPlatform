@@ -26,7 +26,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.LocalPlatformContext
+import coil3.compose.LocalPlatformContext
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
@@ -158,10 +158,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
     @Composable
     @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
-        val sketch = LocalPlatformContext.current
+        val coil = LocalPlatformContext.current
         when (state) {
             is NovelDetailViewState.Error -> ErrorPage(text = state.cause) {
-                model.reload(sketch)
+                model.reload(coil)
             }
 
             is NovelDetailViewState.Loading -> {
