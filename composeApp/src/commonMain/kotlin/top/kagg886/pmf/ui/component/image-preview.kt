@@ -19,18 +19,27 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import arrow.core.Either
 import arrow.core.identity
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import kotlin.uuid.ExperimentalUuidApi
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
 import me.saket.telephoto.zoomable.rememberZoomableState
 import me.saket.telephoto.zoomable.zoomable
+import okio.BufferedSource
 import okio.Path
+import okio.buffer
+import okio.use
+import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.copyImageToClipboard
 import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
+import top.kagg886.pmf.util.source
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
@@ -46,7 +55,7 @@ fun ImagePreviewer(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         val pagerState = rememberPagerState(startIndex) { data.size }
-
+        val ctx = LocalPlatformContext.current
         Box {
             HorizontalPager(
                 state = pagerState,
@@ -61,7 +70,7 @@ fun ImagePreviewer(
                         onDismissRequest = { showBottomDialog = false },
                     ) {
                         val scope = rememberCoroutineScope()
-
+                        val snack = LocalSnackBarHost.current
                         if (currentPlatform is Platform.Desktop) {
                             SettingsMenuLink(
                                 title = {
@@ -75,6 +84,30 @@ fun ImagePreviewer(
                                 },
                                 onClick = {
                                     scope.launch {
+                                        data[pagerState.currentPage].fold(
+                                            { uri ->
+                                                runCatching {
+                                                    val bytes = ctx.getDownloadImage(uri) ?: run {
+                                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                        return@fold
+                                                    }
+                                                    copyImageToClipboard(bytes)
+                                                }.onSuccess {
+                                                    snack.showSnackbar("复制成功！")
+                                                }.onFailure {
+                                                    snack.showSnackbar("复制失败：${it.message}")
+                                                }
+                                            },
+                                            { path ->
+                                                runCatching {
+                                                    copyImageToClipboard(path.source().buffer().use(BufferedSource::readByteArray))
+                                                }.onSuccess {
+                                                    snack.showSnackbar("复制成功！")
+                                                }.onFailure {
+                                                    snack.showSnackbar("复制失败：${it.message}")
+                                                }
+                                            },
+                                        )
                                         showBottomDialog = false
                                     }
                                 },
@@ -181,6 +214,15 @@ fun ImagePreviewer(
                     }
                 }
             }
+        }
+    }
+}
+
+private fun PlatformContext.getDownloadImage(key: String) = run {
+    val coil = SingletonImageLoader.get(this).diskCache!!
+    coil.openSnapshot(key)?.use { snst ->
+        snst.data.source().buffer().use { src ->
+            src.readByteArray()
         }
     }
 }
