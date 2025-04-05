@@ -338,13 +338,7 @@ class SettingScreen : Screen {
                         Text("动态图片支持(实验性)")
                     },
                     subtitle = {
-                        Text(
-                            buildAnnotatedString {
-                                appendLine("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
-                                appendLine("该功能在Android上运行较为缓慢(合成4帧约8秒)，请酌情开启。")
-                                appendLine("如有必要请选择其他Pixiv动图导出工具。")
-                            },
-                        )
+                        Text("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
                     },
                     onCheckedChange = {
                         gifSupport = it
