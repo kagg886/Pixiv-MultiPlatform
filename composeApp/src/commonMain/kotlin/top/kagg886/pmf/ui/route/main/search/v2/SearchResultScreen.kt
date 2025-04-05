@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
@@ -26,6 +27,10 @@ class SearchResultScreen(
     private val sort: SearchSort,
     private val target: SearchTarget,
 ) : Screen {
+    override val key: ScreenKey by lazy {
+        "search_result_${keyword}_${sort}_${target}"
+    }
+
     @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
     @Composable
     override fun Content() {
