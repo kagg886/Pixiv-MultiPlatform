@@ -62,8 +62,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.rememberAsyncImageState
-import com.github.panpf.sketch.request.ImageResult
+import coil3.compose.AsyncImagePainter.State
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -575,17 +574,15 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             ) {
                 items(img) {
                     Spacer(Modifier.height(16.dp))
-                    val state = rememberAsyncImageState()
-                    val ratio = remember(state.result) {
-                        if (state.result is ImageResult.Success) {
-                            val info = (state.result as ImageResult.Success).imageInfo
-                            return@remember info.width.toFloat() / info.height.toFloat()
-                        }
-                        illust.width.toFloat() / illust.height
-                    }
+                    var ratio by remember { mutableStateOf(illust.width.toFloat() / illust.height) }
                     ProgressedAsyncImage(
                         url = it,
-                        state = state,
+                        onState = { state ->
+                            if (state is State.Success) {
+                                val image = state.result.image
+                                ratio = image.width.toFloat() / image.height.toFloat()
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth()
                             .aspectRatio(ratio)
                             .clickable {
