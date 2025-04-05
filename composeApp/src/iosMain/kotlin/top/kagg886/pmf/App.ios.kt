@@ -38,4 +38,4 @@ actual fun shareFile(file: Path, name: String, mime: String) {
 }
 
 actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw UnsupportedOperationException()
-actual fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder = TODO()
+actual fun ComponentRegistry.Builder.installGifDecoder() = apply { }

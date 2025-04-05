@@ -329,6 +329,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
                 connectivityChecker = { ConnectivityChecker.ONLINE },
             ),
         )
+        installGifDecoder()
     }
     crossfade(500)
     diskCache {
