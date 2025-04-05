@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
 import me.saket.telephoto.zoomable.rememberZoomableState
 import me.saket.telephoto.zoomable.zoomable
+import okio.Buffer
 import okio.BufferedSource
 import okio.Path
 import okio.buffer
@@ -39,10 +40,14 @@ import okio.use
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.copyImageToClipboard
+import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
+import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.transfer
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
@@ -158,6 +163,32 @@ fun ImagePreviewer(
                                     Icon(Icons.Default.Share, null)
                                 },
                                 onClick = {
+                                    scope.launch {
+                                        data[pagerState.currentPage].fold(
+                                            { uri ->
+                                                val bytes = ctx.getDownloadImage(uri) ?: run {
+                                                    snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                    return@fold
+                                                }
+                                                val source = Buffer().write(bytes)
+                                                useTempFile { tmp ->
+                                                    tmp.sink().buffer().use { source.transfer(it) }
+                                                    shareFile(tmp, mime = "image/*")
+                                                }
+                                            },
+                                            { path ->
+                                                val source = Buffer().write(path.source().buffer().use(BufferedSource::readByteArray))
+                                                useTempFile { tmp ->
+                                                    tmp.sink().buffer().use { source.transfer(it) }
+                                                    shareFile(
+                                                        tmp,
+                                                        name = "${Uuid.random().toHexString()}.gif",
+                                                        mime = "image/gif",
+                                                    )
+                                                }
+                                            },
+                                        )
+                                    }
                                     showBottomDialog = false
                                 },
                             )
