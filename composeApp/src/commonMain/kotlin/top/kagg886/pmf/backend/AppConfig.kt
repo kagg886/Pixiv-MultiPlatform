@@ -29,8 +29,6 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterR18 by boolean("filter_r18", false)
     var filterR18G by boolean("filter_r18g", false)
 
-    var gifSupport by boolean("gif_support", true)
-
     var filterAiNovel by boolean("filter_ai_novel", false)
     var filterR18Novel by boolean("filter_r18_novel", false)
     var filterR18GNovel by boolean("filter_r18g_novel", false)
