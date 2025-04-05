@@ -325,25 +325,6 @@ class SettingScreen : Screen {
                         filterR18G = it
                     },
                 )
-
-                var gifSupport by remember {
-                    mutableStateOf(AppConfig.gifSupport)
-                }
-                LaunchedEffect(gifSupport) {
-                    AppConfig.gifSupport = gifSupport
-                }
-                SettingsSwitch(
-                    state = gifSupport,
-                    title = {
-                        Text("动态图片支持(实验性)")
-                    },
-                    subtitle = {
-                        Text("开启此选项后，若识别到这是一张动图，则会自动转为gif并展示")
-                    },
-                    onCheckedChange = {
-                        gifSupport = it
-                    },
-                )
             }
             SettingsGroup(title = { Text("小说设置") }) {
                 var filterAiNovel by remember {
