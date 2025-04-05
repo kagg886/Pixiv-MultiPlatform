@@ -1,8 +1,13 @@
+import okio.HashingSink
+import okio.blackholeSink
+import okio.buffer
+import okio.source
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.spotless)
 }
 
 group = "top.kagg886.gif"
@@ -11,69 +16,156 @@ version = "1.0"
 fun prop(key: String) = project.findProperty(key) as String
 
 android {
+    ndkVersion = "28.0.13004108"
     namespace = "top.kagg886.gif"
 
     compileSdk = prop("TARGET_SDK").toInt()
 
     defaultConfig {
         minSdk = prop("MIN_SDK").toInt()
+        externalNativeBuild {
+            cmake {
+                targets += "cargo-build_gif_rust"
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
 
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    externalNativeBuild {
+        cmake {
+            path = File("src/rust/CMakeLists.txt")
         }
     }
 }
 
+val kotlinArchToRustArch = mapOf(
+    "iosX64" to "x86_64-apple-ios",
+    "iosArm64" to "aarch64-apple-ios",
+    "iosSimulatorArm64" to "aarch64-apple-ios-sim",
+)
+
 kotlin {
     jvmToolchain(17)
-
     jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach { t ->
+        t.apply {
+            compilations.all {
+                cinterops {
+                    val gif by creating {
+                        defFile("src/iosMain/interop/libgif_rust.def")
+                        packageName("moe.tarsin.gif.cinterop")
+                        includeDirs("src/iosMain/interop/include")
+
+                        extraOpts("-libraryPath", "src/rust/target/${kotlinArchToRustArch[t.targetName]!!}/release") // FIXME: custom target rust
+                    }
+                }
+            }
+        }
+    }
 
     androidTarget {
         publishLibraryVariants("release")
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(compose.ui)
-                implementation(project(":lib:okio-enhancement-util"))
-                api(libs.korlibs.io)
-                implementation(libs.kermit)
-            }
-        }
-
-        jvmTest.dependencies {
-            val osName = System.getProperty("os.name")
-            val targetOs = when {
-                osName == "Mac OS X" -> "macos"
-                osName.startsWith("Win") -> "windows"
-                osName.startsWith("Linux") -> "linux"
-                else -> error("Unsupported OS: $osName")
-            }
-
-            val targetArch = when (val osArch = System.getProperty("os.arch")) {
-                "x86_64", "amd64" -> "x64"
-                "aarch64" -> "arm64"
-                else -> error("Unsupported arch: $osArch")
-            }
-
-            val version = "0.8.9" // or any more recent version
-            val target = "${targetOs}-${targetArch}"
-            //noinspection UseTomlInstead
-            implementation("org.jetbrains.skiko:skiko-awt-runtime-$target:$version")
-        }
-
-        commonTest.dependencies {
-            implementation(kotlin("test"))
+        commonMain.dependencies {
+            implementation(libs.kermit)
+            implementation(libs.kotlinx.serialization.cbor)
+            implementation(project(":lib:okio-enhancement-util"))
         }
     }
 }
 
+enum class JvmDesktopPlatform {
+    WINDOWS,
+    LINUX,
+    MACOS,
+}
+
+val currentJvmPlatform by lazy {
+    val prop = System.getProperty("os.name")
+    when {
+        prop.startsWith("Mac") -> JvmDesktopPlatform.MACOS
+        prop.startsWith("Linux") -> JvmDesktopPlatform.LINUX
+        prop.startsWith("Win") -> JvmDesktopPlatform.WINDOWS
+        else -> error("unsupported platform: $prop")
+    }
+}
+
+val jvmCargoBuildRelease = tasks.register<Exec>("jvmCargoBuildRelease") {
+    val cmd = "cargo build --release --features jvm"
+    workingDir = project.file("src/rust")
+    if (System.getProperty("os.name").startsWith("Win")) {
+        commandLine("cmd", "/c", cmd) // windows should use cmdlet
+        return@register
+    }
+    commandLine("bash", "-c", cmd)
+}
+
+fun File.md5() = source().buffer().use { src ->
+    HashingSink.md5(blackholeSink()).use { dst ->
+        src.readAll(dst)
+        dst.hash.hex().lowercase()
+    }
+}
+
+val jvmMetadataGenerated = tasks.register("jvmMetadataGenerated") {
+    dependsOn(jvmCargoBuildRelease)
+
+    doFirst {
+        val libName = when (currentJvmPlatform) {
+            JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
+            JvmDesktopPlatform.LINUX -> "libgif_rust.so"
+            JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
+        }
+
+        val hash = project.file("src/rust/target/release/$libName").md5()
+        project.file("src/rust/target/release/gif-build.hash").writeText(hash)
+        logger.lifecycle("rust lib hash is $hash")
+    }
+}
+
+tasks.named<ProcessResources>("jvmProcessResources") {
+    dependsOn(jvmMetadataGenerated)
+    val libName = when (currentJvmPlatform) {
+        JvmDesktopPlatform.MACOS -> "libgif_rust.dylib"
+        JvmDesktopPlatform.LINUX -> "libgif_rust.so"
+        JvmDesktopPlatform.WINDOWS -> "gif_rust.dll"
+    }
+    from(project.file("src/rust/target/release/$libName"), project.file("src/rust/target/release/gif-build.hash"))
+}
+
+for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
+    val iosNativeCargoTask = tasks.register<Exec>("${kotlinArch}NativeCargoTask") {
+        onlyIf { System.getProperty("os.name").startsWith("Mac") }
+        workingDir = project.file("src/rust")
+        commandLine("bash", "-c", "cargo build --release --target $rustArch")
+    }
+
+    tasks.named("cinteropGif${kotlinArch.capitalize()}") {
+        dependsOn(iosNativeCargoTask)
+    }
+}
+
+val ktlintVersion = libs.ktlint.get().version
+
+spotless {
+    kotlin {
+        // https://github.com/diffplug/spotless/issues/111
+        target("src/**/*.kt")
+        ktlint(ktlintVersion)
+    }
+    kotlinGradle {
+        ktlint(ktlintVersion)
+    }
+}

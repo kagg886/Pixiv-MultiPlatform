@@ -9,7 +9,7 @@ kermit = "2.0.5"
 korlibsIo = "6.0.1"
 kotlin = "2.1.20"
 kotlinx-coroutines = "1.10.1"
-kotlinxSerializationJson = "1.8.0"
+kotlinxSerialization = "1.8.0"
 ksoup = "0.2.2"
 ksp = "2.1.20-1.0.32"
 ktor = "3.1.2"
@@ -43,7 +43,8 @@ korlibs-io = { module = "com.soywiz:korlibs-io", version.ref = "korlibsIo" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 kotlinx-datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.6.2"
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+kotlinx-serialization-cbor = { module = "org.jetbrains.kotlinx:kotlinx-serialization-cbor", version.ref = "kotlinxSerialization" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version.ref = "ksoup" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
