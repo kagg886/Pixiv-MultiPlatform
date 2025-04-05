@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
+import coil3.ComponentRegistry
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
@@ -473,4 +474,4 @@ enum class NavigationItem(
     }),
 }
 
-expect fun ImageLoader.Builder.installGifDecoder()
+expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder

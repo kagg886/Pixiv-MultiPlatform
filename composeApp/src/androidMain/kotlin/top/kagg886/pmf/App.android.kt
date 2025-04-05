@@ -5,7 +5,8 @@ import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import coil3.ImageLoader
+import coil3.ComponentRegistry
+import coil3.gif.AnimatedImageDecoder
 import okio.Path
 
 actual fun shareFile(file: Path, name: String, mime: String) {
@@ -51,6 +52,4 @@ actual fun openBrowser(link: String) {
     }
 }
 
-actual fun ImageLoader.Builder.installGifDecoder() {
-    TODO("Not yet implemented")
-}
+actual fun ComponentRegistry.Builder.installGifDecoder() = add(AnimatedImageDecoder.Factory(false))
