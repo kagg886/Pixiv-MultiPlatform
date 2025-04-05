@@ -65,13 +65,22 @@ class AnimatedSkiaImage(
         frameDurationsMs.sum()
     }
 
-    private val bitmapA = Bitmap().apply { allocPixels(codec.imageInfo) }
-    private val bitmapB = Bitmap().apply { allocPixels(codec.imageInfo) }
+    private val bitmapA = Bitmap().apply {
+        allocPixels(codec.imageInfo)
+        setImmutable()
+    }
+    private val bitmapB = Bitmap().apply {
+        allocPixels(codec.imageInfo)
+        setImmutable()
+    }
+    private val imageA = SkiaImage.makeFromBitmap(bitmapA)
+    private val imageB = SkiaImage.makeFromBitmap(bitmapB)
     private var current by atomic(false)
 
     fun decode(index: Int) = coroutineScope.launch(Dispatchers.Default) {
         val to = if (current) bitmapA else bitmapB
         codec.readPixels(to, index)
+        to.notifyPixelsChanged()
         current = !current
     }
 
@@ -90,7 +99,7 @@ class AnimatedSkiaImage(
 
         if (codec.frameCount == 1) {
             canvas.drawImage(
-                image = SkiaImage.makeFromBitmap(bitmapA),
+                image = imageA,
                 left = 0f,
                 top = 0f,
             )
@@ -109,7 +118,7 @@ class AnimatedSkiaImage(
         )
 
         canvas.drawImage(
-            image = SkiaImage.makeFromBitmap(if (!current) bitmapA else bitmapB),
+            image = if (!current) imageA else imageB,
             left = 0f,
             top = 0f,
         )
