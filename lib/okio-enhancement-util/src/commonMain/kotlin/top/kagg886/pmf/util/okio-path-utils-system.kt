@@ -45,7 +45,7 @@ inline fun Path.writeString(s: String) = writeBytes(s.encodeToByteArray())
 
 inline fun Path.source() = FileSystem.SYSTEM.source(this)
 
-inline fun Path.absolutePath() = this
+inline fun Path.absolutePath() = FileSystem.SYSTEM.canonicalize("".toPath()).resolve(this).normalized()
 
 inline fun Path.parentFile() = absolutePath().parent
 
