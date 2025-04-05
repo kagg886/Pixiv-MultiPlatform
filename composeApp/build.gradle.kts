@@ -149,6 +149,9 @@ kotlin {
             // about page
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
+
+            implementation(project.dependencies.platform(libs.arrow.stack))
+            implementation(libs.arrow.fx.coroutines)
         }
 
         val desktopMain by getting
