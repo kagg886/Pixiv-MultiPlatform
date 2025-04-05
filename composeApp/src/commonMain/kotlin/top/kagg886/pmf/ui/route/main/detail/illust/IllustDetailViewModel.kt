@@ -71,10 +71,9 @@ class IllustDetailViewModel(private val illust: Illust) :
                         loadingState.data.tryEmit("解压动图帧数据至临时工作区")
                         zip.unzip(workDir)
                         loadingState.data.tryEmit("重新编码为GIF中")
-                        encodeGif {
-                            output(gif)
+                        encodeGif(gif) {
                             for (i in meta.frames) {
-                                frame(path = workDir.resolve(i.file), delay = i.delay)
+                                frame(path = workDir / i.file, delay = i.delay)
                             }
                         }
                     }
