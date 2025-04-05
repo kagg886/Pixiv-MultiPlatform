@@ -57,4 +57,4 @@ private data class TransferableImage(private val image: ByteArray) : Transferabl
     override fun hashCode(): Int = image.contentHashCode()
 }
 
-actual fun ComponentRegistry.Builder.installGifDecoder() = add(AnimatedSkiaImageDecoder.Factory())
+actual fun ComponentRegistry.Builder.installGifDecoder() = add(AnimatedSkiaImageDecoder.Factory)

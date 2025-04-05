@@ -29,12 +29,11 @@ import org.jetbrains.skia.Codec
 import org.jetbrains.skia.Data
 import org.jetbrains.skia.Image as SkiaImage
 
-class AnimatedSkiaImage(
-    private val codec: Codec,
-    private val coroutineScope: CoroutineScope,
-    private val timeSource: TimeSource,
-) : Image {
+private val GIF_HEADER_87A = "GIF87a".encodeUtf8()
+private val GIF_HEADER_89A = "GIF89a".encodeUtf8()
+private fun DecodeUtils.isGif(source: BufferedSource): Boolean = source.rangeEquals(0, GIF_HEADER_89A) || source.rangeEquals(0, GIF_HEADER_87A)
 
+class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
     override val size: Long
         get() {
             var size = codec.imageInfo.computeMinByteSize().toLong()
@@ -42,25 +41,16 @@ class AnimatedSkiaImage(
             return size.coerceAtLeast(0)
         }
 
-    override val width: Int
-        get() = codec.width
+    override val width = codec.width
 
-    override val height: Int
-        get() = codec.height
+    override val height = codec.height
 
-    override val shareable: Boolean
-        get() = false
+    override val shareable = false
 
-    /**
-     * The duration of each frame, in order, in milliseconds.
-     */
-    val frameDurationsMs: List<Int> by lazy {
+    val frameDurationsMs by lazy {
         codec.framesInfo.map { it.safeFrameDuration }
     }
 
-    /**
-     * The total duration of a single iteration of the animation in milliseconds.
-     */
     val singleIterationDurationMs: Int by lazy {
         frameDurationsMs.sum()
     }
@@ -100,7 +90,7 @@ class AnimatedSkiaImage(
     private val imageB = SkiaImage.makeFromBitmap(bitmapB)
     private var current by atomic(false)
 
-    fun decode(index: Int) = coroutineScope.launch(Dispatchers.Default) {
+    fun decode(index: Int) = scope.launch(Dispatchers.Default) {
         val to = if (current) bitmapA else bitmapB
         codec.readPixels(to, index)
         to.notifyPixelsChanged()
@@ -116,21 +106,14 @@ class AnimatedSkiaImage(
     private var animationStartTime: TimeMark? = null
 
     override fun draw(canvas: Canvas) {
-        if (codec.frameCount == 0) {
-            return
-        }
+        if (codec.frameCount == 0) return
 
         if (codec.frameCount == 1) {
-            canvas.drawImage(
-                image = imageA,
-                left = 0f,
-                top = 0f,
-            )
+            canvas.drawImage(image = imageA, left = 0f, top = 0f)
             return
         }
 
-        val animationStartTime = animationStartTime
-            ?: timeSource.markNow().also { animationStartTime = it }
+        val animationStartTime = animationStartTime ?: TimeSource.Monotonic.markNow().also { animationStartTime = it }
 
         val totalElapsedTimeMs = animationStartTime.elapsedNow().inWholeMilliseconds
 
@@ -140,11 +123,7 @@ class AnimatedSkiaImage(
             totalElapsedTimeMs = totalElapsedTimeMs,
         )
 
-        canvas.drawImage(
-            image = if (!current) imageA else imageB,
-            left = 0f,
-            top = 0f,
-        )
+        canvas.drawImage(image = if (!current) imageA else imageB, left = 0f, top = 0f)
 
         val nextFrameIndex = if (frameIndexToDraw == codec.frameCount - 1) 0 else frameIndexToDraw + 1
         decode(nextFrameIndex)
@@ -184,43 +163,24 @@ private val AnimationFrameInfo.safeFrameDuration: Int
 
 private const val DEFAULT_FRAME_DURATION = 100
 
-class AnimatedSkiaImageDecoder(
-    private val source: ImageSource,
-    private val timeSource: TimeSource,
-) : Decoder {
-
+class AnimatedSkiaImageDecoder(private val source: ImageSource) : Decoder {
     override suspend fun decode(): DecodeResult = coroutineScope {
         val bytes = source.source().use { it.readByteArray() }
         val codec = Codec.makeFromData(Data.makeFromBytes(bytes))
         DecodeResult(
             image = AnimatedSkiaImage(
                 codec = codec,
-                coroutineScope = this + Job(),
-                timeSource = timeSource,
+                scope = this + Job(),
             ),
             isSampled = false,
         )
     }
 
-    class Factory(private val timeSource: TimeSource = TimeSource.Monotonic) : Decoder.Factory {
-
-        override fun create(
-            result: SourceFetchResult,
-            options: Options,
-            imageLoader: ImageLoader,
-        ): Decoder? {
+    object Factory : Decoder.Factory {
+        override fun create(result: SourceFetchResult, options: Options, imageLoader: ImageLoader): Decoder? {
             if (!isApplicable(result.source.source())) return null
-            return AnimatedSkiaImageDecoder(
-                source = result.source,
-                timeSource = timeSource,
-            )
+            return AnimatedSkiaImageDecoder(source = result.source)
         }
-
         private fun isApplicable(source: BufferedSource): Boolean = DecodeUtils.isGif(source)
     }
 }
-
-private val GIF_HEADER_87A = "GIF87a".encodeUtf8()
-private val GIF_HEADER_89A = "GIF89a".encodeUtf8()
-
-private fun DecodeUtils.isGif(source: BufferedSource): Boolean = source.rangeEquals(0, GIF_HEADER_89A) || source.rangeEquals(0, GIF_HEADER_87A)
