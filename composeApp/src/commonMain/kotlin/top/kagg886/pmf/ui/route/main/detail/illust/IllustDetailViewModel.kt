@@ -2,8 +2,6 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import com.github.panpf.sketch.fetch.newBase64Uri
-import com.github.panpf.sketch.fetch.newFileUri
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -23,9 +21,7 @@ import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -33,7 +29,6 @@ import top.kagg886.pmf.backend.useTempDir
 import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.unzip
 import top.kagg886.pmf.util.writeBytes
 
@@ -81,12 +76,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             reduce {
-                val uri = when (currentPlatform) {
-                    // https://github.com/panpf/sketch/issues/239
-                    Platform.Desktop.Windows -> gif.source().use { newBase64Uri("image/gif", it.buffer().readByteString().base64()) }
-                    else -> newFileUri(gif)
-                }
-                IllustDetailViewState.Success.GIF(illust, uri)
+                IllustDetailViewState.Success.GIF(illust, gif)
             }
             saveDataBase(illust)
             return@intent
@@ -265,7 +255,7 @@ sealed class IllustDetailViewState {
     sealed class Success : IllustDetailViewState() {
         abstract val illust: Illust
         data class Normal(override val illust: Illust) : Success()
-        data class GIF(override val illust: Illust, val data: String) : Success()
+        data class GIF(override val illust: Illust, val data: Path) : Success()
     }
 }
 

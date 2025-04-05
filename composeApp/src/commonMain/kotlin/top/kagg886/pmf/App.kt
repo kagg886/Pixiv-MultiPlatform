@@ -27,6 +27,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.network.ConnectivityChecker
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import coil3.util.Logger as CoilLogger
 import coil3.util.Logger.Level as CoilLogLevel
@@ -328,6 +329,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
             ),
         )
     }
+    crossfade(500)
     diskCache {
         DiskCache.Builder().apply {
             directory(cachePath / "coil_image_cache")

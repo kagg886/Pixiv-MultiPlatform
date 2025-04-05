@@ -24,6 +24,7 @@ sqliteBundled = "2.5.0-rc03"
 versionCatalogUpdate = "1.0.0"
 voyagerVersion = "1.1.0-beta03"
 zoomimageComposeSketch = "1.1.2"
+telephoto = "0.15.1"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
@@ -73,6 +74,7 @@ voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voy
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
 zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch4", version.ref = "zoomimageComposeSketch" }
+telephoto-zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "telephoto" }
 
 [plugins]
 aboutlibrariesPlugin = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }

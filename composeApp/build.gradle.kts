@@ -120,6 +120,7 @@ kotlin {
             // https://coil-kt.github.io/coil/changelog/
             implementation(project.dependencies.platform(libs.coil.bom))
             implementation(libs.bundles.coil)
+            implementation(libs.telephoto.zoomable)
 
             // image-loader
             implementation(libs.sketch.compose)

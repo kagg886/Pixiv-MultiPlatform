@@ -13,7 +13,7 @@ import coil3.compose.AsyncImagePainter.State
 
 @Composable
 fun ProgressedAsyncImage(
-    url: String?,
+    url: Any?,
     modifier: Modifier = Modifier,
     onState: ((State) -> Unit)? = null,
     alignment: Alignment = Alignment.Center,
