@@ -52,4 +52,11 @@
     <string name="you_can_still_check_update_on_setting">您仍可以前往设置中检查更新</string>
     <string name="version_latest">当前为最新版本</string>
     <string name="update_check_failed">更新检测失败...</string>
+
+    <string name="no_more_data">没有更多了</string>
+    <string name="open_source">开源许可</string>
+    <string name="load_failed">加载失败</string>
+    <string name="closed">关闭</string>
+    <string name="jump_browser_tips">外部链接确认提示</string>
+    <string name="jump_browser_tips_question">是否打开链接：%1$s</string>
 </resources>

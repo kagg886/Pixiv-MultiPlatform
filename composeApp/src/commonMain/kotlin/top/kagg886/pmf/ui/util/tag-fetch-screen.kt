@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.TagFilter
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.no_more_data
 import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
@@ -134,7 +135,7 @@ private fun TagsFetchContent0(
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了",
+                            text = stringResource(Res.string.no_more_data),
                         )
                     }
                 }

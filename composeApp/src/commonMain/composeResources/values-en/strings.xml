@@ -52,4 +52,11 @@
     <string name="you_can_still_check_update_on_setting">you can still check update on setting</string>
     <string name="version_latest">this version is latest</string>
     <string name="update_check_failed">update check failed...</string>
+
+    <string name="no_more_data">No more data</string>
+    <string name="open_source">Open source license</string>
+    <string name="load_failed">Loading failed</string>
+    <string name="closed">close</string>
+    <string name="jump_browser_tips">External link open confirmation</string>
+    <string name="jump_browser_tips_question">open the link: %1$s</string>
 </resources>
