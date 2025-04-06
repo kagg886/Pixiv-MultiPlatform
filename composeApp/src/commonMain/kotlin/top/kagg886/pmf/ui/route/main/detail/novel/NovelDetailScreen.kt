@@ -18,7 +18,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
-import arrow.core.left
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -28,6 +27,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import coil3.compose.LocalPlatformContext
+import coil3.toUri
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
@@ -187,7 +187,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     if (preview) {
                                         ImagePreviewer(
                                             onDismiss = { preview = false },
-                                            data = listOf(state.novel.imageUrls.contentLarge.left()),
+                                            data = listOf(state.novel.imageUrls.contentLarge.toUri()),
                                             startIndex = page.page.value,
                                         )
                                     }

@@ -19,9 +19,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import arrow.core.left
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.toUri
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
 import com.fleeksoft.ksoup.nodes.Node
@@ -105,7 +105,7 @@ fun RichText(
     var previewIndex by remember { mutableStateOf(-1) }
     if (previewIndex != -1) {
         ImagePreviewer(
-            data = previews.map(String::left),
+            data = previews.map(String::toUri),
             onDismiss = { previewIndex = -1 },
             startIndex = previewIndex,
         )

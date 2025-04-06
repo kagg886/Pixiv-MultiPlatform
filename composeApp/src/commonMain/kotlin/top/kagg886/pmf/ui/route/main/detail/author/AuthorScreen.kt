@@ -18,12 +18,12 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import arrow.core.left
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.toUri
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
@@ -125,7 +125,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                             var preview by remember { mutableStateOf(false) }
                             if (preview && state.user.profile.backgroundImageUrl != null) {
                                 ImagePreviewer(
-                                    data = listOf(state.user.profile.backgroundImageUrl!!.left()),
+                                    data = listOf(state.user.profile.backgroundImageUrl!!.toUri()),
                                     onDismiss = { preview = false },
                                 )
                             }

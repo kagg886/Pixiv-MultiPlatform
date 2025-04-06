@@ -7,7 +7,7 @@ import coil3.fetch.Fetcher
 import coil3.request.Options
 import io.ktor.util.decodeBase64String
 
-private const val UGOIRA_SCHEME = "pixiv-gif"
+const val UGOIRA_SCHEME = "pixiv-gif"
 
 class UgoiraFetcher(private val data: String) : Fetcher {
     override suspend fun fetch(): FetchResult? {

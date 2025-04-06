@@ -54,8 +54,6 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import arrow.core.left
-import arrow.core.right
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -65,6 +63,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import coil3.compose.AsyncImagePainter.State
+import coil3.toUri
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -324,7 +323,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     if (show) {
                         ImagePreviewer(
                             onDismiss = { show = false },
-                            data = listOf(state.data.right()),
+                            data = listOf(state.data.toString().toUri()),
                             startIndex = 0,
                         )
                     }
@@ -564,7 +563,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             if (preview) {
                 ImagePreviewer(
                     onDismiss = { preview = false },
-                    data = img.map(String::left),
+                    data = img.map(String::toUri),
                     modifier = Modifier.fillMaxSize(),
                     startIndex = startIndex,
                 )
