@@ -17,10 +17,10 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
@@ -73,9 +73,10 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                                 }
                             },
                             trailingContent = {
-                                ProgressedAsyncImage(
-                                    url = me.profileImageUrls.content,
+                                AsyncImage(
+                                    model = me.profileImageUrls.content,
                                     modifier = Modifier.size(35.dp).clip(CircleShape),
+                                    contentDescription = null,
                                 )
                             },
                         )

@@ -25,6 +25,7 @@ import co.touchlab.kermit.Severity
 import coil3.ComponentRegistry
 import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImage
 import coil3.disk.DiskCache
 import coil3.network.ConnectivityChecker
 import coil3.network.ktor3.KtorNetworkFetcherFactory
@@ -60,7 +61,6 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
@@ -282,8 +282,9 @@ fun ProfileAvatar() {
             nav.push(ProfileScreen(profile))
         },
     ) {
-        ProgressedAsyncImage(
-            url = profile.profileImageUrls.content,
+        AsyncImage(
+            model = profile.profileImageUrls.content,
+            contentDescription = null,
         )
     }
 }

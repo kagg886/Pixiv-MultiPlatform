@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.ui.component.*
@@ -102,9 +103,10 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                 modifier = Modifier.fillMaxSize(),
                                 onClick = { nav.push(IllustDetailScreen(it)) },
                             ) {
-                                ProgressedAsyncImage(
-                                    url = it.imageUrls.content,
+                                AsyncImage(
+                                    model = it.imageUrls.content,
                                     modifier = Modifier.fillMaxWidth().aspectRatio(it.width.toFloat() / it.height.toFloat()),
+                                    contentDescription = null,
                                 )
                             }
 

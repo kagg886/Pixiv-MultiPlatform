@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import coil3.toUri
 import com.fleeksoft.ksoup.Ksoup
 import com.fleeksoft.ksoup.nodes.Element
@@ -36,7 +37,6 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.component.ImagePreviewer
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 
 sealed interface NovelNodeElement {
@@ -138,15 +138,12 @@ fun RichText(
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     val nav = LocalNavigator.currentOrThrow
-                                    ProgressedAsyncImage(
-                                        url = i.illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]?.get(
-                                            0,
-                                        ),
+                                    AsyncImage(
+                                        model = i.illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]?.get(0),
                                         modifier = Modifier.fillMaxWidth(0.8f)
                                             .aspectRatio(i.illust.width.toFloat() / i.illust.height)
-                                            .clickable {
-                                                nav.push(IllustDetailScreen(i.illust))
-                                            },
+                                            .clickable { nav.push(IllustDetailScreen(i.illust)) },
+                                        contentDescription = null,
                                     )
                                 }
                             },
@@ -164,14 +161,13 @@ fun RichText(
                                 ),
                             ) {
                                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    ProgressedAsyncImage(
-                                        url = i.url,
+                                    AsyncImage(
+                                        model = i.url,
                                         modifier = Modifier
                                             .fillMaxWidth(0.8f)
                                             .aspectRatio(i.size.width / i.size.height)
-                                            .clickable {
-                                                previewIndex = previews.indexOf(i.url)
-                                            },
+                                            .clickable { previewIndex = previews.indexOf(i.url) },
+                                        contentDescription = null,
                                     )
                                 }
                             },

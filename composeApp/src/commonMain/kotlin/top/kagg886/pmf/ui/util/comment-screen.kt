@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.*
@@ -100,11 +101,10 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                         Text(comment.user.name, style = MaterialTheme.typography.labelSmall)
                                     },
                                     leadingContent = {
-                                        ProgressedAsyncImage(
-                                            url = comment.user.profileImageUrls.content,
-                                            modifier = Modifier.size(35.dp).clickable {
-                                                nav.push(AuthorScreen(comment.user.id))
-                                            },
+                                        AsyncImage(
+                                            model = comment.user.profileImageUrls.content,
+                                            modifier = Modifier.size(35.dp).clickable { nav.push(AuthorScreen(comment.user.id)) },
+                                            contentDescription = null,
                                         )
                                     },
                                     trailingContent = {
@@ -152,9 +152,10 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     if (comment.stamp == null) {
                                         Text(comment.comment)
                                     } else {
-                                        ProgressedAsyncImage(
-                                            url = comment.stamp!!.url,
+                                        AsyncImage(
+                                            model = comment.stamp!!.url,
                                             modifier = Modifier.size(100.dp),
+                                            contentDescription = null,
                                         )
                                     }
                                 }
@@ -168,20 +169,20 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                         Text(i.user.name, style = MaterialTheme.typography.labelSmall)
                                                     },
                                                     leadingContent = {
-                                                        ProgressedAsyncImage(
-                                                            url = i.user.profileImageUrls.content,
-                                                            modifier = Modifier.size(25.dp).clickable {
-                                                                nav.push(AuthorScreen(i.user.id))
-                                                            },
+                                                        AsyncImage(
+                                                            model = i.user.profileImageUrls.content,
+                                                            modifier = Modifier.size(25.dp).clickable { nav.push(AuthorScreen(i.user.id)) },
+                                                            contentDescription = null,
                                                         )
                                                     },
                                                     supportingContent = {
                                                         if (i.stamp == null) {
                                                             Text(i.comment)
                                                         } else {
-                                                            ProgressedAsyncImage(
-                                                                url = i.stamp!!.url,
+                                                            AsyncImage(
+                                                                model = i.stamp!!.url,
                                                                 modifier = Modifier.size(80.dp),
+                                                                contentDescription = null,
                                                             )
                                                         }
                                                     },

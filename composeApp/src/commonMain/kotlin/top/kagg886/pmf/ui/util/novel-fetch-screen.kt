@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
@@ -128,10 +129,11 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     Text(it.tags.take(20).joinToString(", ") { it.name }, minLines = 3, maxLines = 3)
                                 },
                                 leadingContent = {
-                                    ProgressedAsyncImage(
-                                        url = it.imageUrls.content,
-                                        contentScale = ContentScale.FillHeight,
+                                    AsyncImage(
+                                        model = it.imageUrls.content,
                                         modifier = Modifier.widthIn(max = 70.dp).height(90.dp).padding(8.dp),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.FillHeight,
                                     )
                                 },
                                 trailingContent = {

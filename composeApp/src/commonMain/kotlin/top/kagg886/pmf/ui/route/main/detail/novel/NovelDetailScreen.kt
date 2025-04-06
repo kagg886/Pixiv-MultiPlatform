@@ -26,6 +26,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.toUri
 import kotlinx.coroutines.launch
@@ -192,15 +193,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                     }
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        ProgressedAsyncImage(
-                                            url = state.novel.imageUrls.content,
+                                        AsyncImage(
+                                            model = state.novel.imageUrls.content,
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).height(256.dp).padding(top = 16.dp).clickable { preview = true },
                                             contentScale = ContentScale.FillHeight,
-                                            modifier = Modifier
-                                                .align(Alignment.CenterHorizontally)
-                                                .height(256.dp).padding(top = 16.dp)
-                                                .clickable {
-                                                    preview = true
-                                                },
+                                            contentDescription = null,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         Text(
@@ -220,8 +217,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
-                                                .padding(horizontal = 8.dp),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(horizontal = 8.dp),
                                             state.novel.user,
                                             onFavoriteClick = {
                                                 if (it) {

@@ -18,11 +18,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -62,9 +61,10 @@ class DownloadScreen : Screen {
                                 modifier = Modifier.padding(5.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                ProgressedAsyncImage(
-                                    url = it.illust.contentImages.get()!![0],
+                                AsyncImage(
+                                    model = it.illust.contentImages.get()!![0],
                                     modifier = Modifier.size(75.dp, 120.dp).clip(CardDefaults.shape),
+                                    contentDescription = null,
                                     contentScale = ContentScale.Inside,
                                 )
                                 ListItem(

@@ -62,6 +62,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter.State
 import coil3.toUri
 import kotlinx.coroutines.cancel
@@ -81,7 +82,6 @@ import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.SupportListItem
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
@@ -327,11 +327,12 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             startIndex = 0,
                         )
                     }
-                    ProgressedAsyncImage(
-                        url = state.data,
+                    AsyncImage(
+                        model = state.data,
                         modifier = Modifier.fillMaxWidth()
                             .aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
                             .clickable { show = true },
+                        contentDescription = null,
                     )
                 }
 
@@ -576,20 +577,21 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 items(img) {
                     Spacer(Modifier.height(16.dp))
                     var ratio by remember { mutableStateOf(illust.width.toFloat() / illust.height) }
-                    ProgressedAsyncImage(
-                        url = it,
-                        onState = { state ->
-                            if (state is State.Success) {
-                                val image = state.result.image
-                                ratio = image.width.toFloat() / image.height.toFloat()
-                            }
-                        },
+                    AsyncImage(
+                        model = it,
                         modifier = Modifier.fillMaxWidth()
                             .aspectRatio(ratio)
                             .clickable {
                                 startIndex = img.indexOf(it)
                                 preview = true
                             },
+                        onState = { state: State ->
+                            if (state is State.Success) {
+                                val image = state.result.image
+                                ratio = image.width.toFloat() / image.height.toFloat()
+                            }
+                        },
+                        contentDescription = null,
                     )
                 }
                 if (illust.contentImages.size > 3 && !expand) {

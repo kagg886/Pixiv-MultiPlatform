@@ -12,10 +12,10 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import top.kagg886.pixko.User
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 
 @Composable
@@ -36,9 +36,10 @@ fun AuthorCard(
                 Text(user.comment?.lines()?.first()?.takeIf { it.isNotEmpty() } ?: "没有简介")
             },
             leadingContent = {
-                ProgressedAsyncImage(
-                    url = user.profileImageUrls.content,
+                AsyncImage(
+                    model = user.profileImageUrls.content,
                     modifier = Modifier.size(35.dp).clip(CircleShape),
+                    contentDescription = null,
                 )
             },
             trailingContent = {
