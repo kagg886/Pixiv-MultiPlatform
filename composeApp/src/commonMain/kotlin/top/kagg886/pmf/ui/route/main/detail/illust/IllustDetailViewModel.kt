@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import coil3.Uri
 import coil3.toUri
+import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
@@ -48,7 +49,7 @@ class IllustDetailViewModel(private val illust: Illust) :
         if (illust.isUgoira) {
             loadingState.data.tryEmit("获取动图元数据")
             val meta = client.getUgoiraMetadata(illust)
-            val data = Json.encodeToString(meta)
+            val data = Json.encodeToString(meta).encodeBase64()
             val url = "$UGOIRA_SCHEME://$data".toUri()
             reduce { IllustDetailViewState.Success.GIF(illust, url) }
             saveDataBase(illust)
