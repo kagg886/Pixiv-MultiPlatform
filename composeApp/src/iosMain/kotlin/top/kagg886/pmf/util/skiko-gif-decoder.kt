@@ -90,16 +90,18 @@ class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
     private val imageA = SkiaImage.makeFromBitmap(bitmapA)
     private val imageB = SkiaImage.makeFromBitmap(bitmapB)
     private var current by atomic(false)
+    private var cachedIndex by atomic(-1)
 
-    fun decode(index: Int) = scope.launch(Dispatchers.Default) {
-        val to = if (current) bitmapA else bitmapB
-        codec.readPixels(to, index)
-        to.notifyPixelsChanged()
-        current = !current
-    }
-
-    init {
-        decode(0)
+    fun decode(index: Int) {
+        if (cachedIndex != index) {
+            scope.launch(Dispatchers.Default) {
+                val to = if (current) bitmapA else bitmapB
+                codec.readPixels(to, index)
+                to.notifyPixelsChanged()
+                current = !current
+                cachedIndex = index
+            }
+        }
     }
 
     private var invalidateTick by mutableIntStateOf(0)
