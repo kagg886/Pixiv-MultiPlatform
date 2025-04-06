@@ -23,4 +23,33 @@
 
 
     <string name="page_is_empty">页面为空</string>
+    <string name="init_browser">正在初始化嵌入式浏览器...</string>
+    <string name="downloading_browser">下载浏览器内核中...%2$s</string>
+    <string name="unzipping_browser">解压浏览器内核中...</string>
+    <string name="installing_browser">安装浏览器内核中...</string>
+    <string name="xattr_setting">正在设置xattr......</string>
+    <string name="creating_install_lock">创建安装锁...</string>
+    <string name="unknown_error">未知错误</string>
+    <string name="browser_archive_should_be_tar_gz">必须是.tar.gz结尾的文件！</string>
+
+    <string name="account_info">账户信息</string>
+    <string name="username">用户名</string>
+    <string name="personal_profile">个人资料</string>
+    <string name="birthday">生日</string>
+    <string name="job">职业</string>
+    <string name="country">国家</string>
+    <string name="region">地区</string>
+    <string name="homepage">主页</string>
+    <string name="twitter_account">twitter账号</string>
+    <string name="twitter_link">twitter链接</string>
+    <string name="pawoo_link">pawoo链接</string>
+    <string name="is_premium_member">是否为高级会员</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="unknown">未知</string>
+    <string name="copy_it_to_clipboard">已将%1$s复制到剪贴板</string>
+
+    <string name="you_can_still_check_update_on_setting">您仍可以前往设置中检查更新</string>
+    <string name="version_latest">当前为最新版本</string>
+    <string name="update_check_failed">更新检测失败...</string>
 </resources>

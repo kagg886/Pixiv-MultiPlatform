@@ -23,4 +23,33 @@
 
 
     <string name="page_is_empty">page is empty</string>
+    <string name="init_browser">Initializing the embedded browser...</string>
+    <string name="downloading_browser">Download the browser kernel...%2$s</string>
+    <string name="unzipping_browser">Decompress the browser kernel...</string>
+    <string name="installing_browser">Install the browser kernel...</string>
+    <string name="xattr_setting">Setting xattr...</string>
+    <string name="creating_install_lock">Create the installation lock...</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="browser_archive_should_be_tar_gz">File ending should be with .tar.gz! </string>
+
+    <string name="account_info">Account information</string>
+    <string name="username">Username</string>
+    <string name="personal_profile">Profile</string>
+    <string name="birthday">Birthday</string>
+    <string name="job">Job</string>
+    <string name="country">Country</string>
+    <string name="region">Region</string>
+    <string name="homepage">Homepage</string>
+    <string name="twitter_account">twitter account</string>
+    <string name="twitter_link">twitter link</string>
+    <string name="pawoo_link">pawoo link</string>
+    <string name="is_premium_member">premium member status</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="unknown">unknown</string>
+    <string name="copy_it_to_clipboard">%1$s has been copied to clipboard</string>
+
+    <string name="you_can_still_check_update_on_setting">you can still check update on setting</string>
+    <string name="version_latest">this version is latest</string>
+    <string name="update_check_failed">update check failed...</string>
 </resources>
