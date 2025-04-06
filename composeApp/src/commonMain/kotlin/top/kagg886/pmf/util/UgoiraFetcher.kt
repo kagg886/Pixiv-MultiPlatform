@@ -29,6 +29,21 @@ class UgoiraFetcher(
     override suspend fun fetch(): FetchResult? {
         val metadata = Json.decodeFromString<UgoiraMetadata>(data.authority!!.decodeBase64String())
         val diskCacheKey = data.toString()
+        val cached = diskCache.openSnapshot(diskCacheKey)
+        if (cached != null) {
+            return with(cached) {
+                SourceFetchResult(
+                    source = ImageSource(
+                        file = data,
+                        fileSystem = diskCache.fileSystem,
+                        diskCacheKey = diskCacheKey,
+                        closeable = this,
+                    ),
+                    mimeType = "image/gif",
+                    dataSource = DataSource.DISK,
+                )
+            }
+        }
         val editor = diskCache.openEditor(diskCacheKey)!!
         val snapshot = runCatching {
             useTempFile { zip ->
@@ -58,7 +73,7 @@ class UgoiraFetcher(
                     closeable = this,
                 ),
                 mimeType = "image/gif",
-                dataSource = DataSource.DISK,
+                dataSource = DataSource.NETWORK,
             )
         }
     }
