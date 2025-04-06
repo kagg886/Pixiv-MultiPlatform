@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -64,6 +65,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter.State
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import coil3.toUri
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -327,13 +330,24 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             startIndex = 0,
                         )
                     }
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = state.data,
-                        modifier = Modifier.fillMaxWidth()
-                            .aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat())
-                            .clickable { show = true },
+                        modifier = Modifier.fillMaxWidth().aspectRatio(state.illust.width.toFloat() / state.illust.height.toFloat()),
                         contentDescription = null,
-                    )
+                    ) {
+                        val state by painter.state.collectAsState()
+                        when (state) {
+                            is State.Success -> SubcomposeAsyncImageContent(modifier = Modifier.clickable { show = true })
+                            else -> Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                CircularProgressIndicator()
+                                Text("准备GIF中")
+                            }
+                        }
+                    }
                 }
 
                 previewCommonItem(illust, model)
