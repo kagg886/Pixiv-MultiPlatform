@@ -330,7 +330,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
                 connectivityChecker = { ConnectivityChecker.ONLINE },
             ),
         )
-        add(UgoiraFetcher.Factory)
+        add(UgoiraFetcher.Factory { KoinPlatform.getKoin().get<HttpClient>() })
         installGifDecoder()
     }
     crossfade(500)
