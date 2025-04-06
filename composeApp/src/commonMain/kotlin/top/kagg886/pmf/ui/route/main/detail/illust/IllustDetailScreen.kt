@@ -323,7 +323,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     if (show) {
                         ImagePreviewer(
                             onDismiss = { show = false },
-                            data = listOf(state.data.toString().toUri()),
+                            data = listOf(state.data),
                             startIndex = 0,
                         )
                     }

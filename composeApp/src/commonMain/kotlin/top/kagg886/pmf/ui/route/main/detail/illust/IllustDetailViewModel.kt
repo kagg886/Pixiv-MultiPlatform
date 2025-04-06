@@ -2,13 +2,13 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import coil3.Uri
+import coil3.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
-import moe.tarsin.gif.encodeGif
-import okio.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.encodeToHexString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -21,16 +21,11 @@ import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.backend.useTempDir
-import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.unzip
-import top.kagg886.pmf.util.writeBytes
+import top.kagg886.pmf.util.UGOIRA_SCHEME
 
 class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,
@@ -43,8 +38,8 @@ class IllustDetailViewModel(private val illust: Illust) :
         }
 
     private val client = PixivConfig.newAccountFromConfig()
-    private val net by inject<HttpClient>()
 
+    @OptIn(ExperimentalSerializationApi::class)
     fun load(showLoading: Boolean = true) = intent {
         val loadingState = IllustDetailViewState.Loading()
         if (showLoading) {
@@ -54,30 +49,11 @@ class IllustDetailViewModel(private val illust: Illust) :
         }
 
         if (illust.isUgoira) {
-            val gif = cachePath.resolve("${illust.id}.gif")
-            if (!gif.exists()) {
-                loadingState.data.tryEmit("获取动图元数据")
-                val meta = client.getUgoiraMetadata(illust)
-                useTempFile { zip ->
-                    loadingState.data.tryEmit("下载动图帧数据")
-                    zip.writeBytes(net.get(meta.url.content).bodyAsBytes())
-
-                    useTempDir { workDir ->
-                        loadingState.data.tryEmit("解压动图帧数据至临时工作区")
-                        zip.unzip(workDir)
-                        loadingState.data.tryEmit("重新编码为GIF中")
-                        encodeGif(gif) {
-                            for (i in meta.frames) {
-                                frame(path = workDir / i.file, delay = i.delay)
-                            }
-                        }
-                    }
-                }
-            }
-
-            reduce {
-                IllustDetailViewState.Success.GIF(illust, gif)
-            }
+            loadingState.data.tryEmit("获取动图元数据")
+            val meta = client.getUgoiraMetadata(illust)
+            val data = Cbor.encodeToHexString(meta)
+            val url = "$UGOIRA_SCHEME://$data".toUri()
+            reduce { IllustDetailViewState.Success.GIF(illust, url) }
             saveDataBase(illust)
             return@intent
         }
@@ -243,10 +219,6 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
         }
     }
-
-    fun clearStatus() = intent {
-        reduce { IllustDetailViewState.Loading() }
-    }
 }
 
 sealed class IllustDetailViewState {
@@ -255,7 +227,7 @@ sealed class IllustDetailViewState {
     sealed class Success : IllustDetailViewState() {
         abstract val illust: Illust
         data class Normal(override val illust: Illust) : Success()
-        data class GIF(override val illust: Illust, val data: Path) : Success()
+        data class GIF(override val illust: Illust, val data: Uri) : Success()
     }
 }
 
