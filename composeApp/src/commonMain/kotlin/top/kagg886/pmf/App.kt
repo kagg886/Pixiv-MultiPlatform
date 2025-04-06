@@ -83,6 +83,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.UgoiraFetcher
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.toColorScheme
@@ -329,6 +330,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
                 connectivityChecker = { ConnectivityChecker.ONLINE },
             ),
         )
+        add(UgoiraFetcher.Factory)
         installGifDecoder()
     }
     crossfade(500)
