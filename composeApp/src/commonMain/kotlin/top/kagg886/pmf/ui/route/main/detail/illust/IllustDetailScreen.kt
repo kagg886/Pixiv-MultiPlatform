@@ -1,7 +1,20 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -10,8 +23,31 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -40,7 +76,14 @@ import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.openBrowser
-import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.FavoriteButton
+import top.kagg886.pmf.ui.component.FavoriteState
+import top.kagg886.pmf.ui.component.ImagePreviewer
+import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.ProgressedAsyncImage
+import top.kagg886.pmf.ui.component.SupportListItem
+import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.View
@@ -48,7 +91,15 @@ import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.AuthorCard
+import top.kagg886.pmf.ui.util.CommentPanel
+import top.kagg886.pmf.ui.util.HTMLRichText
+import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.keyboardScrollerController
+import top.kagg886.pmf.ui.util.useWideScreenMode
+import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
@@ -114,7 +165,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    private fun IllustDetailScreenContent(state: IllustDetailViewState, model: IllustDetailViewModel) {
+    private fun IllustDetailScreenContent(
+        state: IllustDetailViewState,
+        model: IllustDetailViewModel,
+    ) {
         when (state) {
             IllustDetailViewState.Error -> {
                 ErrorPage(text = "加载失败") {
@@ -129,10 +183,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             is IllustDetailViewState.Success -> {
                 if (useWideScreenMode) {
-                    WideScreenIllustDetail(state.illust, state)
+                    WideScreenIllustDetail(state.illust, state, model)
                     return
                 }
-                IllustDetail(state.illust, state)
+                IllustDetail(state.illust, state, model)
             }
         }
     }
@@ -173,7 +227,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    private fun WideScreenIllustDetail(illust: Illust, illustState: IllustDetailViewState.Success) {
+    private fun WideScreenIllustDetail(
+        illust: Illust,
+        illustState: IllustDetailViewState.Success,
+        model: IllustDetailViewModel,
+    ) {
         Scaffold(
             topBar = {
                 IllustTopAppBar(illust)
@@ -182,8 +240,13 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
                     when (illustState) {
-                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust, illustState)
-                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
+                        is IllustDetailViewState.Success.GIF -> GIFPreview(
+                            illust,
+                            illustState,
+                            model,
+                        )
+
+                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust, model)
                     }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
@@ -195,7 +258,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     @OptIn(InternalVoyagerApi::class, InternalVoyagerApi::class)
     @Composable
-    private fun IllustDetail(illust: Illust, illustState: IllustDetailViewState.Success) {
+    private fun IllustDetail(
+        illust: Illust,
+        illustState: IllustDetailViewState.Success,
+        model: IllustDetailViewModel,
+    ) {
         val state = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
@@ -220,8 +287,8 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
                     when (val s = illustState) {
-                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust, s)
-                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust)
+                        is IllustDetailViewState.Success.GIF -> GIFPreview(illust, s, model)
+                        is IllustDetailViewState.Success.Normal -> IllustPreview(illust, model)
                     }
                 }
             }
@@ -229,7 +296,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    fun GIFPreview(illust: Illust, state: IllustDetailViewState.Success.GIF) {
+    fun GIFPreview(
+        illust: Illust,
+        state: IllustDetailViewState.Success.GIF,
+        model: IllustDetailViewModel,
+    ) {
         Box(Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
 
@@ -241,7 +312,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             KeyListenerFromGlobalPipe(controller)
 
-            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
+            LazyColumn(
+                state = scroll,
+                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
+            ) {
                 item {
                     var show by remember {
                         mutableStateOf(false)
@@ -261,17 +335,14 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     )
                 }
 
-                previewCommonItem(illust)
+                previewCommonItem(illust, model)
             }
         }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
-    fun LazyListScope.previewCommonItem(illust: Illust) {
+    fun LazyListScope.previewCommonItem(illust: Illust, model: IllustDetailViewModel) {
         item {
-            val model = rememberScreenModel<IllustDetailViewModel>(key) {
-                error("not provided")
-            }
             Spacer(Modifier.height(16.dp))
             AuthorCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -288,9 +359,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             }
         }
         item {
-            val model = rememberScreenModel<IllustDetailViewModel>(key) {
-                error("not provided")
-            }
             Spacer(Modifier.height(16.dp))
             OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                 val clipboard = LocalClipboardManager.current
@@ -430,9 +498,15 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     },
                                     label = {
                                         Column {
-                                            Text(tag.name, style = MaterialTheme.typography.labelMedium)
+                                            Text(
+                                                tag.name,
+                                                style = MaterialTheme.typography.labelMedium,
+                                            )
                                             tag.translatedName?.let {
-                                                Text(it, style = MaterialTheme.typography.labelSmall)
+                                                Text(
+                                                    it,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                )
                                             }
                                         }
                                     },
@@ -461,7 +535,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     }
 
     @Composable
-    private fun IllustPreview(illust: Illust) {
+    private fun IllustPreview(illust: Illust, model: IllustDetailViewModel) {
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
 
@@ -495,16 +569,14 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 )
             }
 
-            LazyColumn(state = scroll, modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
+            LazyColumn(
+                state = scroll,
+                modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
+            ) {
                 items(img) {
                     Spacer(Modifier.height(16.dp))
                     val state = rememberAsyncImageState()
-                    val haveRatio = remember {
-                        derivedStateOf {
-                            state.result is ImageResult.Success
-                        }
-                    }
-                    val ratio = remember(haveRatio) {
+                    val ratio = remember(state.result) {
                         if (state.result is ImageResult.Success) {
                             val info = (state.result as ImageResult.Success).imageInfo
                             return@remember info.width.toFloat() / info.height.toFloat()
@@ -536,7 +608,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
 
-                previewCommonItem(illust)
+                previewCommonItem(illust, model)
             }
 
             VerticalScrollbar(

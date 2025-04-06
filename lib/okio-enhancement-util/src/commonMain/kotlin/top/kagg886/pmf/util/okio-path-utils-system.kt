@@ -3,8 +3,16 @@ package top.kagg886.pmf.util
 import korlibs.io.file.std.createZipFromTreeTo
 import korlibs.io.file.std.rootLocalVfs
 import kotlinx.coroutines.runBlocking
-import okio.*
+import okio.Buffer
+import okio.FileSystem
+import okio.Path
 import okio.Path.Companion.toPath
+import okio.SYSTEM
+import okio.Sink
+import okio.Source
+import okio.buffer
+import okio.openZip
+import okio.use
 
 inline fun Path.meta() = FileSystem.SYSTEM.metadata(this)
 
@@ -37,7 +45,7 @@ inline fun Path.writeString(s: String) = writeBytes(s.encodeToByteArray())
 
 inline fun Path.source() = FileSystem.SYSTEM.source(this)
 
-inline fun Path.absolutePath() = this
+inline fun Path.absolutePath() = FileSystem.SYSTEM.canonicalize("".toPath()).resolve(this).normalized()
 
 inline fun Path.parentFile() = absolutePath().parent
 
@@ -76,15 +84,16 @@ val Path.nameWithoutExtension
     get() = if (name.lastIndexOf(".") == -1) name else name.substring(0, name.lastIndexOf("."))
 
 fun Path.unzip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve(nameWithoutExtension)): Path {
-    val sys = FileSystem.SYSTEM.openZip(this)
-    sys.listRecursively("/".toPath()).filterNot { sys.metadata(it).isDirectory }.forEach {
-        val tr = target.resolve(it.relativeTo("/".toPath()))
-        tr.parentFile()?.mkdirs()
-        tr.createNewFile()
+    FileSystem.SYSTEM.openZip(this).use { sys->
+        sys.listRecursively("/".toPath()).filterNot { sys.metadata(it).isDirectory }.forEach { entry->
+            val tr = target.resolve(entry.relativeTo("/".toPath()))
+            tr.parentFile()?.mkdirs()
+            tr.createNewFile()
 
-        tr.sink().buffer().use { out ->
-            sys.source(it).transfer(out)
-            out.flush()
+            tr.sink().buffer().use { out ->
+                sys.source(entry).use { it.transfer(out) }
+                out.flush()
+            }
         }
     }
     return target

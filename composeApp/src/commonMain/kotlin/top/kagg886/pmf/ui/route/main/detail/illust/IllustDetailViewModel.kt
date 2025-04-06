@@ -2,40 +2,22 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import com.github.panpf.sketch.fetch.newBase64Uri
 import com.github.panpf.sketch.fetch.newFileUri
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.statement.bodyAsBytes
-import kotlinx.coroutines.Dispatchers
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.plus
 import kotlinx.datetime.Clock
-import okio.FileSystem
-import okio.Path.Companion.toPath
-import okio.SYSTEM
-import okio.buffer
-import okio.openZip
-import okio.use
-import org.jetbrains.compose.resources.getString
+import moe.tarsin.gif.encodeGif
+import okio.*
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.e404.skiko.gif.gif
-import top.e404.skiko.gif.listener.GIFMakingStep
-import top.kagg886.gif.ImageBitmapDelegate
-import top.kagg886.gif.toImageBitmap
 import top.kagg886.pixko.Tag
-import top.kagg886.pixko.module.illust.BookmarkVisibility
-import top.kagg886.pixko.module.illust.Illust
-import top.kagg886.pixko.module.illust.IllustImagesType
-import top.kagg886.pixko.module.illust.bookmarkIllust
-import top.kagg886.pixko.module.illust.deleteBookmarkIllust
-import top.kagg886.pixko.module.illust.get
-import top.kagg886.pixko.module.illust.getIllustDetail
+import top.kagg886.pixko.module.illust.*
 import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
@@ -56,8 +38,8 @@ import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.unzip
 import top.kagg886.pmf.util.writeBytes
 
 class IllustDetailViewModel(private val illust: Illust) :
@@ -81,53 +63,29 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
         }
 
-        if (illust.isUgoira && AppConfig.gifSupport) {
+        if (illust.isUgoira) {
             val gif = cachePath.resolve("${illust.id}.gif")
             if (!gif.exists()) {
                 loadingState.data.tryEmit("获取动图元数据")
                 val meta = client.getUgoiraMetadata(illust)
-                useTempFile { path ->
+                useTempFile { zip ->
                     loadingState.data.tryEmit("下载动图帧数据")
-                    val zip = with(path) {
-                        writeBytes(net.get(meta.url.content).bodyAsBytes())
-                        FileSystem.SYSTEM.openZip(this)
-                    }
+                    zip.writeBytes(net.get(meta.url.content).bodyAsBytes())
 
-                    val frames = meta.frames.map {
-                        { ImageBitmapDelegate(zip.source(it.file.toPath()).use { it.toImageBitmap() }) } to it.delay
-                    }
-
-                    val data = useTempDir {
-                        gif(illust.width, illust.height) {
-                            table(frames[0].first())
-                            loop(0)
-                            workDir(it)
-                            frame(frames[0].first)
-                            scope(screenModelScope + Dispatchers.Default)
-                            progress {
-                                when (it) {
-                                    is GIFMakingStep.CompressImage -> loadingState.data.tryEmit("处理动图像素帧: ${it.done} / ${it.total}")
-                                    is GIFMakingStep.WritingData -> loadingState.data.tryEmit("写出动图: ${it.done} / ${it.total}")
-                                }
-                            }
-
-                            for (i in 1 until frames.size) {
-                                frame(frames[i].first) {
-                                    duration = frames[i].second
-                                }
+                    useTempDir { workDir ->
+                        loadingState.data.tryEmit("解压动图帧数据至临时工作区")
+                        zip.unzip(workDir)
+                        loadingState.data.tryEmit("重新编码为GIF中")
+                        encodeGif(gif) {
+                            for (i in meta.frames) {
+                                frame(path = workDir / i.file, delay = i.delay)
                             }
                         }
-                    }
-
-                    gif.sink().buffer().use {
-                        data.buildToSink(it)
-                        it.flush()
                     }
                 }
             }
 
             reduce {
-                loadingState.data.tryEmit("编码gif中")
                 val uri = when (currentPlatform) {
                     // https://github.com/panpf/sketch/issues/239
                     Platform.Desktop.Windows -> gif.source().use { newBase64Uri("image/gif", it.buffer().readByteString().base64()) }
@@ -220,14 +178,10 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             reduce {
+                val illust = state.illust.copy(isBookMarked = true)
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(isBookMarked = true),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
@@ -246,14 +200,10 @@ class IllustDetailViewModel(private val illust: Illust) :
                 return@runOn
             }
             reduce {
+                val illust = state.illust.copy(isBookMarked = false)
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(isBookMarked = false),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
@@ -279,26 +229,11 @@ class IllustDetailViewModel(private val illust: Illust) :
                 postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
             }
             reduce {
+                val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(
-                                user = state.illust.user.copy(
-                                    isFollowed = true,
-                                ),
-                            ),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
-//                state.copy(
-//                    illust = state.illust.copy(
-//                        user = state.illust.user.copy(
-//                            isFollowed = true
-//                        )
-//                    )
-//                )
             }
         }
     }
@@ -315,18 +250,10 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
             postSideEffect(IllustDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
             reduce {
+                val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
                 when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> {
-                        s.copy(
-                            illust = state.illust.copy(
-                                user = state.illust.user.copy(
-                                    isFollowed = false,
-                                ),
-                            ),
-                        )
-                    }
-
-                    else -> TODO()
+                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
+                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
                 }
             }
         }
@@ -339,11 +266,9 @@ class IllustDetailViewModel(private val illust: Illust) :
 
 sealed class IllustDetailViewState {
     data class Loading(val data: MutableStateFlow<String> = MutableStateFlow("")) : IllustDetailViewState()
-
     data object Error : IllustDetailViewState()
     sealed class Success : IllustDetailViewState() {
         abstract val illust: Illust
-
         data class Normal(override val illust: Illust) : Success()
         data class GIF(override val illust: Illust, val data: String) : Success()
     }
