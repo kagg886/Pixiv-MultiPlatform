@@ -6,9 +6,7 @@ import coil3.Uri
 import coil3.toUri
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.encodeToHexString
+import kotlinx.serialization.json.Json
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -39,7 +37,6 @@ class IllustDetailViewModel(private val illust: Illust) :
 
     private val client = PixivConfig.newAccountFromConfig()
 
-    @OptIn(ExperimentalSerializationApi::class)
     fun load(showLoading: Boolean = true) = intent {
         val loadingState = IllustDetailViewState.Loading()
         if (showLoading) {
@@ -51,7 +48,7 @@ class IllustDetailViewModel(private val illust: Illust) :
         if (illust.isUgoira) {
             loadingState.data.tryEmit("获取动图元数据")
             val meta = client.getUgoiraMetadata(illust)
-            val data = Cbor.encodeToHexString(meta)
+            val data = Json.encodeToString(meta)
             val url = "$UGOIRA_SCHEME://$data".toUri()
             reduce { IllustDetailViewState.Success.GIF(illust, url) }
             saveDataBase(illust)

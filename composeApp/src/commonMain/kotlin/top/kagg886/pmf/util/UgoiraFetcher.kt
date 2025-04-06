@@ -12,9 +12,7 @@ import coil3.request.Options
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.cbor.Cbor
-import kotlinx.serialization.decodeFromHexString
+import kotlinx.serialization.json.Json
 import moe.tarsin.gif.encodeGif
 import top.kagg886.pixko.module.ugoira.UgoiraMetadata
 import top.kagg886.pmf.backend.useTempDir
@@ -22,14 +20,13 @@ import top.kagg886.pmf.backend.useTempFile
 
 const val UGOIRA_SCHEME = "pixiv-gif"
 
-@OptIn(ExperimentalSerializationApi::class)
 class UgoiraFetcher(
     private val data: Uri,
     private val diskCache: DiskCache,
     private val net: HttpClient,
 ) : Fetcher {
     override suspend fun fetch(): FetchResult? {
-        val metadata = Cbor.decodeFromHexString<UgoiraMetadata>(data.path!!)
+        val metadata = Json.decodeFromString<UgoiraMetadata>(data.path!!)
         val diskCacheKey = data.toString()
         val editor = diskCache.openEditor(diskCacheKey)!!
         val snapshot = runCatching {
