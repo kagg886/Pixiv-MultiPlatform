@@ -311,7 +311,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             if (preview) {
                 ImagePreviewer(
                     onDismiss = { preview = false },
-                    data = state.data, //preview should be show all
+                    data = state.data, // preview should be show all
                     modifier = Modifier.fillMaxSize(),
                     startIndex = startIndex,
                 )
@@ -346,7 +346,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
                             else -> Box(
                                 modifier = Modifier.align(Alignment.Center),
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.Center,
                             ) {
                                 CircularProgressIndicator()
                             }
