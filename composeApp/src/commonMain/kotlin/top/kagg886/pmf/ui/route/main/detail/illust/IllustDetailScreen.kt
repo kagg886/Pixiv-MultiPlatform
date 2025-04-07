@@ -605,7 +605,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     preview = true
                                 },
                             )
-                            else -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                            else -> Box(modifier = Modifier.align(Alignment.Center), contentAlignment = Alignment.Center) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
