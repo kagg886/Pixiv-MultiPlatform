@@ -177,22 +177,22 @@ fun ImagePreviewer(
                 }
             }
 
-            val zoomableState = rememberZoomableState()
+            val state = rememberZoomableState()
             AsyncImage(
                 model = data[it],
                 contentDescription = null,
                 onSuccess = { s ->
                     val size = Size(s.result.image.width.toFloat(), s.result.image.height.toFloat())
                     val location = ZoomableContentLocation.scaledToFitAndCenterAligned(size)
-                    zoomableState.setContentLocation(location)
+                    state.setContentLocation(location)
                 },
                 modifier = Modifier.fillMaxSize().zoomable(
-                    state = zoomableState,
+                    state = state,
                     onClick = { offset ->
-                        onDismiss()
+                        if (offset !in state.transformedContentBounds) onDismiss()
                     },
-                    onLongClick = {
-                        showBottomDialog = true
+                    onLongClick = { offset ->
+                        if (offset in state.transformedContentBounds) showBottomDialog = true
                     },
                 ),
             )
