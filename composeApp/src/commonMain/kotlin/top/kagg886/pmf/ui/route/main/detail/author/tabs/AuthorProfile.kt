@@ -20,7 +20,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.account_info
 import top.kagg886.pmf.birthday
-import top.kagg886.pmf.copy_it_to_clipboard
+import top.kagg886.pmf.copy_to_clipboard_success_args
 import top.kagg886.pmf.country
 import top.kagg886.pmf.homepage
 import top.kagg886.pmf.is_premium_member
@@ -98,7 +98,7 @@ private fun Item(
                                     },
                                 )
                                 scope.launch {
-                                    snack.showSnackbar(getString(Res.string.copy_it_to_clipboard,headline ?: ""))
+                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success_args, headline ?: ""))
                                 }
                             },
                         )

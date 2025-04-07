@@ -45,7 +45,7 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                 Text(stringResource(Res.string.jump_browser_tips))
             },
             text = {
-                Text(stringResource(Res.string.jump_browser_tips_question,wantToOpenLink))
+                Text(stringResource(Res.string.jump_browser_tips_question, wantToOpenLink))
             },
             confirmButton = {
                 TextButton(

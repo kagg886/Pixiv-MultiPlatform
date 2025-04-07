@@ -6,18 +6,27 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
+import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.confirm
+import top.kagg886.pmf.edit_prop
+import top.kagg886.pmf.please_input
 
 @Composable
 fun SettingsTextField(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
-    dialogTitle: @Composable () -> Unit = { Text("编辑属性") },
+    dialogTitle: @Composable () -> Unit = { Text(stringResource(Res.string.edit_prop)) },
     dialogLabel: @Composable () -> Unit = {},
-    dialogPlaceHolder: @Composable () -> Unit = { Text("请输入") },
+    dialogPlaceHolder: @Composable () -> Unit = { Text(stringResource(Res.string.please_input)) },
     value: String,
     onValueChange: (String) -> Unit,
 ) {
@@ -38,7 +47,7 @@ fun SettingsTextField(
                         onValueChange(v)
                     },
                 ) {
-                    Text("确定")
+                    Text(stringResource(Res.string.confirm))
                 }
             },
             title = dialogTitle,

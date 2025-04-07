@@ -59,4 +59,29 @@
     <string name="closed">close</string>
     <string name="jump_browser_tips">External link open confirmation</string>
     <string name="jump_browser_tips_question">open the link: %1$s</string>
+
+    <string name="comment_success">Comment posted successfully!</string>
+    <string name="comment_failed">Failed to post comment...</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copy_to_clipboard_success">Copied successfully</string>
+    <string name="copy_to_clipboard_failed">Failed to copy</string>
+    <string name="file_was_downloading">File is still downloading, please wait...</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="exit_preview">Exit preview</string>
+
+    <string name="have_update">Update: v%1$s --> %2$s</string>
+    <string name="platform_not_support">not supported</string>
+    <string name="download">Download</string>
+    <string name="not_check_in_this_version">Don't check in this version</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="favorite_type">Favorite type (required)</string>
+    <string name="favorite_tag">Tag favorites (optional)</string>
+    <string name="please_input">Please input</string>
+    <string name="edit_prop">Edit properties</string>
+    <string name="app_crash_title">App crashed!</string>
+    <string name="app_crash_message">We regret to inform you that Pixiv-MultiPlatform encountered an unrecoverable error during operation and the application will now close.\nTo help us fix this bug and prevent it from happening again, please close this dialog and click the button in the upper right corner to submit an error report.</string>
+
+    <string name="app_crash">Crash report!</string>
 </resources>

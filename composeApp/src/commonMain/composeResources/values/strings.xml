@@ -47,7 +47,7 @@
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="unknown">未知</string>
-    <string name="copy_it_to_clipboard">已将%1$s复制到剪贴板</string>
+    <string name="copy_to_clipboard_success_args">已将%1$s复制到剪贴板</string>
 
     <string name="you_can_still_check_update_on_setting">您仍可以前往设置中检查更新</string>
     <string name="version_latest">当前为最新版本</string>
@@ -59,4 +59,29 @@
     <string name="closed">关闭</string>
     <string name="jump_browser_tips">外部链接确认提示</string>
     <string name="jump_browser_tips_question">是否打开链接：%1$s</string>
+
+    <string name="comment_success">评论成功！</string>
+    <string name="comment_failed">评论失败...</string>
+    <string name="copy_to_clipboard">复制到剪贴板</string>
+    <string name="copy_to_clipboard_success">复制成功</string>
+    <string name="copy_to_clipboard_failed">复制失败</string>
+    <string name="file_was_downloading">文件仍在下载，请稍等片刻...</string>
+    <string name="save">保存</string>
+    <string name="share">分享</string>
+    <string name="exit_preview">退出预览</string>
+
+    <string name="have_update">更新：v%1$s --> %2$s</string>
+    <string name="platform_not_support">暂不支持该平台</string>
+    <string name="download">下载</string>
+    <string name="not_check_in_this_version">当前版本不再提示</string>
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="favorite_type">收藏类型(必填)</string>
+    <string name="favorite_tag">标签收藏(可不填写)</string>
+    <string name="please_input">请输入</string>
+    <string name="edit_prop">编辑属性</string>
+    <string name="app_crash_title">应用崩溃了！</string>
+    <string name="app_crash_message">很遗憾的通知您：Pixiv-MultiPlatform 在运行时出现了无法恢复的错误，因此应用程序即将关闭。\n为了帮助我们修复这个bug以避免这种情况的再次发生，请关闭对话框并点击右上角的按钮，以提交本次错误报告。</string>
+
+    <string name="app_crash">崩溃报告！</string>
 </resources>

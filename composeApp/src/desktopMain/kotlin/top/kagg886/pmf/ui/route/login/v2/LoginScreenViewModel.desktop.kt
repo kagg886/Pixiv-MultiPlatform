@@ -41,7 +41,7 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
             progress {
                 onDownloading {
                     intent {
-                        loading.msg.tryEmit(getString(Res.string.downloading_browser,it))
+                        loading.msg.tryEmit(getString(Res.string.downloading_browser, it))
                     }
                 }
 

@@ -1,6 +1,11 @@
 package top.kagg886.pmf.ui.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -8,8 +13,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -30,7 +46,7 @@ import com.github.panpf.sketch.util.toUri
 import com.github.panpf.zoomimage.SketchZoomAsyncImage
 import com.github.panpf.zoomimage.rememberSketchZoomState
 import io.github.vinceglb.filekit.core.FileKit
-import io.ktor.http.*
+import io.ktor.http.Url
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
@@ -39,14 +55,25 @@ import okio.ByteString.Companion.decodeBase64
 import okio.Source
 import okio.buffer
 import okio.use
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.copyImageToClipboard
+import top.kagg886.pmf.copy_to_clipboard
+import top.kagg886.pmf.copy_to_clipboard_failed
+import top.kagg886.pmf.copy_to_clipboard_success
+import top.kagg886.pmf.exit_preview
+import top.kagg886.pmf.file_was_downloading
+import top.kagg886.pmf.save
+import top.kagg886.pmf.share
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Save
+import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.transfer
@@ -87,13 +114,12 @@ fun ImagePreviewer(
                         onDismissRequest = { showBottomDialog = false },
                     ) {
                         val snack = LocalSnackBarHost.current
-                        val platform = LocalPlatformContext.current
                         val scope = rememberCoroutineScope()
 
                         if (currentPlatform is Platform.Desktop) {
                             SettingsMenuLink(
                                 title = {
-                                    Text("复制到剪贴板")
+                                    Text(stringResource(Res.string.copy_to_clipboard))
                                 },
                                 icon = {
                                     Icon(
@@ -113,9 +139,10 @@ fun ImagePreviewer(
                                                 kotlin.runCatching {
                                                     copyImageToClipboard(source.readByteArray())
                                                 }.onSuccess {
-                                                    snack.showSnackbar("复制成功！")
-                                                }.onFailure {
-                                                    snack.showSnackbar("复制失败：${it.message}")
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
+                                                }.onFailure { err ->
+                                                    logger.w("failed to copy to clipboard", err)
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
                                                 }
                                             }
 
@@ -123,34 +150,21 @@ fun ImagePreviewer(
                                                 val source =
                                                     ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
                                                 if (source == null) {
-                                                    snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                    snack.showSnackbar(getString(Res.string.file_was_downloading))
                                                     return@launch
                                                 }
                                                 kotlin.runCatching {
-                                                    copyImageToClipboard(source.buffer().readByteArray())
+                                                    copyImageToClipboard(
+                                                        source.buffer().readByteArray(),
+                                                    )
                                                 }.onSuccess {
-                                                    snack.showSnackbar("复制成功！")
-                                                }.onFailure {
-                                                    snack.showSnackbar("复制失败：${it.message}")
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
+                                                }.onFailure { err ->
+                                                    logger.w("failed to copy to clipboard", err)
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
                                                 }
                                             }
                                         }
-//                                        val source = when {
-//                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-//                                                Buffer().write(
-//                                                    url[pagerState.currentPage].decodeBase64Uri().decodeBase64()!!
-//                                                        .toByteArray()
-//                                                )
-//                                            }
-//
-//                                            else -> {
-//                                                ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-//                                            }
-//                                        }
-//                                        if (source == null) {
-//                                            snack.showSnackbar("文件仍在下载，请稍等片刻...")
-//                                            return@launch
-//                                        }
                                         showBottomDialog = false
                                     }
                                 },
@@ -158,7 +172,7 @@ fun ImagePreviewer(
                         }
                         SettingsMenuLink(
                             title = {
-                                Text("保存")
+                                Text(stringResource(Res.string.save))
                             },
                             icon = {
                                 Icon(Save, null)
@@ -174,7 +188,9 @@ fun ImagePreviewer(
 
                                             FileKit.saveFile(
                                                 bytes = source.readByteArray(),
-                                                extension = MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin",
+                                                extension = MimeTypeMap.getExtensionFromMimeType(
+                                                    mime,
+                                                ) ?: "bin",
                                                 baseName = Uuid.random().toHexString(),
                                             )
                                         }
@@ -183,7 +199,7 @@ fun ImagePreviewer(
                                             val source =
                                                 ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
                                             if (source == null) {
-                                                snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                snack.showSnackbar(getString(Res.string.file_was_downloading))
                                                 return@launch
                                             }
                                             FileKit.saveFile(
@@ -204,7 +220,7 @@ fun ImagePreviewer(
                         if (currentPlatform is Platform.Android) {
                             SettingsMenuLink(
                                 title = {
-                                    Text("分享")
+                                    Text(stringResource(Res.string.share))
                                 },
                                 icon = {
                                     Icon(Icons.Default.Share, null)
@@ -222,7 +238,13 @@ fun ImagePreviewer(
                                                     tmp.sink().buffer().use { source.transfer(it) }
                                                     shareFile(
                                                         tmp,
-                                                        name = "${Uuid.random().toHexString()}.${MimeTypeMap.getExtensionFromMimeType(mime) ?: "bin"}",
+                                                        name = "${
+                                                            Uuid.random().toHexString()
+                                                        }.${
+                                                            MimeTypeMap.getExtensionFromMimeType(
+                                                                mime,
+                                                            ) ?: "bin"
+                                                        }",
                                                         mime = mime,
                                                     )
                                                 }
@@ -232,7 +254,7 @@ fun ImagePreviewer(
                                                 val source =
                                                     ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
                                                 if (source == null) {
-                                                    snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                                    snack.showSnackbar(getString(Res.string.file_was_downloading))
                                                     return@launch
                                                 }
                                                 useTempFile { tmp ->
@@ -241,17 +263,6 @@ fun ImagePreviewer(
                                                 }
                                             }
                                         }
-//                                        val cache = SingletonSketch.get(platform).downloadCache
-//                                        val cacheKey = request[pagerState.currentPage].downloadCacheKey
-//                                        val file = cache.withLock(cacheKey) {
-//                                            openSnapshot(cacheKey)?.use { snapshot ->
-//                                                snapshot.data
-//                                            }
-//                                        }
-//                                        if (file == null) {
-//                                            snack.showSnackbar("文件仍在下载，请稍等片刻...")
-//                                            return@launch
-//                                        }
 
                                         showBottomDialog = false
                                     }
@@ -260,7 +271,7 @@ fun ImagePreviewer(
                         }
                         SettingsMenuLink(
                             title = {
-                                Text("退出预览")
+                                Text(stringResource(Res.string.exit_preview))
                             },
                             icon = {
                                 Icon(Icons.AutoMirrored.Filled.ExitToApp, null)
