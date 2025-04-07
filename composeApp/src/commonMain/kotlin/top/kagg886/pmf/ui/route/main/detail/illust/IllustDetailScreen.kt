@@ -63,7 +63,6 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter.State
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
@@ -320,9 +319,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
             ) {
                 item {
-                    var show by remember {
-                        mutableStateOf(false)
-                    }
+                    var show by remember { mutableStateOf(false) }
                     if (show) {
                         ImagePreviewer(
                             onDismiss = { show = false },
@@ -562,9 +559,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             KeyListenerFromGlobalPipe(controller)
 
-            var expand by remember {
-                mutableStateOf(false)
-            }
+            var expand by remember { mutableStateOf(false) }
             val img by remember(illust.hashCode(), expand) {
                 mutableStateOf(
                     illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!.let {
@@ -591,14 +586,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 items(img) {
                     Spacer(Modifier.height(16.dp))
                     var ratio by remember { mutableStateOf(illust.width.toFloat() / illust.height) }
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = it,
-                        modifier = Modifier.fillMaxWidth()
-                            .aspectRatio(ratio)
-                            .clickable {
-                                startIndex = img.indexOf(it)
-                                preview = true
-                            },
+                        modifier = Modifier.fillMaxWidth().aspectRatio(ratio),
                         onState = { state: State ->
                             if (state is State.Success) {
                                 val image = state.result.image
@@ -606,7 +596,18 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             }
                         },
                         contentDescription = null,
-                    )
+                    ) {
+                        val state by painter.state.collectAsState()
+                        when (state) {
+                            is State.Success -> SubcomposeAsyncImageContent(
+                                modifier = Modifier.clickable {
+                                    startIndex = img.indexOf(it)
+                                    preview = true
+                                },
+                            )
+                            else -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
                 }
                 if (illust.contentImages.size > 3 && !expand) {
                     item {
