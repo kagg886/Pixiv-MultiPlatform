@@ -14,7 +14,13 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.Tag
-import top.kagg886.pixko.module.illust.*
+import top.kagg886.pixko.module.illust.BookmarkVisibility
+import top.kagg886.pixko.module.illust.Illust
+import top.kagg886.pixko.module.illust.IllustImagesType
+import top.kagg886.pixko.module.illust.bookmarkIllust
+import top.kagg886.pixko.module.illust.deleteBookmarkIllust
+import top.kagg886.pixko.module.illust.get
+import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
@@ -51,14 +57,17 @@ class IllustDetailViewModel(private val illust: Illust) :
             val meta = client.getUgoiraMetadata(illust)
             val data = Json.encodeToString(meta).encodeBase64()
             val url = "$UGOIRA_SCHEME://$data".toUri()
-            reduce { IllustDetailViewState.Success.GIF(illust, url) }
+            reduce { IllustDetailViewState.Success(illust, url) }
             saveDataBase(illust)
             return@intent
         }
 
+        val img =
+            illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!.map(String::toUri)
         reduce {
-            IllustDetailViewState.Success.Normal(illust)
+            IllustDetailViewState.Success(illust, img)
         }
+
         // 部分API返回信息不全，需要重新拉取
         intent a@{
             val result = kotlin.runCatching {
@@ -74,7 +83,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
             saveDataBase(i)
             reduce {
-                IllustDetailViewState.Success.Normal(i)
+                IllustDetailViewState.Success(i, img)
             }
         }
     }
@@ -138,10 +147,7 @@ class IllustDetailViewModel(private val illust: Illust) :
 
             reduce {
                 val illust = state.illust.copy(isBookMarked = true)
-                when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
-                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
-                }
+                state.copy(illust = illust)
             }
             postSideEffect(IllustDetailSideEffect.Toast("收藏成功~"))
         }
@@ -160,10 +166,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
             reduce {
                 val illust = state.illust.copy(isBookMarked = false)
-                when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
-                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
-                }
+                state.copy(illust = illust)
             }
             postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
         }
@@ -189,10 +192,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
             reduce {
                 val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
-                when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
-                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
-                }
+                state.copy(illust = illust)
             }
         }
     }
@@ -210,22 +210,19 @@ class IllustDetailViewModel(private val illust: Illust) :
             postSideEffect(IllustDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
             reduce {
                 val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
-                when (val s = state) {
-                    is IllustDetailViewState.Success.Normal -> s.copy(illust = illust)
-                    is IllustDetailViewState.Success.GIF -> s.copy(illust = illust)
-                }
+                state.copy(illust = illust)
             }
         }
     }
 }
 
 sealed class IllustDetailViewState {
-    data class Loading(val data: MutableStateFlow<String> = MutableStateFlow("")) : IllustDetailViewState()
+    data class Loading(val data: MutableStateFlow<String> = MutableStateFlow("")) :
+        IllustDetailViewState()
+
     data object Error : IllustDetailViewState()
-    sealed class Success : IllustDetailViewState() {
-        abstract val illust: Illust
-        data class Normal(override val illust: Illust) : Success()
-        data class GIF(override val illust: Illust, val data: Uri) : Success()
+    data class Success(val illust: Illust, val data: List<Uri>) : IllustDetailViewState() {
+        constructor(illust: Illust, data: Uri) : this(illust, listOf(data))
     }
 }
 
