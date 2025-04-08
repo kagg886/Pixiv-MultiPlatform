@@ -28,6 +28,10 @@ android {
                 targets += "cargo-build_gif_rust"
             }
         }
+        ndk {
+            // 只支持arm64和x64
+            abiFilters += listOf("arm64-v8a", "x86_64")
+        }
     }
 
     buildTypes {
