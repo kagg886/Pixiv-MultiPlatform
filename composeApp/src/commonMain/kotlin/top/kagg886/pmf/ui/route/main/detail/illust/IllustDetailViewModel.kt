@@ -8,6 +8,7 @@ import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -25,11 +26,16 @@ import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bookmark_failed
+import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.un_bookmark_failed
+import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.util.UGOIRA_SCHEME
 
 class IllustDetailViewModel(private val illust: Illust) :
@@ -141,7 +147,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_failed)))
                 return@runOn
             }
 
@@ -149,7 +155,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                 val illust = state.illust.copy(isBookMarked = true)
                 state.copy(illust = illust)
             }
-            postSideEffect(IllustDetailSideEffect.Toast("收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
         }
     }
 
@@ -161,14 +167,14 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("取消收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
             reduce {
                 val illust = state.illust.copy(isBookMarked = false)
                 state.copy(illust = illust)
             }
-            postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
         }
     }
 

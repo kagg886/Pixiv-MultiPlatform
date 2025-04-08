@@ -261,7 +261,7 @@ android {
     }
 }
 compose.resources {
-    publicResClass = false
+    publicResClass = true
     packageOfResClass = pkgName
     generateResClass = auto
 }

@@ -1,0 +1,112 @@
+<resources>
+    <string name="recommend">Recommend</string>
+    <string name="rank">Rank</string>
+    <string name="space">Space</string>
+
+    <string name="illust">Illust</string>
+    <string name="novel">Novel</string>
+    <string name="rank_day">Day</string>
+    <string name="rank_week">Week</string>
+    <string name="rank_month">Month</string>
+    <string name="rank_day_male">Male</string>
+    <string name="rank_day_female">Female</string>
+    <string name="rank_week_original">Origin</string>
+    <string name="rank_week_rookie">Fresh Man</string>
+
+    <string name="follow">Following</string>
+    <string name="latest">Latest</string>
+
+    <string name="bookmark_success">Bookmark success!</string>
+    <string name="bookmark_failed">Bookmark failed...</string>
+    <string name="un_bookmark_success">Delete Bookmark success!</string>
+    <string name="un_bookmark_failed">Delete Bookmark failed...</string>
+
+
+    <string name="page_is_empty">page is empty</string>
+    <string name="init_browser">Initializing the embedded browser...</string>
+    <string name="downloading_browser">Download the browser kernel...%2$s</string>
+    <string name="unzipping_browser">Decompress the browser kernel...</string>
+    <string name="installing_browser">Install the browser kernel...</string>
+    <string name="xattr_setting">Setting xattr...</string>
+    <string name="creating_install_lock">Create the installation lock...</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="browser_archive_should_be_tar_gz">File ending should be with .tar.gz! </string>
+
+    <string name="account_info">Account information</string>
+    <string name="username">Username</string>
+    <string name="personal_profile">Profile</string>
+    <string name="birthday">Birthday</string>
+    <string name="job">Job</string>
+    <string name="country">Country</string>
+    <string name="region">Region</string>
+    <string name="homepage">Homepage</string>
+    <string name="twitter_account">twitter account</string>
+    <string name="twitter_link">twitter link</string>
+    <string name="pawoo_link">pawoo link</string>
+    <string name="is_premium_member">premium member status</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="unknown">unknown</string>
+    <string name="copy_it_to_clipboard">%1$s has been copied to clipboard</string>
+
+    <string name="you_can_still_check_update_on_setting">you can still check update on setting</string>
+    <string name="version_latest">this version is latest</string>
+    <string name="update_check_failed">update check failed...</string>
+
+    <string name="no_more_data">No more data</string>
+    <string name="open_source">Open source license</string>
+    <string name="load_failed">Loading failed</string>
+    <string name="closed">close</string>
+    <string name="jump_browser_tips">External link open confirmation</string>
+    <string name="jump_browser_tips_question">open the link: %1$s</string>
+
+    <string name="comment_success">Comment posted successfully!</string>
+    <string name="comment_failed">Failed to post comment...</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="copy_to_clipboard_success">Copied successfully</string>
+    <string name="copy_to_clipboard_failed">Failed to copy</string>
+    <string name="file_was_downloading">File is still downloading, please wait...</string>
+    <string name="save">Save</string>
+    <string name="share">Share</string>
+    <string name="exit_preview">Exit preview</string>
+
+    <string name="have_update">Update: v%1$s --> %2$s</string>
+    <string name="platform_not_support">not supported</string>
+    <string name="download">Download</string>
+    <string name="not_check_in_this_version">Don't check in this version</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="favorite_type">Favorite type (required)</string>
+    <string name="favorite_tag">Tag favorites (optional)</string>
+    <string name="please_input">Please input</string>
+    <string name="edit_prop">Edit properties</string>
+    <string name="app_crash_title">App crashed!</string>
+    <string name="app_crash_message">We regret to inform you that Pixiv-MultiPlatform encountered an unrecoverable error during operation and the application will now close.\nTo help us fix this bug and prevent it from happening again, please close this dialog and click the button in the upper right corner to submit an error report.</string>
+
+    <string name="app_crash">Crash report!</string>
+
+    <string name="login_wizard">Login Wizard</string>
+    <string name="use_browser_login">Use Embedded Browser Login</string>
+    <string name="use_token_login">Use Token Login</string>
+    <string name="login_guide">Now, we will proceed with the login operation.\nPixiv-MultiPlatform supports login via embedded browser and token login.\n1. Embedded browser login is suitable for first-time users of Pixiv-MultiPlatform. After entering your account credentials in the browser, the program will automatically parse the token and perform the login operation.\nNote: Using the embedded browser login on a computer requires downloading approximately 300M of Chromium kernel. If you are concerned about this, please use token login after logging in on your phone.\n2. Token login is suitable for users who have already used Pixiv-MultiPlatform on their phone and do not want to re-enter their account credentials on the computer.</string>
+    <string name="token_login">Token Login</string>
+    <string name="input_token">Please enter the token</string>
+    <string name="help">Help</string>
+    <string name="warning">Warning</string>
+    <string name="browser_init_failed">Failed to initialize embedded browser</string>
+    <string name="choose_zip_path">Choose the archive file path</string>
+    <string name="retry">Retry</string>
+    <string name="error_details">Error Details</string>
+
+    <string name="browser_init_failed_msg_fronted">Due to some unknown reasons, the embedded browser could not be initialized.\nPlease close the program and try using token login.\nOr refer to</string>
+    <string name="browser_init_failed_msg_this_link">this link</string>
+    <string name="browser_init_failed_msg_backend">to manually install the embedded browser.\n\n</string>
+    <string name="browser_init_failed_msg_clickable">Click this text to view details</string>
+
+    <string name="checking_token">Checking token...</string>
+    <string name="token_verification_failed">There was an issue verifying the token's validity. Please re-enter it</string>
+    <string name="welcome_user">Welcome! %1$s</string>
+    <string name="parsing_user_info">Parsing user information...</string>
+    <string name="account_verification_failed">There was an issue verifying the account status. Please log in again.</string>
+    <string name="no_file_selected">No file selected</string>
+</resources>

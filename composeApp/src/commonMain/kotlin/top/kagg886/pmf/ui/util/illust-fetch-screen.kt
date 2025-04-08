@@ -20,7 +20,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.no_more_data
+import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
@@ -76,7 +80,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     .fillMaxSize(),
             ) {
                 if (state.illusts.isEmpty()) {
-                    ErrorPage(text = "页面为空") {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                         scope.launch {
                             model.initIllust()
                         }
@@ -183,7 +187,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了",
+                            text = stringResource(Res.string.no_more_data),
                         )
                     }
                 }
