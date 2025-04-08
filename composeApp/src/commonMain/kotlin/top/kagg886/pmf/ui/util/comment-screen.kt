@@ -55,7 +55,6 @@ import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen

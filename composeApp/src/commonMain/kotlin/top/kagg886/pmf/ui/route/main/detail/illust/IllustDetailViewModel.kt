@@ -8,6 +8,7 @@ import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -30,14 +31,12 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bookmark_failed
+import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.UGOIRA_SCHEME
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
-import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.source
-import top.kagg886.pmf.util.unzip
-import top.kagg886.pmf.util.writeBytes
+import top.kagg886.pmf.util.UGOIRA_SCHEME
 
 class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,

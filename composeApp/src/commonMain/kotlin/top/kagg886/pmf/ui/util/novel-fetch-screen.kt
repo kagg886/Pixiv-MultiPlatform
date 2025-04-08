@@ -44,7 +44,6 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog

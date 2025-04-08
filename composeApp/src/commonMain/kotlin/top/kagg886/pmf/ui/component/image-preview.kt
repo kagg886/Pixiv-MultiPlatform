@@ -1,6 +1,11 @@
 package top.kagg886.pmf.ui.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -8,8 +13,19 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -24,7 +40,6 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import io.github.vinceglb.filekit.core.FileKit
-import io.ktor.http.Url
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
@@ -89,7 +104,7 @@ fun ImagePreviewer(
                     if (currentPlatform is Platform.Desktop) {
                         SettingsMenuLink(
                             title = {
-                                Text("复制到剪贴板")
+                                Text(stringResource(Res.string.copy_to_clipboard))
                             },
                             icon = {
                                 Icon(
@@ -102,14 +117,15 @@ fun ImagePreviewer(
                                     val key = data[pagerState.currentPage].toString()
                                     val bytes = ctx.readBytes(key)
                                     if (bytes == null) {
-                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                        snack.showSnackbar(getString(Res.string.file_was_downloading))
                                     } else {
                                         runCatching {
                                             copyImageToClipboard(bytes)
                                         }.onSuccess {
-                                            snack.showSnackbar("复制成功！")
+                                            snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
                                         }.onFailure {
-                                            snack.showSnackbar("复制失败：${it.message}")
+                                            logger.w("copy image to clipboard failed", it)
+                                            snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
                                         }
                                     }
                                     showBottomDialog = false
@@ -119,7 +135,7 @@ fun ImagePreviewer(
                     }
                     SettingsMenuLink(
                         title = {
-                            Text("保存")
+                            Text(stringResource(Res.string.save))
                         },
                         icon = {
                             Icon(Save, null)
@@ -130,7 +146,7 @@ fun ImagePreviewer(
                                 val isGif = key.startsWith(UGOIRA_SCHEME)
                                 val bytes = ctx.readBytes(key)
                                 if (bytes == null) {
-                                    snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                    snack.showSnackbar(getString(Res.string.file_was_downloading))
                                 } else {
                                     FileKit.saveFile(
                                         bytes = bytes,
@@ -145,7 +161,7 @@ fun ImagePreviewer(
                     if (currentPlatform is Platform.Android) {
                         SettingsMenuLink(
                             title = {
-                                Text("分享")
+                                Text(stringResource(Res.string.share))
                             },
                             icon = {
                                 Icon(Icons.Default.Share, null)
@@ -156,7 +172,7 @@ fun ImagePreviewer(
                                     val isGif = key.startsWith(UGOIRA_SCHEME)
                                     val bytes = ctx.readBytes(key)
                                     if (bytes == null) {
-                                        snack.showSnackbar("文件仍在下载，请稍等片刻...")
+                                        getString(Res.string.file_was_downloading)
                                     } else {
                                         val source = Buffer().write(bytes)
                                         useTempFile { tmp ->
@@ -179,7 +195,7 @@ fun ImagePreviewer(
                     }
                     SettingsMenuLink(
                         title = {
-                            Text("退出预览")
+                            Text(stringResource(Res.string.exit_preview))
                         },
                         icon = {
                             Icon(Icons.AutoMirrored.Filled.ExitToApp, null)
@@ -188,177 +204,6 @@ fun ImagePreviewer(
                     )
                 }
             }
-                if (showBottomDialog) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showBottomDialog = false },
-                    ) {
-                        val snack = LocalSnackBarHost.current
-                        val scope = rememberCoroutineScope()
-
-                        if (currentPlatform is Platform.Desktop) {
-                            SettingsMenuLink(
-                                title = {
-                                    Text(stringResource(Res.string.copy_to_clipboard))
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = Copy,
-                                        null,
-                                    )
-                                },
-                                onClick = {
-                                    scope.launch {
-                                        when {
-                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                                val (_, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                                val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray(),
-                                                )
-
-                                                kotlin.runCatching {
-                                                    copyImageToClipboard(source.readByteArray())
-                                                }.onSuccess {
-                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
-                                                }.onFailure { err ->
-                                                    logger.w("failed to copy to clipboard", err)
-                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
-                                                }
-                                            }
-
-                                            else -> {
-                                                val source =
-                                                    ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                                if (source == null) {
-                                                    snack.showSnackbar(getString(Res.string.file_was_downloading))
-                                                    return@launch
-                                                }
-                                                kotlin.runCatching {
-                                                    copyImageToClipboard(
-                                                        source.buffer().readByteArray(),
-                                                    )
-                                                }.onSuccess {
-                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
-                                                }.onFailure { err ->
-                                                    logger.w("failed to copy to clipboard", err)
-                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
-                                                }
-                                            }
-                                        }
-                                        showBottomDialog = false
-                                    }
-                                },
-                            )
-                        }
-                        SettingsMenuLink(
-                            title = {
-                                Text(stringResource(Res.string.save))
-                            },
-                            icon = {
-                                Icon(Save, null)
-                            },
-                            onClick = {
-                                scope.launch {
-                                    when {
-                                        isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                            val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                            val source = Buffer().write(
-                                                data.decodeBase64()!!.toByteArray(),
-                                            )
-
-                                            FileKit.saveFile(
-                                                bytes = source.readByteArray(),
-                                                extension = MimeTypeMap.getExtensionFromMimeType(
-                                                    mime,
-                                                ) ?: "bin",
-                                                baseName = Uuid.random().toHexString(),
-                                            )
-                                        }
-
-                                        else -> {
-                                            val source =
-                                                ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                            if (source == null) {
-                                                snack.showSnackbar(getString(Res.string.file_was_downloading))
-                                                return@launch
-                                            }
-                                            FileKit.saveFile(
-                                                bytes = source.buffer().readByteArray(),
-                                                extension = "png",
-                                                baseName = Url(url[pagerState.currentPage]).encodedPath.replace(
-                                                    "/",
-                                                    "_",
-                                                ),
-                                            )
-                                        }
-                                    }
-
-                                    showBottomDialog = false
-                                }
-                            },
-                        )
-                        if (currentPlatform is Platform.Android) {
-                            SettingsMenuLink(
-                                title = {
-                                    Text(stringResource(Res.string.share))
-                                },
-                                icon = {
-                                    Icon(Icons.Default.Share, null)
-                                },
-                                onClick = {
-                                    scope.launch {
-                                        when {
-                                            isBase64Uri(url[pagerState.currentPage].toUri()) -> {
-                                                val (mime, data) = url[pagerState.currentPage].decodeBase64Uri()
-                                                val source = Buffer().write(
-                                                    data.decodeBase64()!!.toByteArray(),
-                                                )
-
-                                                useTempFile { tmp ->
-                                                    tmp.sink().buffer().use { source.transfer(it) }
-                                                    shareFile(
-                                                        tmp,
-                                                        name = "${
-                                                            Uuid.random().toHexString()
-                                                        }.${
-                                                            MimeTypeMap.getExtensionFromMimeType(
-                                                                mime,
-                                                            ) ?: "bin"
-                                                        }",
-                                                        mime = mime,
-                                                    )
-                                                }
-                                            }
-
-                                            else -> {
-                                                val source =
-                                                    ctx.getDownloadImage(request[pagerState.currentPage].downloadCacheKey)
-                                                if (source == null) {
-                                                    snack.showSnackbar(getString(Res.string.file_was_downloading))
-                                                    return@launch
-                                                }
-                                                useTempFile { tmp ->
-                                                    tmp.sink().buffer().use { source.transfer(it) }
-                                                    shareFile(tmp, mime = "image/*")
-                                                }
-                                            }
-                                        }
-
-                                        showBottomDialog = false
-                                    }
-                                },
-                            )
-                        }
-                        SettingsMenuLink(
-                            title = {
-                                Text(stringResource(Res.string.exit_preview))
-                            },
-                            icon = {
-                                Icon(Icons.AutoMirrored.Filled.ExitToApp, null)
-                            },
-                            onClick = onDismiss,
-                        )
-                    }
-                }
 
             val state = rememberZoomableState()
             AsyncImage(
