@@ -84,4 +84,29 @@
     <string name="app_crash_message">很遗憾的通知您：Pixiv-MultiPlatform 在运行时出现了无法恢复的错误，因此应用程序即将关闭。\n为了帮助我们修复这个bug以避免这种情况的再次发生，请关闭对话框并点击右上角的按钮，以提交本次错误报告。</string>
 
     <string name="app_crash">崩溃报告！</string>
+
+    <string name="login_wizard">登录向导</string>
+    <string name="use_browser_login">使用嵌入式浏览器登录</string>
+    <string name="use_token_login">使用token登录</string>
+    <string name="login_guide">现在，我们要进行登录操作。\nPixiv-MultiPlatform支持使用嵌入式浏览器登录和token登录。\n1. 嵌入式浏览器登录适用于第一次使用Pixiv-MultiPlatform的情况。在浏览器中输入账号密码后，程序就会自动解析token并进行登录操作。\n注意：在电脑端使用嵌入式浏览器登录需要下载大约300M的Chromium内核。若您介意，请在手机登录后使用token登录。\n2. token登录适用于已经在手机里使用Pixiv-MultiPlatform但不想在电脑重复输入账号密码的情况。</string>
+    <string name="token_login">token登录</string>
+    <string name="input_token">请输入token</string>
+    <string name="help">帮助</string>
+    <string name="warning">警告</string>
+    <string name="browser_init_failed">无法初始化嵌入式浏览器</string>
+    <string name="choose_zip_path">选择压缩包路径</string>
+    <string name="retry">重试</string>
+    <string name="error_details">错误详情</string>
+
+    <string name="browser_init_failed_msg_fronted">由于一些未知的原因，无法初始化嵌入式浏览器。\n请关闭程序后尝试使用token登录。\n或者参阅</string>
+    <string name="browser_init_failed_msg_this_link">此链接</string>
+    <string name="browser_init_failed_msg_backend">的内容以手动安装嵌入式浏览器。\n\n</string>
+    <string name="browser_init_failed_msg_clickable">点击此文本以查看详细信息</string>
+
+    <string name="checking_token">正在检查token...</string>
+    <string name="token_verification_failed">验证token有效性时出现问题。请重新填写</string>
+    <string name="welcome_user">欢迎您！ %1$s</string>
+    <string name="parsing_user_info">正在解析用户信息...</string>
+    <string name="account_verification_failed">验证账号状态时出了点问题，请重新登录。</string>
+    <string name="no_file_selected">未选择文件</string>
 </resources>
