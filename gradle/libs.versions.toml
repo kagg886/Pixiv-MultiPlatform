@@ -1,7 +1,9 @@
 [versions]
 aboutlibraries = "12.0.0-a04"
+arrow = "2.0.1"
 agp = "8.9.1"
 androidx-lifecycle = "2.9.0-alpha05"
+coil = "3.1.0"
 compose-settings = "2.10.0"
 composeWebviewMultiplatform = "1.9.40"
 filekitCompose = "0.8.8"
@@ -18,12 +20,10 @@ okio = "3.10.2"
 orbitCore = "9.0.0"
 pixko = "2.6"
 room = "2.7.0-rc03"
-sketchCompose = "4.0.4"
 sqliteBundled = "2.5.0-rc03"
 versionCatalogUpdate = "1.0.0"
 voyagerVersion = "1.1.0-beta03"
-zoomimageComposeSketch = "1.1.2"
-uiAndroid = "1.7.8"
+telephoto = "0.15.1"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
@@ -34,6 +34,12 @@ androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:life
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteBundled" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines" }
+arrow-stack = { module = "io.arrow-kt:arrow-stack", version.ref = "arrow" }
+coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose" }
+coil-gif = { module = "io.coil-kt.coil3:coil-gif" }
+coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3" }
 compose-settings-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "compose-settings" }
 compose-settings-ui = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "compose-settings" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
@@ -58,18 +64,11 @@ ktlint = "com.pinterest.ktlint:ktlint-cli:1.5.0"
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
 pixko = { module = "top.kagg886:pixko", version.ref = "pixko" }
-sketch-animated-gif = { module = "io.github.panpf.sketch4:sketch-animated-gif", version.ref = "sketchCompose" }
-sketch-compose = { module = "io.github.panpf.sketch4:sketch-compose", version.ref = "sketchCompose" }
-sketch-extensions-compose = { module = "io.github.panpf.sketch4:sketch-extensions-compose", version.ref = "sketchCompose" }
-sketch-http-ktor3 = { module = "io.github.panpf.sketch4:sketch-http-ktor3", version.ref = "sketchCompose" }
-sketch-resources = { module = "io.github.panpf.sketch4:sketch-compose-resources", version.ref = "sketchCompose" }
-sketch-svg = { module = "io.github.panpf.sketch4:sketch-svg", version.ref = "sketchCompose" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerVersion" }
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
-zoomimage-compose-sketch = { module = "io.github.panpf.zoomimage:zoomimage-compose-sketch4", version.ref = "zoomimageComposeSketch" }
-androidx-ui-android = { group = "androidx.compose.ui", name = "ui-android", version.ref = "uiAndroid" }
+telephoto-zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "telephoto" }
 
 [plugins]
 aboutlibrariesPlugin = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
@@ -86,3 +85,6 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 spotless = { id = "com.diffplug.spotless", version = "7.0.2" }
 room = { id = "androidx.room", version.ref = "room" }
 version-catalog-update = { id = "nl.littlerobots.version-catalog-update", version.ref = "versionCatalogUpdate" }
+
+[bundles]
+coil = ["coil-compose", "coil-network"]

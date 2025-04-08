@@ -1,5 +1,6 @@
 package top.kagg886.pmf
 
+import coil3.ComponentRegistry
 import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.*
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
+import top.kagg886.pmf.util.AnimatedSkiaImageDecoder
 
 actual fun openBrowser(link: String) {
     Desktop.getDesktop().browse(URI.create(link))
@@ -54,3 +56,5 @@ private data class TransferableImage(private val image: ByteArray) : Transferabl
 
     override fun hashCode(): Int = image.contentHashCode()
 }
+
+actual fun ComponentRegistry.Builder.installGifDecoder() = add(AnimatedSkiaImageDecoder.Factory)

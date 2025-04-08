@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -25,12 +26,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
@@ -148,10 +151,11 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     Text(it.tags.take(20).joinToString(", ") { it.name }, minLines = 3, maxLines = 3)
                                 },
                                 leadingContent = {
-                                    ProgressedAsyncImage(
-                                        url = it.imageUrls.content,
-                                        contentScale = ContentScale.FillHeight,
+                                    AsyncImage(
+                                        model = it.imageUrls.content,
                                         modifier = Modifier.widthIn(max = 70.dp).height(90.dp).padding(8.dp),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.FillHeight,
                                     )
                                 },
                                 trailingContent = {
@@ -185,7 +189,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         },
                                     )
                                 },
-                                modifier = Modifier.padding(5.dp).clickable {
+                                modifier = Modifier.padding(5.dp).clip(CardDefaults.shape).clickable {
                                     nav.push(NovelDetailScreen(it.id.toLong()))
                                 },
                             )

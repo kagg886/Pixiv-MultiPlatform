@@ -70,9 +70,6 @@ kotlin {
         }
     }
 
-    sourceSets.named("commonMain").configure {
-//        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-    }
     sourceSets {
         commonMain.dependencies {
             // kotlin stdlib
@@ -117,14 +114,10 @@ kotlin {
             // webview
             api(libs.compose.webview.multiplatform)
 
-            // image-loader
-            implementation(libs.sketch.compose)
-            implementation(libs.sketch.svg)
-            implementation(libs.sketch.resources)
-            implementation(libs.sketch.animated.gif)
-            implementation(libs.sketch.extensions.compose)
-            implementation(libs.sketch.http.ktor3)
-            implementation(libs.zoomimage.compose.sketch)
+            // https://coil-kt.github.io/coil/changelog/
+            implementation(project.dependencies.platform(libs.coil.bom))
+            implementation(libs.bundles.coil)
+            implementation(libs.telephoto.zoomable)
 
             // gif-exporter
             implementation(project(":lib:gif"))
@@ -156,6 +149,9 @@ kotlin {
             // about page
             implementation(libs.aboutlibraries.core)
             implementation(libs.aboutlibraries.compose.m3)
+
+            implementation(project.dependencies.platform(libs.arrow.stack))
+            implementation(libs.arrow.fx.coroutines)
         }
 
         val desktopMain by getting
@@ -170,6 +166,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.coil.gif)
         }
 
         iosMain.dependencies {

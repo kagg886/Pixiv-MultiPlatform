@@ -26,7 +26,9 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import com.github.panpf.sketch.LocalPlatformContext
+import coil3.compose.AsyncImage
+import coil3.compose.LocalPlatformContext
+import coil3.toUri
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
@@ -158,10 +160,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
     @Composable
     @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
-        val sketch = LocalPlatformContext.current
+        val coil = LocalPlatformContext.current
         when (state) {
             is NovelDetailViewState.Error -> ErrorPage(text = state.cause) {
-                model.reload(sketch)
+                model.reload(coil)
             }
 
             is NovelDetailViewState.Loading -> {
@@ -186,20 +188,16 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     if (preview) {
                                         ImagePreviewer(
                                             onDismiss = { preview = false },
-                                            url = listOf(state.novel.imageUrls.contentLarge),
+                                            data = listOf(state.novel.imageUrls.contentLarge.toUri()),
                                             startIndex = page.page.value,
                                         )
                                     }
                                     Column(modifier = Modifier.fillMaxWidth()) {
-                                        ProgressedAsyncImage(
-                                            url = state.novel.imageUrls.content,
+                                        AsyncImage(
+                                            model = state.novel.imageUrls.content,
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).height(256.dp).padding(top = 16.dp).clickable { preview = true },
                                             contentScale = ContentScale.FillHeight,
-                                            modifier = Modifier
-                                                .align(Alignment.CenterHorizontally)
-                                                .height(256.dp).padding(top = 16.dp)
-                                                .clickable {
-                                                    preview = true
-                                                },
+                                            contentDescription = null,
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         Text(
@@ -219,8 +217,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth()
-                                                .padding(horizontal = 8.dp),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(horizontal = 8.dp),
                                             state.novel.user,
                                             onFavoriteClick = {
                                                 if (it) {

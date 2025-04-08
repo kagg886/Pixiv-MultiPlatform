@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -19,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
@@ -102,18 +102,15 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         state.illusts,
                         key = { it.id },
                     ) {
-                        Box(
-                            modifier = Modifier.padding(5.dp).clickable {
-                                nav.push(IllustDetailScreen(it))
-                            },
-                        ) {
+                        Box(modifier = Modifier.padding(5.dp)) {
                             Card(
                                 modifier = Modifier.fillMaxSize(),
+                                onClick = { nav.push(IllustDetailScreen(it)) },
                             ) {
-                                ProgressedAsyncImage(
-                                    url = it.imageUrls.content,
-                                    modifier = Modifier.fillMaxWidth()
-                                        .aspectRatio(it.width.toFloat() / it.height.toFloat()),
+                                AsyncImage(
+                                    model = it.imageUrls.content,
+                                    modifier = Modifier.fillMaxWidth().aspectRatio(it.width.toFloat() / it.height.toFloat()),
+                                    contentDescription = null,
                                 )
                             }
 

@@ -4,43 +4,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.SnackbarVisuals
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
@@ -51,21 +22,22 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
-import com.github.panpf.sketch.Sketch
-import com.github.panpf.sketch.cache.DiskCache
-import com.github.panpf.sketch.fetch.supportKtorHttpUri
-import com.github.panpf.sketch.http.KtorStack
-import com.github.panpf.sketch.util.Logger.Level.Assert
-import com.github.panpf.sketch.util.Logger.Level.Debug
-import com.github.panpf.sketch.util.Logger.Level.Error
-import com.github.panpf.sketch.util.Logger.Level.Info
-import com.github.panpf.sketch.util.Logger.Level.Verbose
-import com.github.panpf.sketch.util.Logger.Level.Warn
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.header
-import io.ktor.serialization.kotlinx.json.json
+import coil3.ComponentRegistry
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImage
+import coil3.disk.DiskCache
+import coil3.network.ConnectivityChecker
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.crossfade
+import coil3.serviceLoaderEnabled
+import coil3.util.Logger as CoilLogger
+import coil3.util.Logger.Level as CoilLogLevel
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.request.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -96,7 +68,6 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
@@ -119,6 +90,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.UgoiraFetcher
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.toColorScheme
@@ -324,8 +296,9 @@ fun ProfileAvatar() {
             nav.push(ProfileScreen(profile))
         },
     ) {
-        ProgressedAsyncImage(
-            url = profile.profileImageUrls.content,
+        AsyncImage(
+            model = profile.profileImageUrls.content,
+            contentDescription = null,
         )
     }
 }
@@ -342,56 +315,46 @@ fun SearchButton() {
     }
 }
 
-fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
+@OptIn(ExperimentalCoilApi::class)
+fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
-        level = Verbose,
-        pipeline = object : com.github.panpf.sketch.util.Logger.Pipeline {
-
-            override fun log(
-                level: com.github.panpf.sketch.util.Logger.Level,
-                tag: String,
-                msg: String,
-                tr: Throwable?,
-            ) {
+        object : CoilLogger {
+            override var minLevel = CoilLogLevel.Info
+            override fun log(tag: String, level: CoilLogLevel, message: String?, throwable: Throwable?) {
                 logger.processLog(
                     severity = when (level) {
-                        Verbose -> Severity.Verbose
-                        Debug -> Severity.Debug
-                        Info -> Severity.Info
-                        Warn -> Severity.Warn
-                        Error -> Severity.Error
-                        Assert -> Severity.Assert
+                        CoilLogLevel.Verbose -> Severity.Verbose
+                        CoilLogLevel.Debug -> Severity.Debug
+                        CoilLogLevel.Info -> Severity.Info
+                        CoilLogLevel.Warn -> Severity.Warn
+                        CoilLogLevel.Error -> Severity.Error
                     },
                     tag = tag,
-                    throwable = tr,
-                    message = msg,
+                    throwable = throwable,
+                    message = message.orEmpty(),
                 )
-            }
-
-            override fun flush() {
-                logger.v("")
             }
         },
     )
-
-    downloadCacheOptions(
-        DiskCache.Options(
-            directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize,
-        ),
-    )
-    resultCacheOptions(
-        DiskCache.Options(
-            directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize,
-        ),
-    )
-
+    interceptorCoroutineContext(Dispatchers.Default)
     components {
-        val okhttp = KoinPlatform.getKoin().get<HttpClient>()
-        supportKtorHttpUri(KtorStack(okhttp))
+        serviceLoaderEnabled(false)
+        add(
+            KtorNetworkFetcherFactory(
+                httpClient = { KoinPlatform.getKoin().get<HttpClient>() },
+                connectivityChecker = { ConnectivityChecker.ONLINE },
+            ),
+        )
+        add(UgoiraFetcher.Factory { KoinPlatform.getKoin().get<HttpClient>() })
+        installGifDecoder()
     }
-    return build()
+    crossfade(500)
+    diskCache {
+        DiskCache.Builder().apply {
+            directory(cachePath / "coil_image_cache")
+            maxSizeBytes(AppConfig.cacheSize)
+        }.build()
+    }
 }
 
 fun setupEnv() {
@@ -528,3 +491,5 @@ enum class NavigationItem(
         SpaceScreen()
     }),
 }
+
+expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder

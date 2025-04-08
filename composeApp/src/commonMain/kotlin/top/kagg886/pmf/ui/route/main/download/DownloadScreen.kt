@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.route.main.download
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,17 +11,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -57,18 +56,15 @@ class DownloadScreen : Screen {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(5.dp)) {
                     items(data) {
                         val nav = LocalNavigator.currentOrThrow
-                        OutlinedCard(
-                            Modifier.padding(5.dp).clickable {
-                                nav.push(IllustDetailScreen(it.illust))
-                            },
-                        ) {
+                        OutlinedCard(modifier = Modifier.padding(5.dp), onClick = { nav.push(IllustDetailScreen(it.illust)) }) {
                             Row(
                                 modifier = Modifier.padding(5.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                ProgressedAsyncImage(
-                                    url = it.illust.contentImages.get()!![0],
-                                    modifier = Modifier.size(75.dp, 120.dp),
+                                AsyncImage(
+                                    model = it.illust.contentImages.get()!![0],
+                                    modifier = Modifier.size(75.dp, 120.dp).clip(CardDefaults.shape),
+                                    contentDescription = null,
                                     contentScale = ContentScale.Inside,
                                 )
                                 ListItem(
