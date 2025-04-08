@@ -23,6 +23,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
+import coil3.toUri
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
@@ -31,7 +33,6 @@ import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
@@ -124,18 +125,21 @@ open class AuthorScreen(open val id: Int) : Screen {
                             var preview by remember { mutableStateOf(false) }
                             if (preview && state.user.profile.backgroundImageUrl != null) {
                                 ImagePreviewer(
-                                    url = listOf(state.user.profile.backgroundImageUrl!!),
+                                    data = listOf(state.user.profile.backgroundImageUrl!!.toUri()),
                                     onDismiss = { preview = false },
                                 )
                             }
 
-                            ProgressedAsyncImage(
-                                url = state.user.profile.backgroundImageUrl,
-                                contentScale = ContentScale.Crop,
+                            AsyncImage(
+                                model = state.user.profile.backgroundImageUrl,
                                 modifier = Modifier.fillMaxSize()
-                                    .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                                        preview = true
-                                    },
+                                    .clickable(
+                                        interactionSource = MutableInteractionSource(),
+                                        indication = null,
+                                        onClick = { preview = true },
+                                    ),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
                             )
                             AuthorCard(
                                 modifier = Modifier.align(Alignment.BottomStart).padding(16.dp),

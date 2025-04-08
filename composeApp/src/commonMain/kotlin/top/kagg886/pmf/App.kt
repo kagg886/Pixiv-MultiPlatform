@@ -22,11 +22,17 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
-import com.github.panpf.sketch.Sketch
-import com.github.panpf.sketch.cache.DiskCache
-import com.github.panpf.sketch.fetch.supportKtorHttpUri
-import com.github.panpf.sketch.http.KtorStack
-import com.github.panpf.sketch.util.Logger.Level.*
+import coil3.ComponentRegistry
+import coil3.ImageLoader
+import coil3.annotation.ExperimentalCoilApi
+import coil3.compose.AsyncImage
+import coil3.disk.DiskCache
+import coil3.network.ConnectivityChecker
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.crossfade
+import coil3.serviceLoaderEnabled
+import coil3.util.Logger as CoilLogger
+import coil3.util.Logger.Level as CoilLogLevel
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -55,7 +61,6 @@ import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.getDataBaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenSideEffect
@@ -78,6 +83,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.UgoiraFetcher
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.toColorScheme
@@ -276,8 +282,9 @@ fun ProfileAvatar() {
             nav.push(ProfileScreen(profile))
         },
     ) {
-        ProgressedAsyncImage(
-            url = profile.profileImageUrls.content,
+        AsyncImage(
+            model = profile.profileImageUrls.content,
+            contentDescription = null,
         )
     }
 }
@@ -294,56 +301,46 @@ fun SearchButton() {
     }
 }
 
-fun Sketch.Builder.applyCustomSketchConfig(): Sketch {
+@OptIn(ExperimentalCoilApi::class)
+fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
-        level = Verbose,
-        pipeline = object : com.github.panpf.sketch.util.Logger.Pipeline {
-
-            override fun log(
-                level: com.github.panpf.sketch.util.Logger.Level,
-                tag: String,
-                msg: String,
-                tr: Throwable?,
-            ) {
+        object : CoilLogger {
+            override var minLevel = CoilLogLevel.Info
+            override fun log(tag: String, level: CoilLogLevel, message: String?, throwable: Throwable?) {
                 logger.processLog(
                     severity = when (level) {
-                        Verbose -> Severity.Verbose
-                        Debug -> Severity.Debug
-                        Info -> Severity.Info
-                        Warn -> Severity.Warn
-                        Error -> Severity.Error
-                        Assert -> Severity.Assert
+                        CoilLogLevel.Verbose -> Severity.Verbose
+                        CoilLogLevel.Debug -> Severity.Debug
+                        CoilLogLevel.Info -> Severity.Info
+                        CoilLogLevel.Warn -> Severity.Warn
+                        CoilLogLevel.Error -> Severity.Error
                     },
                     tag = tag,
-                    throwable = tr,
-                    message = msg,
+                    throwable = throwable,
+                    message = message.orEmpty(),
                 )
-            }
-
-            override fun flush() {
-                logger.v("")
             }
         },
     )
-
-    downloadCacheOptions(
-        DiskCache.Options(
-            directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize,
-        ),
-    )
-    resultCacheOptions(
-        DiskCache.Options(
-            directory = cachePath.resolve("image"),
-            maxSize = AppConfig.cacheSize,
-        ),
-    )
-
+    interceptorCoroutineContext(Dispatchers.Default)
     components {
-        val okhttp = KoinPlatform.getKoin().get<HttpClient>()
-        supportKtorHttpUri(KtorStack(okhttp))
+        serviceLoaderEnabled(false)
+        add(
+            KtorNetworkFetcherFactory(
+                httpClient = { KoinPlatform.getKoin().get<HttpClient>() },
+                connectivityChecker = { ConnectivityChecker.ONLINE },
+            ),
+        )
+        add(UgoiraFetcher.Factory { KoinPlatform.getKoin().get<HttpClient>() })
+        installGifDecoder()
     }
-    return build()
+    crossfade(500)
+    diskCache {
+        DiskCache.Builder().apply {
+            directory(cachePath / "coil_image_cache")
+            maxSizeBytes(AppConfig.cacheSize)
+        }.build()
+    }
 }
 
 fun setupEnv() {
@@ -480,3 +477,5 @@ enum class NavigationItem(
         SpaceScreen()
     }),
 }
+
+expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -11,14 +12,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
@@ -71,9 +73,10 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                                 }
                             },
                             trailingContent = {
-                                ProgressedAsyncImage(
-                                    url = me.profileImageUrls.content,
-                                    modifier = Modifier.size(35.dp),
+                                AsyncImage(
+                                    model = me.profileImageUrls.content,
+                                    modifier = Modifier.size(35.dp).clip(CircleShape),
+                                    contentDescription = null,
                                 )
                             },
                         )

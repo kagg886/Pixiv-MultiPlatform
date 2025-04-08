@@ -23,7 +23,7 @@ val PlatformConfig: HttpClientConfig<*>.() -> Unit = {
     }
     install(Logging) {
         logger = KermitLogger
-        level = LogLevel.ALL
+        level = LogLevel.INFO
         filter {
             !it.url.host.contains("pximg")
         }

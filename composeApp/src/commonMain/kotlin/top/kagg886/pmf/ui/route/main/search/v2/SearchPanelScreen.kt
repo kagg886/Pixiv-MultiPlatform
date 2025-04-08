@@ -21,6 +21,7 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import coil3.compose.AsyncImage
 import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
@@ -36,7 +37,6 @@ import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.ProgressedAsyncImage
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
@@ -235,11 +235,12 @@ class SearchPanelScreen(
                                                 Text("找到插画")
                                             },
                                             leadingContent = {
-                                                ProgressedAsyncImage(
-                                                    url = currentState.illust.contentImages.get()!![0],
+                                                AsyncImage(
+                                                    model = currentState.illust.contentImages.get()!![0],
                                                     modifier = Modifier.height(144.dp).aspectRatio(
                                                         ratio = currentState.illust.width / currentState.illust.height.toFloat(),
                                                     ),
+                                                    contentDescription = null,
                                                 )
                                             },
                                             headlineContent = {
@@ -264,9 +265,10 @@ class SearchPanelScreen(
                                                 Text("找到小说")
                                             },
                                             leadingContent = {
-                                                ProgressedAsyncImage(
-                                                    url = currentState.novel.imageUrls.medium!!,
+                                                AsyncImage(
+                                                    model = currentState.novel.imageUrls.medium!!,
                                                     modifier = Modifier.height(144.dp).aspectRatio(70 / 144f),
+                                                    contentDescription = null,
                                                 )
                                             },
                                             headlineContent = {
