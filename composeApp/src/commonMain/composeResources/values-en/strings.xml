@@ -109,4 +109,18 @@
     <string name="parsing_user_info">Parsing user information...</string>
     <string name="account_verification_failed">There was an issue verifying the account status. Please log in again.</string>
     <string name="no_file_selected">No file selected</string>
+
+    <string name="bookmark_settings">Bookmark Settings</string>
+    <string name="visibility">Visibility</string>
+    <string name="public">Public</string>
+    <string name="private">Private</string>
+    <string name="type">Type</string>
+    <string name="bookmark">Bookmark</string>
+
+    <string name="open_in_browser">Open in Browser</string>
+    <string name="illustration_works">Illustration Works</string>
+    <string name="novel_works">Novel Works</string>
+    <string name="illustration_bookmarks">Illustration Bookmarks</string>
+    <string name="novel_bookmarks">Novel Bookmarks</string>
+
 </resources>

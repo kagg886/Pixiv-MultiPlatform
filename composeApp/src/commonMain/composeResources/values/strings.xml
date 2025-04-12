@@ -109,4 +109,18 @@
     <string name="parsing_user_info">正在解析用户信息...</string>
     <string name="account_verification_failed">验证账号状态时出了点问题，请重新登录。</string>
     <string name="no_file_selected">未选择文件</string>
+
+    <string name="bookmark_settings">收藏设置</string>
+    <string name="visibility">可见性</string>
+    <string name="public">公开</string>
+    <string name="private">私密</string>
+    <string name="type">类型</string>
+    <string name="bookmark">收藏</string>
+
+    <string name="open_in_browser">在浏览器中打开</string>
+    <string name="illustration_works">插画作品</string>
+    <string name="novel_works">小说作品</string>
+    <string name="illustration_bookmarks">插画收藏</string>
+    <string name="novel_bookmarks">小说收藏</string>
+
 </resources>

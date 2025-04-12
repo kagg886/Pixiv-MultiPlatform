@@ -52,8 +52,14 @@ import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.closed
+import top.kagg886.pmf.follow
+import top.kagg886.pmf.illustration_bookmarks
+import top.kagg886.pmf.illustration_works
 import top.kagg886.pmf.load_failed
+import top.kagg886.pmf.novel_bookmarks
+import top.kagg886.pmf.novel_works
 import top.kagg886.pmf.openBrowser
+import top.kagg886.pmf.open_in_browser
 import top.kagg886.pmf.personal_profile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.ImagePreviewer
@@ -117,7 +123,12 @@ open class AuthorScreen(open val id: Int) : Screen {
                     if (it.type != KeyEventType.KeyUp) return@KeyListenerFromGlobalPipe
                     when (it.key) {
                         Key.DirectionRight -> {
-                            pager.animateScrollToPage(min(pager.currentPage + 1, pager.pageCount - 1))
+                            pager.animateScrollToPage(
+                                min(
+                                    pager.currentPage + 1,
+                                    pager.pageCount - 1,
+                                ),
+                            )
                         }
 
                         Key.DirectionLeft -> {
@@ -196,7 +207,10 @@ open class AuthorScreen(open val id: Int) : Screen {
                                 nav.pop()
                             },
                         ) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                            )
                         }
                     },
                     actions = {
@@ -209,7 +223,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                         ) {
                             DropdownMenuItem(
                                 text = {
-                                    Text("在浏览器中打开")
+                                    Text(stringResource(Res.string.open_in_browser))
                                 },
                                 onClick = {
                                     openBrowser(
@@ -238,8 +252,15 @@ open class AuthorScreen(open val id: Int) : Screen {
                             divider = {},
                         ) {
                             val scope = rememberCoroutineScope()
-                            // 插画作品列表 小说作品列表 插画收藏列表 小说收藏列表 关注的人
-                            val tabList = listOf("插画作品", "小说作品", "插画收藏", "小说收藏", "关注")
+                            val tabList = listOf(
+                                Res.string.illustration_works,
+                                Res.string.novel_works,
+                                Res.string.illustration_bookmarks,
+                                Res.string.novel_bookmarks,
+                                Res.string.follow,
+                            ).map { res ->
+                                stringResource(res)
+                            }
                             tabList.forEachIndexed { index, s ->
                                 Tab(
                                     selected = pager.currentPage == index,
