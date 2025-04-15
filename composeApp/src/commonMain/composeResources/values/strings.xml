@@ -123,4 +123,19 @@
     <string name="illustration_bookmarks">插画收藏</string>
     <string name="novel_bookmarks">小说收藏</string>
 
+    <string name="no_description">没有简介</string>
+    <string name="follow_fail">关注失败~</string>
+    <string name="follow_success">关注成功~</string>
+    <string name="follow_success_private">悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄</string>
+    <string name="comment">评论</string>
+    <string name="reply_for">回复 %1$s 的评论</string>
+    <string name="bookmark_extra_options">高级收藏设置</string>
+    <string name="all">全部</string>
+    <string name="no_filter">未分类</string>
+
+    <string name="user_profile">个人信息</string>
+    <string name="my_bookmark">我的收藏</string>
+    <string name="download_manager">下载管理</string>
+    <string name="history">历史记录</string>
+    <string name="settings">程序设置</string>
 </resources>

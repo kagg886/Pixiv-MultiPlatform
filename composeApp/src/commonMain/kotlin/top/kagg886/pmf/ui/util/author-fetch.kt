@@ -19,6 +19,9 @@ import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.follow_fail
+import top.kagg886.pmf.follow_success
+import top.kagg886.pmf.follow_success_private
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
@@ -74,13 +77,13 @@ abstract class AuthorFetchViewModel :
             }
 
             if (result.isFailure) {
-                postSideEffect(AuthorFetchSideEffect.Toast("关注失败~"))
+                postSideEffect(AuthorFetchSideEffect.Toast(getString(Res.string.follow_fail)))
                 return@runOn
             }
             if (private) {
-                postSideEffect(AuthorFetchSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+                postSideEffect(AuthorFetchSideEffect.Toast(getString(Res.string.follow_success_private)))
             } else {
-                postSideEffect(AuthorFetchSideEffect.Toast("关注成功~"))
+                postSideEffect(AuthorFetchSideEffect.Toast(getString(Res.string.follow_success)))
             }
             reduce {
                 state.copy(

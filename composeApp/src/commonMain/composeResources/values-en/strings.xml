@@ -123,4 +123,19 @@
     <string name="illustration_bookmarks">Illustration Bookmarks</string>
     <string name="novel_bookmarks">Novel Bookmarks</string>
 
+    <string name="no_description">No description</string>
+    <string name="follow_fail">Follow failed~</string>
+    <string name="follow_success">Follow succeeded~</string>
+    <string name="follow_success_private">Secretly following, don't want others to see, huh? ( •ω• )</string>
+    <string name="comment">Comment</string>
+    <string name="reply_for">Reply to %1$s's comment</string>
+    <string name="bookmark_extra_options">Advanced Bookmark Settings</string>
+    <string name="all">All</string>
+    <string name="no_filter">Uncategorized</string>
+
+    <string name="user_profile">User Profile</string>
+    <string name="my_bookmark">My Bookmarks</string>
+    <string name="download_manager">Download Manager</string>
+    <string name="history">History</string>
+    <string name="settings">Settings</string>
 </resources>

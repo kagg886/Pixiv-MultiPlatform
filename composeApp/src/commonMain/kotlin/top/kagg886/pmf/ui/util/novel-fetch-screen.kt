@@ -37,6 +37,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.no_more_data
 import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
@@ -164,7 +165,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     if (betterFavoriteDialog) {
                                         TagFavoriteDialog(
                                             tags = it.tags,
-                                            title = { Text("高级收藏设置") },
+                                            title = { Text(stringResource(Res.string.bookmark_extra_options)) },
                                             confirm = { tags, publicity ->
                                                 model.likeNovel(it, publicity, tags).join()
                                                 betterFavoriteDialog = false

@@ -49,8 +49,10 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.comment
 import top.kagg886.pmf.no_more_data
 import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.reply_for
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton
@@ -236,14 +238,6 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                                     .padding(ButtonDefaults.TextButtonContentPadding),
                                                 text = stringResource(Res.string.no_more_data),
                                             )
-//                                            TextButton(
-//                                                onClick = {
-//                                                    model.loadReplyMore()
-//                                                },
-//                                                modifier = Modifier.align(Alignment.CenterHorizontally)
-//                                            ) {
-//                                                Text("加载更多")
-//                                            }
                                         }
                                     }
                                 }
@@ -263,7 +257,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             Text(
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier.fillMaxWidth(),
-                                text = "没有更多了",
+                                text = stringResource(Res.string.no_more_data),
                             )
                         }
                     }
@@ -315,11 +309,11 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         ) {
                             when (it) {
                                 is CommentViewState.Success.HasReply -> {
-                                    Text("回复 ${it.replyTarget.user.name} 的评论")
+                                    Text(stringResource(Res.string.reply_for, it.replyTarget.user.name))
                                 }
 
                                 else -> {
-                                    Text("评论")
+                                    Text(stringResource(Res.string.comment))
                                 }
                             }
                         }
