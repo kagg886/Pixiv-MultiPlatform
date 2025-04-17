@@ -138,4 +138,21 @@
     <string name="download_manager">Download Manager</string>
     <string name="history">History</string>
     <string name="settings">Settings</string>
+
+    <string name="loading">Loading</string>
+    <string name="error">Loading failed</string>
+    <string name="user_info">Personal information</string>
+    <string name="follow_private_fail">Silent attention failed</string>
+    <string name="unfollow_fail">Unfolded~(*^▽^*)</string>
+    <string name="unfollow_success">Unfold the clearance successfully~o(╥﹏╥)o</string>
+    <string name="get_original_fail">Cannot get the original image~I don't know what's going on~</string>
+    <string name="get_illust_info_fail">Failed to obtain the original image information~</string>
+    <string name="copy_pid_success">Copy pid successfully</string>
+    <string name="copy_title_success">Copy the title successfully</string>
+    <string name="tags">标签</string>
+    <string name="publish_date">Publish date</string>
+    <string name="image_details">Picture details</string>
+    <string name="getting_ugoira_metadata">Getting animation metadata</string>
+    <string name="expand_more">Expand more</string>
+    <string name="cant_load_illust">Unable to load illustration: %1$d</string>
 </resources>

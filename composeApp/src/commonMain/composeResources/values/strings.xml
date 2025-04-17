@@ -138,4 +138,21 @@
     <string name="download_manager">下载管理</string>
     <string name="history">历史记录</string>
     <string name="settings">程序设置</string>
+
+    <string name="loading">加载中</string>
+    <string name="error">加载失败</string>
+    <string name="user_info">个人信息</string>
+    <string name="follow_private_fail">悄悄关注失败</string>
+    <string name="unfollow_fail">取关失败~(*^▽^*)</string>
+    <string name="unfollow_success">取关成功~o(╥﹏╥)o</string>
+    <string name="get_original_fail">无法获取原图~不知道是怎么回事捏~</string>
+    <string name="get_illust_info_fail">获取原图信息失败~</string>
+    <string name="copy_pid_success">复制pid成功</string>
+    <string name="copy_title_success">复制标题成功</string>
+    <string name="tags">标签</string>
+    <string name="publish_date">发布日期</string>
+    <string name="image_details">图片详情</string>
+    <string name="getting_ugoira_metadata">获取动图元数据</string>
+    <string name="expand_more">展开更多</string>
+    <string name="cant_load_illust">无法加载插画: %1$d</string>
 </resources>

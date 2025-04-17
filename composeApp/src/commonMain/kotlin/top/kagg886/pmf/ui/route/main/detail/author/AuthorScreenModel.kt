@@ -2,13 +2,24 @@ package top.kagg886.pmf.ui.route.main.detail.author
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pixko.module.user.*
+import top.kagg886.pixko.module.user.UserInfo
+import top.kagg886.pixko.module.user.UserLikePublicity
+import top.kagg886.pixko.module.user.followUser
+import top.kagg886.pixko.module.user.getUserInfo
+import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.follow_fail
+import top.kagg886.pmf.follow_success
+import top.kagg886.pmf.follow_success_private
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.unfollow_fail
+import top.kagg886.pmf.unfollow_success
 
 class AuthorScreenModel(val id: Int) :
     ContainerHost<AuthorScreenState, AuthorScreenSideEffect>,
@@ -48,13 +59,13 @@ class AuthorScreenModel(val id: Int) :
                 )
             }
             if (result.isFailure) {
-                postSideEffect(AuthorScreenSideEffect.Toast("关注失败~"))
+                postSideEffect(AuthorScreenSideEffect.Toast(getString(Res.string.follow_fail)))
                 return@runOn
             }
             if (private) {
-                postSideEffect(AuthorScreenSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+                postSideEffect(AuthorScreenSideEffect.Toast(getString(Res.string.follow_success_private)))
             } else {
-                postSideEffect(AuthorScreenSideEffect.Toast("关注成功~"))
+                postSideEffect(AuthorScreenSideEffect.Toast(getString(Res.string.follow_success)))
             }
             reduce {
                 state.copy(
@@ -75,10 +86,10 @@ class AuthorScreenModel(val id: Int) :
                 client.unFollowUser(state.user.user.id)
             }
             if (result.isFailure) {
-                postSideEffect(AuthorScreenSideEffect.Toast("取关失败~(*^▽^*)"))
+                postSideEffect(AuthorScreenSideEffect.Toast(getString(Res.string.unfollow_fail)))
                 return@runOn
             }
-            postSideEffect(AuthorScreenSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            postSideEffect(AuthorScreenSideEffect.Toast(getString(Res.string.unfollow_success)))
             reduce {
                 state.copy(
                     user = state.user.copy(
