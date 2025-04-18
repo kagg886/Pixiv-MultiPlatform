@@ -2,14 +2,32 @@ package top.kagg886.pmf.ui.route.main.about
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -27,9 +45,11 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.kotlin
+import top.kagg886.pmf.open_source
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Telegram
@@ -106,7 +126,7 @@ class AboutScreen : Screen {
                 }
             },
             title = {
-                Text("开源许可")
+                Text(stringResource(Res.string.open_source))
             },
             navigationIcon = {
                 val nav = LocalNavigator.currentOrThrow
@@ -157,67 +177,5 @@ class AboutScreen : Screen {
                 }
             }
         }
-//        Scaffold(
-//            topBar = {
-//                val nav = LocalNavigator.currentOrThrow
-//                TopAppBar(
-//                    title = { Text("关于") },
-//                    navigationIcon = {
-//                        IconButton(onClick = { nav.pop() }) {
-//                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-//                        }
-//                    }
-//                )
-//            }
-//        ) {
-//
-//            val snack = LocalSnackBarHost.current
-//            val scope = rememberCoroutineScope()
-//            LibrariesContainer(
-//                libraries = libraries,
-//                modifier = Modifier.fillMaxSize().padding(it).padding(horizontal = 32.dp),
-//                onLibraryClick = {
-//                    scope.launch {
-//                        if (it.website != null) {
-//                            uri.openUri(it.website!!)
-//                        } else {
-//                            snack.showSnackbar("暂无官网链接")
-//                        }
-//                    }
-//                },
-//                header = {
-//                    item {
-//                        Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-//                            OutlinedCard(modifier = Modifier.fillMaxWidth(0.8f).fillMaxSize()) {
-//                                Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-//                                    Spacer(modifier = Modifier.height(16.dp))
-//                                    Image(
-//                                        painter = painterResource(Res.drawable.kotlin),
-//                                        contentDescription = null,
-//                                        modifier = Modifier.size(64.dp)
-//                                    )
-//                                    Spacer(modifier = Modifier.height(16.dp))
-//                                    Text(BuildConfig.APP_NAME, style = MaterialTheme.typography.titleLarge)
-//                                    Spacer(modifier = Modifier.height(16.dp))
-//                                    Text(
-//                                        "${BuildConfig.APP_VERSION_NAME} | ${BuildConfig.APP_VERSION_CODE} (Code by kagg886)",
-//                                        color = Color.Gray
-//                                    )
-//                                    Spacer(modifier = Modifier.height(16.dp))
-//                                    Row(
-//                                        modifier = Modifier.fillMaxWidth(),
-//                                        horizontalArrangement = Arrangement.SpaceAround,
-//                                        verticalAlignment = Alignment.CenterVertically
-//                                    ) {
-
-//                                    }
-//                                    Spacer(modifier = Modifier.height(16.dp))
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            )
-//        }
     }
 }

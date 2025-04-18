@@ -11,9 +11,17 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.illust
+import top.kagg886.pmf.novel
 import top.kagg886.pmf.ui.component.TabContainer
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.IllustFetchScreen
+import top.kagg886.pmf.ui.util.IllustFetchSideEffect
+import top.kagg886.pmf.ui.util.NovelFetchScreen
+import top.kagg886.pmf.ui.util.NovelFetchSideEffect
+import top.kagg886.pmf.ui.util.collectSideEffect
 
 class HistoryScreen : Screen {
     private class PageScreenModel : ScreenModel {
@@ -28,7 +36,7 @@ class HistoryScreen : Screen {
         TabContainer(
             modifier = Modifier.fillMaxSize(),
             state = page.page,
-            tab = listOf("插画", "小说"),
+            tab = listOf(stringResource(Res.string.illust), stringResource(Res.string.novel)),
         ) {
             val snackbarHostState = LocalSnackBarHost.current
             when (it) {

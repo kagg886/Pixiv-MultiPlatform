@@ -44,11 +44,18 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.koin.core.logger.Level.*
+import org.koin.core.logger.Level.DEBUG
+import org.koin.core.logger.Level.ERROR
+import org.koin.core.logger.Level.INFO
+import org.koin.core.logger.Level.NONE
+import org.koin.core.logger.Level.WARNING
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
@@ -138,15 +145,17 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                         val s = LocalSnackBarHost.current
                         CheckUpdateDialog()
 
-                        val model = KoinPlatform.getKoin().get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
+                        val model = KoinPlatform.getKoin()
+                            .get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
                         model.collectSideEffect { toast ->
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
                                     if (toast.jump) {
+                                        val actionYes = getString(Res.string.yes)
                                         val result = s.showSnackbar(
                                             object : SnackbarVisuals {
                                                 override val actionLabel: String
-                                                    get() = "是"
+                                                    get() = actionYes
                                                 override val duration: SnackbarDuration
                                                     get() = SnackbarDuration.Long
                                                 override val message: String
@@ -156,7 +165,12 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                             },
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
-                                            it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
+                                            it.push(
+                                                ProfileScreen(
+                                                    PixivConfig.pixiv_user!!,
+                                                    ProfileItem.Download,
+                                                ),
+                                            )
                                         }
                                         return@collectSideEffect
                                     }
@@ -204,7 +218,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                     Icon(imageVector = entry.icon, null)
                                 },
                                 label = {
-                                    Text(entry.title)
+                                    Text(stringResource(entry.title))
                                 },
                             )
                         }
@@ -219,7 +233,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
     }
 
     var title by remember {
-        mutableStateOf("推荐")
+        mutableStateOf(Res.string.recommend)
     }
     Scaffold(
         modifier = Modifier.fillMaxSize().systemBarsPadding(),
@@ -232,7 +246,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
             if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
                 TopAppBar(
                     title = {
-                        Text(title)
+                        Text(stringResource(title))
                     },
                     navigationIcon = {
                         ProfileAvatar()
@@ -260,7 +274,7 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                                 Icon(imageVector = entry.icon, null)
                             },
                             label = {
-                                Text(entry.title)
+                                Text(stringResource(entry.title))
                             },
                         )
                     }
@@ -462,18 +476,18 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(
-    val title: String,
+    val title: StringResource,
     val icon: ImageVector,
     val screenClass: KClass<out Screen>,
     val newInstance: () -> Screen,
 ) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
+    RECOMMEND(Res.string.recommend, Icons.Default.Home, RecommendScreen::class, {
         RecommendScreen()
     }),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen::class, {
+    RANK(Res.string.rank, Icons.Default.DateRange, RankScreen::class, {
         RankScreen()
     }),
-    SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
+    SPACE(Res.string.space, Icons.Default.Star, SpaceScreen::class, {
         SpaceScreen()
     }),
 }

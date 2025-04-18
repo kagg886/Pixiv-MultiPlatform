@@ -10,13 +10,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.TagFilter
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.all
+import top.kagg886.pmf.no_filter
+import top.kagg886.pmf.no_more_data
+import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -66,7 +78,7 @@ private fun TagsFetchContent0(
                 },
             ) {
                 if (state.data.isEmpty()) {
-                    ErrorPage(text = "页面为空") {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                         scope.launch {
                             model.initTags()
                         }
@@ -85,7 +97,7 @@ private fun TagsFetchContent0(
                     item {
                         NavigationDrawerItem(
                             label = {
-                                Text(text = "全部")
+                                Text(text = stringResource(Res.string.all))
                             },
                             selected = state.selectedTagsFilter == TagFilter.NoFilter,
                             onClick = {
@@ -96,7 +108,7 @@ private fun TagsFetchContent0(
                     item {
                         NavigationDrawerItem(
                             label = {
-                                Text(text = "未分类")
+                                Text(text = stringResource(Res.string.no_filter))
                             },
                             selected = state.selectedTagsFilter == TagFilter.FilterWithoutTagged,
                             onClick = {
@@ -131,7 +143,7 @@ private fun TagsFetchContent0(
                         Text(
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了",
+                            text = stringResource(Res.string.no_more_data),
                         )
                     }
                 }
