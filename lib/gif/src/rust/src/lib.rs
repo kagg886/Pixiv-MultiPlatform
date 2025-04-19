@@ -1,7 +1,7 @@
 mod jvm;
 use color_quant::NeuQuant;
 use gif::{DisposalMethod, Encoder, Frame as GifFrame, Repeat};
-use image::{RgbaImage, open};
+use image::{RgbaImage, imageops::{dither, index_colors}, open};
 use serde::Deserialize;
 use std::{borrow::Cow, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock}};
 use tokio::runtime::Runtime;
@@ -38,8 +38,10 @@ fn mutate_frame_transparent(frame: &mut RgbaImage) -> Option<[u8; 4]> {
     transparent
 }
 
-fn generate_frame_with_global_palette(frame: RgbaImage, nq: &NeuQuant, delay: u64, transparent: Option<[u8; 4]>) -> GifFrame<'static> {
+fn generate_frame_with_global_palette(mut frame: RgbaImage, nq: &NeuQuant, delay: u64, transparent: Option<[u8; 4]>) -> GifFrame<'static> {
     let (w, h) = u32_dimen_to_u16(frame.dimensions());
+    dither(&mut frame, nq);
+    let index = index_colors(&frame, nq);
     let mut frame = GifFrame {
         delay: (delay / 10) as u16,
         dispose: DisposalMethod::Background,
@@ -51,7 +53,7 @@ fn generate_frame_with_global_palette(frame: RgbaImage, nq: &NeuQuant, delay: u6
         height: h,
         interlaced: false,
         palette: None,
-        buffer: Cow::Owned(frame.chunks_exact(4).map(|pix| nq.index_of(pix) as u8).collect()),
+        buffer: Cow::Owned(index.into_vec()),
     };
     frame.make_lzw_pre_encoded();
     frame
@@ -63,7 +65,7 @@ async fn encode_animated_image(src_buffer: &'static [u8], rt: &Runtime) {
     let mut first_image = open(file).unwrap().to_rgba8();
     let transparent = mutate_frame_transparent(&mut first_image);
     let (w, h) = u32_dimen_to_u16(first_image.dimensions());
-    let nq = Arc::new(NeuQuant::new(speed, 255, &first_image));
+    let nq = Arc::new(NeuQuant::new(speed, 256, &first_image));
     let dst_file = File::create(dstPath).unwrap();
     let mut encoder = Encoder::new(dst_file, w, h, &nq.color_map_rgb()).unwrap();
     encoder.set_repeat(Repeat::Infinite).unwrap();
