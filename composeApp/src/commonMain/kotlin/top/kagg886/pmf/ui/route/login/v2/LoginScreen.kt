@@ -51,7 +51,7 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
         model.collectSideEffect {
             when (it) {
                 LoginSideEffect.NavigateToMain -> {
-                    navigator.replace(RecommendScreen())
+                    navigator.replace(RecommendScreen)
                 }
 
                 is LoginSideEffect.Toast -> {

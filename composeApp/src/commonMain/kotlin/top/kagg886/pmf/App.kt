@@ -38,7 +38,6 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
@@ -180,7 +179,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun composeWithAppBar(content: @Composable () -> Unit) {
+inline fun <reified T : NavigationItem> composeWithAppBar(type: T, crossinline content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
     if (useWideScreenMode) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -188,19 +187,14 @@ fun composeWithAppBar(content: @Composable () -> Unit) {
                 SearchButton()
                 for (entry in NavigationItem.entries) {
                     NavigationRailItem(
-                        selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                        selected = entry == type,
                         onClick = {
-                            if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
-                                return@NavigationRailItem
+                            if (entry != type) {
+                                nav.push(entry.screen)
                             }
-                            nav.push(entry.newInstance())
                         },
-                        icon = {
-                            Icon(imageVector = entry.icon, null)
-                        },
-                        label = {
-                            Text(entry.title)
-                        },
+                        icon = { Icon(imageVector = entry.icon, null) },
+                        label = { Text(entry.title) },
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -209,38 +203,27 @@ fun composeWithAppBar(content: @Composable () -> Unit) {
             content()
         }
     } else {
-        val title = remember { NavigationItem.entries.first { e -> e.screenClass.isInstance(nav.lastItem) }.title }
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text(title)
-                    },
-                    navigationIcon = {
-                        ProfileAvatar()
-                    },
-                    actions = {
-                        SearchButton()
-                    },
+                    title = { Text(type.title) },
+                    navigationIcon = { ProfileAvatar() },
+                    actions = { SearchButton() },
                 )
             },
             bottomBar = {
                 NavigationBar {
                     for (entry in NavigationItem.entries) {
                         NavigationBarItem(
-                            selected = entry.screenClass.isInstance(nav.lastItem),
+                            selected = entry == type,
                             onClick = {
-                                if (!entry.screenClass.isInstance(nav.lastItem)) {
-                                    nav.push(entry.newInstance())
+                                if (entry != type) {
+                                    nav.push(entry.screen)
                                 }
                             },
-                            icon = {
-                                Icon(imageVector = entry.icon, null)
-                            },
-                            label = {
-                                Text(entry.title)
-                            },
+                            icon = { Icon(imageVector = entry.icon, null) },
+                            label = { Text(entry.title) },
                         )
                     }
                 }
@@ -451,21 +434,10 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
  */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-enum class NavigationItem(
-    val title: String,
-    val icon: ImageVector,
-    val screenClass: KClass<out Screen>,
-    val newInstance: () -> Screen,
-) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
-        RecommendScreen()
-    }),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen::class, {
-        RankScreen()
-    }),
-    SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
-        SpaceScreen()
-    }),
+enum class NavigationItem(val title: String, val icon: ImageVector, val screen: Screen) {
+    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen),
+    RANK("排行榜", Icons.Default.DateRange, RankScreen),
+    SPACE("动态", Icons.Default.Star, SpaceScreen),
 }
 
 expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder
