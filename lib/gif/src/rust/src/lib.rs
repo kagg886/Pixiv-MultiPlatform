@@ -1,7 +1,7 @@
 mod jvm;
 use color_quant::NeuQuant;
 use gif::{DisposalMethod, Encoder, Frame as GifFrame, Repeat};
-use image::{RgbaImage, imageops::index_colors, open};
+use image::{RgbaImage, imageops::{dither, index_colors}, open};
 use serde::Deserialize;
 use std::{borrow::Cow, collections::VecDeque, fs::File, ptr::slice_from_raw_parts, sync::{Arc, LazyLock}};
 use tokio::runtime::Runtime;
@@ -38,8 +38,9 @@ fn mutate_frame_transparent(frame: &mut RgbaImage) -> Option<[u8; 4]> {
     transparent
 }
 
-fn generate_frame_with_global_palette(frame: RgbaImage, nq: &NeuQuant, delay: u64, transparent: Option<[u8; 4]>) -> GifFrame<'static> {
+fn generate_frame_with_global_palette(mut frame: RgbaImage, nq: &NeuQuant, delay: u64, transparent: Option<[u8; 4]>) -> GifFrame<'static> {
     let (w, h) = u32_dimen_to_u16(frame.dimensions());
+    dither(&mut frame, nq);
     let index = index_colors(&frame, nq);
     let mut frame = GifFrame {
         delay: (delay / 10) as u16,
