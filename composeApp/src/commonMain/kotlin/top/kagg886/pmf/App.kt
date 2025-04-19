@@ -12,10 +12,12 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.LocalUriHandler
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
@@ -103,6 +105,7 @@ val LocalKeyStateFlow = compositionLocalOf<SharedFlow<KeyEvent>> {
     error("not provided")
 }
 
+@OptIn(ExperimentalVoyagerApi::class)
 @Composable
 @Preview
 fun App(initScreen: Screen = WelcomeScreen()) {
@@ -166,6 +169,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                         AppScaffold { modifier ->
                             ScreenTransition(
                                 navigator = it,
+                                contentAlignment = Alignment.Center,
                                 transition = { fadeIn() togetherWith fadeOut() },
                                 modifier = modifier.fillMaxSize(),
                             )
