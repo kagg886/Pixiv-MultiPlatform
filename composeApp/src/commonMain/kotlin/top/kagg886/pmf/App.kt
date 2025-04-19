@@ -179,7 +179,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-inline fun <reified T : NavigationItem> composeWithAppBar(type: T, crossinline content: @Composable () -> Unit) {
+fun composeWithAppBar(type: NavigationItem, content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
     if (useWideScreenMode) {
         Row(modifier = Modifier.fillMaxSize()) {
