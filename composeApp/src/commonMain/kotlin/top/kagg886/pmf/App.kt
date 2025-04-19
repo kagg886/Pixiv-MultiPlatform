@@ -38,7 +38,6 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
@@ -164,7 +163,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                 }
                             }
                         }
-                        AppScaffold(it) { modifier ->
+                        AppScaffold { modifier ->
                             ScreenTransition(
                                 navigator = it,
                                 transition = { fadeIn() togetherWith fadeOut() },
@@ -180,96 +179,70 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
+fun composeWithAppBar(type: NavigationItem, content: @Composable () -> Unit) {
+    val nav = LocalNavigator.currentOrThrow
     if (useWideScreenMode) {
-        Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = LocalSnackBarHost.current)
-            },
-        ) {
-            Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                if (NavigationItem.entries.any { item -> item.screenClass.isInstance(nav.lastItemOrNull) }) {
-                    NavigationRail {
-                        SearchButton()
-                        for (entry in NavigationItem.entries) {
-                            NavigationRailItem(
-                                selected = entry.screenClass.isInstance(nav.lastItemOrNull),
-                                onClick = {
-                                    if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
-                                        return@NavigationRailItem
-                                    }
-                                    nav.push(entry.newInstance())
-                                },
-                                icon = {
-                                    Icon(imageVector = entry.icon, null)
-                                },
-                                label = {
-                                    Text(entry.title)
-                                },
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        ProfileAvatar()
-                    }
+        Row(modifier = Modifier.fillMaxSize()) {
+            NavigationRail {
+                SearchButton()
+                for (entry in NavigationItem.entries) {
+                    NavigationRailItem(
+                        selected = entry == type,
+                        onClick = {
+                            if (entry != type) {
+                                nav.push(entry.screen)
+                            }
+                        },
+                        icon = { Icon(imageVector = entry.icon, null) },
+                        label = { Text(entry.title) },
+                    )
                 }
-                content(Modifier.fillMaxSize())
+                Spacer(Modifier.weight(1f))
+                ProfileAvatar()
             }
+            content()
         }
-        return
-    }
-
-    var title by remember {
-        mutableStateOf("推荐")
-    }
-    Scaffold(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
-        snackbarHost = {
-            SnackbarHost(
-                LocalSnackBarHost.current,
-            )
-        },
-        topBar = {
-            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+    } else {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
                 TopAppBar(
-                    title = {
-                        Text(title)
-                    },
-                    navigationIcon = {
-                        ProfileAvatar()
-                    },
-                    actions = {
-                        SearchButton()
-                    },
+                    title = { Text(type.title) },
+                    navigationIcon = { ProfileAvatar() },
+                    actions = { SearchButton() },
                 )
-            }
-        },
-        bottomBar = {
-            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+            },
+            bottomBar = {
                 NavigationBar {
                     for (entry in NavigationItem.entries) {
                         NavigationBarItem(
-                            selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                            selected = entry == type,
                             onClick = {
-                                if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
-                                    return@NavigationBarItem
+                                if (entry != type) {
+                                    nav.push(entry.screen)
                                 }
-                                title = entry.title
-                                nav.push(entry.newInstance())
                             },
-                            icon = {
-                                Icon(imageVector = entry.icon, null)
-                            },
-                            label = {
-                                Text(entry.title)
-                            },
+                            icon = { Icon(imageVector = entry.icon, null) },
+                            label = { Text(entry.title) },
                         )
                     }
                 }
+            },
+        ) {
+            Box(modifier = Modifier.padding(it)) {
+                content()
             }
-        },
-    ) {
-        content(Modifier.padding(it))
+        }
     }
+}
+
+@Composable
+fun AppScaffold(content: @Composable (Modifier) -> Unit) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize().systemBarsPadding(),
+        snackbarHost = { SnackbarHost(hostState = LocalSnackBarHost.current) },
+        content = { content(Modifier.fillMaxSize().padding(it)) },
+    )
 }
 
 @Composable
@@ -461,21 +434,10 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
  */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-enum class NavigationItem(
-    val title: String,
-    val icon: ImageVector,
-    val screenClass: KClass<out Screen>,
-    val newInstance: () -> Screen,
-) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen::class, {
-        RecommendScreen()
-    }),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen::class, {
-        RankScreen()
-    }),
-    SPACE("动态", Icons.Default.Star, SpaceScreen::class, {
-        SpaceScreen()
-    }),
+enum class NavigationItem(val title: String, val icon: ImageVector, val screen: Screen) {
+    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen),
+    RANK("排行榜", Icons.Default.DateRange, RankScreen),
+    SPACE("动态", Icons.Default.Star, SpaceScreen),
 }
 
 expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder

@@ -12,16 +12,18 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.NavigationItem
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
 
-class RecommendScreen : Screen {
+object RecommendScreen : Screen {
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
     }
 
     @Composable
-    override fun Content() {
+    override fun Content() = composeWithAppBar(NavigationItem.RECOMMEND) {
         val snackbarHostState = LocalSnackBarHost.current
         val page = rememberScreenModel {
             PageScreenModel()

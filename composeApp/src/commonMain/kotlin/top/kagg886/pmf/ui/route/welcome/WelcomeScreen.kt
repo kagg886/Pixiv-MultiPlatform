@@ -56,7 +56,7 @@ class WelcomeScreen : Screen {
                 WelcomeSideEffect.NavigateToMain -> {
                     val token = PixivConfig.pixiv_user
                     navigator.replace(
-                        if (token == null) LoginScreen(true) else RecommendScreen(),
+                        if (token == null) LoginScreen(true) else RecommendScreen,
                     )
                 }
             }

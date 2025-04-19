@@ -9,16 +9,18 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import top.kagg886.pixko.module.illust.RankCategory
+import top.kagg886.pmf.NavigationItem
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 
-class RankScreen : Screen {
+object RankScreen : Screen {
     private class PageScreenModel : ScreenModel {
         val page: MutableState<Int> = mutableIntStateOf(0)
     }
 
     @Composable
-    override fun Content() {
+    override fun Content() = composeWithAppBar(NavigationItem.RANK) {
         val page = rememberScreenModel {
             PageScreenModel()
         }
