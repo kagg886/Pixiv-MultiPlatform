@@ -181,21 +181,19 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 @Composable
 fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
-    val navbar = @Composable {
-        for (entry in NavigationItems) {
-            NavigationRailItem(
-                selected = entry == this,
-                onClick = { if (entry != this) nav.push(entry) },
-                icon = { Icon(imageVector = entry.icon, null) },
-                label = { Text(entry.title) },
-            )
-        }
-    }
+    val type = this
     if (useWideScreenMode) {
         Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
                 SearchButton()
-                navbar()
+                for (entry in NavigationItems) {
+                    NavigationRailItem(
+                        selected = entry == type,
+                        onClick = { if (entry != type) nav.push(entry) },
+                        icon = { Icon(imageVector = entry.icon, null) },
+                        label = { Text(entry.title) },
+                    )
+                }
                 Spacer(Modifier.weight(1f))
                 ProfileAvatar()
             }
@@ -211,7 +209,18 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                     actions = { SearchButton() },
                 )
             },
-            bottomBar = { NavigationBar { navbar() } },
+            bottomBar = {
+                NavigationBar {
+                    for (entry in NavigationItems) {
+                        NavigationBarItem(
+                            selected = entry == type,
+                            onClick = { if (entry != type) nav.push(entry) },
+                            icon = { Icon(imageVector = entry.icon, null) },
+                            label = { Text(entry.title) },
+                        )
+                    }
+                }
+            },
         ) {
             Box(modifier = Modifier.padding(it)) {
                 content()
