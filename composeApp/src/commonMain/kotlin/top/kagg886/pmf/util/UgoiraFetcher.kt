@@ -13,6 +13,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.util.decodeBase64String
+import kotlin.time.measureTime
 import kotlinx.serialization.json.Json
 import moe.tarsin.gif.encodeGif
 import top.kagg886.pixko.module.ugoira.UgoiraMetadata
@@ -49,11 +50,22 @@ class UgoiraFetcher(
             useTempFile { zip ->
                 zip.writeBytes(net.get(metadata.url.content).bodyAsBytes())
                 useTempDir { workDir ->
-                    zip.unzip(workDir)
-                    encodeGif(editor.data) {
-                        for (i in metadata.frames) {
-                            frame(path = workDir / i.file, delay = i.delay)
+                    val size = metadata.frames.size
+                    measureTime {
+                        zip.unzip(workDir)
+                    }.also {
+                        logger.i { "Unzip $size ugoira frames takes ${it.inWholeMilliseconds} ms" }
+                    }
+                    measureTime {
+                        encodeGif(editor.data) {
+                            for (i in metadata.frames) {
+                                frame(path = workDir / i.file, delay = i.delay)
+                            }
                         }
+                    }.also {
+                        logger.i { "Encode $size ugoira frames takes ${it.inWholeMilliseconds} ms" }
+                        val size = editor.data.meta().size!! / 1024
+                        logger.i { "Output gif takes $size KB space" }
                     }
                 }
             }
