@@ -211,7 +211,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                     actions = { SearchButton() },
                 )
             },
-            bottomBar = navbar,
+            bottomBar = { NavigationBar { navbar() } },
         ) {
             Box(modifier = Modifier.padding(it)) {
                 content()
