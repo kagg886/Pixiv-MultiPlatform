@@ -424,6 +424,7 @@ val NavigationItems = listOf(NavigationItem.RecommendScreen, NavigationItem.Rank
 sealed class NavigationItem(val title: String, val icon: ImageVector, val content: @Composable Screen.() -> Unit) : Screen {
     @Composable
     override fun Content() = composeWithAppBar { content() }
+
     object RecommendScreen : NavigationItem("推荐", Icons.Default.Home, { RecommendScreen() })
     object RankScreen : NavigationItem("排行榜", Icons.Default.DateRange, { RankScreen() })
     object SpaceScreen : NavigationItem("动态", Icons.Default.Star, { SpaceScreen() })
