@@ -12,6 +12,7 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchSideEffect
@@ -23,7 +24,7 @@ class SpaceScreen : Screen {
     }
 
     @Composable
-    override fun Content() {
+    override fun Content() = composeWithAppBar {
         val page = rememberScreenModel {
             PageScreenModel()
         }

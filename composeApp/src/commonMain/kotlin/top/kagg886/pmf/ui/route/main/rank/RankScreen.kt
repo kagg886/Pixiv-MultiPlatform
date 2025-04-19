@@ -9,6 +9,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import top.kagg886.pixko.module.illust.RankCategory
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 
@@ -18,7 +19,7 @@ class RankScreen : Screen {
     }
 
     @Composable
-    override fun Content() {
+    override fun Content() = composeWithAppBar {
         val page = rememberScreenModel {
             PageScreenModel()
         }

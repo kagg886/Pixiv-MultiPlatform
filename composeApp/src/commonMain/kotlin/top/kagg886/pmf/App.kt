@@ -164,7 +164,7 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                 }
                             }
                         }
-                        AppScaffold(it) { modifier ->
+                        AppScaffold { modifier ->
                             ScreenTransition(
                                 navigator = it,
                                 transition = { fadeIn() togetherWith fadeOut() },
@@ -180,56 +180,39 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
+fun composeWithAppBar(content: @Composable () -> Unit) {
+    val nav = LocalNavigator.currentOrThrow
     if (useWideScreenMode) {
-        Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = LocalSnackBarHost.current)
-            },
-        ) {
-            Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                if (NavigationItem.entries.any { item -> item.screenClass.isInstance(nav.lastItemOrNull) }) {
-                    NavigationRail {
-                        SearchButton()
-                        for (entry in NavigationItem.entries) {
-                            NavigationRailItem(
-                                selected = entry.screenClass.isInstance(nav.lastItemOrNull),
-                                onClick = {
-                                    if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
-                                        return@NavigationRailItem
-                                    }
-                                    nav.push(entry.newInstance())
-                                },
-                                icon = {
-                                    Icon(imageVector = entry.icon, null)
-                                },
-                                label = {
-                                    Text(entry.title)
-                                },
-                            )
-                        }
-                        Spacer(Modifier.weight(1f))
-                        ProfileAvatar()
-                    }
+        Row(modifier = Modifier.fillMaxSize()) {
+            NavigationRail {
+                SearchButton()
+                for (entry in NavigationItem.entries) {
+                    NavigationRailItem(
+                        selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                        onClick = {
+                            if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
+                                return@NavigationRailItem
+                            }
+                            nav.push(entry.newInstance())
+                        },
+                        icon = {
+                            Icon(imageVector = entry.icon, null)
+                        },
+                        label = {
+                            Text(entry.title)
+                        },
+                    )
                 }
-                content(Modifier.fillMaxSize())
+                Spacer(Modifier.weight(1f))
+                ProfileAvatar()
             }
+            content()
         }
-        return
-    }
-
-    var title by remember {
-        mutableStateOf("推荐")
-    }
-    Scaffold(
-        modifier = Modifier.fillMaxSize().systemBarsPadding(),
-        snackbarHost = {
-            SnackbarHost(
-                LocalSnackBarHost.current,
-            )
-        },
-        topBar = {
-            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+    } else {
+        val title = remember { NavigationItem.entries.first { e -> e.screenClass.isInstance(nav.lastItem) }.title }
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            topBar = {
                 TopAppBar(
                     title = {
                         Text(title)
@@ -241,20 +224,16 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                         SearchButton()
                     },
                 )
-            }
-        },
-        bottomBar = {
-            if (NavigationItem.entries.any { it.screenClass.isInstance(nav.lastItemOrNull) }) {
+            },
+            bottomBar = {
                 NavigationBar {
                     for (entry in NavigationItem.entries) {
                         NavigationBarItem(
-                            selected = entry.screenClass.isInstance(nav.lastItemOrNull),
+                            selected = entry.screenClass.isInstance(nav.lastItem),
                             onClick = {
-                                if (entry.screenClass.isInstance(nav.lastItemOrNull)) {
-                                    return@NavigationBarItem
+                                if (!entry.screenClass.isInstance(nav.lastItem)) {
+                                    nav.push(entry.newInstance())
                                 }
-                                title = entry.title
-                                nav.push(entry.newInstance())
                             },
                             icon = {
                                 Icon(imageVector = entry.icon, null)
@@ -265,11 +244,22 @@ fun AppScaffold(nav: Navigator, content: @Composable (Modifier) -> Unit) {
                         )
                     }
                 }
+            },
+        ) {
+            Box(modifier = Modifier.padding(it)) {
+                content()
             }
-        },
-    ) {
-        content(Modifier.padding(it))
+        }
     }
+}
+
+@Composable
+fun AppScaffold(content: @Composable (Modifier) -> Unit) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize().systemBarsPadding(),
+        snackbarHost = { SnackbarHost(hostState = LocalSnackBarHost.current) },
+        content = { content(Modifier.fillMaxSize().padding(it)) },
+    )
 }
 
 @Composable
