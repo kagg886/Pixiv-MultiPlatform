@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.space
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -21,7 +20,7 @@ import top.kagg886.pmf.ui.util.collectSideEffect
 fun Screen.SpaceScreen() {
     val page = rememberScreenModel {
         object : ScreenModel {
-            val page: MutableState<Int> = mutableIntStateOf(0)
+            val page = mutableIntStateOf(0)
         }
     }
     TabContainer(
