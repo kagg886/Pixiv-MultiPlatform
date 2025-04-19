@@ -179,24 +179,24 @@ fun App(initScreen: Screen = WelcomeScreen()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun composeWithAppBar(type: NavigationItem, content: @Composable () -> Unit) {
+fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
+    val navbar = @Composable {
+        for (entry in NavigationItems) {
+            NavigationRailItem(
+                selected = entry == this,
+                onClick = { if (entry != this) nav.push(entry) },
+                icon = { Icon(imageVector = entry.icon, null) },
+                label = { Text(entry.title) },
+            )
+        }
+    }
+    val type = this
     if (useWideScreenMode) {
         Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
                 SearchButton()
-                for (entry in NavigationItem.entries) {
-                    NavigationRailItem(
-                        selected = entry == type,
-                        onClick = {
-                            if (entry != type) {
-                                nav.push(entry.screen)
-                            }
-                        },
-                        icon = { Icon(imageVector = entry.icon, null) },
-                        label = { Text(entry.title) },
-                    )
-                }
+                navbar()
                 Spacer(Modifier.weight(1f))
                 ProfileAvatar()
             }
@@ -212,22 +212,7 @@ fun composeWithAppBar(type: NavigationItem, content: @Composable () -> Unit) {
                     actions = { SearchButton() },
                 )
             },
-            bottomBar = {
-                NavigationBar {
-                    for (entry in NavigationItem.entries) {
-                        NavigationBarItem(
-                            selected = entry == type,
-                            onClick = {
-                                if (entry != type) {
-                                    nav.push(entry.screen)
-                                }
-                            },
-                            icon = { Icon(imageVector = entry.icon, null) },
-                            label = { Text(entry.title) },
-                        )
-                    }
-                }
-            },
+            bottomBar = navbar,
         ) {
             Box(modifier = Modifier.padding(it)) {
                 content()
@@ -434,10 +419,14 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
  */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-enum class NavigationItem(val title: String, val icon: ImageVector, val screen: Screen) {
-    RECOMMEND("推荐", Icons.Default.Home, RecommendScreen),
-    RANK("排行榜", Icons.Default.DateRange, RankScreen),
-    SPACE("动态", Icons.Default.Star, SpaceScreen),
+val NavigationItems = listOf(NavigationItem.RecommendScreen, NavigationItem.RankScreen, NavigationItem.SpaceScreen)
+
+sealed class NavigationItem(val title: String, val icon: ImageVector, val content: @Composable Screen.() -> Unit) : Screen {
+    @Composable
+    override fun Content() = composeWithAppBar { content() }
+    object RecommendScreen : NavigationItem("推荐", Icons.Default.Home, { RecommendScreen() })
+    object RankScreen : NavigationItem("排行榜", Icons.Default.DateRange, { RankScreen() })
+    object SpaceScreen : NavigationItem("动态", Icons.Default.Star, { SpaceScreen() })
 }
 
 expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder

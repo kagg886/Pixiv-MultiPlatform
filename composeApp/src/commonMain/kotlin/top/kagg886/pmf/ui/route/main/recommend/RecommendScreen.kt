@@ -12,53 +12,47 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.NavigationItem
-import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.*
 
-object RecommendScreen : Screen {
-    private class PageScreenModel : ScreenModel {
-        val page: MutableState<Int> = mutableIntStateOf(0)
-    }
-
-    @Composable
-    override fun Content() = composeWithAppBar(NavigationItem.RECOMMEND) {
-        val snackbarHostState = LocalSnackBarHost.current
-        val page = rememberScreenModel {
-            PageScreenModel()
+@Composable
+fun Screen.RecommendScreen() {
+    val snackbarHostState = LocalSnackBarHost.current
+    val page = rememberScreenModel {
+        object : ScreenModel {
+            val page: MutableState<Int> = mutableIntStateOf(0)
         }
-        TabContainer(
-            modifier = Modifier.fillMaxSize(),
-            state = page.page,
-            tab = listOf("插画", "小说"),
-        ) {
-            when (it) {
-                0 -> {
-                    val nav = LocalNavigator.currentOrThrow
-                    val model = nav.koinNavigatorScreenModel<RecommendIllustViewModel>()
-                    model.collectSideEffect { effect ->
-                        when (effect) {
-                            is IllustFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
+    }
+    TabContainer(
+        modifier = Modifier.fillMaxSize(),
+        state = page.page,
+        tab = listOf("插画", "小说"),
+    ) {
+        when (it) {
+            0 -> {
+                val nav = LocalNavigator.currentOrThrow
+                val model = nav.koinNavigatorScreenModel<RecommendIllustViewModel>()
+                model.collectSideEffect { effect ->
+                    when (effect) {
+                        is IllustFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
                         }
                     }
-                    IllustFetchScreen(model)
                 }
+                IllustFetchScreen(model)
+            }
 
-                1 -> {
-                    val nav = LocalNavigator.currentOrThrow
-                    val model = nav.koinNavigatorScreenModel<RecommendNovelViewModel>()
-                    model.collectSideEffect { effect ->
-                        when (effect) {
-                            is NovelFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
+            1 -> {
+                val nav = LocalNavigator.currentOrThrow
+                val model = nav.koinNavigatorScreenModel<RecommendNovelViewModel>()
+                model.collectSideEffect { effect ->
+                    when (effect) {
+                        is NovelFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
                         }
                     }
-                    NovelFetchScreen(model)
                 }
+                NovelFetchScreen(model)
             }
         }
     }
