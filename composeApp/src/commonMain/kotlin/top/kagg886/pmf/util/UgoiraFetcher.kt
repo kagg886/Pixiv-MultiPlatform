@@ -29,6 +29,7 @@ class UgoiraFetcher(
 ) : Fetcher {
     override suspend fun fetch(): FetchResult? {
         val metadata = Json.decodeFromString<UgoiraMetadata>(data.authority!!.decodeBase64String())
+        val size = metadata.frames.size
         val diskCacheKey = data.toString()
         val cached = diskCache.openSnapshot(diskCacheKey)
         if (cached != null) {
@@ -48,9 +49,15 @@ class UgoiraFetcher(
         val editor = diskCache.openEditor(diskCacheKey)!!
         val snapshot = runCatching {
             useTempFile { zip ->
-                zip.writeBytes(net.get(metadata.url.content).bodyAsBytes())
+                val bytes: ByteArray
+                measureTime {
+                    bytes = net.get(metadata.url.content).bodyAsBytes()
+                }.also {
+                    val size = bytes.size / 1024
+                    logger.i { "Download $size KB ugoira zip takes ${it.inWholeMilliseconds} ms" }
+                }
+                zip.writeBytes(bytes)
                 useTempDir { workDir ->
-                    val size = metadata.frames.size
                     measureTime {
                         zip.unzip(workDir)
                     }.also {
