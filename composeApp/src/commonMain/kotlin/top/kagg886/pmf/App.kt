@@ -191,7 +191,6 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             )
         }
     }
-    val type = this
     if (useWideScreenMode) {
         Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
@@ -207,7 +206,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(type.title) },
+                    title = { Text(title) },
                     navigationIcon = { ProfileAvatar() },
                     actions = { SearchButton() },
                 )
