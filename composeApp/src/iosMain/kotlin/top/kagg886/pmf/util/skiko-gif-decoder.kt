@@ -22,12 +22,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.BufferedSource
 import okio.ByteString.Companion.encodeUtf8
-import okio.use
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Codec
 import org.jetbrains.skia.Data
 import org.jetbrains.skia.Image as SkiaImage
+import org.jetbrains.skia.makeFromFileName
 
 private val GIF_HEADER_87A = "GIF87a".encodeUtf8()
 private val GIF_HEADER_89A = "GIF89a".encodeUtf8()
@@ -109,13 +109,9 @@ class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
 
 class AnimatedSkiaImageDecoder(private val source: ImageSource) : Decoder {
     override suspend fun decode(): DecodeResult = coroutineScope {
-        val bytes = source.source().use { it.readByteArray() }
-        val codec = Codec.makeFromData(Data.makeFromBytes(bytes))
+        val codec = Codec.makeFromData(Data.makeFromFileName("${source.file()}"))
         DecodeResult(
-            image = AnimatedSkiaImage(
-                codec = codec,
-                scope = this + Job(),
-            ),
+            image = AnimatedSkiaImage(codec = codec, scope = this + Job()),
             isSampled = false,
         )
     }
