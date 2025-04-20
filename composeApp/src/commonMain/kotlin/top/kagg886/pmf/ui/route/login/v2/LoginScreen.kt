@@ -40,6 +40,7 @@ import com.multiplatform.webview.web.rememberWebViewState
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.NavigationItem
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -59,7 +60,6 @@ import top.kagg886.pmf.retry
 import top.kagg886.pmf.token_login
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
-import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.withClickable
@@ -87,7 +87,7 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
         model.collectSideEffect {
             when (it) {
                 LoginSideEffect.NavigateToMain -> {
-                    navigator.replace(RecommendScreen())
+                    navigator.replace(NavigationItem.RecommendScreen)
                 }
 
                 is LoginSideEffect.Toast -> {

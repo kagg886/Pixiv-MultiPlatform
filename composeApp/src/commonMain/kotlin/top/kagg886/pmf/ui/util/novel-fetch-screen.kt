@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -153,9 +152,8 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                 leadingContent = {
                                     AsyncImage(
                                         model = it.imageUrls.content,
-                                        modifier = Modifier.widthIn(max = 70.dp).height(90.dp).padding(8.dp),
+                                        modifier = Modifier.width(70.dp).height(90.dp).padding(8.dp),
                                         contentDescription = null,
-                                        contentScale = ContentScale.FillHeight,
                                     )
                                 },
                                 trailingContent = {
