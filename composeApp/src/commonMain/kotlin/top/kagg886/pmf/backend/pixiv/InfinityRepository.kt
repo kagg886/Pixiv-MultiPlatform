@@ -18,7 +18,7 @@ abstract class InfinityRepository<T> : Flow<T> {
                 if (isEmpty()) {
                     val new = try {
                         onFetchList() ?: break
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
                         logger.w("fetch failed", e)
                         break
                     }
