@@ -1,11 +1,8 @@
 package top.kagg886.pmf.backend.pixiv
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import top.kagg886.pmf.util.logger
 
 abstract class InfinityRepository<T> : Flow<T> {
@@ -30,7 +27,7 @@ abstract class InfinityRepository<T> : Flow<T> {
         }
     }
 
-    override suspend fun collect(collector: FlowCollector<T>) = flow.flowOn(Dispatchers.IO).collect(collector)
+    override suspend fun collect(collector: FlowCollector<T>) = flow.collect(collector)
 
     abstract suspend fun onFetchList(): List<T>?
 }
