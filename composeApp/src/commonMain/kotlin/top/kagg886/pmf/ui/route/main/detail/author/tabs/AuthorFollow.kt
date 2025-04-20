@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.User
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getFollowingList
@@ -20,7 +19,7 @@ fun AuthorScreen.AuthorFollow(user: UserInfo) {
 }
 
 private class AuthorFollowViewModel(val user: Int) : AuthorFetchViewModel() {
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<User> {
+    override fun initInfinityRepository(): InfinityRepository<User> {
         return object : InfinityRepository<User>() {
             var i = 1
             override suspend fun onFetchList(): List<User> {

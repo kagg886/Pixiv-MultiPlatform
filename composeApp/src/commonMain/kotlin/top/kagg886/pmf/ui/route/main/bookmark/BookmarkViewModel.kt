@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.bookmark
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlin.coroutines.CoroutineContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -63,8 +62,8 @@ class BookmarkIllustViewModel(
     override val tagFilter: TagFilter = TagFilter.NoFilter,
 ) : IllustFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>(coroutineContext) {
+    override fun initInfinityRepository(): InfinityRepository<Illust> {
+        return object : InfinityRepository<Illust>() {
             private var ctx: IllustResult? = null
             override suspend fun onFetchList(): List<Illust>? {
                 ctx = if (ctx == null) {
@@ -87,8 +86,8 @@ class BookmarkNovelViewModel(
     override val tagFilter: TagFilter = TagFilter.NoFilter,
 ) : NovelFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
-        return object : InfinityRepository<Novel>(coroutineContext) {
+    override fun initInfinityRepository(): InfinityRepository<Novel> {
+        return object : InfinityRepository<Novel>() {
             private var ctx: NovelResult? = null
             override suspend fun onFetchList(): List<Novel>? {
                 ctx = if (ctx == null) {
