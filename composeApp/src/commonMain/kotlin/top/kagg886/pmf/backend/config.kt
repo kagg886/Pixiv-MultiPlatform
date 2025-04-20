@@ -1,20 +1,55 @@
 package top.kagg886.pmf.backend
 
 import com.russhwolf.settings.Settings
-import io.ktor.utils.io.core.*
+import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
-import kotlinx.atomicfu.locks.reentrantLock
-import kotlinx.atomicfu.locks.withLock
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
-import okio.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.floatOrNull
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.intOrNull
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
+import kotlinx.serialization.json.longOrNull
+import okio.FileNotFoundException
+import okio.Path
+import okio.buffer
 import okio.use
-import top.kagg886.pmf.util.*
+import top.kagg886.pmf.util.absolutePath
+import top.kagg886.pmf.util.createNewFile
+import top.kagg886.pmf.util.delete
+import top.kagg886.pmf.util.deleteRecursively
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.mkdirs
+import top.kagg886.pmf.util.parentFile
+import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.writeBytes
 
-private val configCache = mutableMapOf<String, Settings>()
 
 object SystemConfig {
+
+    private val debounceJobScope = CoroutineScope(Dispatchers.IO)
+    private val configCache = mutableMapOf<String, Settings>()
+
+    @OptIn(FlowPreview::class)
     fun getConfig(name: String = "default"): Settings {
         return configCache.getOrPut(name) {
             val file = dataPath.resolve("config").resolve("$name.properties", false)
@@ -26,9 +61,20 @@ object SystemConfig {
 
             logger.d("load config from ${file.absolutePath()}")
 
-            val lock = reentrantLock()
+            val flow = MutableSharedFlow<Map<String,JsonElement>>()
+
+            debounceJobScope.launch {
+                flow.debounce(1.seconds).distinctUntilChanged().collect {
+                    file.writeBytes(Json.encodeToString(it).encodeToByteArray())
+                }
+            }
 
             val settings = JsonDefaultSettings(
+                onModify = { json ->
+                    debounceJobScope.launch(Dispatchers.Unconfined) {
+                        flow.emit(json)
+                    }
+                },
                 delegate =
                 kotlin.runCatching {
                     Json.decodeFromString<JsonObject>(
@@ -37,11 +83,6 @@ object SystemConfig {
                 }.getOrElse {
                     logger.w("config create failed, now create a new config")
                     JsonObject(emptyMap())
-                },
-                onModify = { json ->
-                    lock.withLock {
-                        file.writeBytes(Json.encodeToString(json).toByteArray())
-                    }
                 },
             )
             return settings
@@ -62,7 +103,6 @@ private class JsonDefaultSettings(
         delegate.clear()
         onModify(delegate)
     }
-
     override fun getBoolean(key: String, defaultValue: Boolean): Boolean = delegate.getOrElse(key) { JsonPrimitive(defaultValue) }.jsonPrimitive.boolean
 
     override fun getBooleanOrNull(key: String): Boolean? = delegate[key]?.jsonPrimitive?.booleanOrNull
