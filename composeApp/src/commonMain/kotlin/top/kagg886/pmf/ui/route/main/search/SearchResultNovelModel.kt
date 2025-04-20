@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.route.main.search
 
-import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -13,8 +12,8 @@ class SearchResultNovelModel(
     val searchTarget: SearchTarget,
     val sort: SearchSort,
 ) : NovelFetchViewModel() {
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel> {
-        return object : InfinityRepository<Novel>(coroutineContext) {
+    override fun initInfinityRepository(): InfinityRepository<Novel> {
+        return object : InfinityRepository<Novel>() {
             private var page1 = 0
             override suspend fun onFetchList(): List<Novel> {
                 val list = client.searchNovel(word) {

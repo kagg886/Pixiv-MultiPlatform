@@ -2,12 +2,11 @@ package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.plus
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -20,52 +19,25 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 
-abstract class NovelFetchViewModel :
-    ContainerHost<NovelFetchViewState, NovelFetchSideEffect>,
-    ViewModel(),
-    ScreenModel {
-    private val scope = viewModelScope + Dispatchers.IO
+abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(), ScreenModel {
 
     protected val client = PixivConfig.newAccountFromConfig()
 
-    private var repo: InfinityRepository<Novel>? = null
+    private lateinit var repo: InfinityRepository<Novel>
 
     override val container: Container<NovelFetchViewState, NovelFetchSideEffect> =
         container(NovelFetchViewState.Loading) {
             initNovel()
         }
 
-    private fun Sequence<Novel>.filterByUserConfig() = this
-        .filter {
-            if (AppConfig.filterShortNovel) {
-                return@filter it.textLength > AppConfig.filterShortNovelMaxLength
-            }
-            return@filter true
-        }.filter {
-            if (AppConfig.filterLongTag) {
-                return@filter it.tags.find { it.name.length > AppConfig.filterLongTagMinLength } == null
-            }
-            return@filter true
-        }.filter {
-            if (AppConfig.filterAiNovel) {
-                return@filter !it.isAI
-            }
-            return@filter true
-        }
-        .filter {
-            if (AppConfig.filterR18GNovel) {
-                return@filter it.isR18G
-            }
-            return@filter true
-        }
-        .filter {
-            if (AppConfig.filterR18Novel) {
-                return@filter !(it.isR18 || it.isR18G)
-            }
-            return@filter true
-        }
+    private fun Flow<Novel>.filterByUserConfig() = this
+        .filterNot { AppConfig.filterShortNovel && it.textLength <= AppConfig.filterShortNovelMaxLength }
+        .filterNot { AppConfig.filterLongTag && it.tags.any { it.name.length > AppConfig.filterLongTagMinLength } }
+        .filterNot { AppConfig.filterAiNovel && it.isAI }
+        .filterNot { AppConfig.filterR18GNovel && it.isR18G }
+        .filterNot { AppConfig.filterR18Novel && (it.isR18 || it.isR18G) }
 
-    abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Novel>
+    abstract fun initInfinityRepository(): InfinityRepository<Novel>
 
     fun initNovel(pullDown: Boolean = false) = intent {
         if (!pullDown) {
@@ -73,24 +45,16 @@ abstract class NovelFetchViewModel :
                 NovelFetchViewState.Loading
             }
         }
-        repo = initInfinityRepository(scope.coroutineContext)
-        reduce {
-            NovelFetchViewState.ShowNovelList(
-                repo!!.filterByUserConfig().take(20).toList(),
-                noMoreData = repo!!.noMoreData,
-            )
-        }
+        repo = initInfinityRepository()
+        val list = repo.filterByUserConfig().take(20).toList()
+        reduce { NovelFetchViewState.ShowNovelList(list, noMoreData = repo.noMoreData) }
     }
 
     @OptIn(OrbitExperimental::class)
     fun loadMoreNovels() = intent {
         runOn<NovelFetchViewState.ShowNovelList> {
-            reduce {
-                state.copy(
-                    novels = state.novels + repo!!.filterByUserConfig().take(20).toList(),
-                    noMoreData = repo!!.noMoreData,
-                )
-            }
+            val list = state.novels + repo.filterByUserConfig().take(20).toList()
+            reduce { state.copy(novels = list, noMoreData = repo.noMoreData) }
         }
     }
 

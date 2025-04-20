@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserIllust
@@ -20,7 +19,7 @@ fun AuthorScreen.AuthorIllust(user: UserInfo) {
 }
 
 private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
+    override fun initInfinityRepository(): InfinityRepository<Illust> {
         return object : InfinityRepository<Illust>() {
             private var page = 1
             override suspend fun onFetchList(): List<Illust> {

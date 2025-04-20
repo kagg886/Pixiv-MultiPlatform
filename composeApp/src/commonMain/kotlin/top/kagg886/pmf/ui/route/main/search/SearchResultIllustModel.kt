@@ -1,6 +1,5 @@
 package top.kagg886.pmf.ui.route.main.search
 
-import kotlin.coroutines.CoroutineContext
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -13,8 +12,8 @@ class SearchResultIllustModel(
     val searchTarget: SearchTarget,
     val sort: SearchSort,
 ) : IllustFetchViewModel() {
-    override fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>(coroutineContext) {
+    override fun initInfinityRepository(): InfinityRepository<Illust> {
+        return object : InfinityRepository<Illust>() {
             private var page1 = 0
             override suspend fun onFetchList(): List<Illust>? {
                 val list = client.searchIllust(word) {
