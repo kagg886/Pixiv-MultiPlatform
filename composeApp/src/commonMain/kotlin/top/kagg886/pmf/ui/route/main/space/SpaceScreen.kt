@@ -3,7 +3,6 @@ package top.kagg886.pmf.ui.route.main.space
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
@@ -30,13 +29,14 @@ fun Screen.SpaceScreen() {
             val page = mutableIntStateOf(0)
         }
     }
-    val index by page.page.collectAsState()
+    val index by page.page
+    val tab = listOf(Res.string.follow, Res.string.latest)
     TabContainer(
         modifier = Modifier.fillMaxSize(),
-        tab = listOf(Res.string.follow, Res.string.latest),
+        tab = tab,
         tabTitle = { Text(stringResource(it)) },
-        current = index,
-        onCurrentChange = { page.page.tryEmit(it) },
+        current = tab[index],
+        onCurrentChange = { page.page.value = tab.indexOf(it) },
     ) {
         when (it) {
             Res.string.follow -> {

@@ -3,10 +3,8 @@ package top.kagg886.pmf.ui.route.main.recommend
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -14,8 +12,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import kotlinx.coroutines.flow.MutableStateFlow
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
@@ -36,13 +32,14 @@ fun Screen.RecommendScreen() {
             val page = mutableIntStateOf(0)
         }
     }
-    val index by page.page.collectAsState()
+    val index by page.page
+    val tab = listOf(Res.string.illust, Res.string.novel)
     TabContainer(
         modifier = Modifier.fillMaxSize(),
-        tab = listOf(Res.string.illust, Res.string.novel),
+        tab = tab,
         tabTitle = { Text(stringResource(it)) },
-        current = index,
-        onCurrentChange = { page.page.tryEmit(it) },
+        current = tab[index],
+        onCurrentChange = { page.page.value = tab.indexOf(it) },
     ) {
         when (it) {
             Res.string.illust -> {
