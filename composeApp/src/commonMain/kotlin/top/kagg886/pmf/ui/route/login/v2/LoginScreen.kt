@@ -22,11 +22,11 @@ import com.multiplatform.webview.request.WebRequestInterceptResult
 import com.multiplatform.webview.web.*
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.NavigationItem
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
-import top.kagg886.pmf.ui.route.main.recommend.RecommendScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.withClickable
@@ -51,7 +51,7 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
         model.collectSideEffect {
             when (it) {
                 LoginSideEffect.NavigateToMain -> {
-                    navigator.replace(RecommendScreen)
+                    navigator.replace(NavigationItem.RecommendScreen)
                 }
 
                 is LoginSideEffect.Toast -> {
