@@ -155,4 +155,33 @@
     <string name="getting_ugoira_metadata">获取动图元数据</string>
     <string name="expand_more">展开更多</string>
     <string name="cant_load_illust">无法加载插画: %1$d</string>
+
+    <string name="novel_series">小说系列</string>
+    <string name="novel_count">小说数目</string>
+    <string name="word_count">总字数</string>
+    <string name="sort_mode">排序方式</string>
+    <string name="search_mode">搜索模式</string>
+    <string name="hot_tags">热门tag</string>
+
+    <string name="search">搜索</string>
+    <string name="no_history">暂无历史记录</string>
+    <string name="click_to_search">点击搜索按钮进行一次搜索吧！</string>
+    <string name="search_result_for">［%1$s］的搜索结果</string>
+    <string name="search_result_none">没有搜索结果</string>
+    <string name="found_illust">找到插画</string>
+    <string name="found_novel">找到小说</string>
+    <string name="found_novel_series">找到小说</string>
+    <string name="found_user">找到用户</string>
+    <string name="please_bookmark_author_to_detail">请前往详情页面收藏作者！</string>
+    <string name="match_exact_tag">匹配精确tag</string>
+    <string name="match_fuzzy_tag">匹配模糊tag</string>
+    <string name="match_title_caption">匹配标题简介(仅插画/作者)</string>
+    <string name="match_text">正文匹配(仅小说)</string>
+    <string name="match_keyword">关键词(仅小说)</string>
+    <string name="sort_date_desc">时间降序</string>
+    <string name="sort_date_asc">时间升序</string>
+    <string name="sort_popular_desc">热度降序</string>
+    <string name="user">用户</string>
+    <string name="delete_search_history">已删除搜索历史</string>
+    <string name="clear_search_history">已清空搜索历史</string>
 </resources>

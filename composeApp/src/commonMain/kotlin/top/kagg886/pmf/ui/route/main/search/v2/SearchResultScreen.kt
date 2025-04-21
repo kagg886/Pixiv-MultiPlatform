@@ -3,7 +3,13 @@ package top.kagg886.pmf.ui.route.main.search.v2
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,10 +23,20 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.illust
+import top.kagg886.pmf.novel
+import top.kagg886.pmf.search_result_for
 import top.kagg886.pmf.ui.component.TabContainer
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.AuthorFetchScreen
+import top.kagg886.pmf.ui.util.IllustFetchScreen
+import top.kagg886.pmf.ui.util.NovelFetchScreen
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.user
 
 class SearchResultScreen(
     private val keyword: List<String>,
@@ -59,7 +75,7 @@ class SearchResultScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text("[${state.keyword.joinToString(" ")}]的搜索结果", maxLines = 1)
+                        Text(stringResource(Res.string.search_result_for, state.keyword.joinToString(" ")), maxLines = 1)
                     },
                     navigationIcon = {
                         IconButton(
@@ -74,9 +90,9 @@ class SearchResultScreen(
             },
         ) { paddingValues ->
             val data = listOfNotNull<Pair<String, @Composable (() -> Unit)>>(
-                state.illustRepo?.let { "插画" to { IllustFetchScreen(it) } },
-                state.novelRepo?.let { "小说" to { NovelFetchScreen(it) } },
-                state.authorRepo?.let { "用户" to { AuthorFetchScreen(it) } },
+                state.illustRepo?.let { stringResource(Res.string.illust) to { IllustFetchScreen(it) } },
+                state.novelRepo?.let { stringResource(Res.string.novel) to { NovelFetchScreen(it) } },
+                state.authorRepo?.let { stringResource(Res.string.user) to { AuthorFetchScreen(it) } },
             )
 
             TabContainer(

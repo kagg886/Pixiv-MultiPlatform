@@ -155,4 +155,32 @@
     <string name="getting_ugoira_metadata">Getting animation metadata</string>
     <string name="expand_more">Expand more</string>
     <string name="cant_load_illust">Unable to load illustration: %1$d</string>
+
+    <string name="novel_series">Novel Series</string>
+    <string name="novel_count">Number of novels</string>
+    <string name="word_count">Total word count</string>
+    <string name="sort_mode">Sorting method</string>
+    <string name="search_mode">Search mode</string>
+    <string name="hot_tags">Hot Tags</string>
+    <string name="search">Search</string>
+    <string name="no_history">No history yet</string>
+    <string name="click_to_search">Click the search button to search once! </string>
+    <string name="search_result_for"> [%1$s] search results </string>
+    <string name="search_result_none">No search results</string>
+    <string name="found_illust">Find illustration</string>
+    <string name="found_novel">Find novel</string>
+    <string name="found_novel_series">Find novel</string>
+    <string name="found_user">Finish user</string>
+    <string name="please_bookmark_author_to_detail">Please go to the details page to collect the author! </string>
+    <string name="match_exact_tag">Match exact tag</string>
+    <string name="match_fuzzy_tag">Match fuzzy tag</string>
+    <string name="match_title_caption">Introduction to Match Title (illustration/author only)</string>
+    <string name="match_text">Body matching (novel only)</string>
+    <string name="match_keyword">Keyword (Novels only)</string>
+    <string name="sort_date_desc">Desc time</string>
+    <string name="sort_date_asc">Asc time</string>
+    <string name="sort_popular_desc">Popularity descending</string>
+    <string name="user">User</string>
+    <string name="delete_search_history">Deleted search history</string>
+    <string name="clear_search_history">Search history cleared</string>
 </resources>
