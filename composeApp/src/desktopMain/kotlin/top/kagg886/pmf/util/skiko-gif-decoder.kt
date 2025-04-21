@@ -6,11 +6,11 @@ import androidx.compose.runtime.setValue
 import coil3.Image
 import coil3.ImageLoader
 import coil3.decode.DecodeResult
-import coil3.decode.DecodeUtils
 import coil3.decode.Decoder
 import coil3.decode.ImageSource
 import coil3.fetch.SourceFetchResult
 import coil3.request.Options
+import korlibs.datastructure.mapInt
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
 import kotlinx.atomicfu.atomic
@@ -22,38 +22,36 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
 import okio.BufferedSource
 import okio.ByteString.Companion.encodeUtf8
-import org.jetbrains.skia.AnimationFrameInfo
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Codec
 import org.jetbrains.skia.Data
 import org.jetbrains.skia.Image as SkiaImage
+import org.jetbrains.skia.makeFromFileName
 
 private val GIF_HEADER_87A = "GIF87a".encodeUtf8()
 private val GIF_HEADER_89A = "GIF89a".encodeUtf8()
-private fun DecodeUtils.isGif(source: BufferedSource): Boolean = source.rangeEquals(0, GIF_HEADER_89A) || source.rangeEquals(0, GIF_HEADER_87A)
+
+class SwapChain(alloc: Bitmap.() -> Unit) {
+    private val bufferA = Bitmap().apply(alloc)
+    private val bufferB = Bitmap().apply(alloc)
+    private val imageA = SkiaImage.makeFromBitmap(bufferA)
+    private val imageB = SkiaImage.makeFromBitmap(bufferB)
+    private var swap by atomic(false)
+    val render
+        get() = if (swap) imageA else imageB
+    val decode
+        get() = if (swap) bufferB else bufferA
+    fun swap() = apply { swap = !swap }
+}
 
 class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
-    override val size: Long
-        get() {
-            var size = codec.imageInfo.computeMinByteSize().toLong()
-            if (size <= 0L) size = 4L * codec.width * codec.height
-            return size.coerceAtLeast(0)
-        }
-
+    override val size = codec.imageInfo.computeMinByteSize() * 2L // We use 2 buffers
     override val width = codec.width
-
     override val height = codec.height
-
-    override val shareable = false
-
-    val frameDurationsMs by lazy {
-        codec.framesInfo.map { it.safeFrameDuration }
-    }
-
-    val singleIterationDurationMs: Int by lazy {
-        frameDurationsMs.sum()
-    }
+    override val shareable = true
+    val delays = codec.framesInfo.mapInt { i -> i.duration }
+    val wholeDuration = delays.sum()
 
     // Well, we are only allowed to draw [SkImage] **not** [SKBitmap] on [SkCanvas]
     // But we are only allowed to decode a [SkCodec] frame to [SKBitmap]
@@ -78,102 +76,65 @@ class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
     // [SkiaImage.makeFromBitmap] 会让 [SkImage] 共享 [SKBitmap] 的像素内存
     // 然后我们强制更新 [SKBitmap]（即重新用于解码），但是重新使用相同的 [SkImage] 实例进行绘制
     // 没有区别？我们忘了更新像素内存后调用 [notifyPixelsChanged()]。
-    private val bitmapA = Bitmap().apply {
+    val swapChain = SwapChain {
         allocPixels(codec.imageInfo)
         setImmutable()
     }
-    private val bitmapB = Bitmap().apply {
-        allocPixels(codec.imageInfo)
-        setImmutable()
-    }
-    private val imageA = SkiaImage.makeFromBitmap(bitmapA)
-    private val imageB = SkiaImage.makeFromBitmap(bitmapB)
-    private var current by atomic(false)
-    private var cachedIndex by atomic(-1)
 
     fun decode(index: Int) {
-        if (cachedIndex != index) {
-            scope.launch(Dispatchers.Default) {
-                val to = if (current) bitmapA else bitmapB
-                codec.readPixels(to, index)
-                to.notifyPixelsChanged()
-                current = !current
-                cachedIndex = index
-            }
+        val target = swapChain.decode
+        codec.readPixels(target, index)
+        target.notifyPixelsChanged()
+    }
+
+    init {
+        decode(0)
+    }
+
+    private var currentDecode = 0
+    fun preload(index: Int) {
+        if (currentDecode != index) {
+            currentDecode = index
+            scope.launch(Dispatchers.Default) { decode(index) }
         }
     }
 
     private var invalidateTick by mutableIntStateOf(0)
-
     private var animationStartTime: TimeMark? = null
+    private var currentDraw = -1
 
     override fun draw(canvas: Canvas) {
-        if (codec.frameCount == 0) return
-
-        if (codec.frameCount == 1) {
-            canvas.drawImage(image = imageA, left = 0f, top = 0f)
-            return
-        }
-
         val animationStartTime = animationStartTime ?: TimeSource.Monotonic.markNow().also { animationStartTime = it }
-
         val totalElapsedTimeMs = animationStartTime.elapsedNow().inWholeMilliseconds
 
-        val frameIndexToDraw = getFrameIndexToDraw(
-            frameDurationsMs = frameDurationsMs,
-            singleIterationDurationMs = singleIterationDurationMs,
-            totalElapsedTimeMs = totalElapsedTimeMs,
-        )
+        val currentIndex = frameIndexToDraw(totalElapsedTimeMs)
+        if (currentIndex != currentDraw) {
+            currentDraw = currentIndex
+            swapChain.swap()
+            val next = if (currentIndex == codec.frameCount - 1) 0 else currentIndex + 1
+            preload(next)
+        }
 
-        canvas.drawImage(image = if (!current) imageA else imageB, left = 0f, top = 0f)
-
-        val nextFrameIndex = if (frameIndexToDraw == codec.frameCount - 1) 0 else frameIndexToDraw + 1
-        decode(nextFrameIndex)
+        canvas.drawImage(image = swapChain.render, left = 0f, top = 0f)
         invalidateTick++
     }
 
-    private fun getFrameIndexToDraw(
-        frameDurationsMs: List<Int>,
-        singleIterationDurationMs: Int,
-        totalElapsedTimeMs: Long,
-    ): Int {
-        val currentIterationElapsedTimeMs = totalElapsedTimeMs % singleIterationDurationMs
-        return getFrameIndexToDrawWithinIteration(
-            frameDurationsMs = frameDurationsMs,
-            elapsedTimeMs = currentIterationElapsedTimeMs,
-        )
-    }
-
-    private fun getFrameIndexToDrawWithinIteration(
-        frameDurationsMs: List<Int>,
-        elapsedTimeMs: Long,
-    ): Int {
+    fun frameIndexToDraw(totalElapsedTimeMs: Long): Int {
+        val currentIterationElapsedTimeMs = totalElapsedTimeMs % wholeDuration
         var accumulatedDuration = 0
-
-        for ((index, frameDuration) in frameDurationsMs.withIndex()) {
-            if (accumulatedDuration > elapsedTimeMs) {
-                return (index - 1).coerceAtLeast(0)
-            }
+        val index = delays.indexOfFirst { frameDuration ->
             accumulatedDuration += frameDuration
+            accumulatedDuration > currentIterationElapsedTimeMs
         }
-        return frameDurationsMs.lastIndex
+        return if (index == -1) delays.lastIndex else index
     }
 }
 
-private val AnimationFrameInfo.safeFrameDuration: Int
-    get() = duration.let { if (it <= 0) DEFAULT_FRAME_DURATION else it }
-
-private const val DEFAULT_FRAME_DURATION = 100
-
 class AnimatedSkiaImageDecoder(private val source: ImageSource) : Decoder {
     override suspend fun decode(): DecodeResult = coroutineScope {
-        val bytes = source.source().use { it.readByteArray() }
-        val codec = Codec.makeFromData(Data.makeFromBytes(bytes))
+        val codec = Codec.makeFromData(Data.makeFromFileName("${source.file()}"))
         DecodeResult(
-            image = AnimatedSkiaImage(
-                codec = codec,
-                scope = this + Job(),
-            ),
+            image = AnimatedSkiaImage(codec = codec, scope = this + Job()),
             isSampled = false,
         )
     }
@@ -183,6 +144,6 @@ class AnimatedSkiaImageDecoder(private val source: ImageSource) : Decoder {
             if (!isApplicable(result.source.source())) return null
             return AnimatedSkiaImageDecoder(source = result.source)
         }
-        private fun isApplicable(source: BufferedSource): Boolean = DecodeUtils.isGif(source)
+        fun isApplicable(source: BufferedSource) = source.rangeEquals(0, GIF_HEADER_89A) || source.rangeEquals(0, GIF_HEADER_87A)
     }
 }

@@ -3,6 +3,8 @@ package top.kagg886.pmf.ui.util
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -17,7 +19,7 @@ class TagsFetchViewModel(
 ) : ContainerHost<TagsFetchViewState, TagsFetchSideEffect>, ViewModel(), ScreenModel {
     private val client = PixivConfig.newAccountFromConfig()
 
-    private var repo: InfinityRepository<FavoriteTags>? = null
+    private lateinit var repo: InfinityRepository<FavoriteTags>
 
     override val container: Container<TagsFetchViewState, TagsFetchSideEffect> =
         container(TagsFetchViewState.Loading) {
@@ -40,23 +42,15 @@ class TagsFetchViewModel(
             }
         }
         repo = initInfinityRepository()
-        reduce {
-            TagsFetchViewState.ShowTagsList(
-                repo!!.take(20).toList(),
-                noMoreData = repo!!.noMoreData,
-            )
-        }
+        val list = repo.take(20).toList()
+        reduce { TagsFetchViewState.ShowTagsList(list, noMoreData = repo.noMoreData) }
     }
 
     @OptIn(OrbitExperimental::class)
     fun loadMoreTags() = intent {
         runOn<TagsFetchViewState.ShowTagsList> {
-            reduce {
-                state.copy(
-                    data = state.data + repo!!.take(20).toList(),
-                    noMoreData = repo!!.noMoreData,
-                )
-            }
+            val list = state.data + repo.take(20).toList()
+            reduce { state.copy(data = list, noMoreData = repo.noMoreData) }
         }
     }
 

@@ -2,12 +2,9 @@ package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.plus
-import org.jetbrains.compose.resources.getString
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -18,19 +15,13 @@ import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.comment_failed
 import top.kagg886.pmf.comment_success
 
-abstract class CommentViewModel(private val id: Long) :
-    ContainerHost<CommentViewState, CommentSideEffect>,
-    ViewModel(),
-    KoinComponent,
-    ScreenModel {
+abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentViewState, CommentSideEffect>, ViewModel(), KoinComponent, ScreenModel {
     override val container: Container<CommentViewState, CommentSideEffect> = container(CommentViewState.Loading) {
         load()
     }
 
-    private var repo: InfinityRepository<Comment>? = null
+    private lateinit var repo: InfinityRepository<Comment>
     private var replyRepo: InfinityRepository<Comment>? = null
-
-    private val scope = viewModelScope + Dispatchers.IO
 
     abstract suspend fun fetchComments(id: Long, page: Int): List<Comment>
     abstract suspend fun fetchCommentReply(commentId: Long): InfinityRepository<Comment>
@@ -42,33 +33,26 @@ abstract class CommentViewModel(private val id: Long) :
                 CommentViewState.Loading
             }
         }
-        repo = object : InfinityRepository<Comment>(scope.coroutineContext) {
+        repo = object : InfinityRepository<Comment>() {
             var page: Int = 1
             override suspend fun onFetchList(): List<Comment> = fetchComments(id, page).apply {
                 page += 1
             }
         }
-        reduce {
-            CommentViewState.Success.Generic(repo!!.take(20).toList(), repo!!.noMoreData)
-        }
+        val list = repo.take(20).toList()
+        reduce { CommentViewState.Success.Generic(list, repo.noMoreData) }
     }
 
     @OptIn(OrbitExperimental::class)
     fun loadMore() = intent {
         runOn<CommentViewState.Success.Generic> {
-            reduce {
-                state.copy(
-                    comments = state.comments + repo!!.take(20).toList(),
-                )
-            }
+            val list = state.comments + repo.take(20).toList()
+            reduce { state.copy(comments = list) }
         }
 
         runOn<CommentViewState.Success.HasReply> {
-            reduce {
-                state.copy(
-                    comments = state.comments + repo!!.take(20).toList(),
-                )
-            }
+            val list = state.comments + repo.take(20).toList()
+            reduce { state.copy(comments = list) }
         }
     }
 
@@ -93,12 +77,13 @@ abstract class CommentViewModel(private val id: Long) :
         }
         runOn<CommentViewState.Success.Generic> {
             replyRepo = fetchCommentReply(comment.id)
+            val list = replyRepo!!.take(20).toList()
             reduce {
                 CommentViewState.Success.HasReply(
                     state.comments,
                     state.noMoreData,
                     state.scrollerState,
-                    replyRepo!!.take(20).toList(),
+                    list,
                     replyRepo!!.noMoreData,
                     comment,
                 )
@@ -109,13 +94,8 @@ abstract class CommentViewModel(private val id: Long) :
     @OptIn(OrbitExperimental::class)
     fun loadReplyMore() = intent {
         runOn<CommentViewState.Success.HasReply> {
-            val l = state.replyList ?: emptyList()
-            reduce {
-                state.copy(
-                    replyList = l + repo!!.take(20).toList(),
-                    replyNoMoreData = state.replyNoMoreData,
-                )
-            }
+            val list = state.replyList + repo.take(20).toList()
+            reduce { state.copy(replyList = list, replyNoMoreData = state.replyNoMoreData) }
         }
     }
 

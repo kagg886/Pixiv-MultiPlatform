@@ -1,34 +1,33 @@
 package top.kagg886.pmf.backend.pixiv
 
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
 import top.kagg886.pmf.util.logger
 
-abstract class InfinityRepository<T>(private val context: CoroutineContext = EmptyCoroutineContext) : Sequence<T> {
-    private val container = mutableListOf<T>()
+abstract class InfinityRepository<T> : Flow<T> {
     var noMoreData = false
         private set
-    override fun iterator(): Iterator<T> = iterator {
-        while (true) {
-            if (container.isEmpty()) {
-                val new = runBlocking(context) {
-                    try {
-                        onFetchList()
+
+    private val flow = with(ArrayDeque<T>()) {
+        flow {
+            while (true) {
+                if (isEmpty()) {
+                    val new = try {
+                        onFetchList()?.ifEmpty { null } ?: break
                     } catch (e: Throwable) {
                         logger.w("fetch failed", e)
-                        null
+                        break
                     }
+                    addAll(new)
                 }
-                if (new.isNullOrEmpty()) {
-                    break
-                }
-                container.addAll(new)
+                emit(removeFirst())
             }
-            yield(container.removeAt(0))
+            noMoreData = true
         }
-        noMoreData = true
     }
+
+    override suspend fun collect(collector: FlowCollector<T>) = flow.collect(collector)
 
     abstract suspend fun onFetchList(): List<T>?
 }

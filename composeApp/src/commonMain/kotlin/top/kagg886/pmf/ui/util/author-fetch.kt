@@ -2,13 +2,9 @@ package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.plus
-import org.jetbrains.compose.resources.getString
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -25,22 +21,17 @@ import top.kagg886.pmf.follow_success_private
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
-abstract class AuthorFetchViewModel :
-    ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>,
-    ViewModel(),
-    ScreenModel {
-    private val scope = viewModelScope + Dispatchers.IO
-
+abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
 
-    private var repo: InfinityRepository<User>? = null
+    private lateinit var repo: InfinityRepository<User>
 
     override val container: Container<AuthorFetchViewState, AuthorFetchSideEffect> =
         container(AuthorFetchViewState.Loading) {
             loading()
         }
 
-    abstract fun initInfinityRepository(coroutineContext: CoroutineContext): InfinityRepository<User>
+    abstract fun initInfinityRepository(): InfinityRepository<User>
 
     fun loading(pullDown: Boolean = false) = intent {
         if (!pullDown) {
@@ -48,24 +39,16 @@ abstract class AuthorFetchViewModel :
                 AuthorFetchViewState.Loading
             }
         }
-        repo = initInfinityRepository(scope.coroutineContext)
-        reduce {
-            AuthorFetchViewState.ShowAuthorList(
-                repo!!.take(20).toList(),
-                noMoreData = repo!!.noMoreData,
-            )
-        }
+        repo = initInfinityRepository()
+        val list = repo.take(20).toList()
+        reduce { AuthorFetchViewState.ShowAuthorList(list, noMoreData = repo.noMoreData) }
     }
 
     @OptIn(OrbitExperimental::class)
     fun loadMore() = intent {
         runOn<AuthorFetchViewState.ShowAuthorList> {
-            reduce {
-                state.copy(
-                    data = state.data + repo!!.take(20).toList(),
-                    noMoreData = repo!!.noMoreData,
-                )
-            }
+            val list = state.data + repo.take(20).toList()
+            reduce { state.copy(data = list, noMoreData = repo.noMoreData) }
         }
     }
 
