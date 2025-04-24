@@ -52,19 +52,19 @@ private fun Screen.SpaceScreen() {
                 IllustFetchScreen(model)
             }
 
-                1 -> {
-                    val nav = LocalNavigator.currentOrThrow
-                    val model = nav.koinNavigatorScreenModel<NewestIllustViewModel>()
-                    val snackbarHostState = LocalSnackBarHost.current
-                    model.collectSideEffect { effect ->
-                        when (effect) {
-                            is IllustFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
+            1 -> {
+                val nav = LocalNavigator.currentOrThrow
+                val model = nav.koinNavigatorScreenModel<NewestIllustViewModel>()
+                val snackbarHostState = LocalSnackBarHost.current
+                model.collectSideEffect { effect ->
+                    when (effect) {
+                        is IllustFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
                         }
                     }
-                    IllustFetchScreen(model)
                 }
+                IllustFetchScreen(model)
             }
         }
     }
+}

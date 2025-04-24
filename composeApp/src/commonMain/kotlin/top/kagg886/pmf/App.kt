@@ -195,8 +195,8 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                             it.push(
                                                 ProfileScreen(
                                                     PixivConfig.pixiv_user!!,
-                                                    ProfileItem.Download
-                                                )
+                                                    ProfileItem.Download,
+                                                ),
                                             )
                                         }
                                         return@collectSideEffect
@@ -319,7 +319,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
                 tag: String,
                 level: CoilLogLevel,
                 message: String?,
-                throwable: Throwable?
+                throwable: Throwable?,
             ) {
                 logger.processLog(
                     severity = when (level) {
@@ -478,11 +478,12 @@ expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 enum class NavigationItem(
     val title: String,
     val icon: ImageVector,
-    val content: () -> Screen
+    val content: () -> Screen,
 ) {
     RECOMMEND("推荐", Icons.Default.Home, { RecommendScreen() }),
     RANK("排行榜", Icons.Default.DateRange, { RankScreen() }),
-    SPACE("动态", Icons.Default.Star, { SpaceScreen() });
+    SPACE("动态", Icons.Default.Star, { SpaceScreen() }),
+    ;
 
     operator fun invoke(): Screen = content()
 }

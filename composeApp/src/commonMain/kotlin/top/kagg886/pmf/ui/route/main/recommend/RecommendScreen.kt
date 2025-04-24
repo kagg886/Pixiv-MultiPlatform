@@ -54,18 +54,18 @@ fun Screen.RecommendScreen() {
                 IllustFetchScreen(model)
             }
 
-                1 -> {
-                    val nav = LocalNavigator.currentOrThrow
-                    val model = nav.koinNavigatorScreenModel<RecommendNovelViewModel>()
-                    model.collectSideEffect { effect ->
-                        when (effect) {
-                            is NovelFetchSideEffect.Toast -> {
-                                snackbarHostState.showSnackbar(effect.msg)
-                            }
+            1 -> {
+                val nav = LocalNavigator.currentOrThrow
+                val model = nav.koinNavigatorScreenModel<RecommendNovelViewModel>()
+                model.collectSideEffect { effect ->
+                    when (effect) {
+                        is NovelFetchSideEffect.Toast -> {
+                            snackbarHostState.showSnackbar(effect.msg)
                         }
                     }
-                    NovelFetchScreen(model)
                 }
+                NovelFetchScreen(model)
             }
         }
     }
+}
