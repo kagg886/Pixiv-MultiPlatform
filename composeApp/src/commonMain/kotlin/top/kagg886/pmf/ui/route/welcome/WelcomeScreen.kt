@@ -1,16 +1,44 @@
 package top.kagg886.pmf.ui.route.welcome
 
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
@@ -24,8 +52,11 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import top.kagg886.pmf.*
 import top.kagg886.pmf.BuildConfig
+import top.kagg886.pmf.LocalColorScheme
+import top.kagg886.pmf.LocalDarkSettings
+import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.NavigationItem
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
@@ -36,7 +67,11 @@ import top.kagg886.pmf.ui.component.icon.DarkMode
 import top.kagg886.pmf.ui.component.icon.LightMode
 import top.kagg886.pmf.ui.component.icon.SystemSuggest
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
-import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.*
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.BYPASS
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.FINISH
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.SHIELD
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.THEME
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.WELCOME
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.useWideScreenMode
@@ -55,7 +90,7 @@ class WelcomeScreen : Screen {
                 WelcomeSideEffect.NavigateToMain -> {
                     val token = PixivConfig.pixiv_user
                     navigator.replace(
-                        if (token == null) LoginScreen(true) else NavigationItem.RecommendScreen,
+                        if (token == null) LoginScreen(true) else NavigationItem.RECOMMEND(),
                     )
                 }
             }
