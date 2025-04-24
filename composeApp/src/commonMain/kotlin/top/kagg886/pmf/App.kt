@@ -4,14 +4,43 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SnackbarVisuals
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -35,11 +64,11 @@ import coil3.request.crossfade
 import coil3.serviceLoaderEnabled
 import coil3.util.Logger as CoilLogger
 import coil3.util.Logger.Level as CoilLogLevel
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.request.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.header
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
@@ -49,7 +78,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import org.koin.core.logger.Level.*
+import org.koin.core.logger.Level.DEBUG
+import org.koin.core.logger.Level.ERROR
+import org.koin.core.logger.Level.INFO
+import org.koin.core.logger.Level.NONE
+import org.koin.core.logger.Level.WARNING
 import org.koin.core.logger.Logger
 import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
@@ -140,7 +173,8 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                         val s = LocalSnackBarHost.current
                         CheckUpdateDialog()
 
-                        val model = KoinPlatform.getKoin().get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
+                        val model = KoinPlatform.getKoin()
+                            .get<DownloadScreenModel>(clazz = DownloadScreenModel::class)
                         model.collectSideEffect { toast ->
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
@@ -158,7 +192,12 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                             },
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
-                                            it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
+                                            it.push(
+                                                ProfileScreen(
+                                                    PixivConfig.pixiv_user!!,
+                                                    ProfileItem.Download
+                                                )
+                                            )
                                         }
                                         return@collectSideEffect
                                     }
@@ -190,10 +229,10 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
         Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
                 SearchButton()
-                for (entry in NavigationItems) {
+                for (entry in NavigationItem.entries) {
                     NavigationRailItem(
                         selected = entry == type,
-                        onClick = { if (entry != type) nav.push(entry) },
+                        onClick = { if (entry != type) nav.push(entry()) },
                         icon = { Icon(imageVector = entry.icon, null) },
                         label = { Text(entry.title) },
                     )
@@ -215,10 +254,10 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             },
             bottomBar = {
                 NavigationBar {
-                    for (entry in NavigationItems) {
+                    for (entry in NavigationItem.entries) {
                         NavigationBarItem(
                             selected = entry == type,
-                            onClick = { if (entry != type) nav.push(entry) },
+                            onClick = { if (entry != type) nav.push(entry()) },
                             icon = { Icon(imageVector = entry.icon, null) },
                             label = { Text(entry.title) },
                         )
@@ -276,7 +315,12 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
         object : CoilLogger {
             override var minLevel = CoilLogLevel.Info
-            override fun log(tag: String, level: CoilLogLevel, message: String?, throwable: Throwable?) {
+            override fun log(
+                tag: String,
+                level: CoilLogLevel,
+                message: String?,
+                throwable: Throwable?
+            ) {
                 logger.processLog(
                     severity = when (level) {
                         CoilLogLevel.Verbose -> Severity.Verbose
@@ -431,15 +475,16 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
  */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-val NavigationItems = listOf(NavigationItem.RecommendScreen, NavigationItem.RankScreen, NavigationItem.SpaceScreen)
+enum class NavigationItem(
+    val title: String,
+    val icon: ImageVector,
+    val content: () -> Screen
+) {
+    RECOMMEND("推荐", Icons.Default.Home, { RecommendScreen() }),
+    RANK("排行榜", Icons.Default.DateRange, { RankScreen() }),
+    SPACE("动态", Icons.Default.Star, { SpaceScreen() });
 
-sealed class NavigationItem(val title: String, val icon: ImageVector, val content: @Composable Screen.() -> Unit) : Screen {
-    @Composable
-    override fun Content() = composeWithAppBar { content() }
-
-    object RecommendScreen : NavigationItem("推荐", Icons.Default.Home, { RecommendScreen() })
-    object RankScreen : NavigationItem("排行榜", Icons.Default.DateRange, { RankScreen() })
-    object SpaceScreen : NavigationItem("动态", Icons.Default.Star, { SpaceScreen() })
+    operator fun invoke(): Screen = content()
 }
 
 expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder
