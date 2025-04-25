@@ -12,14 +12,22 @@ import cafe.adriel.voyager.core.screen.Screen
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.illust.RankCategory
+import top.kagg886.pmf.NavigationItem
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.allStringResources
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 
-@OptIn(ExperimentalResourceApi::class)
+class RankScreen : Screen {
+    @Composable
+    override fun Content() = NavigationItem.RANK.composeWithAppBar {
+        RankScreen()
+    }
+}
+
 @Composable
-fun Screen.RankScreen() {
+private fun Screen.RankScreen() {
     val page = rememberScreenModel {
         object : ScreenModel {
             val page = mutableIntStateOf(0)

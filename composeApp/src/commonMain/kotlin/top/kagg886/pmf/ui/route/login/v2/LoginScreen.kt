@@ -32,7 +32,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.multiplatform.webview.request.RequestInterceptor
 import com.multiplatform.webview.request.WebRequest
 import com.multiplatform.webview.request.WebRequestInterceptResult
-import com.multiplatform.webview.web.LoadingState
 import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewNavigator
@@ -87,7 +86,7 @@ class LoginScreen(clearOldSession: Boolean = false) : Screen {
         model.collectSideEffect {
             when (it) {
                 LoginSideEffect.NavigateToMain -> {
-                    navigator.replace(NavigationItem.RecommendScreen)
+                    navigator.replace(NavigationItem.RECOMMEND())
                 }
 
                 is LoginSideEffect.Toast -> {

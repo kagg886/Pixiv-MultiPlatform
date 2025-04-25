@@ -195,7 +195,12 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                                             },
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
-                                            it.push(ProfileScreen(PixivConfig.pixiv_user!!, ProfileItem.Download))
+                                            it.push(
+                                                ProfileScreen(
+                                                    PixivConfig.pixiv_user!!,
+                                                    ProfileItem.Download,
+                                                ),
+                                            )
                                         }
                                         return@collectSideEffect
                                     }
@@ -227,10 +232,10 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
         Row(modifier = Modifier.fillMaxSize()) {
             NavigationRail {
                 SearchButton()
-                for (entry in NavigationItems) {
+                for (entry in NavigationItem.entries) {
                     NavigationRailItem(
                         selected = entry == type,
-                        onClick = { if (entry != type) nav.push(entry) },
+                        onClick = { if (entry != type) nav.push(entry()) },
                         icon = { Icon(imageVector = entry.icon, null) },
                         label = { Text(entry.title) },
                     )
@@ -252,10 +257,10 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             },
             bottomBar = {
                 NavigationBar {
-                    for (entry in NavigationItems) {
+                    for (entry in NavigationItem.entries) {
                         NavigationBarItem(
                             selected = entry == type,
-                            onClick = { if (entry != type) nav.push(entry) },
+                            onClick = { if (entry != type) nav.push(entry()) },
                             icon = { Icon(imageVector = entry.icon, null) },
                             label = { Text(entry.title) },
                         )
@@ -313,7 +318,12 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
         object : CoilLogger {
             override var minLevel = CoilLogLevel.Info
-            override fun log(tag: String, level: CoilLogLevel, message: String?, throwable: Throwable?) {
+            override fun log(
+                tag: String,
+                level: CoilLogLevel,
+                message: String?,
+                throwable: Throwable?,
+            ) {
                 logger.processLog(
                     severity = when (level) {
                         CoilLogLevel.Verbose -> Severity.Verbose
@@ -468,15 +478,17 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
  */
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
-val NavigationItems = listOf(NavigationItem.RecommendScreen, NavigationItem.RankScreen, NavigationItem.SpaceScreen)
+enum class NavigationItem(
+    val title: String,
+    val icon: ImageVector,
+    val content: () -> Screen,
+) {
+    RECOMMEND(runBlocking { getString(Res.string.recommend) }, Icons.Default.Home, { RecommendScreen() }),
+    RANK(runBlocking { getString(Res.string.rank) }, Icons.Default.DateRange, { RankScreen() }),
+    SPACE(runBlocking { getString(Res.string.space) }, Icons.Default.Star, { SpaceScreen() }),
+    ;
 
-sealed class NavigationItem(val title: String, val icon: ImageVector, val content: @Composable Screen.() -> Unit) : Screen {
-    @Composable
-    override fun Content() = composeWithAppBar { content() }
-
-    object RecommendScreen : NavigationItem(runBlocking { getString(Res.string.recommend) }, Icons.Default.Home, { RecommendScreen() })
-    object RankScreen : NavigationItem(runBlocking { getString(Res.string.rank) }, Icons.Default.DateRange, { RankScreen() })
-    object SpaceScreen : NavigationItem(runBlocking { getString(Res.string.space) }, Icons.Default.Star, { SpaceScreen() })
+    operator fun invoke(): Screen = content()
 }
 
 expect fun ComponentRegistry.Builder.installGifDecoder(): ComponentRegistry.Builder
