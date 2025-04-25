@@ -15,8 +15,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
-import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.follow
 import top.kagg886.pmf.latest
 import top.kagg886.pmf.ui.component.TabContainer

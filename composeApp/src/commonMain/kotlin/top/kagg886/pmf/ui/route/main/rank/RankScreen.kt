@@ -13,9 +13,9 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.illust.RankCategory
 import top.kagg886.pmf.NavigationItem
-import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.allStringResources
+import top.kagg886.pmf.composeWithAppBar
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 
@@ -26,6 +26,7 @@ class RankScreen : Screen {
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun Screen.RankScreen() {
     val page = rememberScreenModel {
