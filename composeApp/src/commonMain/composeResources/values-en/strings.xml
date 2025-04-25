@@ -183,4 +183,26 @@
     <string name="user">User</string>
     <string name="delete_search_history">Deleted search history</string>
     <string name="clear_search_history">Search history cleared</string>
+
+    <string name="novel_detail">Novel details</string>
+    <string name="export_to_epub">Export as epub</string>
+    <string name="novel_intro">Intro</string>
+    <string name="novel_comments">Comment:%1$s</string>
+    <string name="copy_novel_title_success">Copyed novel title</string>
+    <string name="copy_pid">Pid</string>
+    <string name="no_description_novel">No introduction</string>
+    <string name="series_belong">Series</string>
+    <string name="create_time">Create time</string>
+    <string name="get_novel_detail">Get the novel details and text...</string>
+    <string name="parse_novel_node">Analyze the novel node...%1$s-%2$s</string>
+    <string name="novel_parse_failed">Novel: The text analysis of %1$s failed to be analyzed </string>
+    <string name="exporting">Exporting, please wait </string>
+    <string name="jump_to_chapter">Skip to %1$s chapter</string>
+    <string name="advanced_bookmark_settings">Advanced favorite settings</string>
+    <string name="download_success">Download completed</string>
+
+    <string name="task_already_exists">The task already exists and is being downloaded, please go to the download page to view </string>
+    <string name="download_started">Download has started, has it jumped to the download page? </string>
+    <string name="download_failed">%1$s(%2$s)Download failed</string>
+    <string name="download_completed">%1$s(%2$s) download is completed! </string>
 </resources>

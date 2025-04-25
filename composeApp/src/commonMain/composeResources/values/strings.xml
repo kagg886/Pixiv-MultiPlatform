@@ -184,4 +184,26 @@
     <string name="user">用户</string>
     <string name="delete_search_history">已删除搜索历史</string>
     <string name="clear_search_history">已清空搜索历史</string>
+
+    <string name="novel_detail">小说详情</string>
+    <string name="export_to_epub">导出为epub</string>
+    <string name="novel_intro">简介</string>
+    <string name="novel_comments">评论:%1$s</string>
+    <string name="copy_novel_title_success">已复制小说标题</string>
+    <string name="copy_pid">已复制pid</string>
+    <string name="no_description_novel">没有简介</string>
+    <string name="series_belong">所属系列</string>
+    <string name="create_time">创建时间</string>
+    <string name="get_novel_detail">获取小说详情和正文中...</string>
+    <string name="parse_novel_node">解析小说节点中...%1$s/%2$s</string>
+    <string name="novel_parse_failed">小说:%1$s的正文解析失败惹</string>
+    <string name="exporting">正在导出，请稍等</string>
+    <string name="jump_to_chapter">跳转到第%1$s章节</string>
+    <string name="advanced_bookmark_settings">高级收藏设置</string>
+    <string name="download_success">下载完成</string>
+
+    <string name="task_already_exists">任务已存在且正在下载中，请前往下载页面查看</string>
+    <string name="download_started">下载已开始，是否跳转到下载页？</string>
+    <string name="download_failed">%1$s(%2$s)下载失败</string>
+    <string name="download_completed">%1$s(%2$s)下载完成！</string>
 </resources>

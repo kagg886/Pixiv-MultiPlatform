@@ -10,15 +10,21 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.size.Size as CoilSize
 import com.fleeksoft.ksoup.nodes.Document
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.statement.bodyAsBytes
 import kotlin.collections.set
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import okio.Buffer
 import org.jetbrains.compose.resources.getString
@@ -33,8 +39,22 @@ import top.kagg886.pixko.Tag
 import top.kagg886.pixko.anno.ExperimentalNovelParserAPI
 import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.getIllustDetail
-import top.kagg886.pixko.module.novel.*
-import top.kagg886.pixko.module.novel.parser.v2.*
+import top.kagg886.pixko.module.novel.Novel
+import top.kagg886.pixko.module.novel.NovelData
+import top.kagg886.pixko.module.novel.NovelImagesSize
+import top.kagg886.pixko.module.novel.bookmarkNovel
+import top.kagg886.pixko.module.novel.deleteBookmarkNovel
+import top.kagg886.pixko.module.novel.getNovelContent
+import top.kagg886.pixko.module.novel.getNovelDetail
+import top.kagg886.pixko.module.novel.parser.v2.CombinedText
+import top.kagg886.pixko.module.novel.parser.v2.JumpPageNode
+import top.kagg886.pixko.module.novel.parser.v2.JumpUriNode
+import top.kagg886.pixko.module.novel.parser.v2.NewPageNode
+import top.kagg886.pixko.module.novel.parser.v2.PixivImageNode
+import top.kagg886.pixko.module.novel.parser.v2.TextNode
+import top.kagg886.pixko.module.novel.parser.v2.TitleNode
+import top.kagg886.pixko.module.novel.parser.v2.UploadImageNode
+import top.kagg886.pixko.module.novel.parser.v2.content
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
@@ -46,11 +66,21 @@ import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_failed
 import top.kagg886.pmf.bookmark_success
+import top.kagg886.pmf.exporting
+import top.kagg886.pmf.follow_fail
+import top.kagg886.pmf.follow_success
+import top.kagg886.pmf.follow_success_private
+import top.kagg886.pmf.get_novel_detail
+import top.kagg886.pmf.jump_to_chapter
+import top.kagg886.pmf.load_failed
+import top.kagg886.pmf.parse_novel_node
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
+import top.kagg886.pmf.unfollow_fail
+import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.logger
 
 class NovelDetailViewModel(val id: Long) :
@@ -68,7 +98,7 @@ class NovelDetailViewModel(val id: Long) :
 
     @OptIn(ExperimentalNovelParserAPI::class)
     fun reload(coil: PlatformContext) = intent {
-        val loading = NovelDetailViewState.Loading(MutableStateFlow("获取小说详情和正文中..."))
+        val loading = NovelDetailViewState.Loading(MutableStateFlow(getString(Res.string.get_novel_detail)))
         reduce { loading }
 
         val result = kotlin.runCatching {
@@ -76,7 +106,8 @@ class NovelDetailViewModel(val id: Long) :
         }
         if (result.isFailure) {
             logger.e("get novel info failed:", result.exceptionOrNull())
-            reduce { NovelDetailViewState.Error() }
+            val err = getString(Res.string.load_failed)
+            reduce { NovelDetailViewState.Error(err) }
             return@intent
         }
         val (detail, content) = result.getOrThrow()
@@ -89,8 +120,9 @@ class NovelDetailViewModel(val id: Long) :
         }
 
         if (data.isFailure) {
+            val err = getString(Res.string.load_failed)
             reduce {
-                NovelDetailViewState.Error("小说:${id}的正文解析失败惹")
+                NovelDetailViewState.Error(err)
             }
             return@intent
         }
@@ -103,7 +135,7 @@ class NovelDetailViewModel(val id: Long) :
                     is JumpUriNode -> {
                         nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
                         parsed++
-                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                     }
 
                     is UploadImageNode -> {
@@ -126,7 +158,7 @@ class NovelDetailViewModel(val id: Long) :
                             nodeMap[index] = NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
 
                             parsed++
-                            loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                            loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
 
                             continue
                         }
@@ -140,32 +172,32 @@ class NovelDetailViewModel(val id: Long) :
                                 illust,
                             )
                             parsed++
-                            loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                            loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                         }
                     }
 
                     is NewPageNode -> {
                         nodeMap[index] = NovelNodeElement.NewPage(index + 1)
                         parsed++
-                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                     }
 
                     is TextNode -> {
                         nodeMap[index] = NovelNodeElement.Plain(i.text.toPlainString())
                         parsed++
-                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                     }
 
                     is TitleNode -> {
                         nodeMap[index] = NovelNodeElement.Title(i.text.toPlainString())
                         parsed++
-                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                     }
 
                     is JumpPageNode -> {
                         nodeMap[index] = NovelNodeElement.JumpPage(i.page)
                         parsed++
-                        loading.text.emit("解析小说节点中...$parsed/${data.getOrThrow().size}")
+                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
                     }
                 }
             }
@@ -185,7 +217,7 @@ class NovelDetailViewModel(val id: Long) :
     @OptIn(OrbitExperimental::class, ExperimentalUuidApi::class)
     fun exportToEpub() = intent {
         runOn<NovelDetailViewState.Success> {
-            postSideEffect(NovelDetailSideEffect.Toast("正在导出，请稍等"))
+            postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.exporting)))
 
             val coverImage = ResourceItem(
                 file = Buffer().write(img.get(with(state.novel.imageUrls) { original ?: contentLarge }).bodyAsBytes()),
@@ -262,7 +294,7 @@ class NovelDetailViewModel(val id: Long) :
                     is NovelNodeElement.JumpPage -> {
                         doc.body().appendElement("a")
                             .attr("href", "#Chapter${i.page}")
-                            .text("跳转到第${i.page}章节")
+                            .text(getString(Res.string.jump_to_chapter, i.page))
                     }
                 }
             }
@@ -355,13 +387,13 @@ class NovelDetailViewModel(val id: Long) :
                 )
             }
             if (result.isFailure) {
-                postSideEffect(NovelDetailSideEffect.Toast("关注失败~"))
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.follow_fail)))
                 return@runOn
             }
             if (private) {
-                postSideEffect(NovelDetailSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.follow_success_private)))
             } else {
-                postSideEffect(NovelDetailSideEffect.Toast("关注成功~"))
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.follow_success)))
             }
             reduce {
                 state.copy(
@@ -382,10 +414,10 @@ class NovelDetailViewModel(val id: Long) :
                 client.unFollowUser(state.novel.user.id)
             }
             if (result.isFailure) {
-                postSideEffect(NovelDetailSideEffect.Toast("取关失败~(*^▽^*)"))
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.unfollow_fail)))
                 return@runOn
             }
-            postSideEffect(NovelDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.unfollow_success)))
             reduce {
                 state.copy(
                     novel = state.novel.copy(
@@ -401,7 +433,7 @@ class NovelDetailViewModel(val id: Long) :
 
 sealed class NovelDetailViewState {
     data class Loading(val text: MutableStateFlow<String>) : NovelDetailViewState()
-    data class Error(val cause: String = "加载失败惹~") : NovelDetailViewState()
+    data class Error(val cause: String) : NovelDetailViewState()
     data class Success(val novel: Novel, val core: NovelData, val nodeMap: List<NovelNodeElement>) :
         NovelDetailViewState()
 }
