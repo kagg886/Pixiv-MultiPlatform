@@ -10,7 +10,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,7 +26,11 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.click_to_search
+import top.kagg886.pmf.no_history
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.util.collectAsState
@@ -92,8 +102,8 @@ class EmptySearchScreen : Screen {
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("暂无历史记录")
-                                Text("点击搜索按钮进行一次搜索吧！")
+                                Text(stringResource(Res.string.no_history))
+                                Text(stringResource(Res.string.click_to_search))
                             }
                         }
                     } else {
