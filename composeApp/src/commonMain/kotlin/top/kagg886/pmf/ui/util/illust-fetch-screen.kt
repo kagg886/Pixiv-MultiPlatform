@@ -195,7 +195,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                    modifier = Modifier.align(Alignment.BottomEnd),
                     onBackToTop = {
                         scroll.animateScrollToItem(0)
                     },
