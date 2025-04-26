@@ -1,6 +1,12 @@
 package top.kagg886.pmf.ui.component
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -20,7 +26,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.ui.component.BackToTopState.*
+import top.kagg886.pmf.ui.component.BackToTopState.HIDE
+import top.kagg886.pmf.ui.component.BackToTopState.SHOW_BTT
+import top.kagg886.pmf.ui.component.BackToTopState.SHOW_RFH
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 
 enum class BackToTopState {
@@ -50,8 +58,7 @@ fun BackToTopOrRefreshButton(
         targetState = state0,
         modifier = modifier,
         transitionSpec = {
-            slideInVertically { it / 2 } + fadeIn() togetherWith
-                slideOutVertically { it / 2 } + fadeOut()
+            (slideInVertically { it / 2 } + fadeIn() togetherWith slideOutVertically { it / 2 } + fadeOut()) using SizeTransform(clip = false)
         },
     ) { state ->
         when (state) {
