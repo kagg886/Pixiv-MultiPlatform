@@ -1,5 +1,6 @@
 package top.kagg886.pmf.backend.pixiv
 
+import androidx.compose.ui.text.intl.Locale
 import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.serialization.nullableSerializedValue
@@ -24,6 +25,7 @@ object PixivConfig : Settings by SystemConfig.getConfig("pixiv_token"), KoinComp
 
     fun newAccountFromConfig(tokenStorage: PixivTokenStorage = token): PixivAccount = PixivAccountFactory.newAccountFromConfig(PlatformEngine) {
         this.storage = tokenStorage
+        this.language = Locale.current.language
         config = PlatformConfig
     }
 }

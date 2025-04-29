@@ -75,8 +75,9 @@ class SearchResultScreen(
                         Text(
                             stringResource(
                                 Res.string.search_result_for,
-                                state.keyword.joinToString(" ")
-                            ), maxLines = 1
+                                state.keyword.joinToString(" "),
+                            ),
+                            maxLines = 1,
                         )
                     },
                     navigationIcon = {
@@ -105,7 +106,7 @@ class SearchResultScreen(
 
             var tab by rememberSaveable {
                 mutableStateOf(
-                    data.keys.first()
+                    data.keys.first(),
                 )
             }
 
@@ -114,7 +115,7 @@ class SearchResultScreen(
                 tab = data.keys.toList(),
                 tabTitle = { Text(it) },
                 current = tab,
-                onCurrentChange = {tab = it},
+                onCurrentChange = { tab = it },
             ) {
                 data[tab]?.invoke()
             }

@@ -173,8 +173,8 @@ class WelcomeScreen : Screen {
                                 stringResource(
                                     Res.string.step_number,
                                     (state.ordinal + 1).toString(),
-                                    WelcomeViewState.ConfigureSetting.entries.size.toString()
-                                )
+                                    WelcomeViewState.ConfigureSetting.entries.size.toString(),
+                                ),
                             )
                         },
                         confirmButton = {
@@ -216,7 +216,7 @@ class WelcomeScreen : Screen {
     @Composable
     private fun WelcomeElementContent(
         model: WelcomeModel,
-        state: WelcomeViewState.ConfigureSetting
+        state: WelcomeViewState.ConfigureSetting,
     ) {
         val colors = MaterialTheme.colorScheme
         when (state) {
@@ -238,7 +238,7 @@ class WelcomeScreen : Screen {
 
             THEME -> {
                 Text(
-                    stringResource(Res.string.theme_intro)
+                    stringResource(Res.string.theme_intro),
                 )
                 Spacer(Modifier.height(16.dp))
                 Row(
@@ -295,9 +295,9 @@ class WelcomeScreen : Screen {
                                                         Res.string.import_theme_fail,
                                                         theme.exceptionOrNull()?.message
                                                             ?: getString(
-                                                                Res.string.unknown_error
-                                                            )
-                                                    )
+                                                                Res.string.unknown_error,
+                                                            ),
+                                                    ),
                                                 )
                                             }
                                             return@launch
@@ -384,7 +384,7 @@ class WelcomeScreen : Screen {
 
             BYPASS -> {
                 Text(
-                    stringResource(Res.string.bypass_intro)
+                    stringResource(Res.string.bypass_intro),
                 )
 
                 var bypassSettings by remember {
@@ -464,7 +464,7 @@ class WelcomeScreen : Screen {
 
             SHIELD -> {
                 Text(
-                    stringResource(Res.string.shield_intro)
+                    stringResource(Res.string.shield_intro),
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -550,7 +550,7 @@ class WelcomeScreen : Screen {
                         stringResource(Res.string.setup_finish_note)
                     } else {
                         stringResource(Res.string.setup_finish_note_simple)
-                    }
+                    },
                 )
             }
         }

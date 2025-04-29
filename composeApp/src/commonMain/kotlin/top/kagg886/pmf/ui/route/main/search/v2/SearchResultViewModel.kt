@@ -47,7 +47,6 @@ class SearchResultViewModel(
         )
     }
 
-
     private fun saveHistoryIfConfigOn(tag: List<String>, sort: SearchSort, target: SearchTarget) {
         if (!AppConfig.recordSearchHistory) {
             return
