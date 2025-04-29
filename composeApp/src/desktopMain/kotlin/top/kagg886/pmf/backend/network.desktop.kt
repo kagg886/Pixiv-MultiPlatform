@@ -12,9 +12,13 @@ import java.net.Proxy
 import java.net.http.HttpClient
 import top.kagg886.pmf.util.logger
 
+private val NETWORK_SETTINGS by lazy {
+    AppConfig.bypassSettings
+}
+
 private val InternalType: HttpClientConfig<HttpClientEngineConfig>.() -> Unit = {
     engine {
-        when (val config = AppConfig.bypassSettings) {
+        when (val config = NETWORK_SETTINGS) {
             AppConfig.BypassSetting.None -> (this as JavaHttpConfig).apply {
                 protocolVersion = HttpClient.Version.HTTP_2
                 config { followRedirects(HttpClient.Redirect.ALWAYS) }
@@ -40,7 +44,7 @@ private val InternalType: HttpClientConfig<HttpClientEngineConfig>.() -> Unit = 
     }
 }
 
-actual val PlatformEngine: HttpClientEngineFactory<*> = when (AppConfig.bypassSettings) {
+actual val PlatformEngine: HttpClientEngineFactory<*> = when (NETWORK_SETTINGS) {
     AppConfig.BypassSetting.None, is AppConfig.BypassSetting.Proxy -> Java
     is AppConfig.BypassSetting.SNIReplace -> OkHttp
 }

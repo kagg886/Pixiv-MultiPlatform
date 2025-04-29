@@ -2,6 +2,7 @@ package top.kagg886.pmf.ui.component
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -63,7 +64,7 @@ fun BackToTopOrRefreshButton(
                         onRefresh()
                     }
                 }
-                Spacer(Modifier.size(56.dp, 56.dp)) // placeholder
+                Spacer(Modifier.size(88.dp, 88.dp)) // placeholder
             }
             SHOW_BTT -> {
                 KeyListenerFromGlobalPipe {
@@ -73,11 +74,8 @@ fun BackToTopOrRefreshButton(
                     }
                 }
                 FloatingActionButton(
-                    onClick = {
-                        scope.launch {
-                            onBackToTop()
-                        }
-                    },
+                    onClick = { scope.launch { onBackToTop() } },
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Icon(Icons.Default.KeyboardArrowUp, null)
                 }
@@ -91,11 +89,8 @@ fun BackToTopOrRefreshButton(
                     }
                 }
                 FloatingActionButton(
-                    onClick = {
-                        scope.launch {
-                            onRefresh()
-                        }
-                    },
+                    onClick = { scope.launch { onRefresh() } },
+                    modifier = Modifier.padding(16.dp),
                 ) {
                     Icon(Icons.Default.Refresh, null)
                 }

@@ -218,7 +218,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
 
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                    modifier = Modifier.align(Alignment.BottomEnd),
                     onBackToTop = {
                         scope.launch {
                             scroll.animateScrollToItem(0)
