@@ -325,4 +325,38 @@
     <string name="check_update_on_start">启动时检查更新</string>
     <string name="show_toast_when_latest">检查为最新版本时显示Toast</string>
     <string name="show_toast_when_failed">检查失败时显示Toast</string>
+
+    <!-- WelcomeScreen strings -->
+    <string name="welcome">欢迎！</string>
+    <string name="theme_setting">主题设置</string>
+    <string name="sni_bypass">SNI绕过</string>
+    <string name="shield_config">屏蔽配置</string>
+    <string name="setup_complete">大功告成！</string>
+    <string name="step_number">第%1$s/%2$s步</string>
+    <string name="next_step">下一步</string>
+    <string name="skip_setup">跳过设置</string>
+    <string name="previous_step">上一步</string>
+    <string name="welcome_text">        %1$s 是一个基于 Compose Multiplatform 的跨平台第三方Pixiv客户端，由</string>
+    <string name="welcome_text_after_pixko">强力驱动。\n\n        在进行登录之前，让我们完成一些设置。这些设置于可能会随你所在的地区，网络环境而变动。如果您决定结束设置。请点击下方的 \'跳过设置\' 按钮，否则点按下一步以前往下一步设置。\n\n        准备好了吗？点击下一步以开始设置。\n\n        出现问题了? 请前往TG交流群描述您的问题。</string>
+    <string name="theme_intro">        选择一份APP的主题吧！</string>
+    <string name="day_mode">日间模式</string>
+    <string name="night_mode">夜间模式</string>
+    <string name="theme_info">日间模式可以自定义主题色，主题文件可以在</string>
+    <string name="theme_info_url">https://material-foundation.github.io/material-theme-builder/</string>
+    <string name="theme_info_after_url">处生成。(仅支持json格式的主题)</string>
+    <string name="bypass_intro">        在某些地区，由于政策限制，可能无法访问Pixiv。\n        我们提供了SNI Bypass和代理这两种方案。\n        SNI Bypass：该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁\n        代理：该功能通过代理的方式，将Pixiv的请求转发到Pixiv服务器，从而绕过封锁。</string>
+    <string name="no_bypass">不使用绕过措施</string>
+    <string name="use_sni_bypass">使用SNI阻断</string>
+    <string name="use_proxy">使用代理</string>
+    <string name="bypass_note">该功能不会影响内置浏览器的Pixiv登录功能。因此在登录Pixiv时，你仍然需要使用VPN等工具。\n启用/禁用功能后，你需要重启客户端以生效</string>
+    <string name="shield_intro">        通过这三个问题，让我们帮您选择最适合您的屏蔽设置。更高级的小说屏蔽功能，请在登录后前往设置页面。</string>
+    <string name="r18_acceptance">您对 R18 作品的接受程度如何呢？</string>
+    <string name="r18_allowed">涩涩，好耶！</string>
+    <string name="r18_blocked">涩涩，达咩！</string>
+    <string name="r18g_acceptance">您对 R18G 作品的接受程度如何呢？</string>
+    <string name="ai_acceptance">您对 AI 作品的接受程度如何呢？</string>
+    <string name="ai_allowed">AI生成，好耶！</string>
+    <string name="ai_blocked">AI，达咩！</string>
+    <string name="setup_finish_note">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。\n        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。</string>
+    <string name="setup_finish_note_simple">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。</string>
 </resources>

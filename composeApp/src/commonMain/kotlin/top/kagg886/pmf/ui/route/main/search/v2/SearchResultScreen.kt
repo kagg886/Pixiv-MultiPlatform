@@ -15,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -67,15 +68,16 @@ class SearchResultScreen(
             navigator.pop()
         }
 
-        val tab = rememberSaveable {
-            mutableStateOf(0)
-        }
-
         Scaffold(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(stringResource(Res.string.search_result_for, state.keyword.joinToString(" ")), maxLines = 1)
+                        Text(
+                            stringResource(
+                                Res.string.search_result_for,
+                                state.keyword.joinToString(" ")
+                            ), maxLines = 1
+                        )
                     },
                     navigationIcon = {
                         IconButton(
@@ -89,19 +91,40 @@ class SearchResultScreen(
                 )
             },
         ) { paddingValues ->
-            val data = listOfNotNull<Pair<String, @Composable (() -> Unit)>>(
-                state.illustRepo?.let { stringResource(Res.string.illust) to { IllustFetchScreen(it) } },
-                state.novelRepo?.let { stringResource(Res.string.novel) to { NovelFetchScreen(it) } },
-                state.authorRepo?.let { stringResource(Res.string.user) to { AuthorFetchScreen(it) } },
-            )
+            val data = buildMap<String, (@Composable () -> Unit)> {
+                state.illustRepo?.let {
+                    put(stringResource(Res.string.illust), { IllustFetchScreen(it) })
+                }
+                state.novelRepo?.let {
+                    put(stringResource(Res.string.novel), { NovelFetchScreen(it) })
+                }
+                state.authorRepo?.let {
+                    put(stringResource(Res.string.user), { AuthorFetchScreen(it) })
+                }
+            }
+
+            var tab by rememberSaveable {
+                mutableStateOf(
+                    data.keys.first()
+                )
+            }
 
             TabContainer(
-                state = tab,
-                tab = data.map { pair -> pair.first },
                 modifier = Modifier.padding(paddingValues),
-            ) { index ->
-                data[index].second.invoke()
+                tab = data.keys.toList(),
+                tabTitle = { Text(it) },
+                current = tab,
+                onCurrentChange = {tab = it},
+            ) {
+                data[tab]?.invoke()
             }
+//            TabContainer(
+//                state = tab,
+//                tab = data.map { pair -> pair.first },
+//                modifier = Modifier.padding(paddingValues),
+//            ) { index ->
+//                data[index].second.invoke()
+//            }
         }
     }
 }

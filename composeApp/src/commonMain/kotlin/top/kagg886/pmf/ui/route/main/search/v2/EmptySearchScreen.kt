@@ -31,6 +31,7 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.click_to_search
 import top.kagg886.pmf.no_history
+import top.kagg886.pmf.search
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
 import top.kagg886.pmf.ui.util.collectAsState
@@ -57,7 +58,7 @@ class EmptySearchScreen : Screen {
             topBar = {
                 TopAppBar(
                     title = {
-                        Text("搜索")
+                        Text(stringResource(Res.string.search))
                     },
                     navigationIcon = {
                         IconButton(

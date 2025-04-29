@@ -52,15 +52,48 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.ai_acceptance
+import top.kagg886.pmf.ai_allowed
+import top.kagg886.pmf.ai_blocked
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bypass_intro
+import top.kagg886.pmf.bypass_note
+import top.kagg886.pmf.day_mode
+import top.kagg886.pmf.follow_system
+import top.kagg886.pmf.import_theme_fail
+import top.kagg886.pmf.next_step
+import top.kagg886.pmf.night_mode
+import top.kagg886.pmf.no_bypass
+import top.kagg886.pmf.previous_step
+import top.kagg886.pmf.r18_acceptance
+import top.kagg886.pmf.r18_allowed
+import top.kagg886.pmf.r18_blocked
+import top.kagg886.pmf.r18g_acceptance
+import top.kagg886.pmf.setup_complete
+import top.kagg886.pmf.setup_finish_note
+import top.kagg886.pmf.setup_finish_note_simple
+import top.kagg886.pmf.shield_config
+import top.kagg886.pmf.shield_intro
+import top.kagg886.pmf.skip_setup
+import top.kagg886.pmf.sni_bypass
+import top.kagg886.pmf.step_number
+import top.kagg886.pmf.theme_info
+import top.kagg886.pmf.theme_info_after_url
+import top.kagg886.pmf.theme_info_url
+import top.kagg886.pmf.theme_intro
+import top.kagg886.pmf.theme_setting
 import top.kagg886.pmf.ui.component.SelectionCard
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.component.icon.DarkMode
@@ -76,8 +109,15 @@ import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withLink
+import top.kagg886.pmf.unknown_error
+import top.kagg886.pmf.use_proxy
+import top.kagg886.pmf.use_sni_bypass
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.welcome
+import top.kagg886.pmf.welcome_text
+import top.kagg886.pmf.welcome_text_after_pixko
 
+@OptIn(ExperimentalResourceApi::class)
 class WelcomeScreen : Screen {
     @Composable
     override fun Content() {
@@ -120,16 +160,22 @@ class WelcomeScreen : Screen {
                         title = {
                             Text(
                                 when (state) {
-                                    WELCOME -> "欢迎！"
-                                    THEME -> "主题设置"
-                                    BYPASS -> "SNI绕过"
-                                    SHIELD -> "屏蔽配置"
-                                    FINISH -> "大功告成！"
+                                    WELCOME -> stringResource(Res.string.welcome)
+                                    THEME -> stringResource(Res.string.theme_setting)
+                                    BYPASS -> stringResource(Res.string.sni_bypass)
+                                    SHIELD -> stringResource(Res.string.shield_config)
+                                    FINISH -> stringResource(Res.string.setup_complete)
                                 },
                             )
                         },
                         subTitle = {
-                            Text("第${state.ordinal + 1}/${WelcomeViewState.ConfigureSetting.entries.size}步")
+                            Text(
+                                stringResource(
+                                    Res.string.step_number,
+                                    (state.ordinal + 1).toString(),
+                                    WelcomeViewState.ConfigureSetting.entries.size.toString()
+                                )
+                            )
                         },
                         confirmButton = {
                             Button(
@@ -137,7 +183,7 @@ class WelcomeScreen : Screen {
                                     model.nextStep()
                                 },
                             ) {
-                                Text("下一步")
+                                Text(stringResource(Res.string.next_step))
                             }
                         },
                         skipButton = {
@@ -146,7 +192,7 @@ class WelcomeScreen : Screen {
                                     model.skipAll()
                                 },
                             ) {
-                                Text("跳过设置")
+                                Text(stringResource(Res.string.skip_setup))
                             }
                         },
                         backButton = {
@@ -156,7 +202,7 @@ class WelcomeScreen : Screen {
                                 },
                                 enabled = state != WELCOME,
                             ) {
-                                Text("上一步")
+                                Text(stringResource(Res.string.previous_step))
                             }
                         },
                     ) {
@@ -168,44 +214,31 @@ class WelcomeScreen : Screen {
     }
 
     @Composable
-    private fun WelcomeElementContent(model: WelcomeModel, state: WelcomeViewState.ConfigureSetting) {
+    private fun WelcomeElementContent(
+        model: WelcomeModel,
+        state: WelcomeViewState.ConfigureSetting
+    ) {
         val colors = MaterialTheme.colorScheme
         when (state) {
             WELCOME -> {
                 val scheme = MaterialTheme.colorScheme
                 Text(
                     buildAnnotatedString {
-                        append("        ${BuildConfig.APP_NAME} 是一个基于 Compose Multiplatform 的跨平台第三方Pixiv客户端，由")
+                        append(stringResource(Res.string.welcome_text, BuildConfig.APP_NAME))
                         withLink(
                             colors = colors,
                             link = "https://github.com/kagg886/pixko",
                             display = " Pixko ",
                         )
-                        append("强力驱动。")
-
-                        appendLine()
-
-                        append("        在进行登录之前，让我们完成一些设置。这些设置于可能会随你所在的地区，网络环境而变动。")
-                        append("如果您决定结束设置。请点击下方的 '跳过设置' 按钮，否则点按下一步以前往下一步设置。")
-
-                        appendLine()
-
-                        append("        准备好了吗？点击下一步以开始设置。")
-
-                        appendLine()
-
-                        append("        出现问题了? 请前往")
+                        append(stringResource(Res.string.welcome_text_after_pixko))
                         withLink(scheme, "https://t.me/+n_xsrc1Z590xNTY9", "TG交流群")
-                        append("描述您的问题。")
                     },
                 )
             }
 
             THEME -> {
                 Text(
-                    buildAnnotatedString {
-                        append("        选择一份APP的主题吧！")
-                    },
+                    stringResource(Res.string.theme_intro)
                 )
                 Spacer(Modifier.height(16.dp))
                 Row(
@@ -231,7 +264,7 @@ class WelcomeScreen : Screen {
                                 Icon(LightMode, "")
                             },
                             headlineContent = {
-                                Text("日间模式")
+                                Text(stringResource(Res.string.day_mode))
                             },
                             trailingContent = {
                                 val scope = rememberCoroutineScope()
@@ -257,7 +290,15 @@ class WelcomeScreen : Screen {
                                         }
                                         if (theme.isFailure) {
                                             scope.launch {
-                                                snack.showSnackbar("无法导入主题，原因：${theme.exceptionOrNull()!!.message}")
+                                                snack.showSnackbar(
+                                                    getString(
+                                                        Res.string.import_theme_fail,
+                                                        theme.exceptionOrNull()?.message
+                                                            ?: getString(
+                                                                Res.string.unknown_error
+                                                            )
+                                                    )
+                                                )
                                             }
                                             return@launch
                                         }
@@ -301,7 +342,7 @@ class WelcomeScreen : Screen {
                                 Icon(DarkMode, "")
                             },
                             headlineContent = {
-                                Text("夜间模式")
+                                Text(stringResource(Res.string.night_mode))
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
@@ -319,7 +360,7 @@ class WelcomeScreen : Screen {
                                 Icon(SystemSuggest, "")
                             },
                             headlineContent = {
-                                Text("跟随系统")
+                                Text(stringResource(Res.string.follow_system))
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
@@ -329,12 +370,12 @@ class WelcomeScreen : Screen {
                 Card(Modifier.fillMaxWidth()) {
                     Text(
                         buildAnnotatedString {
-                            append("日间模式可以自定义主题色，主题文件可以在 ")
+                            append(stringResource(Res.string.theme_info))
                             withLink(
                                 colors = colors,
-                                link = "https://material-foundation.github.io/material-theme-builder/",
+                                link = stringResource(Res.string.theme_info_url),
                             )
-                            append(" 处生成。(仅支持json格式的主题)")
+                            append(stringResource(Res.string.theme_info_after_url))
                         },
                         modifier = Modifier.padding(8.dp),
                     )
@@ -343,15 +384,7 @@ class WelcomeScreen : Screen {
 
             BYPASS -> {
                 Text(
-                    buildAnnotatedString {
-                        append("        在某些地区，由于政策限制，可能无法访问Pixiv。")
-                        appendLine()
-                        append("        我们提供了SNI Bypass和代理这两种方案。")
-                        appendLine()
-                        append("        SNI Bypass：该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁")
-                        appendLine()
-                        append("        代理：该功能通过代理的方式，将Pixiv的请求转发到Pixiv服务器，从而绕过封锁。")
-                    },
+                    stringResource(Res.string.bypass_intro)
                 )
 
                 var bypassSettings by remember {
@@ -377,7 +410,7 @@ class WelcomeScreen : Screen {
                                 Icon(Icons.Default.Delete, "")
                             },
                             headlineContent = {
-                                Text("不使用绕过措施")
+                                Text(stringResource(Res.string.no_bypass))
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
@@ -395,7 +428,7 @@ class WelcomeScreen : Screen {
                                 Icon(Icons.Default.Check, "")
                             },
                             headlineContent = {
-                                Text("使用SNI阻断")
+                                Text(stringResource(Res.string.use_sni_bypass))
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
@@ -413,7 +446,7 @@ class WelcomeScreen : Screen {
                                 Icon(Icons.Default.Check, "")
                             },
                             headlineContent = {
-                                Text("使用代理")
+                                Text(stringResource(Res.string.use_proxy))
                             },
                             modifier = Modifier.fillMaxHeight().align(Alignment.CenterVertically),
                         )
@@ -423,10 +456,7 @@ class WelcomeScreen : Screen {
 
                 Card(Modifier.fillMaxWidth()) {
                     Text(
-                        buildAnnotatedString {
-                            appendLine("该功能不会影响内置浏览器的Pixiv登录功能。因此在登录Pixiv时，你仍然需要使用VPN等工具。")
-                            appendLine("启用/禁用功能后，你需要重启客户端以生效")
-                        },
+                        stringResource(Res.string.bypass_note),
                         modifier = Modifier.padding(8.dp),
                     )
                 }
@@ -434,9 +464,7 @@ class WelcomeScreen : Screen {
 
             SHIELD -> {
                 Text(
-                    buildAnnotatedString {
-                        append("        通过这三个问题，让我们帮您选择最适合您的屏蔽设置。更高级的小说屏蔽功能，请在登录后前往设置页面。")
-                    },
+                    stringResource(Res.string.shield_intro)
                 )
                 Spacer(Modifier.height(16.dp))
 
@@ -466,13 +494,13 @@ class WelcomeScreen : Screen {
                 SettingsSwitch(
                     state = likeR18,
                     title = {
-                        Text("您对 R18 作品的接受程度如何呢？")
+                        Text(stringResource(Res.string.r18_acceptance))
                     },
                     subtitle = {
                         if (likeR18) {
-                            Text("涩涩，好耶！")
+                            Text(stringResource(Res.string.r18_allowed))
                         } else {
-                            Text("涩涩，达咩！")
+                            Text(stringResource(Res.string.r18_blocked))
                         }
                     },
                     modifier = Modifier.zIndex(0f),
@@ -491,7 +519,7 @@ class WelcomeScreen : Screen {
                     SettingsSwitch(
                         state = likeR18G,
                         title = {
-                            Text("您对 R18G 作品的接受程度如何呢？")
+                            Text(stringResource(Res.string.r18g_acceptance))
                         },
                         modifier = Modifier.zIndex(-1f),
                     ) {
@@ -502,13 +530,13 @@ class WelcomeScreen : Screen {
                 SettingsSwitch(
                     state = likeAI,
                     title = {
-                        Text("您对 AI 作品的接受程度如何呢？")
+                        Text(stringResource(Res.string.ai_acceptance))
                     },
                     subtitle = {
                         if (likeAI) {
-                            Text("AI生成，好耶！")
+                            Text(stringResource(Res.string.ai_allowed))
                         } else {
-                            Text("AI，达咩！")
+                            Text(stringResource(Res.string.ai_blocked))
                         }
                     },
                 ) {
@@ -518,12 +546,11 @@ class WelcomeScreen : Screen {
 
             FINISH -> {
                 Text(
-                    buildAnnotatedString {
-                        appendLine("        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。")
-                        if (currentPlatform is Platform.Desktop) {
-                            appendLine("        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。")
-                        }
-                    },
+                    if (currentPlatform is Platform.Desktop) {
+                        stringResource(Res.string.setup_finish_note)
+                    } else {
+                        stringResource(Res.string.setup_finish_note_simple)
+                    }
                 )
             }
         }

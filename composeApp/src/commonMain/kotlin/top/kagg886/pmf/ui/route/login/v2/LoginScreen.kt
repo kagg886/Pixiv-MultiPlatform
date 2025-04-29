@@ -55,6 +55,7 @@ import top.kagg886.pmf.copy_to_clipboard
 import top.kagg886.pmf.error_details
 import top.kagg886.pmf.help
 import top.kagg886.pmf.input_token
+import top.kagg886.pmf.login_guide
 import top.kagg886.pmf.login_wizard
 import top.kagg886.pmf.retry
 import top.kagg886.pmf.token_login
@@ -134,7 +135,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                     },
                     content = {
                         Text(
-                            stringResource(Res.string.login_wizard),
+                            stringResource(Res.string.login_guide),
                         )
                     },
                 )

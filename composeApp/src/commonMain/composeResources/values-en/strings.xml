@@ -86,8 +86,8 @@
     <string name="app_crash">Crash report!</string>
 
     <string name="login_wizard">Login Wizard</string>
-    <string name="use_browser_login">Use Embedded Browser Login</string>
-    <string name="use_token_login">Use Token Login</string>
+    <string name="use_browser_login">By Embedded Browser</string>
+    <string name="use_token_login">By Token</string>
     <string name="login_guide">Now, we will proceed with the login operation.\nPixiv-MultiPlatform supports login via embedded browser and token login.\n1. Embedded browser login is suitable for first-time users of Pixiv-MultiPlatform. After entering your account credentials in the browser, the program will automatically parse the token and perform the login operation.\nNote: Using the embedded browser login on a computer requires downloading approximately 300M of Chromium kernel. If you are concerned about this, please use token login after logging in on your phone.\n2. Token login is suitable for users who have already used Pixiv-MultiPlatform on their phone and do not want to re-enter their account credentials on the computer.</string>
     <string name="token_login">Token Login</string>
     <string name="input_token">Please enter the token</string>
@@ -209,7 +209,7 @@
     <string name="appearance">Appearance</string>
     <string name="display_mode">Display Mode</string>
     <string name="current_mode">Current: %1$s</string>
-    <string name="follow_system">Follow System</string>
+    <string name="follow_system">System</string>
     <string name="light_mode">Light Mode</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="set_theme">Set Theme</string>
@@ -324,4 +324,38 @@
     <string name="check_update_on_start">Check for Updates on Startup</string>
     <string name="show_toast_when_latest">Show Toast When Latest Version</string>
     <string name="show_toast_when_failed">Show Toast When Check Fails</string>
+
+    <!-- WelcomeScreen strings -->
+    <string name="welcome">Welcome!</string>
+    <string name="theme_setting">Theme Settings</string>
+    <string name="sni_bypass">SNI Bypass</string>
+    <string name="shield_config">Filter Settings</string>
+    <string name="setup_complete">Setup Complete!</string>
+    <string name="step_number">Step %1$s/%2$s</string>
+    <string name="next_step">Next</string>
+    <string name="skip_setup">Skip Setup</string>
+    <string name="previous_step">Previous</string>
+    <string name="welcome_text">        %1$s is a cross-platform third-party Pixiv client based on Compose Multiplatform, powered by</string>
+    <string name="welcome_text_after_pixko">. \n\n        Before logging in, let's complete some settings. These settings may vary depending on your region and network environment. If you decide to end the setup, please click the \'Skip Setup\' button below, otherwise click Next to proceed to the next setup step.\n\n        Ready? Click Next to start setting up.\n\n        Having problems? Please visit the TG group to describe your issue.</string>
+    <string name="theme_intro">        Choose a theme for the app!</string>
+    <string name="day_mode">Light</string>
+    <string name="night_mode">Dark</string>
+    <string name="theme_info">Light mode supports custom themes, theme files can be generated at</string>
+    <string name="theme_info_url">https://material-foundation.github.io/material-theme-builder/</string>
+    <string name="theme_info_after_url">. (Only JSON format themes are supported)</string>
+    <string name="bypass_intro">        In some regions, due to policy restrictions, you may not be able to access Pixiv.\n        We provide two solutions: SNI Bypass and Proxy.\n        SNI Bypass: This feature uses DoH to return the server of any Pixiv subdomain and directly connects to its IP, thus bypassing the blockade and accessing Pixiv directly. To enable this feature, please ensure that CloudFlare DoH service is available in your region and Pixiv\'s IP address is not blocked.\n        Proxy: This feature uses a proxy to forward Pixiv requests to the Pixiv server, thus bypassing the blockade.</string>
+    <string name="no_bypass">Direct</string>
+    <string name="use_sni_bypass">SNI Bypass</string>
+    <string name="use_proxy">Proxy</string>
+    <string name="bypass_note">This function does not affect the Pixiv login feature of the built-in browser. Therefore, when logging in to Pixiv, you still need to use tools like VPN.\nAfter enabling/disabling this feature, you need to restart the client for it to take effect.</string>
+    <string name="shield_intro">        Through these three questions, let us help you choose the most suitable filter settings. For more advanced novel filtering features, please go to the settings page after logging in.</string>
+    <string name="r18_acceptance">How do you feel about R18 works?</string>
+    <string name="r18_allowed">yes sir!</string>
+    <string name="r18_blocked">no thanks!</string>
+    <string name="r18g_acceptance">How do you feel about R18G works?</string>
+    <string name="ai_acceptance">How do you feel about AI works?</string>
+    <string name="ai_allowed">yes sir!</string>
+    <string name="ai_blocked">no thanks!</string>
+    <string name="setup_finish_note">        You have completed all the settings. Now, we will redirect to the login page. These settings can be modified in the settings page after logging in.\n        Before the first login, we will download an embedded browser to provide a complete login experience, which will take up about 300MB of disk space.</string>
+    <string name="setup_finish_note_simple">        You have completed all the settings. Now, we will redirect to the login page. These settings can be modified in the settings page after logging in.</string>
 </resources>
