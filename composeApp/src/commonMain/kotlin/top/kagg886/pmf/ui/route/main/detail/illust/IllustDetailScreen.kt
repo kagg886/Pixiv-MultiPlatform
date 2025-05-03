@@ -82,7 +82,7 @@ import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.cant_load_illust
-import top.kagg886.pmf.copy_pid_success
+import top.kagg886.pmf.copy_pid
 import top.kagg886.pmf.copy_title_success
 import top.kagg886.pmf.download
 import top.kagg886.pmf.error
@@ -418,7 +418,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                             model.intent {
                                                 postSideEffect(
                                                     IllustDetailSideEffect.Toast(
-                                                        getString(Res.string.copy_pid_success),
+                                                        getString(Res.string.copy_pid),
                                                     ),
                                                 )
                                             }
