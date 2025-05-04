@@ -5,12 +5,16 @@ import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Comment
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
+import top.kagg886.pmf.comment_failed
+import top.kagg886.pmf.comment_success
 
 abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentViewState, CommentSideEffect>, ViewModel(), KoinComponent, ScreenModel {
     override val container: Container<CommentViewState, CommentSideEffect> = container(CommentViewState.Loading) {
@@ -103,11 +107,11 @@ abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentVie
                 sendComment((state as? CommentViewState.Success.HasReply)?.replyTarget?.id, id, text)
             }
             if (result.isSuccess) {
-                postSideEffect(CommentSideEffect.Toast("评论成功"))
+                postSideEffect(CommentSideEffect.Toast(getString(Res.string.comment_success)))
                 load(true).join()
                 return@runOn
             }
-            postSideEffect(CommentSideEffect.Toast("评论失败"))
+            postSideEffect(CommentSideEffect.Toast(getString(Res.string.comment_failed)))
         }
     }
 }

@@ -3,15 +3,25 @@ package top.kagg886.pmf.ui.util
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.ktor.http.*
+import io.ktor.http.Url
+import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.jump_browser_tips
+import top.kagg886.pmf.jump_browser_tips_question
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
+import top.kagg886.pmf.yes
 
 @Composable
 fun rememberSupportPixivNavigateUriHandler(): UriHandler {
@@ -32,10 +42,10 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                 wantToOpenLink = ""
             },
             title = {
-                Text("外部链接确认提示")
+                Text(stringResource(Res.string.jump_browser_tips))
             },
             text = {
-                Text("是否打开链接：$wantToOpenLink")
+                Text(stringResource(Res.string.jump_browser_tips_question, wantToOpenLink))
             },
             confirmButton = {
                 TextButton(
@@ -43,7 +53,7 @@ fun rememberSupportPixivNavigateUriHandler(): UriHandler {
                         origin.openUri(wantToOpenLink)
                     },
                 ) {
-                    Text("确定")
+                    Text(stringResource(Res.string.yes))
                 }
             },
         )

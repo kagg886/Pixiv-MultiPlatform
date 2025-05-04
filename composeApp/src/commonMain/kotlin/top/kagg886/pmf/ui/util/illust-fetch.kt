@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.plus
+import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -16,9 +18,14 @@ import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.deleteBookmarkIllust
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bookmark_failed
+import top.kagg886.pmf.bookmark_success
+import top.kagg886.pmf.un_bookmark_failed
+import top.kagg886.pmf.un_bookmark_success
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
 
@@ -73,10 +80,10 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustFetchSideEffect.Toast("收藏失败~"))
+                postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_failed)))
                 return@runOn
             }
-            postSideEffect(IllustFetchSideEffect.Toast("收藏成功~"))
+            postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
             reduce {
                 state.copy(
                     illusts = state.illusts.map {
@@ -99,10 +106,10 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustFetchSideEffect.Toast("取消收藏失败~"))
+                postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
-            postSideEffect(IllustFetchSideEffect.Toast("取消收藏成功~"))
+            postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
             reduce {
                 state.copy(
                     illusts = state.illusts.map {

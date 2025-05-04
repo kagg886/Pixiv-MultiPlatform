@@ -72,8 +72,10 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okio.Path
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -179,10 +181,11 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
                                     if (toast.jump) {
+                                        val actionYes = getString(Res.string.yes)
                                         val result = s.showSnackbar(
                                             object : SnackbarVisuals {
                                                 override val actionLabel: String
-                                                    get() = "是"
+                                                    get() = actionYes
                                                 override val duration: SnackbarDuration
                                                     get() = SnackbarDuration.Long
                                                 override val message: String
@@ -480,9 +483,9 @@ enum class NavigationItem(
     val icon: ImageVector,
     val content: () -> Screen,
 ) {
-    RECOMMEND("推荐", Icons.Default.Home, { RecommendScreen() }),
-    RANK("排行榜", Icons.Default.DateRange, { RankScreen() }),
-    SPACE("动态", Icons.Default.Star, { SpaceScreen() }),
+    RECOMMEND(runBlocking { getString(Res.string.recommend) }, Icons.Default.Home, { RecommendScreen() }),
+    RANK(runBlocking { getString(Res.string.rank) }, Icons.Default.DateRange, { RankScreen() }),
+    SPACE(runBlocking { getString(Res.string.space) }, Icons.Default.Star, { SpaceScreen() }),
     ;
 
     operator fun invoke(): Screen = content()
