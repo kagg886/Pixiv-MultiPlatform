@@ -8,6 +8,7 @@ import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -25,11 +26,24 @@ import top.kagg886.pixko.module.ugoira.getUgoiraMetadata
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bookmark_failed
+import top.kagg886.pmf.bookmark_success
+import top.kagg886.pmf.follow_fail
+import top.kagg886.pmf.follow_success
+import top.kagg886.pmf.follow_success_private
+import top.kagg886.pmf.get_illust_info_fail
+import top.kagg886.pmf.get_original_fail
+import top.kagg886.pmf.getting_ugoira_metadata
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.un_bookmark_failed
+import top.kagg886.pmf.un_bookmark_success
+import top.kagg886.pmf.unfollow_fail
+import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.UGOIRA_SCHEME
 
 class IllustDetailViewModel(private val illust: Illust) :
@@ -53,7 +67,7 @@ class IllustDetailViewModel(private val illust: Illust) :
         }
 
         if (illust.isUgoira) {
-            loadingState.data.tryEmit("获取动图元数据")
+            loadingState.data.tryEmit(getString(Res.string.getting_ugoira_metadata))
             val meta = client.getUgoiraMetadata(illust)
             val data = Json.encodeToString(meta).encodeBase64()
             val url = "$UGOIRA_SCHEME://$data".toUri()
@@ -74,12 +88,12 @@ class IllustDetailViewModel(private val illust: Illust) :
                 client.getIllustDetail(illust.id.toLong())
             }
             if (result.isFailure) {
-                postSideEffect(IllustDetailSideEffect.Toast("获取原图信息失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.get_illust_info_fail)))
                 return@a
             }
             val i = result.getOrThrow()
             if (i.contentImages[IllustImagesType.ORIGIN] == null) {
-                postSideEffect(IllustDetailSideEffect.Toast("无法获取原图~不知道是怎么回事捏~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.get_original_fail)))
             }
             saveDataBase(i)
             reduce {
@@ -141,7 +155,7 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_failed)))
                 return@runOn
             }
 
@@ -149,7 +163,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                 val illust = state.illust.copy(isBookMarked = true)
                 state.copy(illust = illust)
             }
-            postSideEffect(IllustDetailSideEffect.Toast("收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
         }
     }
 
@@ -161,14 +175,14 @@ class IllustDetailViewModel(private val illust: Illust) :
             }
 
             if (result.isFailure || result.getOrNull() == false) {
-                postSideEffect(IllustDetailSideEffect.Toast("取消收藏失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
             reduce {
                 val illust = state.illust.copy(isBookMarked = false)
                 state.copy(illust = illust)
             }
-            postSideEffect(IllustDetailSideEffect.Toast("取消收藏成功~"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
         }
     }
 
@@ -182,13 +196,13 @@ class IllustDetailViewModel(private val illust: Illust) :
                 )
             }
             if (result.isFailure) {
-                postSideEffect(IllustDetailSideEffect.Toast("关注失败~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.follow_fail)))
                 return@runOn
             }
             if (private) {
-                postSideEffect(IllustDetailSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.follow_success_private)))
             } else {
-                postSideEffect(IllustDetailSideEffect.Toast("关注成功~"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.follow_success)))
             }
             reduce {
                 val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
@@ -204,10 +218,10 @@ class IllustDetailViewModel(private val illust: Illust) :
                 client.unFollowUser(state.illust.user.id)
             }
             if (result.isFailure) {
-                postSideEffect(IllustDetailSideEffect.Toast("取关失败~(*^▽^*)"))
+                postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.unfollow_fail)))
                 return@runOn
             }
-            postSideEffect(IllustDetailSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.unfollow_success)))
             reduce {
                 val illust = with(state.illust) { copy(user = user.copy(isFollowed = true)) }
                 state.copy(illust = illust)

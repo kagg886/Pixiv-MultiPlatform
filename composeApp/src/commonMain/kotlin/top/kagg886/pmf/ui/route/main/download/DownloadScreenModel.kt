@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.*
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -23,10 +24,15 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
+import top.kagg886.pmf.download_completed
+import top.kagg886.pmf.download_failed
+import top.kagg886.pmf.download_started
+import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.*
 
@@ -47,13 +53,23 @@ class DownloadScreenModel :
     fun startDownload(illust: Illust): Job? {
         if (illust.id.toLong() in jobs.keys) {
             intent {
-                postSideEffect(DownloadScreenSideEffect.Toast("任务已存在且正在下载中，请前往下载页面查看", true))
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.task_already_exists),
+                        true,
+                    ),
+                )
             }
             return null
         }
         val job = intent {
             runOn<DownloadScreenState.Loaded> {
-                postSideEffect(DownloadScreenSideEffect.Toast("下载已开始，是否跳转到下载页？", true))
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_started),
+                        true,
+                    ),
+                )
                 val dao = database.downloadDAO()
 
                 // 查找历史记录任务，若无任务的话则新建任务并插入
@@ -137,12 +153,20 @@ class DownloadScreenModel :
                     // 失败则报错
                     dao.update(task.copy(progress = -1f))
                     logger.e(result.exceptionOrNull()!!) { "Illust: [${illust.title}(${illust.id})] download failed: ${result.exceptionOrNull()?.message}" }
-                    postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载失败"))
+                    postSideEffect(
+                        DownloadScreenSideEffect.Toast(
+                            getString(Res.string.download_failed, illust.title, illust.id),
+                        ),
+                    )
                     file.deleteRecursively()
                     return@runOn
                 }
                 dao.update(task.copy(success = true, progress = -1f))
-                postSideEffect(DownloadScreenSideEffect.Toast("${illust.title}(${illust.id})下载完成！"))
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_completed, illust.title, illust.id),
+                    ),
+                )
             }
         }
         jobs[illust.id.toLong()] = job

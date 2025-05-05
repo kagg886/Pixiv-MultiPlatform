@@ -10,11 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import org.jetbrains.compose.resources.stringResource
 import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.download
+import top.kagg886.pmf.have_update
+import top.kagg886.pmf.not_check_in_this_version
+import top.kagg886.pmf.platform_not_support
+import top.kagg886.pmf.ui.util.UpdateCheckSideEffect
+import top.kagg886.pmf.ui.util.UpdateCheckState
+import top.kagg886.pmf.ui.util.UpdateCheckViewModel
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
 
 @Composable
 fun CheckUpdateDialog() {
@@ -43,7 +53,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                         updateModel.dismiss()
                     },
                     title = {
-                        Text("更新：v${BuildConfig.APP_VERSION_NAME} --> ${state.release.tagName}")
+                        Text(stringResource(Res.string.have_update, BuildConfig.APP_VERSION_NAME, state.release.tagName))
                     },
                     text = {
                         Text(state.release.body)
@@ -53,7 +63,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                             it.name.startsWith(currentPlatform.name)
                         }
                         if (uri == null) {
-                            Text("暂不支持该平台", modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding))
+                            Text(stringResource(Res.string.platform_not_support), modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding))
                             return@AlertDialog
                         }
                         val handler = LocalUriHandler.current
@@ -62,7 +72,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                                 handler.openUri(uri.download)
                             },
                         ) {
-                            Text("下载")
+                            Text(stringResource(Res.string.download))
                         }
                     },
                     dismissButton = {
@@ -72,7 +82,7 @@ private fun UpdateCheckDialogContent(state: UpdateCheckState) {
                                     updateModel.dismiss()
                                 },
                             ) {
-                                Text("当前版本不再提示")
+                                Text(stringResource(Res.string.not_check_in_this_version))
                             }
                         }
                     },

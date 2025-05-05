@@ -1,12 +1,38 @@
 package top.kagg886.pmf.ui.route.main.series.novel
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DrawerDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.PermanentDrawerSheet
+import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,13 +42,24 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.novel_count
+import top.kagg886.pmf.novel_series
 import top.kagg886.pmf.openBrowser
+import top.kagg886.pmf.open_in_browser
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.AuthorCard
+import top.kagg886.pmf.ui.util.NovelFetchScreen
+import top.kagg886.pmf.ui.util.NovelFetchViewModel
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.useWideScreenMode
+import top.kagg886.pmf.word_count
 
 class NovelSeriesScreen(private val id: Int) : Screen {
     override val key: ScreenKey = "novel_series_$id"
@@ -91,7 +128,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text("小说系列")
+                            Text(stringResource(Res.string.novel_series))
                         },
                         navigationIcon = {
                             val scope = rememberCoroutineScope()
@@ -122,7 +159,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                                 onDismissRequest = { expanded = false },
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("在浏览器中打开") },
+                                    text = { Text(stringResource(Res.string.open_in_browser)) },
                                     onClick = {
                                         openBrowser("https://www.pixiv.net/novel/series/$id")
                                         expanded = false
@@ -204,7 +241,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                         OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
                             ListItem(
                                 overlineContent = {
-                                    Text("小说数目")
+                                    Text(stringResource(Res.string.novel_count))
                                 },
                                 headlineContent = {
                                     Text(info.pageCount.toString())
@@ -217,7 +254,7 @@ class NovelSeriesScreen(private val id: Int) : Screen {
                         OutlinedCard(modifier = Modifier.padding(horizontal = 8.dp)) {
                             ListItem(
                                 overlineContent = {
-                                    Text("总字数")
+                                    Text(stringResource(Res.string.word_count))
                                 },
                                 headlineContent = {
                                     Text(info.totalCharacterCount.toString())

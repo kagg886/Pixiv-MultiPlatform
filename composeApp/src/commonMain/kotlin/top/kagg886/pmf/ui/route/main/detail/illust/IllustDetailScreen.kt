@@ -68,6 +68,8 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -76,8 +78,21 @@ import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bookmark_extra_options
+import top.kagg886.pmf.cant_load_illust
+import top.kagg886.pmf.copy_pid
+import top.kagg886.pmf.copy_title_success
+import top.kagg886.pmf.download
+import top.kagg886.pmf.error
+import top.kagg886.pmf.expand_more
+import top.kagg886.pmf.image_details
+import top.kagg886.pmf.no_description
 import top.kagg886.pmf.openBrowser
+import top.kagg886.pmf.open_in_browser
+import top.kagg886.pmf.publish_date
+import top.kagg886.pmf.tags
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
@@ -122,7 +137,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         client.getIllustDetail(id)
                     }
                     if (illust.isFailure) {
-                        snack.showSnackbar("无法加载插画：$id")
+                        snack.showSnackbar(getString(Res.string.cant_load_illust, id))
                         return@launch
                     }
                     nav.replace(IllustDetailScreen(illust.getOrThrow()))
@@ -172,7 +187,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     ) {
         when (state) {
             IllustDetailViewState.Error -> {
-                ErrorPage(text = "加载失败") {
+                ErrorPage(text = stringResource(Res.string.error)) {
                     model.load()
                 }
             }
@@ -197,7 +212,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     private fun IllustTopAppBar(illust: Illust) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
-            title = { Text(text = "图片详情") },
+            title = { Text(text = stringResource(Res.string.image_details)) },
             navigationIcon = {
                 IconButton(onClick = { nav.pop() }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
@@ -216,7 +231,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     onDismissRequest = { enabled = false },
                 ) {
                     DropdownMenuItem(
-                        text = { Text("在浏览器中打开") },
+                        text = { Text(stringResource(Res.string.open_in_browser)) },
                         onClick = {
                             openBrowser("https://pixiv.net/artworks/${illust.id}")
                             enabled = false
@@ -364,7 +379,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text("展开更多", textAlign = TextAlign.Center)
+                            Text(stringResource(Res.string.expand_more), textAlign = TextAlign.Center)
                         }
                     }
                 }
@@ -401,7 +416,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                                 },
                                             )
                                             model.intent {
-                                                postSideEffect(IllustDetailSideEffect.Toast("复制pid成功"))
+                                                postSideEffect(
+                                                    IllustDetailSideEffect.Toast(
+                                                        getString(Res.string.copy_pid),
+                                                    ),
+                                                )
                                             }
                                         }
                                     },
@@ -418,7 +437,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                                 },
                                             )
                                             model.intent {
-                                                postSideEffect(IllustDetailSideEffect.Toast("复制标题成功"))
+                                                postSideEffect(
+                                                    IllustDetailSideEffect.Toast(
+                                                        getString(Res.string.copy_title_success),
+                                                    ),
+                                                )
                                             }
                                         }
                                     },
@@ -445,7 +468,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         if (betterFavoriteDialog) {
                                             TagFavoriteDialog(
                                                 tags = illust.tags,
-                                                title = { Text("高级收藏设置") },
+                                                title = { Text(stringResource(Res.string.bookmark_extra_options)) },
                                                 confirm = { tags, publicity ->
                                                     model.likeIllust(publicity, tags).join()
                                                     betterFavoriteDialog = false
@@ -485,14 +508,14 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         ) {
                                             Icon(Download, null)
                                         }
-                                        Text("下载")
+                                        Text(stringResource(Res.string.download))
                                     }
                                 }
                             },
                             supportingContent = {
                                 SelectionContainer {
                                     HTMLRichText(
-                                        html = illust.caption.ifEmpty { "没有简介" },
+                                        html = illust.caption.ifEmpty { stringResource(Res.string.no_description) },
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = ListItemDefaults.colors().supportingTextColor,
                                     )
@@ -506,7 +529,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     OutlinedCard {
                         ListItem(
                             overlineContent = {
-                                Text("标签")
+                                Text(stringResource(Res.string.tags))
                             },
                             headlineContent = {
                                 FlowRow {
@@ -549,7 +572,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     OutlinedCard {
                         ListItem(
                             overlineContent = {
-                                Text("发布日期")
+                                Text(stringResource(Res.string.publish_date))
                             },
                             headlineContent = {
                                 Text(
