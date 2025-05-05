@@ -162,7 +162,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 val uri = LocalUriHandler.current
                                 TextButton(
                                     onClick = {
-                                        uri.openUri("https://pmf.kagg886.top/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
+                                        uri.openUri("https://pmf.kagg886.top/docs/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
                                     },
                                 ) {
                                     Text(stringResource(Res.string.help))
@@ -260,7 +260,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                         Text(
                                             buildAnnotatedString {
                                                 append(fronted)
-                                                withLink(theme, "https://pmf.kagg886.top/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98", thisLink)
+                                                withLink(theme, "https://pmf.kagg886.top/docs/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98", thisLink)
                                                 append(back)
                                                 withClickable(theme, clickable) {
                                                     detailsDialog = true
