@@ -1,3 +1,7 @@
+> English Version is [→HERE](./README_EN.md)
+
+---
+
 <div align="center">
     <img src=".idea/icon.png"/>
     <h1>Pixiv-MultiPlatform</h1>
@@ -32,6 +36,8 @@
     </table>
     <img src="./README.assets/630c53942ab78d98e13d0ac9e566211c.png" />
 </div>
+
+
 
 > IOS的支持已进入收尾阶段。
 
