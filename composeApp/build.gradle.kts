@@ -80,6 +80,7 @@ kotlin {
             // compose
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
