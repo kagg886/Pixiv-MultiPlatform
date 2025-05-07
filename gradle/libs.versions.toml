@@ -79,7 +79,7 @@ benmanes-versions = { id = "com.github.ben-manes.versions", version = "0.52.0" }
 # should be hold in this versin: 5.5.4, don't upgrade it, it have some error on iOS.
 buildConfig = "com.github.gmazzo.buildconfig:5.5.4"
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-jetbrainsCompose = "org.jetbrains.compose:1.7.3"
+jetbrainsCompose = "org.jetbrains.compose:1.8.0"
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
