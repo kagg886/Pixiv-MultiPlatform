@@ -183,7 +183,10 @@ jobs:
         run: ./gradlew exportLibraryDefinitions
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew buildReleaseIpa
+        run: |
+          export PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:$PATH
+          export LIBRARY_PATH="$LIBRARY_PATH:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+          ./gradlew buildReleaseIpa
 
       - name: Rename artifact
         run: |
