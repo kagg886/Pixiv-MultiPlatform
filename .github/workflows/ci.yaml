@@ -158,7 +158,6 @@ jobs:
         with:
           name: macos.dmg
           path: composeApp/build/compose/binaries/main-release/dmg/macos.dmg
-## 傻逼苹果我操你妈，xcode15不能跑16工程，降级本机的还不让运行
   build-ios:
     runs-on: macos-15
     permissions:
@@ -170,6 +169,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+
+      - name: Install Rust Toolchain
+        run: rustup default 1.86.0 && rustup target add aarch64-apple-ios && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
