@@ -196,4 +196,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios.ipa
-          path: composeApp/build/archives/release/Pixiv-MultiPlatform.ipa
+          path: composeApp/build/archives/release/ios.ipa
