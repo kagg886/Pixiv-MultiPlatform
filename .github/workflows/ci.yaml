@@ -184,8 +184,8 @@ jobs:
 
       - name: Build with Gradle Wrapper
         run: |
-          export PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib:$PATH
-          export LIBRARY_PATH="$LIBRARY_PATH:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+          export PATH=/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib:$PATH
+          export LIBRARY_PATH="$LIBRARY_PATH:/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib"
           ./gradlew buildReleaseIpa
 
       - name: Rename artifact
