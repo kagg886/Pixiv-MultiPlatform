@@ -1,7 +1,6 @@
 package top.kagg886.pmf
 
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,8 +13,6 @@ import coil3.SingletonImageLoader
 import kotlin.experimental.ExperimentalNativeApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import platform.UIKit.UIViewController
-import platform.UIKit.navigationController
-import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.CrashConfig
 import top.kagg886.pmf.ui.route.crash.CrashApp
 import top.kagg886.pmf.util.logger
@@ -31,7 +28,7 @@ fun MainViewController(): UIViewController {
     val keyStateFlow = MutableSharedFlow<KeyEvent>()
     val controller = ComposeUIViewController {
         CompositionLocalProvider(
-            LocalKeyStateFlow provides keyStateFlow
+            LocalKeyStateFlow provides keyStateFlow,
         ) {
             var hasUnResolveCrashInfo by remember {
                 mutableStateOf(CrashConfig.hasUnResolveCrash)
@@ -48,7 +45,7 @@ fun MainViewController(): UIViewController {
         }
     }
     setUnhandledExceptionHook {
-        controller.logger.e("App Crashed!",it)
+        controller.logger.e("App Crashed!", it)
         CrashConfig.hasUnResolveCrash = true
         CrashConfig.crashText = it.stackTraceToString()
     }

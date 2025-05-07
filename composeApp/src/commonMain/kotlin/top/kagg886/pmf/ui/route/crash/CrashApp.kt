@@ -38,7 +38,7 @@ import top.kagg886.pmf.ui.component.icon.Github
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrashApp(modifier: Modifier = Modifier, throwable: String,onExitHandler: ()->Unit = { exitProcess(0) }) {
+fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: () -> Unit = { exitProcess(0) }) {
     var dialog by remember {
         mutableStateOf(true)
     }
