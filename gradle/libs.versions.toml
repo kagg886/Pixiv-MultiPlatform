@@ -5,7 +5,6 @@ androidx-lifecycle = "2.9.0-beta01"
 arrow = "2.1.1"
 coil = "3.1.0"
 compose-settings = "2.10.0"
-composeWebviewMultiplatform = "1.9.40"
 filekitCompose = "0.8.8"
 kermit = "2.0.5"
 korlibsIo = "6.0.1"
@@ -42,7 +41,6 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif" }
 coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3" }
 compose-settings-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "compose-settings" }
 compose-settings-ui = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "compose-settings" }
-compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 filekit-compose = { module = "io.github.vinceglb:filekit-compose", version.ref = "filekitCompose" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 koin-core = "io.insert-koin:koin-core:4.1.0-Beta8"

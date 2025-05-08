@@ -1,14 +1,12 @@
 package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,20 +27,10 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.multiplatform.webview.request.RequestInterceptor
-import com.multiplatform.webview.request.WebRequest
-import com.multiplatform.webview.request.WebRequestInterceptResult
-import com.multiplatform.webview.web.LoadingState
-import com.multiplatform.webview.web.WebView
-import com.multiplatform.webview.web.WebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewState
 import org.jetbrains.compose.resources.stringResource
-import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
 import top.kagg886.pmf.Res
-import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.browser_init_failed
 import top.kagg886.pmf.browser_init_failed_msg_backend
@@ -284,44 +272,4 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
 
 @Composable
 private fun WebViewLogin(model: LoginScreenViewModel) {
-    val auth = remember {
-        PixivAccountFactory.newAccount(PlatformEngine)
-    }
-    val state = rememberWebViewState(auth.url)
-//    val state = rememberWebViewState("https://useragent.buyaocha.com/")
-    // 不能使用LaunchedEffect，初始化后不能修改UA
-    // issue: https://github.com/KevinnZou/compose-webview-multiplatform/issues/142
-    state.webSettings.customUserAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36 EdgA/135.0.0.0"
-    val webNav = rememberWebViewNavigator(
-        requestInterceptor = object : RequestInterceptor {
-            override fun onInterceptUrlRequest(
-                request: WebRequest,
-                navigator: WebViewNavigator,
-            ): WebRequestInterceptResult {
-                if (request.url.startsWith("pixiv://")) {
-                    model.challengePixivLoginUrl(auth, request.url)
-                    return WebRequestInterceptResult.Reject
-                }
-                return WebRequestInterceptResult.Allow
-            }
-        },
-    )
-
-    val progress = remember(state.loadingState) {
-        when (state.loadingState) {
-            is LoadingState.Loading -> (state.loadingState as LoadingState.Loading).progress
-            else -> -1.0f
-        }
-    }
-
-    Column {
-        if (progress >= 0.0f && progress < 1.0f) {
-            LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
-        }
-        WebView(
-            modifier = Modifier.fillMaxSize(),
-            state = state,
-            navigator = webNav,
-        )
-    }
 }
