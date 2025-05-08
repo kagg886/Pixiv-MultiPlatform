@@ -70,6 +70,11 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        progressiveMode = true
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         commonMain.dependencies {
             // kotlin stdlib
@@ -246,7 +251,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles("proguard-rules.pro")
             signingConfig = signConfig
         }
 
