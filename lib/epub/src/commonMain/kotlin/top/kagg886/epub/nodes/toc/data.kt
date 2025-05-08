@@ -31,14 +31,14 @@ internal inline fun XmlBuilder.head(crossinline block: XmlBuilder.() -> Unit) = 
     block = block,
 )
 
-internal inline fun XmlBuilder.docTitle(text: String) = node(
+internal fun XmlBuilder.docTitle(text: String) = node(
     tag = "docTitle",
     block = {
         text(text)
     },
 )
 
-internal inline fun XmlBuilder.docAuthor(text: String) = node(
+internal fun XmlBuilder.docAuthor(text: String) = node(
     tag = "docAuthor",
     block = {
         text(text)
@@ -50,7 +50,7 @@ internal inline fun XmlBuilder.navMap(crossinline block: XmlBuilder.() -> Unit) 
     block = block,
 )
 
-internal inline fun XmlBuilder.navPoint(
+internal fun XmlBuilder.navPoint(
     id: String,
     playOrder: String,
     label: String,

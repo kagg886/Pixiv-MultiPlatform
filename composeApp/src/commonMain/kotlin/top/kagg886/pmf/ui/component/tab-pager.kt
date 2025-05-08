@@ -27,7 +27,6 @@ import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 
 @Composable
-@Deprecated("use TabContainer instead", replaceWith = ReplaceWith("TabContainer"))
 fun TabContainer(
     modifier: Modifier = Modifier,
     state: MutableState<Int>,
