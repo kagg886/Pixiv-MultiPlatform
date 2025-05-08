@@ -114,9 +114,6 @@ kotlin {
             // search-page-ui
             implementation(project(":lib:chip-text-field"))
 
-            // webview
-            api(libs.compose.webview.multiplatform)
-
             // https://coil-kt.github.io/coil/changelog/
             implementation(project.dependencies.platform(libs.coil.bom))
             implementation(libs.bundles.coil)
@@ -324,8 +321,8 @@ tasks.withType(AbstractProguardTask::class.java) {
 
     compose.desktop.application.buildTypes.release.proguard {
         configurationFiles.from(proguardFile, file("proguard-rules.pro"), file("default-compose-desktop-rules.pro"))
-        optimize = false // fixme(tarsin): proguard internal error
-        obfuscate = true
+        optimize = true
+        obfuscate = false
         joinOutputJars = true
     }
 
