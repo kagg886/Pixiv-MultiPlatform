@@ -1,4 +1,5 @@
 -dontwarn org.slf4j.impl.StaticLoggerBinder
+-dontwarn androidx.test.platform.app.InstrumentationRegistry
 
 -keep class * implements org.slf4j.ILoggerFactory {
     <init>(...);
