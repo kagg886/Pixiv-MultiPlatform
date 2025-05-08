@@ -325,7 +325,7 @@ tasks.withType(AbstractProguardTask::class.java) {
     compose.desktop.application.buildTypes.release.proguard {
         configurationFiles.from(proguardFile, file("proguard-rules.pro"), file("default-compose-desktop-rules.pro"))
         optimize = false // fixme(tarsin): proguard internal error
-        obfuscate = false // fixme(tarsin): sqlite crash
+        obfuscate = true
         joinOutputJars = true
     }
 
