@@ -70,6 +70,11 @@ kotlin {
         }
     }
 
+    compilerOptions {
+        progressiveMode = true
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
+    }
+
     sourceSets {
         commonMain.dependencies {
             // kotlin stdlib
