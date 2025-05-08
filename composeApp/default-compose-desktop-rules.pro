@@ -1,3 +1,4 @@
 -keep class org.cef.** { *; }
 -keep @kotlinx.serialization.Serializable class * {*;}
+-keep class androidx.sqlite.SQLiteException
 -ignorewarnings
