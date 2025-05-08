@@ -27,10 +27,10 @@ import kotlinx.coroutines.launch
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 
 @Composable
-fun TabContainer(
+fun <T> TabContainer(
     modifier: Modifier = Modifier,
     state: MutableState<Int>,
-    tab: List<String>,
+    tab: List<T>,
     scrollable: Boolean = false,
     page: @Composable (Int) -> Unit,
 ) {
