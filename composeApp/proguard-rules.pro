@@ -21,3 +21,20 @@
 
 -dontwarn org.xmlpull.v1.**
 -dontwarn org.xmlpull.mxp1.**
+
+-keepclasseswithmembernames,includedescriptorclasses class * {
+    native <methods>;
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+-keepattributes LineNumberTable
+-allowaccessmodification
+-repackageclasses
