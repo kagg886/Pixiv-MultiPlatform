@@ -1,0 +1,3 @@
+-keep class org.cef.** { *; }
+-keep @kotlinx.serialization.Serializable class * {*;}
+-ignorewarnings
