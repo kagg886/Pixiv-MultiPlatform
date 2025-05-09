@@ -160,6 +160,7 @@ import top.kagg886.pmf.reset_theme_description
 import top.kagg886.pmf.set_theme
 import top.kagg886.pmf.settings
 import top.kagg886.pmf.shareFile
+import top.kagg886.pmf.show_all
 import top.kagg886.pmf.show_toast_when_failed
 import top.kagg886.pmf.show_toast_when_latest
 import top.kagg886.pmf.single_column_width
@@ -461,6 +462,15 @@ class SettingScreen : Screen {
                     onCheckedChange = {
                         filterR18G = it
                     },
+                )
+                var showAll by remember { mutableStateOf(AppConfig.showAll) }
+                LaunchedEffect(showAll) {
+                    AppConfig.showAll = showAll
+                }
+                SettingsSwitch(
+                    state = showAll,
+                    title = { Text(stringResource(Res.string.show_all)) },
+                    onCheckedChange = { showAll = it },
                 )
             }
             SettingsGroup(title = { Text(stringResource(Res.string.novel_settings)) }) {

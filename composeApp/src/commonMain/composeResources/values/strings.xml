@@ -334,4 +334,5 @@
     <string name="ai_blocked">AI，达咩！</string>
     <string name="setup_finish_note">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。\n        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。</string>
     <string name="setup_finish_note_simple">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。</string>
+    <string name="show_all">默认显示所有画廊图片</string>
 </resources>

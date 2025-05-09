@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
+
 package top.kagg886.pmf.backend
 
 import com.russhwolf.settings.ExperimentalSettingsApi
@@ -15,13 +17,8 @@ import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.mb
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var darkMode by serializedValue("dark_mode", DarkMode.System)
-
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")
-
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var galleryOptions: Gallery by serializedValue(
         key = "gallery_options",
         defaultValue = Gallery.FixColumnCount(if (currentPlatform is Platform.Desktop || currentPlatform is Platform.Android.AndroidPad) 3 else 2),
@@ -48,7 +45,6 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordNovelHistory by boolean("record_novel", true)
     var recordSearchHistory by boolean("record_search", true)
 
-    @OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
     var bypassSettings: BypassSetting by serializedValue(
         key = "bypass_settings",
         defaultValue = BypassSetting.None,
@@ -57,6 +53,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var checkUpdateOnStart by boolean("check_update_on_start", true)
     var checkFailedToast by boolean("check_failed_toast", true)
     var checkSuccessToast by boolean("check_success_toast", false)
+    var showAll by boolean("show_all", false)
 
     @Serializable
     enum class DarkMode {

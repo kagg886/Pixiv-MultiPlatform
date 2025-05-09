@@ -333,4 +333,5 @@
     <string name="ai_blocked">No</string>
     <string name="setup_finish_note">        Setup complete! We'll redirect to login. These settings can be changed later.\n        We'll download a 300MB embedded browser for login experience.</string>
     <string name="setup_finish_note_simple">        Setup complete! We'll redirect to login. These settings can be changed later.</string>
+    <string name="show_all">Show all gallery images by default</string>
 </resources>
