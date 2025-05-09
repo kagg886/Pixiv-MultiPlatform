@@ -5,6 +5,7 @@ import okio.Path.Companion.toPath
 import top.kagg886.epub.builder.EpubBuilder
 import top.kagg886.epub.data.ResourceItem
 import kotlin.test.Test
+import kotlinx.coroutines.runBlocking
 
 class EpubTest {
     private fun pageN(int: Int): String {
@@ -24,7 +25,7 @@ class EpubTest {
     }
 
     @Test
-    fun testEPUBExport() {
+    fun testEPUBExport() = runBlocking {
         val pages = (1..10).map {
             ResourceItem(
                 file = Buffer().write(pageN(it).encodeToByteArray()),
