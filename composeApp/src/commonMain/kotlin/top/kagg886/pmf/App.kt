@@ -94,7 +94,7 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.database.dataBaseBuilder
+import top.kagg886.pmf.backend.database.databaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
@@ -441,7 +441,7 @@ fun setupEnv() {
             // data base
             module(createdAtStart = true) {
                 single {
-                    dataBaseBuilder().apply {
+                    databaseBuilder().apply {
                         fallbackToDestructiveMigrationOnDowngrade(true)
                         fallbackToDestructiveMigration(true)
                         fallbackToDestructiveMigrationFrom(true, 1)

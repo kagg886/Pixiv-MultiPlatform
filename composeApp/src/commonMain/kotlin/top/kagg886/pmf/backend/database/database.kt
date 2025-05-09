@@ -28,4 +28,4 @@ expect object AppDatabaseConstructor : RoomDatabaseConstructor<AppDatabase> {
 }
 
 val databasePath = dataPath.resolve("app.db").absolutePath().toString()
-expect fun dataBaseBuilder(): RoomDatabase.Builder<AppDatabase>
+expect fun databaseBuilder(): RoomDatabase.Builder<AppDatabase>

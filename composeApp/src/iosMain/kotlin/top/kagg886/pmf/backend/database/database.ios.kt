@@ -3,4 +3,4 @@ package top.kagg886.pmf.backend.database
 import androidx.room.Room
 import androidx.sqlite.driver.NativeSQLiteDriver
 
-actual fun dataBaseBuilder() = Room.databaseBuilder<AppDatabase>(name = databasePath).setDriver(NativeSQLiteDriver())
+actual fun databaseBuilder() = Room.databaseBuilder<AppDatabase>(name = databasePath).setDriver(NativeSQLiteDriver())
