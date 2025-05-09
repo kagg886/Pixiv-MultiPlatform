@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.compose.foundation.clickable
@@ -38,6 +40,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,6 +53,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -184,6 +189,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         state: IllustDetailViewState,
         model: IllustDetailViewModel,
     ) {
+        val behaviour = TopAppBarDefaults.pinnedScrollBehavior()
         when (state) {
             IllustDetailViewState.Error -> {
                 ErrorPage(text = stringResource(Res.string.error)) {
@@ -198,17 +204,16 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             is IllustDetailViewState.Success -> {
                 if (useWideScreenMode) {
-                    WideScreenIllustDetail(state, model)
+                    WideScreenIllustDetail(state, model, behaviour)
                     return
                 }
-                IllustDetail(state, model)
+                IllustDetail(state, model, behaviour)
             }
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    private fun IllustTopAppBar(illust: Illust) {
+    private fun IllustTopAppBar(illust: Illust, behaviour: TopAppBarScrollBehavior) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
             title = { Text(text = stringResource(Res.string.image_details)) },
@@ -238,6 +243,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     )
                 }
             },
+            scrollBehavior = behaviour,
         )
     }
 
@@ -245,15 +251,16 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     private fun WideScreenIllustDetail(
         state: IllustDetailViewState.Success,
         model: IllustDetailViewModel,
+        behaviour: TopAppBarScrollBehavior,
     ) {
         Scaffold(
             topBar = {
-                IllustTopAppBar(state.illust)
+                IllustTopAppBar(state.illust, behaviour)
             },
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
-                    IllustPreview(state, model)
+                    IllustPreview(state, model, behaviour)
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     IllustComment(state.illust)
@@ -267,6 +274,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
     private fun IllustDetail(
         state: IllustDetailViewState.Success,
         model: IllustDetailViewModel,
+        behaviour: TopAppBarScrollBehavior,
     ) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -287,11 +295,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         ) {
             Scaffold(
                 topBar = {
-                    IllustTopAppBar(state.illust)
+                    IllustTopAppBar(state.illust, behaviour)
                 },
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                    IllustPreview(state, model)
+                    IllustPreview(state, model, behaviour)
                 }
             }
         }
@@ -299,7 +307,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
     @OptIn(ExperimentalLayoutApi::class)
     @Composable
-    private fun IllustPreview(state: IllustDetailViewState.Success, model: IllustDetailViewModel) {
+    private fun IllustPreview(
+        state: IllustDetailViewState.Success,
+        model: IllustDetailViewModel,
+        behaviour: TopAppBarScrollBehavior,
+    ) {
         val illust = state.illust
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
@@ -329,6 +341,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
             }
             LazyColumn(
                 state = scroll,
+                modifier = Modifier.nestedScroll(behaviour.nestedScrollConnection),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
