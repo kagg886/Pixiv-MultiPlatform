@@ -37,9 +37,7 @@
     <img src="./README.assets/630c53942ab78d98e13d0ac9e566211c.png" />
 </div>
 
-
-
-> IOS的支持已进入收尾阶段。
+> 在新版本发布前，iOS的ipa文件请前往 workflow 处下载。
 
 ## 一. 下载链接
 

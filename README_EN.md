@@ -38,7 +38,7 @@
 </div>
 
 
-> iOS support is in the final stages of development.
+> Before the new version is released, please go to workflow to download the iOS ipa file.
 
 ## 1. Download Links
 
