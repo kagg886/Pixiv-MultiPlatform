@@ -310,6 +310,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"Pixiv-MultiPlatform\"",
+					"-lsqlite3",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "top.kagg886.pmf.Pixiv-MultiPlatform";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -339,6 +345,12 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					"\"Pixiv-MultiPlatform\"",
+					"-lsqlite3",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "top.kagg886.pmf.Pixiv-MultiPlatform";
