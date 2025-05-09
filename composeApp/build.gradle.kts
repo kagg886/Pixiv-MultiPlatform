@@ -185,7 +185,7 @@ kotlin {
     }
 }
 
-aboutLibraries {
+aboutLibraries.library {
     duplicationMode = MERGE
     duplicationRule = GROUP
 }
@@ -247,7 +247,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles("proguard-rules.pro")
+            proguardFiles("core-rules.pro")
             signingConfig = signConfig
         }
 
@@ -264,11 +264,13 @@ android {
         debugImplementation(compose.uiTooling)
     }
 }
+
 compose.resources {
     publicResClass = true
     packageOfResClass = pkgName
     generateResClass = auto
 }
+
 compose.desktop {
     application {
         mainClass = "$pkgName.MainKt"
@@ -323,7 +325,7 @@ tasks.withType(AbstractProguardTask::class.java) {
     proguardFile.deleteOnExit()
 
     compose.desktop.application.buildTypes.release.proguard {
-        configurationFiles.from(proguardFile, file("proguard-rules.pro"), file("default-compose-desktop-rules.pro"))
+        configurationFiles.from(proguardFile, file("core-rules.pro"), file("desktop-rules.pro"))
         optimize = false // fixme(tarsin): proguard internal error
         obfuscate = true
         joinOutputJars = true
