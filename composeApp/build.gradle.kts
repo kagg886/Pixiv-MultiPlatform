@@ -5,14 +5,11 @@ import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
+import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
 fun prop(key: String) = project.findProperty(key) as String
 
 val pkgName: String = "top.kagg886.pmf"
-
-// val pkgVersion: String = "1.0.0"
-// val pkgCode: Int = 1
 
 val appVersionName = System.getenv("APP_VERSION_NAME") ?: prop("APP_VERSION_NAME")
 check(appVersionName.startsWith("v")) { "APP_VERSION not supported, current is $appVersionName" }
@@ -198,7 +195,6 @@ android {
     compileSdk = prop("TARGET_SDK").toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-//    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
 
     sourceSets {
         getByName("main") {
@@ -290,21 +286,9 @@ compose.desktop {
             packageName = rootProject.name
             packageVersion = pkgVersion
 
-            windows {
-                iconFile.set(project.file("icons/pixiv.ico"))
-            }
-
-            linux {
-                iconFile.set(project.file("icons/pixiv.png"))
-            }
-
-            macOS {
-                iconFile.set(project.file("icons/pixiv.icns"))
-            }
-        }
-
-        buildTypes.release.proguard {
-            isEnabled = false
+            windows { iconFile.set(file("icons/pixiv.ico")) }
+            linux { iconFile.set(file("icons/pixiv.png")) }
+            macOS { iconFile.set(file("icons/pixiv.icns")) }
         }
 
         // release mode
@@ -328,6 +312,36 @@ compose.desktop {
                     jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(AbstractProguardTask::class.java) {
+    val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
+    proguardFile.deleteOnExit()
+
+    compose.desktop.application.buildTypes.release.proguard {
+        configurationFiles.from(proguardFile, file("proguard-rules.pro"), file("default-compose-desktop-rules.pro"))
+        optimize = false // fixme(tarsin): proguard internal error
+        obfuscate = true
+        joinOutputJars = true
+    }
+
+    doFirst {
+        proguardFile.bufferedWriter().use { proguardFileWriter ->
+            sourceSets["desktopMain"].runtimeClasspath.filter { it.extension == "jar" }.forEach { jar ->
+                val zip = zipTree(jar)
+                zip.matching { include("META-INF/**/proguard/*.pro") }.forEach {
+                    proguardFileWriter.appendLine("########   ${jar.name} ${it.name}")
+                    proguardFileWriter.appendLine(it.readText())
+                }
+                zip.matching { include("META-INF/services/*") }.forEach {
+                    it.readLines().forEach { cls ->
+                        val rule = "-keep class $cls"
+                        proguardFileWriter.appendLine(rule)
+                    }
                 }
             }
         }

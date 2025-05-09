@@ -1,0 +1,4 @@
+-keep class org.cef.** { *; }
+-keepclasseswithmembers class ** { kotlinx.serialization.KSerializer serializer(...);}
+-keep class androidx.sqlite.SQLiteException
+-ignorewarnings
