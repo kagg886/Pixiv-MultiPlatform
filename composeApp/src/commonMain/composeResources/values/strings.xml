@@ -219,6 +219,7 @@
     <string name="filter_r18g_illustrations">R18G插画过滤</string>
     <string name="filter_r18g_description">会过滤关于R18G的内容。</string>
     <string name="filter_r18g_enabled_condition">仅在关闭R18过滤后可选择</string>
+    <string name="illust_details_show_all">默认显示所有画廊图片</string>
     <string name="novel_settings">小说设置</string>
     <string name="filter_ai_novel">AI小说过滤</string>
     <string name="filter_r18_novel">R18小说过滤</string>
@@ -334,5 +335,4 @@
     <string name="ai_blocked">AI，达咩！</string>
     <string name="setup_finish_note">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。\n        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。</string>
     <string name="setup_finish_note_simple">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。</string>
-    <string name="show_all">默认显示所有画廊图片</string>
 </resources>

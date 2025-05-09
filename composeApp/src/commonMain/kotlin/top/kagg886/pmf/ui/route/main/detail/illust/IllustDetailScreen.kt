@@ -335,7 +335,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 )
             }
 
-            var expand by remember { mutableStateOf(AppConfig.showAll) }
+            var expand by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
             val img by remember(illust.hashCode(), expand) {
                 mutableStateOf(state.data.let { if (!expand) it.take(3) else it })
             }

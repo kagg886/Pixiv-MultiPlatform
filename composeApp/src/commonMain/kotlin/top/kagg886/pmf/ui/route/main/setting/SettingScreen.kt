@@ -130,6 +130,7 @@ import top.kagg886.pmf.gallery_settings
 import top.kagg886.pmf.history_records
 import top.kagg886.pmf.ignore_ssl_errors
 import top.kagg886.pmf.ignore_ssl_errors_description
+import top.kagg886.pmf.illust_details_show_all
 import top.kagg886.pmf.import_theme_fail
 import top.kagg886.pmf.ip_pool
 import top.kagg886.pmf.ip_pool_description
@@ -160,7 +161,6 @@ import top.kagg886.pmf.reset_theme_description
 import top.kagg886.pmf.set_theme
 import top.kagg886.pmf.settings
 import top.kagg886.pmf.shareFile
-import top.kagg886.pmf.show_all
 import top.kagg886.pmf.show_toast_when_failed
 import top.kagg886.pmf.show_toast_when_latest
 import top.kagg886.pmf.single_column_width
@@ -463,14 +463,14 @@ class SettingScreen : Screen {
                         filterR18G = it
                     },
                 )
-                var showAll by remember { mutableStateOf(AppConfig.showAll) }
-                LaunchedEffect(showAll) {
-                    AppConfig.showAll = showAll
+                var illustDetailsShowAll by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
+                LaunchedEffect(illustDetailsShowAll) {
+                    AppConfig.illustDetailsShowAll = illustDetailsShowAll
                 }
                 SettingsSwitch(
-                    state = showAll,
-                    title = { Text(stringResource(Res.string.show_all)) },
-                    onCheckedChange = { showAll = it },
+                    state = illustDetailsShowAll,
+                    title = { Text(stringResource(Res.string.illust_details_show_all)) },
+                    onCheckedChange = { illustDetailsShowAll = it },
                 )
             }
             SettingsGroup(title = { Text(stringResource(Res.string.novel_settings)) }) {
