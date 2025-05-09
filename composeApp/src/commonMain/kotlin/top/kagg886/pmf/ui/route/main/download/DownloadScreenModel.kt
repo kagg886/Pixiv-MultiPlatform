@@ -1,20 +1,38 @@
 package top.kagg886.pmf.ui.route.main.download
 
 import androidx.lifecycle.ViewModel
+import arrow.fx.coroutines.fixedRate
+import arrow.fx.coroutines.raceN
 import cafe.adriel.voyager.core.model.ScreenModel
 import io.github.vinceglb.filekit.core.FileKit
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.http.*
-import io.ktor.utils.io.*
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.timeout
+import io.ktor.client.request.prepareGet
+import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.contentLength
+import io.ktor.utils.io.asByteWriteChannel
+import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.counted
+import kotlin.math.min
 import kotlin.time.Duration.Companion.hours
-import kotlinx.coroutines.*
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.update
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import okio.*
+import kotlinx.io.Buffer
+import kotlinx.io.RawSink
+import kotlinx.io.UnsafeIoApi
+import kotlinx.io.unsafe.UnsafeBufferOperations
+import okio.Buffer as OkioBuffer
+import okio.Path
+import okio.Sink as OkioSink
+import okio.buffer
 import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -34,7 +52,14 @@ import top.kagg886.pmf.download_failed
 import top.kagg886.pmf.download_started
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.*
+import top.kagg886.pmf.util.deleteRecursively
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.listFile
+import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.mkdirs
+import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.zip
 
 fun DownloadItem.downloadRootPath(): Path = dataPath.resolve("download").resolve(id.toString())
 
@@ -99,51 +124,56 @@ class DownloadScreenModel :
 
                 // 更新DAO层
                 dao.update(task.copy(progress = 0f))
-                val result = kotlin.runCatching {
+                val result = runCatching {
                     coroutineScope {
-                        val lock = Mutex()
-                        var size = 0L
-                        var download = 0L
-
-                        urls.mapIndexed { index, it ->
-                            launch(Dispatchers.IO) {
-                                net.prepareGet(it) {
+                        val size = atomic(0L)
+                        val lengths = urls.map { atomic(0L) }
+                        (urls zip lengths).mapIndexed { index, (url, atom) ->
+                            async(Dispatchers.IO) {
+                                net.prepareGet(url) {
                                     timeout {
                                         socketTimeoutMillis = 1.hours.inWholeMilliseconds
                                         connectTimeoutMillis = 1.hours.inWholeMilliseconds
                                         requestTimeoutMillis = 1.hours.inWholeMilliseconds
                                     }
                                 }.execute { resp ->
-                                    logger.d("the illust:${illust.id}'s download link: $it, status: ${resp.status}")
-                                    val length = resp.headers[HttpHeaders.ContentLength]!!.toLong()
-                                    lock.withLock { size += length }
-                                    logger.d("the illust:${illust.id}'s download link: $it, length is: $length")
+                                    logger.d("the illust:${illust.id}'s download link: $url, status: ${resp.status}")
+                                    val length = resp.contentLength()!!
+                                    size.update { v -> v + length }
+                                    logger.d("the illust:${illust.id}'s download link: $url, length is: $length")
 
-                                    val source = resp.bodyAsChannel().asOkioSource() // closed when around execute block
-                                    val sink = file.resolve("$index.png").sink().buffer()
-
-                                    sink.use {
-                                        var len: Long
-                                        val buffer = Buffer()
-                                        while (source.read(buffer, 8192).also { len = it } != -1L) {
-                                            sink.write(buffer.readByteArray())
-                                            sink.flush()
-                                            buffer.clear()
-                                            lock.withLock {
-                                                logger.v("the illust:${illust.id}'s download link: $it, fetch data size: $len")
-                                                download += len
-                                                dao.update(
-                                                    task.copy(
-                                                        progress = download.toFloat() / size.toFloat(),
-                                                    ),
-                                                )
-//                                                logger.d("the illust:${illust.id}'s progress: ${download.toFloat() / size.toFloat()}")
-                                            }
-                                        }
+                                    val src = resp.bodyAsChannel().counted()
+                                    (file / "$index.png").sink().asRawSink().use { sink ->
+                                        raceN(
+                                            {
+                                                val upd = {
+                                                    val bytes = src.totalBytesRead
+                                                    atom.value = bytes
+                                                    logger.v("Illust:${illust.id}'s download link: $url, fetched data size: $bytes")
+                                                }
+                                                try {
+                                                    fixedRate(200.milliseconds).collect { upd() }
+                                                } finally {
+                                                    upd()
+                                                }
+                                            },
+                                            { src.copyAndClose(sink.asByteWriteChannel()) },
+                                        )
                                     }
                                 }
                             }
-                        }.joinAll()
+                        }.apply {
+                            raceN(
+                                { awaitAll() },
+                                {
+                                    fixedRate(200.milliseconds).collect {
+                                        val download = lengths.sumOf { v -> v.value }
+                                        if (download == 0L || size.value == 0L) return@collect
+                                        dao.update(task.copy(progress = download.toFloat() / size.value.toFloat()))
+                                    }
+                                },
+                            )
+                        }
                     }
                 }
 
@@ -229,25 +259,28 @@ sealed class DownloadScreenSideEffect {
     data class Toast(val msg: String, val jump: Boolean = false) : DownloadScreenSideEffect()
 }
 
-private fun ByteReadChannel.asOkioSource(): Source {
-    val channel = this
-    return object : Source {
-        override fun close() {
-            channel.cancel()
-        }
+@OptIn(UnsafeIoApi::class)
+fun OkioSink.asRawSink(): RawSink = let { sink ->
+    object : RawSink {
+        private val buffer = OkioBuffer()
 
-        override fun read(sink: Buffer, byteCount: Long): Long = runBlocking {
-            val buf = ByteArray(byteCount.toInt())
-            val len = channel.readAvailable(buf)
-            if (len == -1) {
-                return@runBlocking -1L
+        override fun write(source: Buffer, byteCount: Long) {
+            require(source.size >= byteCount) {
+                "Buffer does not contain enough bytes to write. Requested $byteCount, actual size is ${source.size}"
             }
-
-            sink.write(buf, 0, len)
-
-            len.toLong()
+            var remaining = byteCount
+            while (remaining > 0) {
+                UnsafeBufferOperations.readFromHead(source) { data, from, to ->
+                    val toRead = min((to - from).toLong(), remaining).toInt()
+                    remaining -= toRead
+                    buffer.write(data, from, toRead)
+                    toRead
+                }
+            }
+            sink.write(buffer, byteCount)
         }
 
-        override fun timeout(): Timeout = Timeout.NONE
+        override fun flush() = sink.flush()
+        override fun close() = sink.close()
     }
 }
