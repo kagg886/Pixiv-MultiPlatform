@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
@@ -60,7 +59,6 @@ fun NovelFetchScreen(model: NovelFetchViewModel) {
     NovelFetchContent0(state, model)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow

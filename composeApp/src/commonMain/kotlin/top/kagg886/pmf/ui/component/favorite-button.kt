@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.size
@@ -29,7 +28,6 @@ sealed class FavoriteState {
     data object NotFavorite : FavoriteState()
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoriteButton(
     modifier: Modifier = Modifier,

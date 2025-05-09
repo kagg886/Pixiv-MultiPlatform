@@ -79,11 +79,13 @@ kotlin {
             "androidx.compose.animation.ExperimentalAnimationApi",
             "androidx.compose.animation.ExperimentalSharedTransitionApi",
             "kotlin.ExperimentalStdlibApi",
+            "kotlin.uuid.ExperimentalUuidApi",
             "kotlin.concurrent.atomics.ExperimentalAtomicApi",
             "kotlin.contracts.ExperimentalContracts",
             "kotlinx.coroutines.ExperimentalCoroutinesApi",
             "kotlinx.coroutines.FlowPreview",
             "kotlinx.serialization.ExperimentalSerializationApi",
+            "org.jetbrains.compose.resources.ExperimentalResourceApi",
         )
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
     }

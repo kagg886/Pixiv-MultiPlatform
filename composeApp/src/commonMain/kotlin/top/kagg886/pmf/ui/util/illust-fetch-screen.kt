@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -59,7 +58,6 @@ fun IllustFetchScreen(model: IllustFetchViewModel) {
     IllustFetchContent0(state, model)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow

@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +54,6 @@ import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
 import coil3.ComponentRegistry
 import coil3.ImageLoader
-import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.disk.DiskCache
 import coil3.network.ConnectivityChecker
@@ -224,7 +222,6 @@ fun App(initScreen: Screen = WelcomeScreen()) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
@@ -314,7 +311,6 @@ fun SearchButton() {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
         object : CoilLogger {

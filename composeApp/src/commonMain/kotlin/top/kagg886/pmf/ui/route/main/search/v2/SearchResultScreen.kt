@@ -3,7 +3,6 @@ package top.kagg886.pmf.ui.route.main.search.v2
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -48,7 +47,7 @@ class SearchResultScreen(
         "search_result_${keyword}_${sort}_$target"
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { SearchResultViewModel(keyword, sort, target) }
