@@ -63,7 +63,7 @@ kotlin {
         it.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts.add("-lsqlite3")
+            linkerOpts += "-lsqlite3"
         }
     }
 
@@ -92,7 +92,6 @@ kotlin {
 
             // voyager
             implementation(libs.voyager.navigator)
-            implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.koin)
             implementation(libs.voyager.transitions)
             implementation(libs.koin.core)
@@ -118,7 +117,7 @@ kotlin {
             api(libs.compose.webview.multiplatform)
 
             // https://coil-kt.github.io/coil/changelog/
-            implementation(project.dependencies.platform(libs.coil.bom))
+            implementation(dependencies.platform(libs.coil.bom))
             implementation(libs.bundles.coil)
             implementation(libs.telephoto.zoomable)
 
@@ -175,7 +174,6 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
-            implementation(libs.androidx.sqlite.bundled)
         }
 
         commonTest.dependencies {
@@ -280,7 +278,7 @@ compose.desktop {
                 *buildList {
                     add(TargetFormat.Msi)
                     add(TargetFormat.Dmg)
-                    if (!System.getProperty("os.name").contains("Mac")) {
+                    if ("Mac" !in System.getProperty("os.name")) {
                         add(TargetFormat.AppImage)
                     }
                 }.toTypedArray(),
@@ -297,7 +295,7 @@ compose.desktop {
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
         jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
 
-        if (System.getProperty("os.name").contains("Mac")) {
+        if ("Mac" in System.getProperty("os.name")) {
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
             jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
         }
@@ -305,12 +303,9 @@ compose.desktop {
             tasks.withType<JavaExec> {
                 // debug mode
                 jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-                jvmArgs(
-                    "--add-opens",
-                    "java.desktop/java.awt.peer=ALL-UNNAMED",
-                )
+                jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
 
-                if (System.getProperty("os.name").contains("Mac")) {
+                if ("Mac" in System.getProperty("os.name")) {
                     jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")

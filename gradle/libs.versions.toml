@@ -66,7 +66,6 @@ okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbitCore" }
 pixko = { module = "top.kagg886:pixko", version.ref = "pixko" }
 telephoto-zoomable = { module = "me.saket.telephoto:zoomable", version.ref = "telephoto" }
-voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerVersion" }
 voyager-koin = { module = "cafe.adriel.voyager:voyager-koin", version.ref = "voyagerVersion" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerVersion" }
 voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyagerVersion" }
