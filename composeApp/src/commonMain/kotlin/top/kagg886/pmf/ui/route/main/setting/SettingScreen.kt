@@ -130,6 +130,7 @@ import top.kagg886.pmf.gallery_settings
 import top.kagg886.pmf.history_records
 import top.kagg886.pmf.ignore_ssl_errors
 import top.kagg886.pmf.ignore_ssl_errors_description
+import top.kagg886.pmf.illust_details_show_all
 import top.kagg886.pmf.import_theme_fail
 import top.kagg886.pmf.ip_pool
 import top.kagg886.pmf.ip_pool_description
@@ -461,6 +462,15 @@ class SettingScreen : Screen {
                     onCheckedChange = {
                         filterR18G = it
                     },
+                )
+                var illustDetailsShowAll by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
+                LaunchedEffect(illustDetailsShowAll) {
+                    AppConfig.illustDetailsShowAll = illustDetailsShowAll
+                }
+                SettingsSwitch(
+                    state = illustDetailsShowAll,
+                    title = { Text(stringResource(Res.string.illust_details_show_all)) },
+                    onCheckedChange = { illustDetailsShowAll = it },
                 )
             }
             SettingsGroup(title = { Text(stringResource(Res.string.novel_settings)) }) {
