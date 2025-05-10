@@ -53,7 +53,6 @@ import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.TagsFetchDrawerSheetContainer
 import top.kagg886.pmf.ui.util.TagsFetchViewModel
-import top.kagg886.pmf.ui.util.TagsFetchViewState
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.visibility
 
@@ -201,10 +200,8 @@ class BookmarkScreen : Screen {
                         Box(Modifier.padding(it).fillMaxSize()) {
                             val tagState by tagModel.collectAsState()
                             LaunchedEffect(tagState) {
-                                (tagState as? TagsFetchViewState.ShowTagsList)?.let {
-                                    drawerState.close()
-                                    model.selectTagFilter(it.selectedTagsFilter)
-                                }
+                                drawerState.close()
+                                model.selectTagFilter(tagState.selectedTagsFilter)
                             }
 
                             when (state.mode) {

@@ -2,15 +2,14 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import top.kagg886.pixko.module.illust.NovelResult
-import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserLikeNovel
 import top.kagg886.pixko.module.user.getUserLikeNovelNext
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
+import top.kagg886.pmf.ui.util.flowOf
+import top.kagg886.pmf.ui.util.next
 
 @Composable
 fun AuthorScreen.AuthorNovelBookmark(user: UserInfo) {
@@ -21,17 +20,11 @@ fun AuthorScreen.AuthorNovelBookmark(user: UserInfo) {
 }
 
 private class AuthorNovelBookmarkViewModel(val user: Int) : NovelFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Novel> {
-        return object : InfinityRepository<Novel>() {
-            private var context: NovelResult? = null
-            override suspend fun onFetchList(): List<Novel> {
-                context = if (context == null) {
-                    client.getUserLikeNovel(user)
-                } else {
-                    client.getUserLikeNovelNext(context!!)
-                }
-                return context!!.novels
-            }
-        }
+    override fun source() = flowOf(20) { params ->
+        params.next(
+            { client.getUserLikeNovel(user) },
+            { ctx -> client.getUserLikeNovelNext(ctx) },
+            { ctx -> ctx.novels },
+        )
     }
 }

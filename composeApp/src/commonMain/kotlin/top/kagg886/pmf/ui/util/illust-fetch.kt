@@ -2,13 +2,20 @@ package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
+import arrow.core.identity
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterNot
-import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.plus
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.runningReduce
 import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -20,50 +27,32 @@ import top.kagg886.pixko.module.illust.bookmarkIllust
 import top.kagg886.pixko.module.illust.deleteBookmarkIllust
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_failed
 import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
+private typealias FI = (PagingData<Illust>) -> PagingData<Illust>
+
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
-
     protected val client = PixivConfig.newAccountFromConfig()
+    private val refreshSignal = MutableSharedFlow<Unit>()
+    private val transforms = MutableSharedFlow<FI>()
+    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> = container(IllustFetchViewState())
+    abstract fun source(): Flow<PagingData<Illust>>
 
-    private lateinit var repo: InfinityRepository<Illust>
+    fun Illust.block() = with(AppConfig) { isLimited || (filterAi && isAI) || (filterR18G && isR18G) || (filterR18 && isR18) }
 
-    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> =
-        container(IllustFetchViewState.Loading) {
-            initIllust()
-        }
-
-    private fun Flow<Illust>.filterUserCustomSettings() = this
-        .filter { !it.isLimited }
-        .filterNot { AppConfig.filterAi && it.isAI }
-        .filterNot { AppConfig.filterR18G && it.isR18G }
-        .filterNot { AppConfig.filterR18 && it.isR18 }
-
-    abstract fun initInfinityRepository(): InfinityRepository<Illust>
-
-    fun initIllust(pullDown: Boolean = false) = intent {
-        if (!pullDown) {
-            reduce {
-                IllustFetchViewState.Loading
+    val data = merge(flowOf(Unit), refreshSignal).flatMapLatest {
+        source().cachedIn(viewModelScope).let { cached ->
+            merge(flowOf(::identity), transforms).runningReduce { a, b -> { v -> b(a(v)) } }.flatMapLatest { f ->
+                cached.map { data -> data.filterNot { i -> i.block() } }.map(f)
             }
         }
-        repo = initInfinityRepository()
-        val list = repo.filterUserCustomSettings().take(20).toList()
-        reduce { IllustFetchViewState.ShowIllustList(list, noMoreData = repo.noMoreData) }
-    }
+    }.cachedIn(viewModelScope)
 
-    @OptIn(OrbitExperimental::class)
-    fun loadMoreIllusts() = intent {
-        runOn<IllustFetchViewState.ShowIllustList> {
-            val list = state.illusts + repo.filterUserCustomSettings().take(20).toList()
-            reduce { state.copy(illusts = list, noMoreData = repo.noMoreData) }
-        }
-    }
+    fun refresh() = intent { refreshSignal.emit(Unit) }
 
     @OptIn(OrbitExperimental::class)
     fun likeIllust(
@@ -71,8 +60,8 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
         tags: List<Tag>? = null,
     ) = intent {
-        runOn<IllustFetchViewState.ShowIllustList> {
-            val result = kotlin.runCatching {
+        runOn<IllustFetchViewState> {
+            val result = runCatching {
                 client.bookmarkIllust(illust.id.toLong()) {
                     this.visibility = visibility
                     this.tags = tags
@@ -84,23 +73,21 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
-            reduce {
-                state.copy(
-                    illusts = state.illusts.map {
-                        if (it.id == illust.id) {
-                            it.copy(isBookMarked = true)
-                        } else {
-                            it
-                        }
-                    },
-                )
+            transforms.emit { data ->
+                data.map {
+                    if (it.id == illust.id) {
+                        it.copy(isBookMarked = true)
+                    } else {
+                        it
+                    }
+                }
             }
         }
     }
 
     @OptIn(OrbitExperimental::class)
     fun disLikeIllust(illust: Illust) = intent {
-        runOn<IllustFetchViewState.ShowIllustList> {
+        runOn<IllustFetchViewState> {
             val result = kotlin.runCatching {
                 client.deleteBookmarkIllust(illust.id.toLong())
             }
@@ -110,30 +97,23 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
-            reduce {
-                state.copy(
-                    illusts = state.illusts.map {
-                        if (it == illust) {
-                            it.copy(isBookMarked = false)
-                        } else {
-                            it
-                        }
-                    },
-                )
+            transforms.emit { data ->
+                data.map {
+                    if (it == illust) {
+                        it.copy(isBookMarked = false)
+                    } else {
+                        it
+                    }
+                }
             }
         }
     }
 }
 
-sealed class IllustFetchViewState {
-    data object Loading : IllustFetchViewState()
-    data class ShowIllustList(
-        val illusts: List<Illust>,
-        val noMoreData: Boolean = false,
-        val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState(),
-    ) : IllustFetchViewState()
-}
+data class IllustFetchViewState(val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState())
 
 sealed class IllustFetchSideEffect {
     data class Toast(val msg: String) : IllustFetchSideEffect()
 }
+
+inline fun <T : Any> PagingData<T>.filterNot(crossinline f: suspend (T) -> Boolean) = filter { v -> !f(v) }

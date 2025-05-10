@@ -2,13 +2,13 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserNovel
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
+import top.kagg886.pmf.ui.util.flowOf
+import top.kagg886.pmf.ui.util.page
 
 @Composable
 fun AuthorScreen.AuthorNovel(user: UserInfo) {
@@ -19,15 +19,7 @@ fun AuthorScreen.AuthorNovel(user: UserInfo) {
 }
 
 class AuthorNovelViewModel(val id: Long) : NovelFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Novel> {
-        return object : InfinityRepository<Novel>() {
-            var page = 1
-            override suspend fun onFetchList(): List<Novel> {
-                val result = client.getUserNovel(id, page)
-
-                page++
-                return result
-            }
-        }
+    override fun source() = flowOf(20) { params ->
+        params.page { i -> client.getUserNovel(id, i) }
     }
 }

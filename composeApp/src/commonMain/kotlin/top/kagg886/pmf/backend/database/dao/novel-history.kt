@@ -1,5 +1,6 @@
 package top.kagg886.pmf.backend.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pmf.backend.database.converters.NovelConverter
@@ -9,8 +10,8 @@ interface NovelHistoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: NovelHistory)
 
-    @Query("SELECT * FROM NovelHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * :size;")
-    suspend fun getByPage(page: Int = 1, size: Int = 30): List<NovelHistory>
+    @Query("SELECT * FROM NovelHistory ORDER BY createTime DESC")
+    fun source(): PagingSource<Int, NovelHistory>
 }
 
 @Entity
