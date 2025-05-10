@@ -108,6 +108,7 @@ import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.CommentPanel
 import top.kagg886.pmf.ui.util.HTMLRichText
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
+import top.kagg886.pmf.ui.util.RollingNumber
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.illustRouter
@@ -476,7 +477,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                                 return@FavoriteButton
                                             }
                                         }
-                                        Text(illust.totalBookmarks.toString())
+                                        RollingNumber(illust.totalBookmarks)
                                     }
                                     val downloadModel = koinScreenModel<DownloadScreenModel>()
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

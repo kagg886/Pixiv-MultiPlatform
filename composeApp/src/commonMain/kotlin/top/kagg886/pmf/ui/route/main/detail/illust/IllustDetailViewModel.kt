@@ -160,11 +160,6 @@ class IllustDetailViewModel(private val illust: Illust) :
                 postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_failed)))
                 return@runOn
             }
-
-            reduce {
-                val illust = state.illust.copy(isBookMarked = true)
-                state.copy(illust = illust)
-            }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
             illust.notifyLike()
         }
@@ -180,10 +175,6 @@ class IllustDetailViewModel(private val illust: Illust) :
             if (result.isFailure || result.getOrNull() == false) {
                 postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
-            }
-            reduce {
-                val illust = state.illust.copy(isBookMarked = false)
-                state.copy(illust = illust)
             }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
             illust.notifyDislike()

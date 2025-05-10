@@ -30,8 +30,8 @@ class Router<T : Any> {
 }
 
 val illustRouter = Router<Illust>()
-suspend fun Illust.notifyDislike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = false) else i }
-suspend fun Illust.notifyLike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = true) else i }
+suspend fun Illust.notifyDislike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = false, totalBookmarks = i.totalBookmarks - 1) else i }
+suspend fun Illust.notifyLike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = true, totalBookmarks = i.totalBookmarks + 1) else i }
 
 val novelRouter = Router<Novel>()
 val userRouter = Router<User>()
