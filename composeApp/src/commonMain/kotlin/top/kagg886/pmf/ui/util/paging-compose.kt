@@ -43,9 +43,7 @@ suspend inline fun <K : Any, V : Any, R : LoadResult<K, V>> catch(crossinline f:
 inline fun <K : Any, V : Any> flowOf(pageSize: Int, crossinline f: suspend (LoadParams<K>) -> LoadResult<K, V>) = Pager(PagingConfig(pageSize)) {
     object : PagingSource<K, V>() {
         override fun getRefreshKey(state: PagingState<K, V>) = null
-        override suspend fun load(params: LoadParams<K>) = catch {
-            f(params)
-        }
+        override suspend fun load(params: LoadParams<K>) = catch { f(params) }
     }
 }.flow
 
