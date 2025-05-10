@@ -5,8 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
-import arrow.core.identity
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,7 +12,6 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
-import kotlinx.coroutines.flow.runningReduce
 import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -32,12 +29,9 @@ import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
-private typealias FN = (PagingData<Novel>) -> PagingData<Novel>
-
 abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
-    private val refreshSignal = MutableSharedFlow<Unit>()
-    private val transforms = MutableSharedFlow<FN>()
+    private val signal = MutableSharedFlow<Unit>()
 
     override val container: Container<NovelFetchViewState, NovelFetchSideEffect> = container(NovelFetchViewState())
     abstract fun source(): Flow<PagingData<Novel>>
@@ -51,15 +45,11 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         a || b || c || d || e
     }
 
-    val data = merge(flowOf(Unit), refreshSignal).flatMapLatest {
-        source().cachedIn(viewModelScope).let { cached ->
-            merge(flowOf(::identity), transforms).runningReduce { a, b -> { v -> b(a(v)) } }.flatMapLatest { f ->
-                cached.map { data -> data.filterNot { i -> i.block() } }.map(f)
-            }
-        }
+    val data = merge(flowOf(Unit), signal).flatMapLatest {
+        novelRouter.intercept(source().cachedIn(viewModelScope)).map { data -> data.filterNot { i -> i.block() } }
     }.cachedIn(viewModelScope)
 
-    fun refresh() = intent { refreshSignal.emit(Unit) }
+    fun refresh() = intent { signal.emit(Unit) }
 
     @OptIn(OrbitExperimental::class)
     fun likeNovel(
@@ -80,39 +70,21 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
                 return@runOn
             }
             postSideEffect(NovelFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
-            transforms.emit { data ->
-                data.map {
-                    if (it.id == novel.id) {
-                        it.copy(isBookmarked = true)
-                    } else {
-                        it
-                    }
-                }
-            }
+            novelRouter.push { n -> if (n.id == novel.id) n.copy(isBookmarked = true) else n }
         }
     }
 
     @OptIn(OrbitExperimental::class)
     fun disLikeNovel(novel: Novel) = intent {
         runOn<NovelFetchViewState> {
-            val result = kotlin.runCatching {
-                client.deleteBookmarkNovel(novel.id.toLong())
-            }
+            val result = runCatching { client.deleteBookmarkNovel(novel.id.toLong()) }
 
             if (result.isFailure || result.getOrNull() == false) {
                 postSideEffect(NovelFetchSideEffect.Toast(getString(Res.string.un_bookmark_failed)))
                 return@runOn
             }
             postSideEffect(NovelFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
-            transforms.emit { data ->
-                data.map {
-                    if (it == novel) {
-                        it.copy(isBookmarked = false)
-                    } else {
-                        it
-                    }
-                }
-            }
+            novelRouter.push { n -> if (n.id == novel.id) n.copy(isBookmarked = false) else n }
         }
     }
 }
