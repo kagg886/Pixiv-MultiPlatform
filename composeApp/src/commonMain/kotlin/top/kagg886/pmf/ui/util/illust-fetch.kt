@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.runningReduce
 import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -36,7 +37,8 @@ private typealias F = (PagingData<Illust>) -> PagingData<Illust>
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
-    private val signal = MutableSharedFlow<F>()
+    private val refreshSignal = MutableSharedFlow<Unit>()
+    private val transforms = MutableSharedFlow<F>()
 
     override val container: Container<IllustFetchViewState, IllustFetchSideEffect> by lazy {
         container(IllustFetchViewState())
@@ -44,17 +46,21 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
 
     abstract fun source(): Flow<PagingData<Illust>>
 
-    val data = merge(flowOf(::identity), signal).flatMapLatest { f ->
-        source().map { data ->
-            data
-                .filter { !it.isLimited }
-                .filterNot { AppConfig.filterAi && it.isAI }
-                .filterNot { AppConfig.filterR18G && it.isR18G }
-                .filterNot { AppConfig.filterR18 && it.isR18 }
-        }.map(f)
+    val data = merge(flowOf(Unit), refreshSignal).flatMapLatest {
+        source().cachedIn(viewModelScope).let { cached ->
+            merge(flowOf(::identity), transforms).runningReduce { a, b -> { v -> b(a(v)) } }.flatMapLatest { f ->
+                cached.map { data ->
+                    data
+                        .filter { !it.isLimited }
+                        .filterNot { AppConfig.filterAi && it.isAI }
+                        .filterNot { AppConfig.filterR18G && it.isR18G }
+                        .filterNot { AppConfig.filterR18 && it.isR18 }
+                }.map(f)
+            }
+        }
     }.cachedIn(viewModelScope)
 
-    fun refresh() = intent { signal.emit(::identity) }
+    fun refresh() = intent { refreshSignal.emit(Unit) }
 
     @OptIn(OrbitExperimental::class)
     fun likeIllust(
@@ -75,7 +81,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
-            signal.emit { data ->
+            transforms.emit { data ->
                 data.map {
                     if (it.id == illust.id) {
                         it.copy(isBookMarked = true)
@@ -99,7 +105,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
-            signal.emit { data ->
+            transforms.emit { data ->
                 data.map {
                     if (it == illust) {
                         it.copy(isBookMarked = false)
