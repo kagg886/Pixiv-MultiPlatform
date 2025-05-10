@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,7 +92,8 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
                     .fillMaxSize(),
             ) {
-                if (state.illusts.isEmpty()) {
+                val data = state.illusts.collectAsLazyPagingItems()
+                if (data.itemCount == 0 && data.loadState.isIdle) {
                     ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                         scope.launch {
                             model.initIllust()
@@ -113,25 +112,27 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
                     state = scroll,
                 ) {
+                    // fixme(tarsin): support placeholders
                     items(
-                        state.illusts,
-                        key = { it.id },
-                    ) {
+                        count = data.itemCount,
+                        key = { i -> data.peek(i)!!.id },
+                    ) { i ->
+                        val item = data[i]!!
                         Box(modifier = Modifier.padding(5.dp)) {
                             Card(
                                 modifier = Modifier.fillMaxSize(),
-                                onClick = { nav.push(IllustDetailScreen(it)) },
+                                onClick = { nav.push(IllustDetailScreen(item)) },
                             ) {
                                 AsyncImage(
-                                    model = it.imageUrls.content,
-                                    modifier = Modifier.fillMaxWidth().aspectRatio(it.width.toFloat() / it.height.toFloat()),
+                                    model = item.imageUrls.content,
+                                    modifier = Modifier.fillMaxWidth().aspectRatio(item.width.toFloat() / item.height.toFloat()),
                                     contentDescription = null,
                                 )
                             }
 
                             Row(modifier = Modifier.align(Alignment.TopEnd).padding(top = 4.dp)) {
-                                if (it.isR18) {
-                                    if (it.isR18G) {
+                                if (item.isR18) {
+                                    if (item.isR18G) {
                                         Icon(
                                             modifier = Modifier.padding(end = 4.dp),
                                             imageVector = R18G,
@@ -146,7 +147,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                         tint = Color.Red,
                                     )
                                 }
-                                if (it.isAI) {
+                                if (item.isAI) {
                                     Icon(
                                         modifier = Modifier.padding(end = 4.dp),
                                         imageVector = Robot,
@@ -156,15 +157,13 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                                 }
                             }
 
-                            var betterFavoriteDialog by remember {
-                                mutableStateOf(false)
-                            }
+                            var betterFavoriteDialog by remember { mutableStateOf(false) }
                             if (betterFavoriteDialog) {
                                 TagFavoriteDialog(
-                                    tags = it.tags,
+                                    tags = item.tags,
                                     title = { Text(stringResource(Res.string.bookmark_extra_options)) },
                                     confirm = { tags, publicity ->
-                                        model.likeIllust(it, publicity, tags).join()
+                                        model.likeIllust(item, publicity, tags).join()
                                         betterFavoriteDialog = false
                                     },
                                     cancel = {
@@ -175,12 +174,12 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
                             FavoriteButton(
                                 modifier = Modifier.align(Alignment.BottomEnd),
-                                isFavorite = it.isBookMarked,
+                                isFavorite = item.isBookMarked,
                                 onModify = { target ->
                                     if (target == FavoriteState.Favorite) {
-                                        model.likeIllust(it).join()
+                                        model.likeIllust(item).join()
                                     } else {
-                                        model.disLikeIllust(it).join()
+                                        model.disLikeIllust(item).join()
                                     }
                                 },
                                 onDoubleClick = {
@@ -189,21 +188,16 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                             )
                         }
                     }
-                    item(span = StaggeredGridItemSpan.FullLine) {
-                        LaunchedEffect(Unit) {
-                            if (!state.noMoreData) {
-                                model.loadMoreIllusts()
-                            }
-                        }
-                        if (!state.noMoreData) {
+                    item(span = StaggeredGridItemSpan.FullLine, key = "Footer") {
+                        if (!data.loadState.isIdle) {
                             Loading()
-                            return@item
+                        } else {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(Res.string.no_more_data),
+                            )
                         }
-                        Text(
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(Res.string.no_more_data),
-                        )
                     }
                 }
 

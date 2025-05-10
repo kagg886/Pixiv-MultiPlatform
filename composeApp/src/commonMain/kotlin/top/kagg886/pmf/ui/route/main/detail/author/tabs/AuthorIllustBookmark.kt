@@ -1,13 +1,19 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustResult
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserLikeIllust
 import top.kagg886.pixko.module.user.getUserLikeIllustNext
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
@@ -21,17 +27,13 @@ fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
 }
 
 private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>() {
-            private var context: IllustResult? = null
-            override suspend fun onFetchList(): List<Illust> {
-                context = if (context == null) {
-                    client.getUserLikeIllust(user)
-                } else {
-                    client.getUserLikeIllustNext(context!!)
-                }
-                return context!!.illusts
+    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+        object : PagingSource<IllustResult, Illust>() {
+            override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
+            override suspend fun load(params: LoadParams<IllustResult>) = withContext(Dispatchers.IO) {
+                val result = params.key?.let { ctx -> client.getUserLikeIllustNext(ctx) } ?: client.getUserLikeIllust(user)
+                LoadResult.Page(result.illusts, null, result)
             }
         }
-    }
+    }.flow
 }

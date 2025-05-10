@@ -1,7 +1,14 @@
 package top.kagg886.pmf.ui.route.main.bookmark
 
 import androidx.lifecycle.ViewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import cafe.adriel.voyager.core.model.ScreenModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -57,28 +64,17 @@ sealed interface CanAccessTagFilterViewModel {
     val tagFilter: TagFilter
 }
 
-class BookmarkIllustViewModel(
-    val restrict: UserLikePublicity = UserLikePublicity.PUBLIC,
-    override val tagFilter: TagFilter = TagFilter.NoFilter,
-) : IllustFetchViewModel(), CanAccessTagFilterViewModel {
+class BookmarkIllustViewModel(val restrict: UserLikePublicity = UserLikePublicity.PUBLIC, override val tagFilter: TagFilter = TagFilter.NoFilter) : IllustFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
-    override fun initInfinityRepository(): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>() {
-            private var ctx: IllustResult? = null
-            override suspend fun onFetchList(): List<Illust>? {
-                ctx = if (ctx == null) {
-                    client.getUserLikeIllust(
-                        id,
-                        restrict,
-                        tagFilter,
-                    )
-                } else {
-                    client.getUserLikeIllustNext(ctx!!)
-                }
-                return ctx?.illusts
+    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+        object : PagingSource<IllustResult, Illust>() {
+            override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
+            override suspend fun load(params: LoadParams<IllustResult>) = withContext(Dispatchers.IO) {
+                val result = params.key?.let { ctx -> client.getUserLikeIllustNext(ctx) } ?: client.getUserLikeIllust(id, restrict, tagFilter)
+                LoadResult.Page(result.illusts, null, result)
             }
         }
-    }
+    }.flow
 }
 
 class BookmarkNovelViewModel(
