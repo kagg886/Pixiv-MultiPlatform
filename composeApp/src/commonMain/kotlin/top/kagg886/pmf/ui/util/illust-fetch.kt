@@ -51,8 +51,8 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 .filterNot { AppConfig.filterAi && it.isAI }
                 .filterNot { AppConfig.filterR18G && it.isR18G }
                 .filterNot { AppConfig.filterR18 && it.isR18 }
-        }.map(f).cachedIn(viewModelScope)
-    }
+        }.map(f)
+    }.cachedIn(viewModelScope)
 
     fun refresh() = intent { signal.emit(::identity) }
 
