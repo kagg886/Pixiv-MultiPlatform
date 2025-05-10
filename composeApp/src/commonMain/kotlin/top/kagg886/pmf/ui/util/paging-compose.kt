@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
@@ -15,12 +16,14 @@ import androidx.paging.PagingDataPresenter
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.awaitNotLoading
 import arrow.core.identity
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -133,4 +136,9 @@ fun <T : Any> Flow<PagingData<T>>.collectAsLazyPagingItems(
     }
 
     return lazyPagingItems
+}
+
+suspend fun <T : Any> LazyPagingItems<T>.awaitNextState() {
+    delay(200)
+    snapshotFlow { loadState }.awaitNotLoading()
 }

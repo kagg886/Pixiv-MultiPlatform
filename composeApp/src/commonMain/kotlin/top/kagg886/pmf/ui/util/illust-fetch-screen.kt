@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
@@ -57,6 +59,7 @@ fun IllustFetchScreen(model: IllustFetchViewModel) {
 @Composable
 private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow
+    val scope = rememberCoroutineScope()
     val data = model.data.collectAsLazyPagingItems()
     when {
         !data.loadState.isIdle && data.itemCount == 0 -> Loading()
@@ -76,10 +79,15 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
             PullToRefreshBox(
                 isRefreshing = isRefresh,
-                onRefresh = { model.refresh() },
-                modifier = Modifier
-                    .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize(),
+                onRefresh = {
+                    scope.launch {
+                        isRefresh = true
+                        model.refresh()
+                        data.awaitNextState()
+                        isRefresh = false
+                    }
+                },
+                modifier = Modifier.ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }.fillMaxSize(),
             ) {
                 if (data.itemCount == 0 && data.loadState.isIdle) {
                     ErrorPage(text = stringResource(Res.string.page_is_empty)) {
@@ -196,7 +204,12 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd),
                     onBackToTop = { scroll.animateScrollToItem(0) },
-                    onRefresh = { model.refresh() },
+                    onRefresh = {
+                        isRefresh = true
+                        model.refresh()
+                        data.awaitNextState()
+                        isRefresh = false
+                    },
                 )
             }
         }
