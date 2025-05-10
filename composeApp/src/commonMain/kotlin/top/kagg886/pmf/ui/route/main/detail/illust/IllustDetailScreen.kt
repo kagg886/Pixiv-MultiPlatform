@@ -110,6 +110,7 @@ import top.kagg886.pmf.ui.util.HTMLRichText
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.illustRouter
 import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withClickable
@@ -460,12 +461,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                             )
                                         }
 
+                                        val illust by illustRouter.collectLatest(illust)
                                         FavoriteButton(
                                             isFavorite = illust.isBookMarked,
                                             modifier = Modifier.size(30.dp),
-                                            onDoubleClick = {
-                                                betterFavoriteDialog = true
-                                            },
+                                            onDoubleClick = { betterFavoriteDialog = true },
                                         ) {
                                             if (it == FavoriteState.Favorite) {
                                                 model.likeIllust().join()

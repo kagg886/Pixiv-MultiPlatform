@@ -64,7 +64,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
-            illustRouter.push { i -> if (i.id == illust.id) i.copy(isBookMarked = true) else i }
+            illust.notifyLike()
         }
     }
 
@@ -78,7 +78,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
-            illustRouter.push { i -> if (i.id == illust.id) i.copy(isBookMarked = false) else i }
+            illust.notifyDislike()
         }
     }
 }

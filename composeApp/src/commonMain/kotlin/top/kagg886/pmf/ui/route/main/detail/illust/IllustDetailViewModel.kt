@@ -40,6 +40,8 @@ import top.kagg886.pmf.get_illust_info_fail
 import top.kagg886.pmf.get_original_fail
 import top.kagg886.pmf.getting_ugoira_metadata
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.ui.util.notifyDislike
+import top.kagg886.pmf.ui.util.notifyLike
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.unfollow_fail
@@ -164,13 +166,14 @@ class IllustDetailViewModel(private val illust: Illust) :
                 state.copy(illust = illust)
             }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.bookmark_success)))
+            illust.notifyLike()
         }
     }
 
     @OptIn(OrbitExperimental::class)
     fun disLikeIllust() = intent {
         runOn<IllustDetailViewState.Success> {
-            val result = kotlin.runCatching {
+            val result = runCatching {
                 client.deleteBookmarkIllust(state.illust.id.toLong())
             }
 
@@ -183,6 +186,7 @@ class IllustDetailViewModel(private val illust: Illust) :
                 state.copy(illust = illust)
             }
             postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.un_bookmark_success)))
+            illust.notifyDislike()
         }
     }
 

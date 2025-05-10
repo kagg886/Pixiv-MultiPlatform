@@ -1,5 +1,7 @@
 package top.kagg886.pmf.ui.util
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.paging.PagingData
 import androidx.paging.map
 import arrow.core.identity
@@ -14,15 +16,22 @@ import top.kagg886.pixko.User
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.novel.Novel
 
-private typealias F<T> = (PagingData<T>) -> PagingData<T>
+private typealias F<T> = (T) -> T
+private typealias FDF<T> = F<Flow<PagingData<T>>>
 fun <T : Any> Flow<F<T>>.compose() = runningReduce { a, b -> { v -> b(a(v)) } }
 
 class Router<T : Any> {
     val flow = MutableSharedFlow<F<T>>()
-    suspend inline fun push(crossinline f: (T) -> T) = flow.emit { d -> d.map { t -> f(t) } }
-    fun intercept(src: Flow<PagingData<T>>) = merge(flowOf(::identity), flow).compose().flatMapLatest { f -> src.map(f) }
+    suspend fun push(f: (T) -> T) = flow.emit(f)
+    val intercept: FDF<T> = { src -> merge(flowOf(::identity), flow).compose().flatMapLatest { f -> src.map { d -> d.map(f) } } }
+
+    @Composable
+    fun collectLatest(t: T) = flow.compose().map { f -> f(t) }.collectAsState(t)
 }
 
 val illustRouter = Router<Illust>()
+suspend fun Illust.notifyDislike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = false) else i }
+suspend fun Illust.notifyLike() = illustRouter.push { i -> if (i.id == id) i.copy(isBookMarked = true) else i }
+
 val novelRouter = Router<Novel>()
 val userRouter = Router<User>()
