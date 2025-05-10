@@ -47,6 +47,14 @@ suspend inline fun <K : Any, T : Any> LoadParams<K>.next(
     return LoadResult.Page(l, null, k)
 }
 
+suspend inline fun <T : Any> LoadParams<Int>.page(
+    f: suspend (Int) -> List<T>,
+): Page<Int, T> {
+    val k = key ?: 1
+    val r = f(k).takeUnless { it.isEmpty() } ?: return empty()
+    return LoadResult.Page(r, if (k > 1) k - 1 else null, k + 1)
+}
+
 class LazyPagingItems<T : Any>(private val flow: Flow<PagingData<T>>) {
     private val mainDispatcher = Dispatchers.Main
 

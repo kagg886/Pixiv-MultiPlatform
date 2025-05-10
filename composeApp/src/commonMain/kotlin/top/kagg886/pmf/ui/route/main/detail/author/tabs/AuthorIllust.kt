@@ -13,6 +13,7 @@ import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.catch
+import top.kagg886.pmf.ui.util.page
 
 @Composable
 fun AuthorScreen.AuthorIllust(user: UserInfo) {
@@ -27,9 +28,7 @@ private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
         object : PagingSource<Int, Illust>() {
             override fun getRefreshKey(state: PagingState<Int, Illust>) = null
             override suspend fun load(params: LoadParams<Int>) = catch {
-                val key = params.key ?: 1
-                val result = client.getUserIllust(user.toLong(), key)
-                LoadResult.Page(result, if (key > 1) key - 1 else null, key + 1)
+                params.page { i -> client.getUserIllust(user.toLong(), i) }
             }
         }
     }.flow

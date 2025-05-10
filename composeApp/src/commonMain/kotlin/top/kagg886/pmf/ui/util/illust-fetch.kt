@@ -33,7 +33,7 @@ import top.kagg886.pmf.un_bookmark_success
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
-    val signal = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val signal = MutableSharedFlow<Unit>()
     val data = merge(signal, flowOf(Unit)).flatMapLatest {
         source().map { data -> data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 } }.cachedIn(viewModelScope)
     }
