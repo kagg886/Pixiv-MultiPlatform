@@ -57,7 +57,7 @@ fun IllustFetchScreen(model: IllustFetchViewModel) {
 @Composable
 private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow
-    val data = model.flow.collectAsLazyPagingItems()
+    val data = model.data.collectAsLazyPagingItems()
     when {
         !data.loadState.isIdle && data.itemCount == 0 -> Loading()
         else -> {
