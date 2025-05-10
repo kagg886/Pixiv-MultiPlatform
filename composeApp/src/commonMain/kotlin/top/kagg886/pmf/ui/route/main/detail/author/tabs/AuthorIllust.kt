@@ -1,18 +1,13 @@
 package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingSource
-import androidx.paging.PagingState
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserIllust
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
-import top.kagg886.pmf.ui.util.catch
+import top.kagg886.pmf.ui.util.flowOf
 import top.kagg886.pmf.ui.util.page
 
 @Composable
@@ -24,12 +19,7 @@ fun AuthorScreen.AuthorIllust(user: UserInfo) {
 }
 
 private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
-    override fun source() = Pager(PagingConfig(pageSize = 30)) {
-        object : PagingSource<Int, Illust>() {
-            override fun getRefreshKey(state: PagingState<Int, Illust>) = null
-            override suspend fun load(params: LoadParams<Int>) = catch {
-                params.page { i -> client.getUserIllust(user.toLong(), i) }
-            }
-        }
-    }.flow
+    override fun source() = flowOf(30) { params ->
+        params.page { i -> client.getUserIllust(user.toLong(), i) }
+    }
 }

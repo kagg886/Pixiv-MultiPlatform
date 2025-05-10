@@ -10,12 +10,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
+import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
+import androidx.paging.PagingState
 import androidx.paging.awaitNotLoading
 import arrow.core.identity
 import kotlin.coroutines.CoroutineContext
@@ -31,9 +35,19 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
 
 inline fun <T, reified E : Throwable> Result<T>.except() = onFailure { e -> if (e is E) throw e }
+
 suspend inline fun <K : Any, V : Any, R : LoadResult<K, V>> catch(crossinline f: suspend () -> R) = withContext(Dispatchers.IO) {
     runCatching { f() }.except<R, CancellationException>().fold(::identity) { LoadResult.Error<K, V>(it) }
 }
+
+inline fun <K : Any, V : Any> flowOf(pageSize: Int, crossinline f: suspend (LoadParams<K>) -> LoadResult<K, V>) = Pager(PagingConfig(pageSize)) {
+    object : PagingSource<K, V>() {
+        override fun getRefreshKey(state: PagingState<K, V>) = null
+        override suspend fun load(params: LoadParams<K>) = catch {
+            f(params)
+        }
+    }
+}.flow
 
 val empty = Page(emptyList(), null, null, 0, 0)
 
