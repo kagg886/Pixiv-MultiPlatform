@@ -46,16 +46,12 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
 
     abstract fun source(): Flow<PagingData<Illust>>
 
+    fun Illust.block() = with(AppConfig) { isLimited || (filterAi && isAI) || (filterR18G && isR18G) || (filterR18 && isR18) }
+
     val data = merge(flowOf(Unit), refreshSignal).flatMapLatest {
         source().cachedIn(viewModelScope).let { cached ->
             merge(flowOf(::identity), transforms).runningReduce { a, b -> { v -> b(a(v)) } }.flatMapLatest { f ->
-                cached.map { data ->
-                    data
-                        .filter { !it.isLimited }
-                        .filterNot { AppConfig.filterAi && it.isAI }
-                        .filterNot { AppConfig.filterR18G && it.isR18G }
-                        .filterNot { AppConfig.filterR18 && it.isR18 }
-                }.map(f)
+                cached.map { data -> data.filterNot { i -> i.block() } }.map(f)
             }
         }
     }.cachedIn(viewModelScope)
