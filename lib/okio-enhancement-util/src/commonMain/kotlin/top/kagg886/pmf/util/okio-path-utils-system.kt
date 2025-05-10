@@ -2,7 +2,6 @@ package top.kagg886.pmf.util
 
 import korlibs.io.file.std.createZipFromTreeTo
 import korlibs.io.file.std.rootLocalVfs
-import kotlinx.coroutines.runBlocking
 import okio.Buffer
 import okio.FileSystem
 import okio.Path
@@ -15,7 +14,6 @@ import okio.openZip
 import okio.use
 
 fun Path.meta() = FileSystem.SYSTEM.metadata(this)
-
 
 fun Path.sink(append: Boolean = false): Sink = sink0(this, append)
 
@@ -68,15 +66,14 @@ fun Path.deleteRecursively() {
     FileSystem.SYSTEM.delete(this)
 }
 
-fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve("${this.name}.zip")): Path {
+suspend fun Path.zip(target: Path = FileSystem.SYSTEM.canonicalize(this).parent!!.resolve("${this.name}.zip")): Path {
     val vfs = rootLocalVfs[absolutePath().toString()]
-    target.parentFile()?.mkdirs()
-    target.createNewFile()
-    return runBlocking {
+    return target.apply {
+        parentFile()?.mkdirs()
+        createNewFile()
         vfs.createZipFromTreeTo(
             zipFile = rootLocalVfs[target.absolutePath().toString()]
         )
-        target
     }
 }
 

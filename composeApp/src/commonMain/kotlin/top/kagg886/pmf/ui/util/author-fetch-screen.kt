@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -39,7 +38,6 @@ fun AuthorFetchScreen(model: AuthorFetchViewModel) {
     AuthorFetchContent0(state, model)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchViewModel) {
     when (state) {

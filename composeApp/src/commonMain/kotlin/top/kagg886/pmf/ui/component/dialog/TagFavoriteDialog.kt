@@ -2,11 +2,9 @@ package top.kagg886.pmf.ui.component.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.PrimaryTabRow
@@ -32,7 +30,6 @@ import top.kagg886.pmf.confirm
 import top.kagg886.pmf.favorite_tag
 import top.kagg886.pmf.favorite_type
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TagFavoriteDialog(
     tags: List<Tag>,

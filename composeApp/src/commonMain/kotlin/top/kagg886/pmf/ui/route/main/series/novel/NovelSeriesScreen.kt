@@ -15,7 +15,6 @@ import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -114,7 +113,6 @@ class NovelSeriesScreen(private val id: Int) : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun NovelSeriesScreenContent(info: SeriesDetail, model: NovelFetchViewModel) {
         val state = rememberDrawerState(DrawerValue.Open)
@@ -177,7 +175,6 @@ class NovelSeriesScreen(private val id: Int) : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun NovelSeriesScreenDrawerContent(info: SeriesDetail) {
         PermanentDrawerSheet {

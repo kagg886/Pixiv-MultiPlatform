@@ -1,7 +1,6 @@
 package top.kagg886.pmf.ui.route.main.search.v2.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -35,7 +34,6 @@ sealed interface TagPropertiesState {
     data class Failed(val msg: String) : TagPropertiesState
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchPropertiesPanel(
     modifier: Modifier = Modifier,

@@ -41,7 +41,6 @@ import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -79,7 +78,7 @@ class SearchPanelScreen(
         "search_panel_${sort}_${target}_${keyword}_$initialText"
     }
 
-    @OptIn(InternalVoyagerApi::class, FlowPreview::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { SearchPanelViewModel(sort, target, keyword, initialText) }

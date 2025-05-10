@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +25,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -114,7 +112,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val nav = LocalNavigator.currentOrThrow
@@ -223,7 +221,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         val coil = LocalPlatformContext.current
         when (state) {
@@ -481,7 +478,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                         }
 
                         1 -> {
-                            NovelComment(state.novel, model)
+                            NovelComment(state.novel)
                         }
                     }
                 }
@@ -490,7 +487,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    private fun NovelComment(novel: Novel, detailViewModel: NovelDetailViewModel) {
+    private fun NovelComment(novel: Novel) {
         val model = rememberScreenModel("novel_comment_${novel.id}") {
             NovelCommentViewModel(id)
         }

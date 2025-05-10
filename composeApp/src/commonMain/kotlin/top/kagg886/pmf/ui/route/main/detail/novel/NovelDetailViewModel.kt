@@ -15,7 +15,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsBytes
 import kotlin.collections.set
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -214,7 +213,7 @@ class NovelDetailViewModel(val id: Long) :
         }
     }
 
-    @OptIn(OrbitExperimental::class, ExperimentalUuidApi::class)
+    @OptIn(OrbitExperimental::class)
     fun exportToEpub() = intent {
         runOn<NovelDetailViewState.Success> {
             postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.exporting)))

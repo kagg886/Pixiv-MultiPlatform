@@ -14,7 +14,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
@@ -40,7 +39,6 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
 import io.github.vinceglb.filekit.core.FileKit
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
@@ -73,7 +71,6 @@ import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
 import top.kagg886.pmf.util.transfer
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 fun ImagePreviewer(
     onDismiss: () -> Unit,

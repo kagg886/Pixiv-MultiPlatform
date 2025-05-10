@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +54,6 @@ import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
 import coil3.ComponentRegistry
 import coil3.ImageLoader
-import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.disk.DiskCache
 import coil3.network.ConnectivityChecker
@@ -72,10 +70,11 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import okio.Path
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -223,7 +222,6 @@ fun App(initScreen: Screen = WelcomeScreen()) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
@@ -237,7 +235,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                         selected = entry == type,
                         onClick = { if (entry != type) nav.push(entry()) },
                         icon = { Icon(imageVector = entry.icon, null) },
-                        label = { Text(entry.title) },
+                        label = { Text(stringResource(entry.title)) },
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -250,7 +248,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(title) },
+                    title = { Text(stringResource(title)) },
                     navigationIcon = { ProfileAvatar() },
                     actions = { SearchButton() },
                 )
@@ -262,7 +260,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                             selected = entry == type,
                             onClick = { if (entry != type) nav.push(entry()) },
                             icon = { Icon(imageVector = entry.icon, null) },
-                            label = { Text(entry.title) },
+                            label = { Text(stringResource(entry.title)) },
                         )
                     }
                 }
@@ -313,7 +311,6 @@ fun SearchButton() {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
         object : CoilLogger {
@@ -479,13 +476,13 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(
-    val title: String,
+    val title: StringResource,
     val icon: ImageVector,
     val content: () -> Screen,
 ) {
-    RECOMMEND(runBlocking { getString(Res.string.recommend) }, Icons.Default.Home, { RecommendScreen() }),
-    RANK(runBlocking { getString(Res.string.rank) }, Icons.Default.DateRange, { RankScreen() }),
-    SPACE(runBlocking { getString(Res.string.space) }, Icons.Default.Star, { SpaceScreen() }),
+    RECOMMEND(Res.string.recommend, Icons.Default.Home, { RecommendScreen() }),
+    RANK(Res.string.rank, Icons.Default.DateRange, { RankScreen() }),
+    SPACE(Res.string.space, Icons.Default.Star, { SpaceScreen() }),
     ;
 
     operator fun invoke(): Screen = content()

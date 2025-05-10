@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -186,7 +185,6 @@ import top.kagg886.pmf.util.mb
 import top.kagg886.pmf.util.zip
 
 class SettingScreen : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         Column(Modifier.verticalScroll(rememberScrollState())) {
@@ -849,7 +847,7 @@ class SettingScreen : Screen {
                                     onValueChange = {
                                         val fallback = try {
                                             Json.decodeFromString<Map<String, List<String>>>(it)
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             scope.launch {
                                                 snack.showSnackbar(getString(Res.string.format_error))
                                             }

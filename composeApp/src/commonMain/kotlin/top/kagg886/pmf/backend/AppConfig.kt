@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalSerializationApi::class, ExperimentalSettingsApi::class)
+@file:OptIn(ExperimentalSettingsApi::class)
 
 package top.kagg886.pmf.backend
 
@@ -9,7 +9,6 @@ import com.russhwolf.settings.int
 import com.russhwolf.settings.long
 import com.russhwolf.settings.serialization.nullableSerializedValue
 import com.russhwolf.settings.serialization.serializedValue
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

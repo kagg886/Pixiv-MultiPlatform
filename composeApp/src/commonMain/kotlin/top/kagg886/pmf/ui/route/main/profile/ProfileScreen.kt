@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,7 +80,6 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
     private val me by me
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         var page by rememberSaveable {
