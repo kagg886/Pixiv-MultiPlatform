@@ -11,7 +11,7 @@ import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.catch
 
 class IllustRankScreenModel(val type: RankCategory) : IllustFetchViewModel() {
-    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+    override fun source() = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<Int, Illust>() {
             override fun getRefreshKey(state: PagingState<Int, Illust>) = null
             override suspend fun load(params: LoadParams<Int>) = catch {

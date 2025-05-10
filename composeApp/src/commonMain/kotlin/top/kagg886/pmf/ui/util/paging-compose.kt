@@ -78,8 +78,6 @@ class LazyPagingItems<T : Any>(private val flow: Flow<PagingData<T>>) {
 
     fun retry() = pagingDataPresenter.retry()
 
-    fun refresh() = pagingDataPresenter.refresh()
-
     var loadState: CombinedLoadStates by
         mutableStateOf(
             pagingDataPresenter.loadStateFlow.value

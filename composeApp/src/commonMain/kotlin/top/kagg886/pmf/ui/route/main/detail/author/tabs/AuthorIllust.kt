@@ -23,7 +23,7 @@ fun AuthorScreen.AuthorIllust(user: UserInfo) {
 }
 
 private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
-    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+    override fun source() = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<Int, Illust>() {
             override fun getRefreshKey(state: PagingState<Int, Illust>) = null
             override suspend fun load(params: LoadParams<Int>) = catch {

@@ -76,10 +76,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
 
             PullToRefreshBox(
                 isRefreshing = isRefresh,
-                onRefresh = {
-                    isRefresh = true
-                    data.refresh()
-                },
+                onRefresh = { model.refresh() },
                 modifier = Modifier
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
                     .fillMaxSize(),
@@ -198,13 +195,8 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onBackToTop = {
-                        scroll.animateScrollToItem(0)
-                    },
-                    onRefresh = {
-                        isRefresh = true
-                        data.refresh()
-                    },
+                    onBackToTop = { scroll.animateScrollToItem(0) },
+                    onRefresh = { model.refresh() },
                 )
             }
         }

@@ -13,7 +13,7 @@ import top.kagg886.pmf.ui.util.catch
 import top.kagg886.pmf.ui.util.next
 
 class NewestIllustViewModel : IllustFetchViewModel() {
-    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+    override fun source() = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
             override suspend fun load(params: LoadParams<IllustResult>) = catch {

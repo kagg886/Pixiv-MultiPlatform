@@ -13,6 +13,8 @@ class HistoryIllustViewModel : IllustFetchViewModel(), KoinComponent {
     private val database by inject<AppDatabase>()
 
     // fixme(tarsin): support placeholders
-    override val rawSource = Pager(PagingConfig(30, enablePlaceholders = false)) { database.illustHistoryDAO().source() }
-        .flow.map { data -> data.map { h -> h.illust } }
+    override fun source() = Pager(
+        PagingConfig(30, enablePlaceholders = false),
+        pagingSourceFactory = { database.illustHistoryDAO().source() },
+    ).flow.map { data -> data.map { h -> h.illust } }
 }

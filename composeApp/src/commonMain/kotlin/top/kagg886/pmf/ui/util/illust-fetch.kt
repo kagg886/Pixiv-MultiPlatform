@@ -9,7 +9,11 @@ import androidx.paging.filter
 import androidx.paging.map
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -29,18 +33,18 @@ import top.kagg886.pmf.un_bookmark_success
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
+    val signal = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val data = merge(signal, flowOf(Unit)).flatMapLatest {
+        source().map { data -> data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 } }.cachedIn(viewModelScope)
+    }
 
     override val container: Container<IllustFetchViewState, IllustFetchSideEffect> by lazy {
-        container(IllustFetchViewState(source()))
+        container(IllustFetchViewState(data))
     }
 
-    abstract val rawSource: Flow<PagingData<Illust>>
+    abstract fun source(): Flow<PagingData<Illust>>
 
-    val cachedSource by lazy { rawSource.cachedIn(viewModelScope) }
-
-    fun source() = cachedSource.map { data ->
-        data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 }
-    }
+    fun refresh() = intent { signal.emit(Unit) }
 
     @OptIn(OrbitExperimental::class)
     fun likeIllust(

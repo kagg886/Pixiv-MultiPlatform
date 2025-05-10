@@ -65,7 +65,7 @@ sealed interface CanAccessTagFilterViewModel {
 
 class BookmarkIllustViewModel(val restrict: UserLikePublicity = UserLikePublicity.PUBLIC, override val tagFilter: TagFilter = TagFilter.NoFilter) : IllustFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
-    override val rawSource = Pager(PagingConfig(pageSize = 30)) {
+    override fun source() = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
             override suspend fun load(params: LoadParams<IllustResult>) = catch {
