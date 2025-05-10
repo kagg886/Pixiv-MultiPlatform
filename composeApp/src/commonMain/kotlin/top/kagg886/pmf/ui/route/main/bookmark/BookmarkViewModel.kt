@@ -20,6 +20,7 @@ import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
 import top.kagg886.pmf.ui.util.catch
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.ui.util.next
 
 class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, ViewModel(), ScreenModel {
     override val container: Container<BookmarkViewState, BookmarkSideEffect> = container(BookmarkViewState.LoadSuccess())
@@ -68,8 +69,11 @@ class BookmarkIllustViewModel(val restrict: UserLikePublicity = UserLikePublicit
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
             override suspend fun load(params: LoadParams<IllustResult>) = catch {
-                val result = params.key?.let { ctx -> client.getUserLikeIllustNext(ctx) } ?: client.getUserLikeIllust(id, restrict, tagFilter)
-                LoadResult.Page(result.illusts, null, result)
+                params.next(
+                    { client.getUserLikeIllust(id, restrict, tagFilter) },
+                    { ctx -> client.getUserLikeIllustNext(ctx) },
+                    { ctx -> ctx.illusts },
+                )
             }
         }
     }.flow

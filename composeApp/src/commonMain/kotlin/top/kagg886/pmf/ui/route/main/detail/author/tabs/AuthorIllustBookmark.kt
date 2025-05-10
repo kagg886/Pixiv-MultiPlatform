@@ -15,6 +15,7 @@ import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.catch
+import top.kagg886.pmf.ui.util.next
 
 @Composable
 fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
@@ -29,8 +30,11 @@ private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewMode
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
             override suspend fun load(params: LoadParams<IllustResult>) = catch {
-                val result = params.key?.let { ctx -> client.getUserLikeIllustNext(ctx) } ?: client.getUserLikeIllust(user)
-                LoadResult.Page(result.illusts, null, result)
+                params.next(
+                    { client.getUserLikeIllust(user) },
+                    { ctx -> client.getUserLikeIllustNext(ctx) },
+                    { ctx -> ctx.illusts },
+                )
             }
         }
     }.flow

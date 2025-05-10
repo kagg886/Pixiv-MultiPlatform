@@ -10,14 +10,18 @@ import top.kagg886.pixko.module.illust.getLatestIllust
 import top.kagg886.pixko.module.illust.getLatestIllustNext
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.catch
+import top.kagg886.pmf.ui.util.next
 
 class NewestIllustViewModel : IllustFetchViewModel() {
     override val rawSource = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
             override suspend fun load(params: LoadParams<IllustResult>) = catch {
-                val result = params.key?.let { ctx -> client.getLatestIllustNext(ctx) } ?: client.getLatestIllust()
-                LoadResult.Page(result.illusts, null, result)
+                params.next(
+                    { client.getLatestIllust() },
+                    { ctx -> client.getLatestIllustNext(ctx) },
+                    { ctx -> ctx.illusts },
+                )
             }
         }
     }.flow

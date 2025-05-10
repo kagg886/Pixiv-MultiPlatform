@@ -12,7 +12,9 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
+import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Page
 import arrow.core.identity
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -28,6 +30,21 @@ import kotlinx.coroutines.withContext
 inline fun <T, reified E : Throwable> Result<T>.except() = onFailure { e -> if (e is E) throw e }
 suspend inline fun <K : Any, V : Any, R : LoadResult<K, V>> catch(crossinline f: suspend () -> R) = withContext(Dispatchers.IO) {
     runCatching { f() }.except<R, CancellationException>().fold(::identity) { LoadResult.Error<K, V>(it) }
+}
+
+val empty = Page(emptyList(), null, null, 0, 0)
+
+@Suppress("UNCHECKED_CAST")
+fun <Key : Any, Value : Any> empty() = empty as Page<Key, Value>
+
+suspend inline fun <K : Any, T : Any> LoadParams<K>.next(
+    fa: suspend () -> K,
+    fb: suspend (K) -> K?,
+    t: (K) -> List<T>,
+): Page<K, T> {
+    val k = key?.let { fb(it) ?: return empty() } ?: fa()
+    val l = t(k).takeUnless { it.isEmpty() } ?: return empty()
+    return LoadResult.Page(l, null, k)
 }
 
 class LazyPagingItems<T : Any>(private val flow: Flow<PagingData<T>>) {
