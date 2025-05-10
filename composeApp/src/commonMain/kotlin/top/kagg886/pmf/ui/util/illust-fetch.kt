@@ -1,19 +1,19 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
+import arrow.core.identity
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 import org.jetbrains.compose.resources.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -33,18 +33,20 @@ import top.kagg886.pmf.un_bookmark_success
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
-    val signal = MutableSharedFlow<Unit>()
-    val data = merge(signal, flowOf(Unit)).flatMapLatest {
-        source().map { data -> data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 } }.cachedIn(viewModelScope)
-    }
+    private val lazyState by lazy { mutableStateOf(data()) }
+    var flow by lazyState
 
     override val container: Container<IllustFetchViewState, IllustFetchSideEffect> by lazy {
-        container(IllustFetchViewState(data))
+        container(IllustFetchViewState())
     }
 
     abstract fun source(): Flow<PagingData<Illust>>
 
-    fun refresh() = intent { signal.emit(Unit) }
+    fun data(transform: suspend (value: PagingData<Illust>) -> PagingData<Illust> = ::identity) = source().map<PagingData<Illust>, PagingData<Illust>> { data ->
+        data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 }
+    }.map(transform).cachedIn(viewModelScope)
+
+    fun refresh() = intent { flow = data() }
 
     @OptIn(OrbitExperimental::class)
     fun likeIllust(
@@ -65,18 +67,14 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.bookmark_success)))
-            reduce {
-                state.copy(
-                    illusts = source().map { data ->
-                        data.map {
-                            if (it.id == illust.id) {
-                                it.copy(isBookMarked = true)
-                            } else {
-                                it
-                            }
-                        }
-                    },
-                )
+            flow = data { data ->
+                data.map {
+                    if (it.id == illust.id) {
+                        it.copy(isBookMarked = true)
+                    } else {
+                        it
+                    }
+                }
             }
         }
     }
@@ -93,24 +91,20 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
                 return@runOn
             }
             postSideEffect(IllustFetchSideEffect.Toast(getString(Res.string.un_bookmark_success)))
-            reduce {
-                state.copy(
-                    illusts = source().map { data ->
-                        data.map {
-                            if (it == illust) {
-                                it.copy(isBookMarked = false)
-                            } else {
-                                it
-                            }
-                        }
-                    },
-                )
+            flow = data { data ->
+                data.map {
+                    if (it == illust) {
+                        it.copy(isBookMarked = false)
+                    } else {
+                        it
+                    }
+                }
             }
         }
     }
 }
 
-data class IllustFetchViewState(val illusts: Flow<PagingData<Illust>>, val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState())
+data class IllustFetchViewState(val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState())
 
 sealed class IllustFetchSideEffect {
     data class Toast(val msg: String) : IllustFetchSideEffect()
