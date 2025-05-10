@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,14 +60,12 @@ fun NovelFetchScreen(model: NovelFetchViewModel) {
 @Composable
 private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow
-    when (state) {
-        NovelFetchViewState.Loading -> {
-            Loading()
-        }
-
-        is NovelFetchViewState.ShowNovelList -> {
+    val scope = rememberCoroutineScope()
+    val data = model.data.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        else -> {
             val scroll = state.scrollerState
-            val scope = rememberCoroutineScope()
             var isRefresh by remember { mutableStateOf(false) }
 
             val controller = remember {
@@ -84,22 +80,18 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {
-                    isRefresh = true
                     scope.launch {
-                        model.initNovel(true).join()
-                    }.invokeOnCompletion {
+                        isRefresh = true
+                        model.refresh()
+                        data.awaitNextState()
                         isRefresh = false
                     }
                 },
-                modifier = Modifier
-                    .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize(),
+                modifier = Modifier.ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }.fillMaxSize(),
             ) {
-                if (state.novels.isEmpty()) {
+                if (data.itemCount == 0 && data.loadState.isIdle) {
                     ErrorPage(text = stringResource(Res.string.page_is_empty)) {
-                        scope.launch {
-                            model.initNovel()
-                        }
+                        data.retry()
                     }
                     return@PullToRefreshBox
                 }
@@ -107,12 +99,16 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                     modifier = Modifier.fillMaxSize().padding(end = 8.dp),
                     state = scroll,
                 ) {
-                    items(state.novels, key = { it.id }) {
+                    items(
+                        count = data.itemCount,
+                        key = { i -> data.peek(i)!!.id },
+                    ) { i ->
+                        val item = data[i]!!
                         Column {
                             ListItem(
                                 overlineContent = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (it.isR18 || it.isR18G) {
+                                        if (item.isR18 || item.isR18G) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = R18,
@@ -120,7 +116,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 tint = Color.Red,
                                             )
                                         }
-                                        if (it.isR18G) {
+                                        if (item.isR18G) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = R18G,
@@ -128,7 +124,7 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 tint = Color.Red,
                                             )
                                         }
-                                        if (it.isAI) {
+                                        if (item.isAI) {
                                             Icon(
                                                 modifier = Modifier.padding(end = 4.dp),
                                                 imageVector = Robot,
@@ -136,34 +132,32 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                                 tint = Color.Yellow,
                                             )
                                         }
-                                        if (!it.series.isNull) {
-                                            Text(it.series.title)
+                                        if (!item.series.isNull) {
+                                            Text(item.series.title)
                                         }
                                     }
                                 },
                                 headlineContent = {
-                                    Text(it.title)
+                                    Text(item.title)
                                 },
                                 supportingContent = {
-                                    Text(it.tags.take(20).joinToString(", ") { it.name }, minLines = 3, maxLines = 3)
+                                    Text(item.tags.take(20).joinToString(", ") { it.name }, minLines = 3, maxLines = 3)
                                 },
                                 leadingContent = {
                                     AsyncImage(
-                                        model = it.imageUrls.content,
+                                        model = item.imageUrls.content,
                                         modifier = Modifier.width(70.dp).height(90.dp).padding(8.dp),
                                         contentDescription = null,
                                     )
                                 },
                                 trailingContent = {
-                                    var betterFavoriteDialog by remember {
-                                        mutableStateOf(false)
-                                    }
+                                    var betterFavoriteDialog by remember { mutableStateOf(false) }
                                     if (betterFavoriteDialog) {
                                         TagFavoriteDialog(
-                                            tags = it.tags,
+                                            tags = item.tags,
                                             title = { Text(stringResource(Res.string.bookmark_extra_options)) },
                                             confirm = { tags, publicity ->
-                                                model.likeNovel(it, publicity, tags).join()
+                                                model.likeNovel(item, publicity, tags).join()
                                                 betterFavoriteDialog = false
                                             },
                                             cancel = {
@@ -172,12 +166,12 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                         )
                                     }
                                     FavoriteButton(
-                                        isFavorite = it.isBookmarked,
+                                        isFavorite = item.isBookmarked,
                                         onModify = { target ->
                                             if (target == FavoriteState.Favorite) {
-                                                model.likeNovel(it).join()
+                                                model.likeNovel(item).join()
                                             } else {
-                                                model.disLikeNovel(it).join()
+                                                model.disLikeNovel(item).join()
                                             }
                                         },
                                         onDoubleClick = {
@@ -186,26 +180,21 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                                     )
                                 },
                                 modifier = Modifier.padding(5.dp).clip(CardDefaults.shape).clickable {
-                                    nav.push(NovelDetailScreen(it.id.toLong()))
+                                    nav.push(NovelDetailScreen(item.id.toLong()))
                                 },
                             )
                         }
                     }
-                    item {
-                        LaunchedEffect(Unit) {
-                            if (!state.noMoreData) {
-                                model.loadMoreNovels()
-                            }
-                        }
-                        if (!state.noMoreData) {
+                    item(key = "Footer") {
+                        if (!data.loadState.isIdle) {
                             Loading()
-                            return@item
+                        } else {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(Res.string.no_more_data),
+                            )
                         }
-                        Text(
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(Res.string.no_more_data),
-                        )
                     }
                 }
 
@@ -217,18 +206,12 @@ private fun NovelFetchContent0(state: NovelFetchViewState, model: NovelFetchView
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onBackToTop = {
-                        scope.launch {
-                            scroll.animateScrollToItem(0)
-                        }
-                    },
+                    onBackToTop = { scroll.animateScrollToItem(0) },
                     onRefresh = {
                         isRefresh = true
-                        scope.launch {
-                            model.initNovel(true).join()
-                        }.invokeOnCompletion {
-                            isRefresh = false
-                        }
+                        model.refresh()
+                        data.awaitNextState()
+                        isRefresh = false
                     },
                 )
             }

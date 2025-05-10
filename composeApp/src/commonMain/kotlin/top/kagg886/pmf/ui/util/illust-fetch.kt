@@ -33,17 +33,13 @@ import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
-private typealias F = (PagingData<Illust>) -> PagingData<Illust>
+private typealias FI = (PagingData<Illust>) -> PagingData<Illust>
 
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
     private val refreshSignal = MutableSharedFlow<Unit>()
-    private val transforms = MutableSharedFlow<F>()
-
-    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> by lazy {
-        container(IllustFetchViewState())
-    }
-
+    private val transforms = MutableSharedFlow<FI>()
+    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> = container(IllustFetchViewState())
     abstract fun source(): Flow<PagingData<Illust>>
 
     fun Illust.block() = with(AppConfig) { isLimited || (filterAi && isAI) || (filterR18G && isR18G) || (filterR18 && isR18) }

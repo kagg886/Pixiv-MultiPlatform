@@ -14,7 +14,6 @@ import top.kagg886.pixko.module.illust.IllustResult
 import top.kagg886.pixko.module.illust.NovelResult
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.user.*
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
@@ -84,23 +83,18 @@ class BookmarkNovelViewModel(
     override val tagFilter: TagFilter = TagFilter.NoFilter,
 ) : NovelFetchViewModel(), CanAccessTagFilterViewModel {
     private val id = PixivConfig.pixiv_user!!.userId
-    override fun initInfinityRepository(): InfinityRepository<Novel> {
-        return object : InfinityRepository<Novel>() {
-            private var ctx: NovelResult? = null
-            override suspend fun onFetchList(): List<Novel>? {
-                ctx = if (ctx == null) {
-                    client.getUserLikeNovel(
-                        id,
-                        restrict,
-                        tagFilter,
-                    )
-                } else {
-                    client.getUserLikeNovelNext(ctx!!)
-                }
-                return ctx?.novels
+    override fun source() = Pager(PagingConfig(20)) {
+        object : PagingSource<NovelResult, Novel>() {
+            override fun getRefreshKey(state: PagingState<NovelResult, Novel>) = null
+            override suspend fun load(params: LoadParams<NovelResult>) = catch {
+                params.next(
+                    { client.getUserLikeNovel(id, restrict, tagFilter) },
+                    { ctx -> client.getUserLikeNovelNext(ctx) },
+                    { ctx -> ctx.novels },
+                )
             }
         }
-    }
+    }.flow
 }
 
 sealed interface BookmarkViewState {
