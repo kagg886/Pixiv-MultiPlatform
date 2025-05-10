@@ -30,7 +30,9 @@ import top.kagg886.pmf.un_bookmark_success
 abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
 
-    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> = container(IllustFetchViewState.Loading) { initIllust() }
+    override val container: Container<IllustFetchViewState, IllustFetchSideEffect> by lazy {
+        container(IllustFetchViewState(source()))
+    }
 
     abstract val rawSource: Flow<PagingData<Illust>>
 
@@ -40,18 +42,13 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
         data.filter { !it.isLimited }.filterNot { AppConfig.filterAi && it.isAI }.filterNot { AppConfig.filterR18G && it.isR18G }.filterNot { AppConfig.filterR18 && it.isR18 }
     }
 
-    fun initIllust(pullDown: Boolean = false) = intent {
-        if (!pullDown) reduce { IllustFetchViewState.Loading }
-        reduce { IllustFetchViewState.ShowIllustList(source()) }
-    }
-
     @OptIn(OrbitExperimental::class)
     fun likeIllust(
         illust: Illust,
         visibility: BookmarkVisibility = BookmarkVisibility.PUBLIC,
         tags: List<Tag>? = null,
     ) = intent {
-        runOn<IllustFetchViewState.ShowIllustList> {
+        runOn<IllustFetchViewState> {
             val result = runCatching {
                 client.bookmarkIllust(illust.id.toLong()) {
                     this.visibility = visibility
@@ -82,7 +79,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
 
     @OptIn(OrbitExperimental::class)
     fun disLikeIllust(illust: Illust) = intent {
-        runOn<IllustFetchViewState.ShowIllustList> {
+        runOn<IllustFetchViewState> {
             val result = kotlin.runCatching {
                 client.deleteBookmarkIllust(illust.id.toLong())
             }
@@ -109,10 +106,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
     }
 }
 
-sealed class IllustFetchViewState {
-    data object Loading : IllustFetchViewState()
-    data class ShowIllustList(val illusts: Flow<PagingData<Illust>>, val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState()) : IllustFetchViewState()
-}
+data class IllustFetchViewState(val illusts: Flow<PagingData<Illust>>, val scrollerState: LazyStaggeredGridState = LazyStaggeredGridState())
 
 sealed class IllustFetchSideEffect {
     data class Toast(val msg: String) : IllustFetchSideEffect()

@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
@@ -59,14 +57,11 @@ fun IllustFetchScreen(model: IllustFetchViewModel) {
 @Composable
 private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchViewModel) {
     val nav = LocalNavigator.currentOrThrow
-    when (state) {
-        IllustFetchViewState.Loading -> {
-            Loading()
-        }
-
-        is IllustFetchViewState.ShowIllustList -> {
+    val data = state.illusts.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        else -> {
             val scroll = state.scrollerState
-            val scope = rememberCoroutineScope()
             var isRefresh by remember { mutableStateOf(false) }
 
             val controller = remember {
@@ -78,26 +73,20 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
             KeyListenerFromGlobalPipe(controller)
 
             val x = LocalConnectedStateKey.current
+
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {
                     isRefresh = true
-                    scope.launch {
-                        model.initIllust(true).join()
-                    }.invokeOnCompletion {
-                        isRefresh = false
-                    }
+                    data.refresh()
                 },
                 modifier = Modifier
                     .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
                     .fillMaxSize(),
             ) {
-                val data = state.illusts.collectAsLazyPagingItems()
                 if (data.itemCount == 0 && data.loadState.isIdle) {
                     ErrorPage(text = stringResource(Res.string.page_is_empty)) {
-                        scope.launch {
-                            model.initIllust()
-                        }
+                        data.retry()
                     }
                     return@PullToRefreshBox
                 }
@@ -214,9 +203,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                     },
                     onRefresh = {
                         isRefresh = true
-                        model.initIllust(true).invokeOnCompletion {
-                            isRefresh = false
-                        }
+                        data.refresh()
                     },
                 )
             }
