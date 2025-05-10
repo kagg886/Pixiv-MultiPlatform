@@ -12,14 +12,23 @@ import androidx.paging.LoadStates
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
+import androidx.paging.PagingSource.LoadResult
+import arrow.core.identity
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.withContext
+
+inline fun <T, reified E : Throwable> Result<T>.except() = onFailure { e -> if (e is E) throw e }
+suspend inline fun <K : Any, V : Any, R : LoadResult<K, V>> catch(crossinline f: suspend () -> R) = withContext(Dispatchers.IO) {
+    runCatching { f() }.except<R, CancellationException>().fold(::identity) { LoadResult.Error<K, V>(it) }
+}
 
 class LazyPagingItems<T : Any>(private val flow: Flow<PagingData<T>>) {
     private val mainDispatcher = Dispatchers.Main

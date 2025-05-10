@@ -6,9 +6,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import cafe.adriel.voyager.core.model.ScreenModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
@@ -21,6 +18,7 @@ import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
+import top.kagg886.pmf.ui.util.catch
 import top.kagg886.pmf.ui.util.container
 
 class BookmarkViewModel : ContainerHost<BookmarkViewState, BookmarkSideEffect>, ViewModel(), ScreenModel {
@@ -69,7 +67,7 @@ class BookmarkIllustViewModel(val restrict: UserLikePublicity = UserLikePublicit
     override val rawSource = Pager(PagingConfig(pageSize = 30)) {
         object : PagingSource<IllustResult, Illust>() {
             override fun getRefreshKey(state: PagingState<IllustResult, Illust>) = null
-            override suspend fun load(params: LoadParams<IllustResult>) = withContext(Dispatchers.IO) {
+            override suspend fun load(params: LoadParams<IllustResult>) = catch {
                 val result = params.key?.let { ctx -> client.getUserLikeIllustNext(ctx) } ?: client.getUserLikeIllust(id, restrict, tagFilter)
                 LoadResult.Page(result.illusts, null, result)
             }
