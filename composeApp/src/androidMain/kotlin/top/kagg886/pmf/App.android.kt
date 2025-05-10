@@ -2,9 +2,8 @@ package top.kagg886.pmf
 
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-import android.net.Uri
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import coil3.ComponentRegistry
 import coil3.gif.AnimatedImageDecoder
 import okio.Path
@@ -34,8 +33,8 @@ actual fun shareFile(file: Path, name: String, mime: String) {
             ),
         )
         intent.flags = FLAG_ACTIVITY_NEW_TASK
-        intent.setType(mime)
-        ContextCompat.startActivity(this, intent, null)
+        intent.type = mime
+        startActivity(intent, null)
     }
 }
 
@@ -43,7 +42,7 @@ actual suspend fun copyImageToClipboard(bitmap: ByteArray): Unit = throw Unsuppo
 
 actual fun openBrowser(link: String) {
     with(PMFApplication.getApp()) {
-        val uri = Uri.parse(link)
+        val uri = link.toUri()
         startActivity(
             Intent(Intent.ACTION_VIEW, uri).apply {
                 flags = FLAG_ACTIVITY_NEW_TASK

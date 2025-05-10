@@ -40,7 +40,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.ui.compose.m3.rememberLibraries
+import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.jetbrains.compose.resources.ExperimentalResourceApi

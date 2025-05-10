@@ -219,6 +219,7 @@
     <string name="filter_r18g_illustrations">R18G插画过滤</string>
     <string name="filter_r18g_description">会过滤关于R18G的内容。</string>
     <string name="filter_r18g_enabled_condition">仅在关闭R18过滤后可选择</string>
+    <string name="illust_details_show_all">默认显示所有画廊图片</string>
     <string name="novel_settings">小说设置</string>
     <string name="filter_ai_novel">AI小说过滤</string>
     <string name="filter_r18_novel">R18小说过滤</string>

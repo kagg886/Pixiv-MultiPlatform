@@ -8,16 +8,14 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -79,6 +77,7 @@ import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.cant_load_illust
@@ -313,15 +312,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
 
             KeyListenerFromGlobalPipe(controller)
 
-            var expand by remember { mutableStateOf(false) }
-            val img by remember(illust.hashCode(), expand) {
-                mutableStateOf(
-                    state.data.let {
-                        if (!expand) it.take(3) else it
-                    },
-                )
-            }
-
             var preview by remember { mutableStateOf(false) }
             var startIndex by remember { mutableStateOf(0) }
             if (preview) {
@@ -333,16 +323,19 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 )
             }
 
+            var expand by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
+            val img by remember(illust.hashCode(), expand) {
+                mutableStateOf(state.data.let { if (!expand) it.take(3) else it })
+            }
             LazyColumn(
                 state = scroll,
-                modifier = Modifier.padding(horizontal = 16.dp),
-                contentPadding = PaddingValues(bottom = 16.dp),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                items(img) {
-                    Spacer(Modifier.height(16.dp))
+                itemsIndexed(img, key = { i, _ -> i }) { i, uri ->
                     var ratio by remember { mutableStateOf(illust.width.toFloat() / illust.height) }
                     SubcomposeAsyncImage(
-                        model = it,
+                        model = uri,
                         modifier = Modifier.fillMaxWidth().aspectRatio(ratio),
                         onState = { state: State ->
                             if (state is State.Success) {
@@ -356,7 +349,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         when (state) {
                             is State.Success -> SubcomposeAsyncImageContent(
                                 modifier = Modifier.clickable {
-                                    startIndex = img.indexOf(it)
+                                    startIndex = i
                                     preview = true
                                 },
                             )
@@ -371,12 +364,9 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
                 if (illust.contentImages.size > 3 && !expand) {
-                    item {
-                        Spacer(Modifier.height(16.dp))
+                    item(key = "expand") {
                         TextButton(
-                            onClick = {
-                                expand = true
-                            },
+                            onClick = { expand = true },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Text(stringResource(Res.string.expand_more), textAlign = TextAlign.Center)
@@ -384,14 +374,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                     }
                 }
 
-                item {
-                    Spacer(Modifier.height(16.dp))
+                item(key = "author") {
                     AuthorCard(
                         modifier = Modifier.fillMaxWidth(),
                         user = illust.user,
-                        onFavoritePrivateClick = {
-                            model.followUser(true).join()
-                        },
+                        onFavoritePrivateClick = { model.followUser(true).join() },
                     ) {
                         if (it) {
                             model.followUser().join()
@@ -400,8 +387,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         }
                     }
                 }
-                item {
-                    Spacer(Modifier.height(16.dp))
+                item(key = "info") {
                     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
                         val clipboard = LocalClipboardManager.current
                         val theme = MaterialTheme.colorScheme
@@ -524,8 +510,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         )
                     }
                 }
-                item {
-                    Spacer(Modifier.height(16.dp))
+                item(key = "tags") {
                     OutlinedCard {
                         ListItem(
                             overlineContent = {
@@ -567,8 +552,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         )
                     }
                 }
-                item {
-                    Spacer(Modifier.height(16.dp))
+                item(key = "publish_date") {
                     OutlinedCard {
                         ListItem(
                             overlineContent = {

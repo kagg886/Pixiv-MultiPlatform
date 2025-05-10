@@ -158,37 +158,42 @@ jobs:
         with:
           name: macos.dmg
           path: composeApp/build/compose/binaries/main-release/dmg/macos.dmg
-## 傻逼苹果我操你妈，xcode15不能跑16工程，降级本机的还不让运行
-#  build-ios:
-#    runs-on: macos-latest
-#    permissions:
-#      contents: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Set up JDK 17
-#        uses: actions/setup-java@v4
-#        with:
-#          java-version: '17'
-#          distribution: 'temurin'
-#
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v4
-#
-#      - name: Spotless Check
-#        run: ./gradlew spotlessCheck
-#
-#      - name: Generate AboutLibraries Metadata
-#        run: ./gradlew exportLibraryDefinitions
-#
-#      - name: Build with Gradle Wrapper
-#        run: ./gradlew buildReleaseIpa
-#
-#      - name: Rename artifact
-#        run: |
-#          mv composeApp/build/archives/release/Pixiv-MultiPlatform.ipa composeApp/build/archives/release/ios.ipa
-#
-#      - name: Upload macos artifact
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: macos.dmg
-#          path: composeApp/build/archives/release/Pixiv-MultiPlatform.ipa
+  build-ios:
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Rust Toolchain
+        run: rustup default 1.86.0 && rustup target add aarch64-apple-ios && rustup component add rustfmt clippy
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Spotless Check
+        run: ./gradlew spotlessCheck
+
+      - name: Generate AboutLibraries Metadata
+        run: ./gradlew exportLibraryDefinitions
+
+      - name: Build with Gradle Wrapper
+        run: |
+          export PATH=/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib:$PATH
+          export LIBRARY_PATH="$LIBRARY_PATH:/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib"
+          ./gradlew buildReleaseIpa
+
+      - name: Rename artifact
+        run: |
+          mv composeApp/build/archives/release/Pixiv-MultiPlatform.ipa composeApp/build/archives/release/ios.ipa
+
+      - name: Upload macos artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios.ipa
+          path: composeApp/build/archives/release/ios.ipa

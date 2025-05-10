@@ -38,7 +38,7 @@ import top.kagg886.pmf.ui.component.icon.Github
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
+fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: () -> Unit = { exitProcess(0) }) {
     var dialog by remember {
         mutableStateOf(true)
     }
@@ -74,7 +74,7 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String) {
                 },
                 navigationIcon = {
                     if (currentPlatform !is Platform.Desktop) {
-                        IconButton(onClick = { exitProcess(0) }) {
+                        IconButton(onClick = onExitHandler) {
                             Icon(imageVector = Icons.Default.Close, contentDescription = null)
                         }
                     }
