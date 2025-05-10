@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.sp
 
 // thanks to StageGuard(from Animeko)
 // link: https://www.figma.com/design/LET1n9mmDa6npDTIlUuJjU/Animeko?node-id=349-9250&t=hBPSAEVlsmuEWPJt-0
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GuideScaffold(
     modifier: Modifier = Modifier,

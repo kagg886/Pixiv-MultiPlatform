@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -41,7 +40,6 @@ fun TagsFetchDrawerSheetContainer(model: TagsFetchViewModel, preview: (@Composab
     TagsFetchContent0(state, model, preview)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TagsFetchContent0(
     state: TagsFetchViewState,

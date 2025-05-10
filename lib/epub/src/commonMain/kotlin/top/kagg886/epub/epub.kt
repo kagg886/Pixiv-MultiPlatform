@@ -22,7 +22,7 @@ class Epub internal constructor(
     private val spine: Spine? = null,
 ) {
     @OptIn(ExperimentalUuidApi::class)
-    fun writeTo(path: Path) {
+    suspend fun writeTo(path: Path) {
         workDirBase.mkdirs()
 
         with(workDirBase.resolve("mimetype")) {

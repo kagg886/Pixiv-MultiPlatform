@@ -69,6 +69,24 @@ kotlin {
 
     compilerOptions {
         progressiveMode = true
+        optIn.addAll(
+            "coil3.annotation.ExperimentalCoilApi",
+            "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "androidx.compose.material3.ExperimentalMaterial3Api",
+            "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+            "androidx.compose.ui.ExperimentalComposeUiApi",
+            "androidx.compose.foundation.ExperimentalFoundationApi",
+            "androidx.compose.animation.ExperimentalAnimationApi",
+            "androidx.compose.animation.ExperimentalSharedTransitionApi",
+            "kotlin.ExperimentalStdlibApi",
+            "kotlin.uuid.ExperimentalUuidApi",
+            "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+            "kotlin.contracts.ExperimentalContracts",
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlinx.coroutines.FlowPreview",
+            "kotlinx.serialization.ExperimentalSerializationApi",
+            "org.jetbrains.compose.resources.ExperimentalResourceApi",
+        )
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
     }
 

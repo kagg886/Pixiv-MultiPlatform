@@ -52,7 +52,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
@@ -117,7 +116,6 @@ import top.kagg886.pmf.welcome
 import top.kagg886.pmf.welcome_text
 import top.kagg886.pmf.welcome_text_after_pixko
 
-@OptIn(ExperimentalResourceApi::class)
 class WelcomeScreen : Screen {
     @Composable
     override fun Content() {

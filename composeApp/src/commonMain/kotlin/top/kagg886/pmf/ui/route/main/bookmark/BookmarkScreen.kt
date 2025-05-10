@@ -11,7 +11,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -71,7 +70,7 @@ class BookmarkScreen : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     private fun BookmarkContent(model: BookmarkViewModel, state: BookmarkViewState, goBack: () -> Unit) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)

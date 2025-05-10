@@ -5,7 +5,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
@@ -36,7 +35,6 @@ data class CollapseTopAppBarScaffoldScope(
  * @param actions 操作按钮 任何情况下都会显示
  * @param content 内容
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollapsableTopAppBarScaffold(
     modifier: Modifier = Modifier,

@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -119,7 +117,6 @@ import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
-// class IllustDetailScreen(val illust0: Illust) : Screen, KoinComponent {
 class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
 
     class PreFetch(private val id: Long) : Screen, KoinComponent {
@@ -206,7 +203,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun IllustTopAppBar(illust: Illust) {
         val nav = LocalNavigator.currentOrThrow
@@ -297,7 +293,6 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         }
     }
 
-    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     private fun IllustPreview(state: IllustDetailViewState.Success, model: IllustDetailViewModel) {
         val illust = state.illust

@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.illust.RankCategory
 import top.kagg886.pmf.NavigationItem
@@ -26,7 +25,6 @@ class RankScreen : Screen {
     }
 }
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun Screen.RankScreen() {
     val page = rememberScreenModel {
