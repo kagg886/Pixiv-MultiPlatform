@@ -53,6 +53,7 @@ buildConfig {
     buildConfigField("APP_VERSION_CODE", pkgCode)
 
     buildConfigField("DATABASE_VERSION", 6)
+    buildConfigField("APP_COMMIT_ID", getGitSha())
 }
 kotlin {
     jvmToolchain(17)
@@ -383,6 +384,17 @@ spotless {
     kotlinGradle {
         ktlint(ktlintVersion)
     }
+}
+
+fun getGitSha(): String {
+    val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .redirectErrorStream(true)
+        .start()
+    val rtn = process.inputStream.readAllBytes().decodeToString().trim()
+    check(rtn.length == 7) {
+        throw IllegalStateException("git rev-parse failed, rtn:\n$rtn")
+    }
+    return rtn
 }
 
 // ------------------ IOS Packages Build ------------------
