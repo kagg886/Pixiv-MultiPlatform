@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.app_crash
 import top.kagg886.pmf.app_crash_message
@@ -34,6 +36,15 @@ import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.confirm
 import top.kagg886.pmf.ui.component.icon.Github
+private fun getHostEnvironment(): String = buildString {
+    appendLine("App Version: ${BuildConfig.APP_VERSION_NAME}(${BuildConfig.APP_VERSION_CODE}) --- ${BuildConfig.APP_COMMIT_ID}")
+    appendLine("Running Platform: ${currentPlatform.name}")
+    // Smart cast to 'Platform.Android' is impossible, because 'currentPlatform' is a expect property.
+    (currentPlatform as? Platform.Android)?.let {
+        appendLine("    Version: ${it.version}")
+    }
+    appendLine("App Locale: ${Locale.current}")
+}
 
 @Composable
 fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: () -> Unit = { exitProcess(0) }) {
@@ -84,7 +95,10 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: ()
                         IconButton(onClick = {
                             clip.setText(
                                 buildAnnotatedString {
-                                    append(throwable)
+                                    buildString {
+                                        appendLine(getHostEnvironment())
+                                        appendLine(throwable)
+                                    }
                                 },
                             )
                             handler.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose")
@@ -97,8 +111,12 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: ()
         },
     ) {
         Text(
-            text = throwable.replace("\t", "    "),
-            modifier = Modifier.padding(it).padding(horizontal = 5.dp).verticalScroll(rememberScrollState()),
+            text = buildString {
+                appendLine(getHostEnvironment())
+                appendLine(throwable.replace("\t", "    "))
+            },
+            modifier = Modifier.padding(it).padding(horizontal = 5.dp)
+                .verticalScroll(rememberScrollState()),
         )
     }
 }
