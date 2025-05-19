@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.series.novel
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -21,6 +20,7 @@ import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.unfollow_fail
 import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.unknown_error
+import top.kagg886.pmf.util.getString
 
 class NovelSeriesScreenModel(
     private val seriesId: Int,

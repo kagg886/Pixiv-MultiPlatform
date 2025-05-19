@@ -63,10 +63,9 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
     @Serializable
     enum class LanguageSettings(val tag: StringResource, val locale: Locale) {
-        EN(Res.string.language_en,  Locale("en-US")),
+        EN(Res.string.language_en, Locale("en-US")),
         ZH(Res.string.language_zh, Locale("zh-CN")),
-        DEFAULT(Res.string.system_default, Locale.current)
-        ;
+        DEFAULT(Res.string.system_default, Locale.current),
     }
 
     @Serializable

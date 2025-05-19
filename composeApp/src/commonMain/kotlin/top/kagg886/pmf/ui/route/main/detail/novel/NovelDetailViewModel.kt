@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import okio.Buffer
-import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -80,6 +79,7 @@ import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.unfollow_fail
 import top.kagg886.pmf.unfollow_success
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 
 class NovelDetailViewModel(val id: Long) :

@@ -48,7 +48,6 @@ import coil3.toUri
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.closed
@@ -76,6 +75,7 @@ import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.util.stringResource
 
 open class AuthorScreen(open val id: Int) : Screen {
 

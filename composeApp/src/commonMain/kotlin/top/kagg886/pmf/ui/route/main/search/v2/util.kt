@@ -1,7 +1,6 @@
 package top.kagg886.pmf.ui.route.main.search.v2
 
 import androidx.compose.runtime.Composable
-import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchSort.DATE_ASC
 import top.kagg886.pixko.module.search.SearchSort.DATE_DESC
@@ -21,6 +20,7 @@ import top.kagg886.pmf.match_title_caption
 import top.kagg886.pmf.sort_date_asc
 import top.kagg886.pmf.sort_date_desc
 import top.kagg886.pmf.sort_popular_desc
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun SearchTarget.toDisplayString() = when (this) {

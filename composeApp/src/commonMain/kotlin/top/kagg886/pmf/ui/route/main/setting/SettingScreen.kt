@@ -56,10 +56,10 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
-import top.kagg886.pmf.app_language_feature_pr
 import top.kagg886.pmf.about
 import top.kagg886.pmf.advanced
 import top.kagg886.pmf.app_language
+import top.kagg886.pmf.app_language_feature_pr
 import top.kagg886.pmf.appearance
 import top.kagg886.pmf.auto_typography
 import top.kagg886.pmf.auto_typography_description
@@ -220,7 +220,7 @@ class SettingScreen : Screen {
                     data = AppConfig.LanguageSettings.entries,
                     onSelected = {
                         locale = it
-                    }
+                    },
                 )
 
                 var darkMode by LocalDarkSettings.current

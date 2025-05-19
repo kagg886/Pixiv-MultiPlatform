@@ -3,7 +3,6 @@ package top.kagg886.pmf.ui.route.main.search.v2
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
-import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -14,6 +13,7 @@ import top.kagg886.pmf.backend.database.dao.SearchHistory
 import top.kagg886.pmf.clear_search_history
 import top.kagg886.pmf.delete_search_history
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.getString
 
 class EmptySearchViewModel :
     ViewModel(),

@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.util.getString
-import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.module.profile.CountryCode
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pmf.LocalSnackBarHost
@@ -34,6 +32,8 @@ import top.kagg886.pmf.twitter_link
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.unknown
 import top.kagg886.pmf.username
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.yes
 
 @Composable

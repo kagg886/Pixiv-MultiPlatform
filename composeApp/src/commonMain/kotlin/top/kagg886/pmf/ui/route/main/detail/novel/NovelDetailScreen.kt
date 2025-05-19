@@ -64,8 +64,6 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.toUri
 import kotlinx.coroutines.launch
-import top.kagg886.pmf.util.getString
-import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
@@ -106,6 +104,8 @@ import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.withClickable
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
 class NovelDetailScreen(private val id: Long) : Screen {

@@ -163,7 +163,7 @@ class WelcomeScreen : Screen {
                         title = {
                             Text(
                                 when (state) {
-                                    LANGUAGE  -> stringResource(Res.string.app_language)
+                                    LANGUAGE -> stringResource(Res.string.app_language)
                                     WELCOME -> stringResource(Res.string.welcome)
                                     THEME -> stringResource(Res.string.theme_setting)
                                     BYPASS -> stringResource(Res.string.sni_bypass)
@@ -247,7 +247,7 @@ class WelcomeScreen : Screen {
                                     },
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth().clickable { locale = i }
+                            modifier = Modifier.fillMaxWidth().clickable { locale = i },
                         )
                     }
                 }

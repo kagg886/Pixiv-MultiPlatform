@@ -52,29 +52,27 @@ fun stringResource(resource: StringResource, vararg formatArgs: Any): String {
     return str
 }
 
-suspend fun getString(resource: StringResource): String =
-    loadString(
-        resource,
-        DefaultResourceReader,
-        getSystemResourceEnvironment(),
-        ComposeI18N.locale.value
-    )
+suspend fun getString(resource: StringResource): String = loadString(
+    resource,
+    DefaultResourceReader,
+    getSystemResourceEnvironment(),
+    ComposeI18N.locale.value,
+)
 
-suspend fun getString(resource: StringResource, vararg formatArgs: Any): String =
-    loadString(
-        resource,
-        formatArgs.map { it.toString() },
-        DefaultResourceReader,
-        getSystemResourceEnvironment(),
-        ComposeI18N.locale.value
-    )
+suspend fun getString(resource: StringResource, vararg formatArgs: Any): String = loadString(
+    resource,
+    formatArgs.map { it.toString() },
+    DefaultResourceReader,
+    getSystemResourceEnvironment(),
+    ComposeI18N.locale.value,
+)
 
 @OptIn(InternalResourceApi::class)
 private suspend fun loadString(
     resource: StringResource,
     resourceReader: ResourceReader,
     environment: ResourceEnvironment,
-    locale: Locale? = null
+    locale: Locale? = null,
 ): String {
     val resourceItem = resource.getResourceItemByEnvironment(environment, locale)
     val item = getStringItem(resourceItem, resourceReader) as StringItem.Value
@@ -86,23 +84,22 @@ private suspend fun loadString(
     args: List<String>,
     resourceReader: ResourceReader,
     environment: ResourceEnvironment,
-    locale: Locale? = null
+    locale: Locale? = null,
 ): String {
     val str = loadString(resource, resourceReader, environment, locale)
     return str.replaceWithArgs(args)
 }
 
-
 @OptIn(InternalResourceApi::class)
 private fun Resource.getResourceItemByEnvironment(
     environment: ResourceEnvironment,
-    locale: Locale? = null
+    locale: Locale? = null,
 ): ResourceItem {
-    //Priority of environments: https://developer.android.com/guide/topics/resources/providing-resources#table2
+    // Priority of environments: https://developer.android.com/guide/topics/resources/providing-resources#table2
     items.toList()
         .filterByLocale(
             locale?.toLanguageQualifier() ?: environment.language,
-            locale?.toRegionQualifier() ?: environment.region
+            locale?.toRegionQualifier() ?: environment.region,
         )
         .also { if (it.size == 1) return it.first() }
         .filterBy(environment.theme)
@@ -119,15 +116,10 @@ private fun Resource.getResourceItemByEnvironment(
 }
 
 @OptIn(InternalResourceApi::class)
-private fun Locale.toLanguageQualifier(): LanguageQualifier {
-    return LanguageQualifier(language)
-}
+private fun Locale.toLanguageQualifier(): LanguageQualifier = LanguageQualifier(language)
 
 @OptIn(InternalResourceApi::class)
-private fun Locale.toRegionQualifier(): RegionQualifier {
-    return RegionQualifier(region)
-}
-
+private fun Locale.toRegionQualifier(): RegionQualifier = RegionQualifier(region)
 
 @OptIn(InternalResourceApi::class)
 private fun List<ResourceItem>.filterByDensity(density: DensityQualifier): List<ResourceItem> {
@@ -156,7 +148,7 @@ private fun List<ResourceItem>.filterByDensity(density: DensityQualifier): List<
     }
     if (withQualifier.isNotEmpty()) return withQualifier
 
-    //items with no DensityQualifier (default)
+    // items with no DensityQualifier (default)
     // The system assumes that default resources (those from a directory without configuration qualifiers)
     // are designed for the baseline pixel density (mdpi) and resizes those bitmaps
     // to the appropriate size for the current pixel density.
@@ -166,7 +158,7 @@ private fun List<ResourceItem>.filterByDensity(density: DensityQualifier): List<
     }
     if (withNoDensity.isNotEmpty()) return withNoDensity
 
-    //items with LDPI density
+    // items with LDPI density
     return items.filter { item ->
         item.qualifiers.any { it == DensityQualifier.LDPI }
     }
@@ -174,17 +166,17 @@ private fun List<ResourceItem>.filterByDensity(density: DensityQualifier): List<
 
 @OptIn(InternalResourceApi::class)
 private fun List<ResourceItem>.filterBy(qualifier: Qualifier): List<ResourceItem> {
-    //Android has a slightly different algorithm,
-    //but it provides the same result: https://developer.android.com/guide/topics/resources/providing-resources#BestMatch
+    // Android has a slightly different algorithm,
+    // but it provides the same result: https://developer.android.com/guide/topics/resources/providing-resources#BestMatch
 
-    //filter items with the requested qualifier
+    // filter items with the requested qualifier
     val withQualifier = filter { item ->
         item.qualifiers.any { it == qualifier }
     }
 
     if (withQualifier.isNotEmpty()) return withQualifier
 
-    //items with no requested qualifier type (default)
+    // items with no requested qualifier type (default)
     return filter { item ->
         item.qualifiers.none { it::class == qualifier::class }
     }
@@ -193,7 +185,7 @@ private fun List<ResourceItem>.filterBy(qualifier: Qualifier): List<ResourceItem
 @OptIn(InternalResourceApi::class)
 private fun List<ResourceItem>.filterByLocale(
     language: LanguageQualifier,
-    region: RegionQualifier
+    region: RegionQualifier,
 ): List<ResourceItem> {
     val withLanguage = filter { item ->
         item.qualifiers.any { it == language }
@@ -203,17 +195,17 @@ private fun List<ResourceItem>.filterByLocale(
         item.qualifiers.any { it == region }
     }
 
-    //if there are the exact language + the region items
+    // if there are the exact language + the region items
     if (withExactLocale.isNotEmpty()) return withExactLocale
 
     val withDefaultRegion = withLanguage.filter { item ->
         item.qualifiers.none { it is RegionQualifier }
     }
 
-    //if there are the language without a region items
+    // if there are the language without a region items
     if (withDefaultRegion.isNotEmpty()) return withDefaultRegion
 
-    //items without any locale qualifiers
+    // items without any locale qualifiers
     return filter { item ->
         item.qualifiers.none { it is LanguageQualifier || it is RegionQualifier }
     }
