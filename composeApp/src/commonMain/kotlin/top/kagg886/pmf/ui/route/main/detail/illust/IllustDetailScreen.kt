@@ -30,7 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -107,7 +106,6 @@ import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.CommentPanel
 import top.kagg886.pmf.ui.util.HTMLRichText
-import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.RollingNumber
 import top.kagg886.pmf.ui.util.collectAsState
@@ -570,25 +568,17 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
 
                 item(key = "similar") {
-                    var expandSimilarDialog by remember { mutableStateOf(false) }
-                    if (expandSimilarDialog) {
-                        ModalBottomSheet(
-                            onDismissRequest = { expandSimilarDialog = false },
-                        ) {
-                            val similarModel = rememberScreenModel("similar_illust_${illust.id}") {
-                                IllustSimilarViewModel(illust)
-                            }
-                            IllustFetchScreen(similarModel)
-                        }
-                    }
                     OutlinedCard {
+                        val nav = LocalNavigator.currentOrThrow
                         ListItem(
                             headlineContent = {
                                 Text(
                                     stringResource(Res.string.find_similar_illust),
                                 )
                             },
-                            modifier = Modifier.clickable { expandSimilarDialog = true },
+                            modifier = Modifier.clickable {
+                                nav.push(IllustSimilarScreen(illust.id.toLong()))
+                            },
                         )
                     }
                 }

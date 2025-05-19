@@ -30,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -101,7 +100,6 @@ import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.CommentPanel
 import top.kagg886.pmf.ui.util.HTMLRichText
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
-import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.RichText
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
@@ -477,23 +475,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                 item {
                                     Spacer(Modifier.height(16.dp))
                                     OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
-                                        var expandSimilarDialog by remember { mutableStateOf(false) }
-                                        if (expandSimilarDialog) {
-                                            ModalBottomSheet(
-                                                onDismissRequest = { expandSimilarDialog = false },
-                                            ) {
-                                                val similarModel = rememberScreenModel("similar_novel_$id") {
-                                                    NovelSimilarViewModel(novel = id)
-                                                }
-                                                NovelFetchScreen(similarModel)
-                                            }
-                                        }
-
                                         ListItem(
                                             headlineContent = {
                                                 Text(stringResource(Res.string.find_similar_novel))
                                             },
-                                            modifier = Modifier.clickable { expandSimilarDialog = true },
+                                            modifier = Modifier.clickable {
+                                                nav.push(NovelSimilarScreen(state.novel.id.toLong()))
+                                            },
                                         )
                                     }
                                 }
