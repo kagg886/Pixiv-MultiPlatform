@@ -33,7 +33,7 @@ import okio.Buffer as OkioBuffer
 import okio.Path
 import okio.Sink as OkioSink
 import okio.buffer
-import org.jetbrains.compose.resources.getString
+import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container

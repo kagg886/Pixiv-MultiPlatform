@@ -3,7 +3,7 @@ package top.kagg886.pmf.ui.route.main.search.v2
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
-import org.jetbrains.compose.resources.getString
+import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container

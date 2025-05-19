@@ -64,8 +64,8 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType

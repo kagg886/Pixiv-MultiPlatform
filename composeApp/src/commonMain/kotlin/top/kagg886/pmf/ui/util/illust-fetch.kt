@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.plus
-import org.jetbrains.compose.resources.getString
+import top.kagg886.pmf.util.getString
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental

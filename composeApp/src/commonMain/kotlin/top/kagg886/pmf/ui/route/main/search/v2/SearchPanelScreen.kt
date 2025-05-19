@@ -44,8 +44,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort

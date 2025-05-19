@@ -11,7 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import okio.Path
-import org.jetbrains.compose.resources.getString
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.browser_archive_should_be_tar_gz
