@@ -191,6 +191,7 @@ open class AuthorScreen(open val id: Int) : Screen {
                                 onFavoritePrivateClick = {
                                     model.followUser(true).join()
                                 },
+                                followNumber = state.user.profile.totalFollowUsers,
                             ) {
                                 if (it) {
                                     model.followUser().join()

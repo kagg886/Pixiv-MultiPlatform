@@ -74,6 +74,7 @@ import top.kagg886.pmf.copy_novel_title_success
 import top.kagg886.pmf.copy_pid
 import top.kagg886.pmf.create_time
 import top.kagg886.pmf.export_to_epub
+import top.kagg886.pmf.find_similar_novel
 import top.kagg886.pmf.no_description_novel
 import top.kagg886.pmf.novel_comments
 import top.kagg886.pmf.novel_detail
@@ -466,6 +467,20 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             },
                                             supportingContent = {
                                                 Text(state.novel.createDate.toReadableString())
+                                            },
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                    OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text(stringResource(Res.string.find_similar_novel))
+                                            },
+                                            modifier = Modifier.clickable {
+                                                nav.push(NovelSimilarScreen(state.novel.id.toLong()))
                                             },
                                         )
                                     }

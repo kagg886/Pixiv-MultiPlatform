@@ -1,11 +1,13 @@
 package top.kagg886.pmf.ui.util
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import top.kagg886.pmf.util.stringResource
 fun AuthorCard(
     modifier: Modifier = Modifier,
     user: User,
+    followNumber: Int? = null,
     onCardClick: (nav: Navigator) -> Unit = { it.push(AuthorScreen(user.id)) },
     onFavoritePrivateClick: suspend () -> Unit = {},
     onFavoriteClick: suspend (Boolean) -> Unit = {},
@@ -46,15 +49,21 @@ fun AuthorCard(
                 )
             },
             trailingContent = {
-                FavoriteButton(
-                    isFavorite = user.isFollowed == true,
-                    onModify = {
-                        onFavoriteClick(it == FavoriteState.Favorite)
-                    },
-                    onDoubleClick = {
-                        onFavoritePrivateClick()
-                    },
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    FavoriteButton(
+                        isFavorite = user.isFollowed == true,
+                        onModify = {
+                            onFavoriteClick(it == FavoriteState.Favorite)
+                        },
+                        onDoubleClick = {
+                            onFavoritePrivateClick()
+                        },
+                    )
+                    if (followNumber != null) {
+                        // can't use rolling number here, because it can make some bug.
+                        Text(followNumber.toString())
+                    }
+                }
             },
         )
     }

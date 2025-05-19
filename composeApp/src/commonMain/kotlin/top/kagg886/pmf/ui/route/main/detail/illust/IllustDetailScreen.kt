@@ -82,6 +82,7 @@ import top.kagg886.pmf.copy_title_success
 import top.kagg886.pmf.download
 import top.kagg886.pmf.error
 import top.kagg886.pmf.expand_more
+import top.kagg886.pmf.find_similar_illust
 import top.kagg886.pmf.image_details
 import top.kagg886.pmf.no_description
 import top.kagg886.pmf.openBrowser
@@ -366,7 +367,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             onClick = { expand = true },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text(stringResource(Res.string.expand_more), textAlign = TextAlign.Center)
+                            Text(
+                                stringResource(Res.string.expand_more),
+                                textAlign = TextAlign.Center,
+                            )
                         }
                     }
                 }
@@ -558,6 +562,22 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 Text(
                                     illust.createTime.toReadableString(),
                                 )
+                            },
+                        )
+                    }
+                }
+
+                item(key = "similar") {
+                    OutlinedCard {
+                        val nav = LocalNavigator.currentOrThrow
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    stringResource(Res.string.find_similar_illust),
+                                )
+                            },
+                            modifier = Modifier.clickable {
+                                nav.push(IllustSimilarScreen(illust.id.toLong()))
                             },
                         )
                     }

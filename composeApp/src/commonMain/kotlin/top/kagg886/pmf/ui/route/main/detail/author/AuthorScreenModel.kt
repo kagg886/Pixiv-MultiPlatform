@@ -20,6 +20,7 @@ import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.unfollow_fail
 import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.logger
 
 class AuthorScreenModel(val id: Int) :
     ContainerHost<AuthorScreenState, AuthorScreenSideEffect>,
@@ -36,17 +37,17 @@ class AuthorScreenModel(val id: Int) :
         if (silent) {
             reduce { AuthorScreenState.Loading }
         }
-        val illust = kotlin.runCatching {
+        val info = kotlin.runCatching {
             client.getUserInfo(id)
         }
-        if (illust.isFailure) {
-            illust.exceptionOrNull()!!.printStackTrace()
+        if (info.isFailure) {
+            logger.w("failed to get author info", info.exceptionOrNull())
             if (silent) {
                 reduce { AuthorScreenState.Error }
             }
             return@intent
         }
-        reduce { AuthorScreenState.Success(illust.getOrThrow()) }
+        reduce { AuthorScreenState.Success(info.getOrThrow()) }
     }
 
     @OptIn(OrbitExperimental::class)
@@ -73,6 +74,9 @@ class AuthorScreenModel(val id: Int) :
                         user = state.user.user.copy(
                             isFollowed = true,
                         ),
+                        profile = state.user.profile.copy(
+                            totalFollowUsers = state.user.profile.totalFollowUsers + 1,
+                        ),
                     ),
                 )
             }
@@ -95,6 +99,9 @@ class AuthorScreenModel(val id: Int) :
                     user = state.user.copy(
                         user = state.user.user.copy(
                             isFollowed = false,
+                        ),
+                        profile = state.user.profile.copy(
+                            totalFollowUsers = state.user.profile.totalFollowUsers - 1,
                         ),
                     ),
                 )
