@@ -371,7 +371,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                         ) {
                             Text(
                                 stringResource(Res.string.expand_more),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }
@@ -588,7 +588,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     stringResource(Res.string.find_similar_illust),
                                 )
                             },
-                            modifier = Modifier.clickable { expandSimilarDialog = true }
+                            modifier = Modifier.clickable { expandSimilarDialog = true },
                         )
                     }
                 }

@@ -7,7 +7,7 @@ import top.kagg886.pmf.ui.util.IllustFetchViewModel
 import top.kagg886.pmf.ui.util.flowOf
 import top.kagg886.pmf.ui.util.next
 
-class IllustSimilarViewModel(private val illust: Illust): IllustFetchViewModel()  {
+class IllustSimilarViewModel(private val illust: Illust) : IllustFetchViewModel() {
     override fun source() = flowOf(30) { params ->
         params.next(
             { client.getRelatedIllust(illust.id.toLong()) },

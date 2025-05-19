@@ -482,7 +482,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             ModalBottomSheet(
                                                 onDismissRequest = { expandSimilarDialog = false },
                                             ) {
-                                                val similarModel = rememberScreenModel("similar_novel_${id}") {
+                                                val similarModel = rememberScreenModel("similar_novel_$id") {
                                                     NovelSimilarViewModel(novel = id)
                                                 }
                                                 NovelFetchScreen(similarModel)
@@ -493,7 +493,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             headlineContent = {
                                                 Text(stringResource(Res.string.find_similar_novel))
                                             },
-                                            modifier = Modifier.clickable { expandSimilarDialog = true }
+                                            modifier = Modifier.clickable { expandSimilarDialog = true },
                                         )
                                     }
                                 }
