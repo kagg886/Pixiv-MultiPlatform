@@ -1,7 +1,7 @@
 package top.kagg886.pmf.ui.route.main.search.v2
 
 import androidx.compose.runtime.Composable
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchSort.DATE_ASC
 import top.kagg886.pixko.module.search.SearchSort.DATE_DESC

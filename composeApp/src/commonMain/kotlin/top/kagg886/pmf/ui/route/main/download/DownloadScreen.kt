@@ -30,7 +30,7 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.download_success

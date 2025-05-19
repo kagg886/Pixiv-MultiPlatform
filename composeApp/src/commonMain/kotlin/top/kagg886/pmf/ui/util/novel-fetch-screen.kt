@@ -31,7 +31,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.no_more_data

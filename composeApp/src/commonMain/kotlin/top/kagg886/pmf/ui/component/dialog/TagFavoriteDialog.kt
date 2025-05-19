@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pmf.Res

@@ -2,6 +2,7 @@
 
 package top.kagg886.pmf.backend
 
+import androidx.compose.ui.text.intl.Locale
 import com.russhwolf.settings.ExperimentalSettingsApi
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.boolean
@@ -12,10 +13,16 @@ import com.russhwolf.settings.serialization.serializedValue
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.jetbrains.compose.resources.StringResource
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.language_en
+import top.kagg886.pmf.language_zh
+import top.kagg886.pmf.system_default
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.mb
 
 object AppConfig : Settings by SystemConfig.getConfig("app") {
+    var locale by serializedValue("locale", LanguageSettings.DEFAULT)
     var darkMode by serializedValue("dark_mode", DarkMode.System)
     var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")
     var galleryOptions: Gallery by serializedValue(
@@ -53,6 +60,14 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var checkUpdateOnStart by boolean("check_update_on_start", true)
     var checkFailedToast by boolean("check_failed_toast", true)
     var checkSuccessToast by boolean("check_success_toast", false)
+
+    @Serializable
+    enum class LanguageSettings(val tag: StringResource, val locale: Locale) {
+        EN(Res.string.language_en,  Locale("en-US")),
+        ZH(Res.string.language_zh, Locale("zh-CN")),
+        DEFAULT(Res.string.system_default, Locale.current)
+        ;
+    }
 
     @Serializable
     enum class DarkMode {

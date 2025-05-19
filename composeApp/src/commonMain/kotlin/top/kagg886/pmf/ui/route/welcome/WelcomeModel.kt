@@ -16,9 +16,10 @@ class WelcomeModel(
 
     private var isInited by settings.boolean("welcome_init", false)
 
-    override val container: Container<WelcomeViewState, WelcomeSideEffect> = container(WelcomeViewState.Loading) {
-        initInCompose()
-    }
+    override val container: Container<WelcomeViewState, WelcomeSideEffect> =
+        container(WelcomeViewState.Loading) {
+            initInCompose()
+        }
 
     fun initInCompose() = intent {
         if (isInited) {
@@ -26,7 +27,7 @@ class WelcomeModel(
             return@intent
         }
         reduce {
-            WelcomeViewState.ConfigureSetting.WELCOME
+            WelcomeViewState.ConfigureSetting.LANGUAGE
         }
     }
 
@@ -63,6 +64,7 @@ sealed interface WelcomeViewState {
     data object Loading : WelcomeViewState
 
     enum class ConfigureSetting : WelcomeViewState {
+        LANGUAGE, // 语言
         WELCOME, // 欢迎
         THEME, // 配置主题
         BYPASS, // SNI绕过

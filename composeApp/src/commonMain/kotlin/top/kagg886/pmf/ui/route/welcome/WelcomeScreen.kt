@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,8 +54,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
@@ -63,6 +63,7 @@ import top.kagg886.pmf.Res
 import top.kagg886.pmf.ai_acceptance
 import top.kagg886.pmf.ai_allowed
 import top.kagg886.pmf.ai_blocked
+import top.kagg886.pmf.app_language
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
@@ -101,6 +102,7 @@ import top.kagg886.pmf.ui.component.icon.SystemSuggest
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.BYPASS
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.FINISH
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.LANGUAGE
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.SHIELD
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.THEME
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.WELCOME
@@ -111,7 +113,10 @@ import top.kagg886.pmf.ui.util.withLink
 import top.kagg886.pmf.unknown_error
 import top.kagg886.pmf.use_proxy
 import top.kagg886.pmf.use_sni_bypass
+import top.kagg886.pmf.util.ComposeI18N
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.welcome
 import top.kagg886.pmf.welcome_text
 import top.kagg886.pmf.welcome_text_after_pixko
@@ -158,6 +163,7 @@ class WelcomeScreen : Screen {
                         title = {
                             Text(
                                 when (state) {
+                                    LANGUAGE  -> stringResource(Res.string.app_language)
                                     WELCOME -> stringResource(Res.string.welcome)
                                     THEME -> stringResource(Res.string.theme_setting)
                                     BYPASS -> stringResource(Res.string.sni_bypass)
@@ -198,13 +204,13 @@ class WelcomeScreen : Screen {
                                 onClick = {
                                     model.goback()
                                 },
-                                enabled = state != WELCOME,
+                                enabled = state != LANGUAGE,
                             ) {
                                 Text(stringResource(Res.string.previous_step))
                             }
                         },
                     ) {
-                        WelcomeElementContent(model, state)
+                        WelcomeElementContent(state)
                     }
                 }
             }
@@ -213,11 +219,39 @@ class WelcomeScreen : Screen {
 
     @Composable
     private fun WelcomeElementContent(
-        model: WelcomeModel,
         state: WelcomeViewState.ConfigureSetting,
     ) {
         val colors = MaterialTheme.colorScheme
         when (state) {
+            LANGUAGE -> {
+                var locale by remember {
+                    mutableStateOf(AppConfig.locale)
+                }
+
+                LaunchedEffect(locale) {
+                    AppConfig.locale = locale
+                    ComposeI18N.locale.value = locale.locale
+                }
+
+                Column(Modifier.fillMaxWidth()) {
+                    for (i in AppConfig.LanguageSettings.entries) {
+                        androidx.compose.material3.ListItem(
+                            headlineContent = {
+                                Text(stringResource(i.tag))
+                            },
+                            leadingContent = {
+                                RadioButton(
+                                    selected = locale == i,
+                                    onClick = {
+                                        locale = i
+                                    },
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth().clickable { locale = i }
+                        )
+                    }
+                }
+            }
             WELCOME -> {
                 val scheme = MaterialTheme.colorScheme
                 Text(

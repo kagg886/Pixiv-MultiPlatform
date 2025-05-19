@@ -47,8 +47,8 @@ import me.saket.telephoto.zoomable.zoomable
 import okio.Buffer
 import okio.buffer
 import okio.use
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.Platform

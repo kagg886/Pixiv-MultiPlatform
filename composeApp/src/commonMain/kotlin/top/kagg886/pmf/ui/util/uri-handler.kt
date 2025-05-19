@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.UriHandler
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.ktor.http.Url
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.jump_browser_tips
 import top.kagg886.pmf.jump_browser_tips_question

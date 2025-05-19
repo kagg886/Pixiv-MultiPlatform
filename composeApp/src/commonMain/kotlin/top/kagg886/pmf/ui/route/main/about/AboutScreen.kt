@@ -42,7 +42,7 @@ import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.kotlin

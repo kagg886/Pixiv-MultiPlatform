@@ -48,7 +48,7 @@ import coil3.toUri
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.closed

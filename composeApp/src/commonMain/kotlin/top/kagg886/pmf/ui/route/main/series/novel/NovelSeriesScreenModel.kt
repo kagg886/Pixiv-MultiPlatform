@@ -2,7 +2,7 @@ package top.kagg886.pmf.ui.route.main.series.novel
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import org.jetbrains.compose.resources.getString
+import top.kagg886.pmf.util.getString
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
