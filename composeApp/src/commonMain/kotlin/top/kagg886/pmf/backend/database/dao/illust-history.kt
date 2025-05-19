@@ -1,5 +1,6 @@
 package top.kagg886.pmf.backend.database.dao
 
+import androidx.paging.PagingSource
 import androidx.room.*
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pmf.backend.database.converters.IllustConverter
@@ -9,8 +10,8 @@ interface IllustHistoryDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: IllustHistory)
 
-    @Query("SELECT * FROM IllustHistory ORDER BY createTime DESC LIMIT :size OFFSET (:page - 1) * :size;")
-    suspend fun getByPage(page: Int = 1, size: Int = 30): List<IllustHistory>
+    @Query("SELECT * FROM IllustHistory ORDER BY createTime DESC")
+    fun source(): PagingSource<Int, IllustHistory>
 }
 
 @Entity

@@ -2,15 +2,14 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import top.kagg886.pixko.module.illust.Illust
-import top.kagg886.pixko.module.illust.IllustResult
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserLikeIllust
 import top.kagg886.pixko.module.user.getUserLikeIllustNext
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
+import top.kagg886.pmf.ui.util.flowOf
+import top.kagg886.pmf.ui.util.next
 
 @Composable
 fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
@@ -21,17 +20,11 @@ fun AuthorScreen.AuthorIllustBookmark(user: UserInfo) {
 }
 
 private class AuthorIllustBookmarkViewModel(val user: Int) : IllustFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>() {
-            private var context: IllustResult? = null
-            override suspend fun onFetchList(): List<Illust> {
-                context = if (context == null) {
-                    client.getUserLikeIllust(user)
-                } else {
-                    client.getUserLikeIllustNext(context!!)
-                }
-                return context!!.illusts
-            }
-        }
+    override fun source() = flowOf(30) { params ->
+        params.next(
+            { client.getUserLikeIllust(user) },
+            { ctx -> client.getUserLikeIllustNext(ctx) },
+            { ctx -> ctx.illusts },
+        )
     }
 }

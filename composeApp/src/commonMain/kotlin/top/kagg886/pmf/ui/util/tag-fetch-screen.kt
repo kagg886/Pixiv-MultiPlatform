@@ -5,12 +5,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,12 +44,10 @@ private fun TagsFetchContent0(
     model: TagsFetchViewModel,
     preview: (@Composable () -> Unit)? = null,
 ) {
-    when (state) {
-        TagsFetchViewState.Loading -> {
-            Loading()
-        }
-
-        is TagsFetchViewState.ShowTagsList -> {
+    val data = model.data.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        else -> {
             val scroll = state.scrollerState
             var isRefresh by remember { mutableStateOf(false) }
             val scope = rememberCoroutineScope()
@@ -67,19 +63,17 @@ private fun TagsFetchContent0(
             PullToRefreshBox(
                 isRefreshing = isRefresh,
                 onRefresh = {
-                    isRefresh = true
                     scope.launch {
-                        model.initTags(true).join()
-                    }.invokeOnCompletion {
+                        isRefresh = true
+                        model.refresh()
+                        data.awaitNextState()
                         isRefresh = false
                     }
                 },
             ) {
-                if (state.data.isEmpty()) {
+                if (data.itemCount == 0 && data.loadState.isIdle) {
                     ErrorPage(text = stringResource(Res.string.page_is_empty)) {
-                        scope.launch {
-                            model.initTags()
-                        }
+                        data.retry()
                     }
                     return@PullToRefreshBox
                 }
@@ -88,61 +82,46 @@ private fun TagsFetchContent0(
                     state = state.scrollerState,
                 ) {
                     preview?.let {
-                        item {
+                        item(key = "Preview") {
                             it()
                         }
                     }
-                    item {
+                    item(key = "All") {
                         NavigationDrawerItem(
-                            label = {
-                                Text(text = stringResource(Res.string.all))
-                            },
+                            label = { Text(text = stringResource(Res.string.all)) },
                             selected = state.selectedTagsFilter == TagFilter.NoFilter,
-                            onClick = {
-                                model.clearTags()
-                            },
+                            onClick = { model.clearTags() },
                         )
                     }
-                    item {
+                    item(key = "NoFilter") {
                         NavigationDrawerItem(
-                            label = {
-                                Text(text = stringResource(Res.string.no_filter))
-                            },
+                            label = { Text(text = stringResource(Res.string.no_filter)) },
                             selected = state.selectedTagsFilter == TagFilter.FilterWithoutTagged,
-                            onClick = {
-                                model.selectNonTargetTags()
-                            },
+                            onClick = { model.selectNonTargetTags() },
                         )
                     }
-                    items(state.data, key = { it.name.hashCode() }) {
+                    items(
+                        count = data.itemCount,
+                        key = { i -> data.peek(i)!!.name },
+                    ) { i ->
+                        val item = data[i]!!
                         NavigationDrawerItem(
-                            label = {
-                                Text(text = it.name)
-                            },
-                            selected = (state.selectedTagsFilter as? TagFilter.FilterWithTag)?.tag?.name == it.name,
-                            icon = {
-                                Text(it.count.toString())
-                            },
-                            onClick = {
-                                model.selectTags(it)
-                            },
+                            label = { Text(text = item.name) },
+                            selected = (state.selectedTagsFilter as? TagFilter.FilterWithTag)?.tag?.name == item.name,
+                            icon = { Text(item.count.toString()) },
+                            onClick = { model.selectTags(item) },
                         )
                     }
-                    item {
-                        LaunchedEffect(Unit) {
-                            if (!state.noMoreData) {
-                                model.loadMoreTags()
-                            }
-                        }
-                        if (!state.noMoreData) {
+                    item(key = "Footer") {
+                        if (!data.loadState.isIdle) {
                             Loading()
-                            return@item
+                        } else {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(Res.string.no_more_data),
+                            )
                         }
-                        Text(
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(Res.string.no_more_data),
-                        )
                     }
                 }
 
@@ -154,18 +133,12 @@ private fun TagsFetchContent0(
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onBackToTop = {
-                        scope.launch {
-                            scroll.animateScrollToItem(0)
-                        }
-                    },
+                    onBackToTop = { scroll.animateScrollToItem(0) },
                     onRefresh = {
                         isRefresh = true
-                        scope.launch {
-                            model.initTags(true).join()
-                        }.invokeOnCompletion {
-                            isRefresh = false
-                        }
+                        model.refresh()
+                        data.awaitNextState()
+                        isRefresh = false
                     },
                 )
             }

@@ -1,24 +1,17 @@
 package top.kagg886.pmf.ui.route.main.recommend
 
-import top.kagg886.pixko.module.illust.Illust
-import top.kagg886.pixko.module.illust.IllustResult
 import top.kagg886.pixko.module.illust.getRecommendIllust
 import top.kagg886.pixko.module.illust.getRecommendIllustNext
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
+import top.kagg886.pmf.ui.util.flowOf
+import top.kagg886.pmf.ui.util.next
 
 class RecommendIllustViewModel : IllustFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>() {
-            private var context: IllustResult? = null
-            override suspend fun onFetchList(): List<Illust>? {
-                context = if (context == null) {
-                    client.getRecommendIllust()
-                } else {
-                    client.getRecommendIllustNext(context!!)
-                }
-                return context?.illusts
-            }
-        }
+    override fun source() = flowOf(30) { params ->
+        params.next(
+            { client.getRecommendIllust() },
+            { ctx -> client.getRecommendIllustNext(ctx) },
+            { ctx -> ctx.illusts },
+        )
     }
 }

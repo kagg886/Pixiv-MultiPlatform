@@ -108,6 +108,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.androidx.paging)
 
             // voyager
             implementation(libs.voyager.navigator)
@@ -149,7 +150,7 @@ kotlin {
             implementation(libs.ktor.client.logging)
 
             // room
-            implementation(libs.androidx.room.runtime)
+            implementation(libs.bundles.room)
 
             // save file to storage
             implementation(libs.filekit.compose)

@@ -2,13 +2,13 @@ package top.kagg886.pmf.ui.route.main.detail.author.tabs
 
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserIllust
-import top.kagg886.pmf.backend.pixiv.InfinityRepository
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchViewModel
+import top.kagg886.pmf.ui.util.flowOf
+import top.kagg886.pmf.ui.util.page
 
 @Composable
 fun AuthorScreen.AuthorIllust(user: UserInfo) {
@@ -19,14 +19,7 @@ fun AuthorScreen.AuthorIllust(user: UserInfo) {
 }
 
 private class AuthorIllustViewModel(val user: Int) : IllustFetchViewModel() {
-    override fun initInfinityRepository(): InfinityRepository<Illust> {
-        return object : InfinityRepository<Illust>() {
-            private var page = 1
-            override suspend fun onFetchList(): List<Illust> {
-                val result = client.getUserIllust(user.toLong(), page)
-                page++
-                return result
-            }
-        }
+    override fun source() = flowOf(30) { params ->
+        params.page { i -> client.getUserIllust(user.toLong(), i) }
     }
 }

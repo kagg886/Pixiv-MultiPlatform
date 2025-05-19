@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -31,7 +30,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,12 +67,10 @@ fun CommentPanel(model: CommentViewModel, modifier: Modifier = Modifier) {
 
 @Composable
 private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewState, modifier: Modifier) {
-    when (state) {
-        CommentViewState.Loading -> {
-            Loading(modifier)
-        }
-
-        is CommentViewState.Success -> {
+    val data = model.data.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        state is CommentViewState.Success -> {
             val scroll = state.scrollerState
             val host = LocalSnackBarHost.current
 
@@ -92,20 +88,18 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                 PullToRefreshBox(
                     isRefreshing = isRefresh,
                     onRefresh = {
-                        isRefresh = true
                         scope.launch {
-                            model.load(true).join()
-                        }.invokeOnCompletion {
+                            isRefresh = true
+                            model.refresh()
+                            data.awaitNextState()
                             isRefresh = false
                         }
                     },
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 ) {
-                    if (state.comments.isEmpty()) {
+                    if (data.itemCount == 0 && data.loadState.isIdle) {
                         ErrorPage(text = stringResource(Res.string.page_is_empty)) {
-                            scope.launch {
-                                model.load()
-                            }
+                            data.retry()
                         }
                         return@PullToRefreshBox
                     }
@@ -119,7 +113,11 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     KeyListenerFromGlobalPipe(controller)
 
                     LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
-                        items(state.comments) { comment ->
+                        items(
+                            count = data.itemCount,
+                            key = { i -> data.peek(i)!!.id },
+                        ) { i ->
+                            val comment = data[i]!!
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp),
                             ) {
@@ -142,7 +140,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                         AnimatedContent(
                                             targetState = when {
                                                 comment.hasReplies -> -1
-                                                comment == (state as? CommentViewState.Success.HasReply)?.replyTarget -> 1
+                                                comment == (state as? CommentViewState.Success.HasReply)?.target -> 1
                                                 else -> 0
                                             },
                                             transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -191,49 +189,42 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     }
                                 }
 
-                                if (state is CommentViewState.Success.HasReply) {
-                                    if (state.replyTarget.id == comment.id) {
-                                        Column(Modifier.fillMaxWidth()) reply@{
-                                            for (i in state.replyList) {
-                                                ListItem(
-                                                    headlineContent = {
-                                                        Text(i.user.name, style = MaterialTheme.typography.labelSmall)
-                                                    },
-                                                    leadingContent = {
+                                if (state is CommentViewState.Success.HasReply && state.target.id == comment.id) {
+                                    val reply = state.reply.collectAsLazyPagingItems()
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        for (i in 0..<reply.itemCount) {
+                                            val item = reply[i]!!
+                                            ListItem(
+                                                headlineContent = {
+                                                    Text(item.user.name, style = MaterialTheme.typography.labelSmall)
+                                                },
+                                                leadingContent = {
+                                                    AsyncImage(
+                                                        model = item.user.profileImageUrls.content,
+                                                        modifier = Modifier.size(25.dp).clickable { nav.push(AuthorScreen(item.user.id)) },
+                                                        contentDescription = null,
+                                                    )
+                                                },
+                                                supportingContent = {
+                                                    if (item.stamp == null) {
+                                                        Text(item.comment)
+                                                    } else {
                                                         AsyncImage(
-                                                            model = i.user.profileImageUrls.content,
-                                                            modifier = Modifier.size(25.dp).clickable { nav.push(AuthorScreen(i.user.id)) },
+                                                            model = item.stamp!!.url,
+                                                            modifier = Modifier.size(80.dp),
                                                             contentDescription = null,
                                                         )
-                                                    },
-                                                    supportingContent = {
-                                                        if (i.stamp == null) {
-                                                            Text(i.comment)
-                                                        } else {
-                                                            AsyncImage(
-                                                                model = i.stamp!!.url,
-                                                                modifier = Modifier.size(80.dp),
-                                                                contentDescription = null,
-                                                            )
-                                                        }
-                                                    },
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
-
-                                            LaunchedEffect(Unit) {
-                                                if (!state.replyNoMoreData) {
-                                                    model.loadReplyMore()
-                                                }
-                                            }
-                                            if (!state.replyNoMoreData) {
-                                                Loading()
-                                                return@reply
-                                            }
+                                                    }
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
+                                        }
+                                        if (!data.loadState.isIdle) {
+                                            Loading()
+                                        } else {
                                             Text(
                                                 textAlign = TextAlign.Center,
-                                                modifier = Modifier.fillMaxWidth()
-                                                    .padding(ButtonDefaults.TextButtonContentPadding),
+                                                modifier = Modifier.fillMaxWidth().padding(ButtonDefaults.TextButtonContentPadding),
                                                 text = stringResource(Res.string.no_more_data),
                                             )
                                         }
@@ -243,20 +234,15 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         }
 
                         item {
-                            LaunchedEffect(Unit) {
-                                if (!state.noMoreData) {
-                                    model.loadMore()
-                                }
-                            }
-                            if (!state.noMoreData) {
+                            if (!data.loadState.isIdle) {
                                 Loading()
-                                return@item
+                            } else {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = stringResource(Res.string.no_more_data),
+                                )
                             }
-                            Text(
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                                text = stringResource(Res.string.no_more_data),
-                            )
                         }
                     }
 
@@ -268,18 +254,12 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     BackToTopOrRefreshButton(
                         isNotInTop = scroll.canScrollBackward,
                         modifier = Modifier.align(Alignment.BottomEnd),
-                        onBackToTop = {
-                            scope.launch {
-                                scroll.animateScrollToItem(0)
-                            }
-                        },
+                        onBackToTop = { scroll.animateScrollToItem(0) },
                         onRefresh = {
                             isRefresh = true
-                            scope.launch {
-                                model.load(pullDown = true).join()
-                            }.invokeOnCompletion {
-                                isRefresh = false
-                            }
+                            model.refresh()
+                            data.awaitNextState()
+                            isRefresh = false
                         },
                     )
                 }
@@ -307,7 +287,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         ) {
                             when (it) {
                                 is CommentViewState.Success.HasReply -> {
-                                    Text(stringResource(Res.string.reply_for, it.replyTarget.user.name))
+                                    Text(stringResource(Res.string.reply_for, it.target.user.name))
                                 }
 
                                 else -> {
@@ -317,7 +297,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         }
                     },
                     leadingIcon = {
-                        AnimatedVisibility((state as? CommentViewState.Success.HasReply)?.replyTarget != null) {
+                        AnimatedVisibility((state as? CommentViewState.Success.HasReply)?.target != null) {
                             IconButton(
                                 onClick = {
                                     model.clearReply()
