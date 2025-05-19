@@ -46,7 +46,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.SimpleMeProfile
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
@@ -66,6 +65,7 @@ import top.kagg886.pmf.ui.route.main.profile.ProfileItem.ViewProfile
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.wrap
 
 enum class ProfileItem {

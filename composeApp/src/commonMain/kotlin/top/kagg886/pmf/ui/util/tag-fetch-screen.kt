@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.TagFilter
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.all
@@ -31,6 +30,7 @@ import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun TagsFetchDrawerSheetContainer(model: TagsFetchViewModel, preview: (@Composable () -> Unit)? = null) {

@@ -50,8 +50,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.LocalColorScheme
@@ -60,6 +58,8 @@ import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.about
 import top.kagg886.pmf.advanced
+import top.kagg886.pmf.app_language
+import top.kagg886.pmf.app_language_feature_pr
 import top.kagg886.pmf.appearance
 import top.kagg886.pmf.auto_typography
 import top.kagg886.pmf.auto_typography_description
@@ -178,10 +178,13 @@ import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.update
+import top.kagg886.pmf.util.ComposeI18N
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.b
 import top.kagg886.pmf.util.deleteRecursively
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.zip
 
 class SettingScreen : Screen {
@@ -196,6 +199,30 @@ class SettingScreen : Screen {
                 )
             }
             SettingsGroup(title = { Text(stringResource(Res.string.appearance)) }) {
+                var locale by remember {
+                    mutableStateOf(AppConfig.locale)
+                }
+
+                LaunchedEffect(locale) {
+                    AppConfig.locale = locale
+                    ComposeI18N.locale.value = locale.locale
+                }
+
+                SettingsDropdownMenu<AppConfig.LanguageSettings>(
+                    title = { Text(stringResource(Res.string.app_language)) },
+                    subTitle = {
+                        Text(stringResource(Res.string.app_language_feature_pr))
+                    },
+                    optionsFormat = {
+                        stringResource(it.tag)
+                    },
+                    current = locale,
+                    data = AppConfig.LanguageSettings.entries,
+                    onSelected = {
+                        locale = it
+                    },
+                )
+
                 var darkMode by LocalDarkSettings.current
 
                 LaunchedEffect(darkMode) {

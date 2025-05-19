@@ -41,7 +41,6 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
@@ -58,6 +57,7 @@ import top.kagg886.pmf.ui.util.NovelFetchViewModel
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.useWideScreenMode
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.word_count
 
 class NovelSeriesScreen(private val id: Int) : Screen {

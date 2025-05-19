@@ -34,7 +34,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.module.user.FavoriteTagsType
 import top.kagg886.pixko.module.user.FavoriteTagsType.Illust
 import top.kagg886.pixko.module.user.FavoriteTagsType.Novel
@@ -54,6 +53,7 @@ import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.TagsFetchDrawerSheetContainer
 import top.kagg886.pmf.ui.util.TagsFetchViewModel
 import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.visibility
 
 class BookmarkScreen : Screen {

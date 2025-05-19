@@ -13,11 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.confirm
 import top.kagg886.pmf.edit_prop
 import top.kagg886.pmf.please_input
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun SettingsTextField(

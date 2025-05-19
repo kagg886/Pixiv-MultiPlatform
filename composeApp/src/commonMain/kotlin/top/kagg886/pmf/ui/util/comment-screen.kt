@@ -43,7 +43,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.comment
@@ -57,6 +56,7 @@ import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
 @Composable

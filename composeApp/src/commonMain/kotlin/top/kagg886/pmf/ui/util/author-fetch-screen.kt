@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.no_more_data
 import top.kagg886.pmf.page_is_empty
@@ -29,6 +28,7 @@ import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun AuthorFetchScreen(model: AuthorFetchViewModel) {

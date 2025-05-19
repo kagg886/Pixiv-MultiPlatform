@@ -64,8 +64,6 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import org.koin.core.component.KoinComponent
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
@@ -116,6 +114,8 @@ import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 

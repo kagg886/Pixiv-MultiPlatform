@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pmf.Res
@@ -29,6 +28,7 @@ import top.kagg886.pmf.cancel
 import top.kagg886.pmf.confirm
 import top.kagg886.pmf.favorite_tag
 import top.kagg886.pmf.favorite_type
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun TagFavoriteDialog(

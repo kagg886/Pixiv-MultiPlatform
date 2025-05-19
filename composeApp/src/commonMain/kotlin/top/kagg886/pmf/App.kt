@@ -73,8 +73,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
 import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.getString
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -119,8 +117,10 @@ import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.UgoiraFetcher
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toColorScheme
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {

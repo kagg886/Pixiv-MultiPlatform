@@ -8,7 +8,6 @@ import io.ktor.util.encodeBase64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
-import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -47,6 +46,7 @@ import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.unfollow_fail
 import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.UGOIRA_SCHEME
+import top.kagg886.pmf.util.getString
 
 class IllustDetailViewModel(private val illust: Illust) :
     ContainerHost<IllustDetailViewState, IllustDetailSideEffect>,

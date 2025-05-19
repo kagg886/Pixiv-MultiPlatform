@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import org.jetbrains.compose.resources.stringResource
 import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalSnackBarHost
@@ -25,6 +24,7 @@ import top.kagg886.pmf.ui.util.UpdateCheckState
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun CheckUpdateDialog() {

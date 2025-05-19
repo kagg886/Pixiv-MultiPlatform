@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import okio.Path
 import okio.buffer
 import okio.use
-import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -35,6 +34,7 @@ import top.kagg886.pmf.token_verification_failed
 import top.kagg886.pmf.ui.route.login.v2.LoginType.BrowserLogin
 import top.kagg886.pmf.ui.route.login.v2.LoginType.InputTokenLogin
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.welcome_user

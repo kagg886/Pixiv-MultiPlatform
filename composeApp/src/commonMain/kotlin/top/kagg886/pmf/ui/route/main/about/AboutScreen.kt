@@ -42,7 +42,6 @@ import com.mikepenz.aboutlibraries.ui.compose.rememberLibraries
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.kotlin
@@ -50,6 +49,7 @@ import top.kagg886.pmf.open_source
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Telegram
+import top.kagg886.pmf.util.stringResource
 
 class AboutScreen : Screen {
     @Composable

@@ -37,7 +37,6 @@ import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
@@ -67,6 +66,7 @@ import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.ui.util.withLink
 import top.kagg886.pmf.use_browser_login
 import top.kagg886.pmf.use_token_login
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.warning
 
 class LoginScreen(clearOldSession: Boolean = false) : Screen {

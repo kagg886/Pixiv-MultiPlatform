@@ -13,13 +13,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pixko.User
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.no_description
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun AuthorCard(

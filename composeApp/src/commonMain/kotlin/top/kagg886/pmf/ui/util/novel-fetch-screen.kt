@@ -31,7 +31,6 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.no_more_data
@@ -50,6 +49,7 @@ import top.kagg886.pmf.ui.component.icon.Robot
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun NovelFetchScreen(model: NovelFetchViewModel) {
