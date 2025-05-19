@@ -20,10 +20,10 @@ import top.kagg886.pmf.find_similar_illust
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.util.stringResource
 
-class IllustSimilarScreen(val id:Long) : Screen {
+class IllustSimilarScreen(val id: Long) : Screen {
     @Composable
     override fun Content() {
-        val similarModel = rememberScreenModel("similar_illust_${id}") {
+        val similarModel = rememberScreenModel("similar_illust_$id") {
             IllustSimilarViewModel(id)
         }
         val nav = LocalNavigator.currentOrThrow
@@ -37,14 +37,14 @@ class IllustSimilarScreen(val id:Long) : Screen {
                         IconButton(
                             onClick = {
                                 nav.pop()
-                            }
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         }
-                    }
+                    },
                 )
             },
         ) {

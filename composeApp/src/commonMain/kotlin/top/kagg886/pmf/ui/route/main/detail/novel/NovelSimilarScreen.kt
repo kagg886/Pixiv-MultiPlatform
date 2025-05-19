@@ -20,10 +20,10 @@ import top.kagg886.pmf.find_similar_novel
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.util.stringResource
 
-class NovelSimilarScreen(val id:Long) : Screen {
+class NovelSimilarScreen(val id: Long) : Screen {
     @Composable
     override fun Content() {
-        val similarModel = rememberScreenModel("similar_novel_${id}") {
+        val similarModel = rememberScreenModel("similar_novel_$id") {
             NovelSimilarViewModel(id)
         }
         val nav = LocalNavigator.currentOrThrow
@@ -37,14 +37,14 @@ class NovelSimilarScreen(val id:Long) : Screen {
                         IconButton(
                             onClick = {
                                 nav.pop()
-                            }
+                            },
                         ) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null
+                                contentDescription = null,
                             )
                         }
-                    }
+                    },
                 )
             },
         ) {
