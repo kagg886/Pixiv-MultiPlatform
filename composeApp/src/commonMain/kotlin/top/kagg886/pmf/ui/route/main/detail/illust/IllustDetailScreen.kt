@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
@@ -82,6 +83,7 @@ import top.kagg886.pmf.copy_title_success
 import top.kagg886.pmf.download
 import top.kagg886.pmf.error
 import top.kagg886.pmf.expand_more
+import top.kagg886.pmf.find_similar_illust
 import top.kagg886.pmf.image_details
 import top.kagg886.pmf.no_description
 import top.kagg886.pmf.openBrowser
@@ -105,6 +107,7 @@ import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.CommentPanel
 import top.kagg886.pmf.ui.util.HTMLRichText
+import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.RollingNumber
 import top.kagg886.pmf.ui.util.collectAsState
@@ -366,7 +369,10 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                             onClick = { expand = true },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text(stringResource(Res.string.expand_more), textAlign = TextAlign.Center)
+                            Text(
+                                stringResource(Res.string.expand_more),
+                                textAlign = TextAlign.Center
+                            )
                         }
                     }
                 }
@@ -559,6 +565,30 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     illust.createTime.toReadableString(),
                                 )
                             },
+                        )
+                    }
+                }
+
+                item(key = "similar") {
+                    var expandSimilarDialog by remember { mutableStateOf(false) }
+                    if (expandSimilarDialog) {
+                        ModalBottomSheet(
+                            onDismissRequest = { expandSimilarDialog = false },
+                        ) {
+                            val similarModel = rememberScreenModel("similar_illust_${illust.id}") {
+                                IllustSimilarViewModel(illust)
+                            }
+                            IllustFetchScreen(similarModel)
+                        }
+                    }
+                    OutlinedCard {
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    stringResource(Res.string.find_similar_illust),
+                                )
+                            },
+                            modifier = Modifier.clickable { expandSimilarDialog = true }
                         )
                     }
                 }

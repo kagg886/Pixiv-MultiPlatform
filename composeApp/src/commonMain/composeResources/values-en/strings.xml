@@ -3,6 +3,8 @@
     <string name="rank">Rank</string>
     <string name="space">Space</string>
     <string name="illust">Illust</string>
+    <string name="find_similar_illust">Similar Illust</string>
+    <string name="find_similar_novel">Similar Novel</string>
     <string name="novel">Novel</string>
     <string name="rank_day">Daily</string>
     <string name="rank_week">Weekly</string>

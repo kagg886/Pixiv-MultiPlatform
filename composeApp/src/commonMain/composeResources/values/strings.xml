@@ -3,6 +3,8 @@
     <string name="rank">排行榜</string>
     <string name="space">动态</string>
     <string name="illust">插画</string>
+    <string name="find_similar_illust">相似插画</string>
+    <string name="find_similar_novel">相似小说</string>
     <string name="novel">小说</string>
     <string name="rank_day">日榜</string>
     <string name="rank_week">周榜</string>
