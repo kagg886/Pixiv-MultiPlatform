@@ -193,7 +193,7 @@ jobs:
           path: composeApp/build/archives/release/ios.ipa
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-windows, build-android, build-linux, build-macos]
+    needs: [build-windows, build-android, build-linux, build-macos,build-ios]
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
