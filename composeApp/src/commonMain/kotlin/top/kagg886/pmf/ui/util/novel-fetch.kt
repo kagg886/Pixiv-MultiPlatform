@@ -8,7 +8,6 @@ import androidx.paging.cachedIn
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -45,8 +44,8 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
         a || b || c || d || e
     }
 
-    val data = merge(flowOf(Unit), signal).flatMapLatest {
-        novelRouter.intercept(source().cachedIn(viewModelScope)).map { data -> data.filterNot { i -> i.block() } }
+    val data = merge(flowOf(Unit), signal).flatMapLatestScoped { scope, _ ->
+        novelRouter.intercept(source().cachedIn(scope)).map { data -> data.filterNot { i -> i.block() } }
     }.cachedIn(viewModelScope)
 
     fun refresh() = intent { signal.emit(Unit) }
