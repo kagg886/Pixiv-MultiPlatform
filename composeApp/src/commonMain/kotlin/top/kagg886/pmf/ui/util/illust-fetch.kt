@@ -1,12 +1,12 @@
 package top.kagg886.pmf.ui.util
 
+import androidx.collection.MutableIntSet
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
-import androidx.paging.map
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,7 +41,7 @@ abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, Illust
 
     val data = merge(flowOf(Unit), signal).flatMapLatest {
         illustRouter.intercept(source().cachedIn(viewModelScope)).map { data -> data.filterNot { i -> i.block() } }
-    }.cachedIn(viewModelScope)
+    }.map { data -> MutableIntSet().let { s -> data.filter { s.add(it.id) } } }.cachedIn(viewModelScope)
 
     fun refresh() = intent { signal.emit(Unit) }
 
