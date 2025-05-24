@@ -8,7 +8,6 @@ import androidx.paging.cachedIn
 import cafe.adriel.voyager.core.model.ScreenModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.merge
 import org.jetbrains.compose.resources.getString
@@ -33,8 +32,8 @@ abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, Author
     abstract fun source(): Flow<PagingData<User>>
     override val container: Container<AuthorFetchViewState, AuthorFetchSideEffect> = container(AuthorFetchViewState())
 
-    val data = merge(flowOf(Unit), signal).flatMapLatest {
-        userRouter.intercept(source().cachedIn(viewModelScope))
+    val data = merge(flowOf(Unit), signal).flatMapLatestScoped { scope, _ ->
+        userRouter.intercept(source().cachedIn(scope))
     }.cachedIn(viewModelScope)
 
     fun refresh() = intent { signal.emit(Unit) }
