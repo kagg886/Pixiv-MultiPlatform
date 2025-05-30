@@ -456,7 +456,6 @@ fun setupEnv() {
         )
     }
 
-
     co.touchlab.kermit.Logger.withTag("Application").i(
         """
             Application Info:
@@ -466,7 +465,7 @@ fun setupEnv() {
             - App Commit ID: ${BuildConfig.APP_COMMIT_ID}
             - App Database Version ${BuildConfig.DATABASE_VERSION}
             - Platform: $currentPlatform
-        """.trimIndent()
+        """.trimIndent(),
     )
 }
 
