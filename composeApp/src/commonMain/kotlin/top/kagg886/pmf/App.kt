@@ -91,6 +91,7 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.databaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
@@ -454,6 +455,18 @@ fun setupEnv() {
             },
         )
     }
+
+    co.touchlab.kermit.Logger.withTag("Application").i(
+        """
+            Application Info:
+            - App Name: ${BuildConfig.APP_NAME}
+            - App Version: ${BuildConfig.APP_VERSION_NAME}
+            - App Version Code: ${BuildConfig.APP_VERSION_CODE}
+            - App Commit ID: ${BuildConfig.APP_COMMIT_ID}
+            - App Database Version ${BuildConfig.DATABASE_VERSION}
+            - Platform: $currentPlatform
+        """.trimIndent(),
+    )
 }
 
 expect fun openBrowser(link: String)

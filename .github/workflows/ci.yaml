@@ -48,6 +48,13 @@ jobs:
         with:
           name: windows.msi
           path: composeApp\build\compose\binaries\main-release\app\windows.msi
+
+      - name: Upload Proguard Mapping File
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-windows.mapping
+          path: composeApp\mappings-desktop-currentOS.txt
+          if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
     permissions:
@@ -85,6 +92,13 @@ jobs:
         with:
           name: linux.tar.gz
           path: linux.tar.gz
+
+      - name: Upload Proguard Mapping File
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-linux.mapping
+          path: composeApp/mappings-desktop-currentOS.txt
+          if-no-files-found: error
   build-android:
     runs-on: ubuntu-latest
     permissions:
@@ -121,6 +135,12 @@ jobs:
         with:
           name: android.apk
           path: composeApp/build/outputs/apk/release/android.apk
+      - name: Upload Proguard Mapping File
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-android.mapping
+          path: composeApp/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
   build-macos:
     runs-on: macos-latest
     permissions:
@@ -158,6 +178,14 @@ jobs:
         with:
           name: macos.dmg
           path: composeApp/build/compose/binaries/main-release/dmg/macos.dmg
+
+      - name: Upload Proguard Mapping File
+        uses: actions/upload-artifact@v4
+        with:
+          name: proguard-macos.mapping
+          path: composeApp/mappings-desktop-currentOS.txt
+          if-no-files-found: error
+
   build-ios:
     runs-on: macos-15
     permissions:

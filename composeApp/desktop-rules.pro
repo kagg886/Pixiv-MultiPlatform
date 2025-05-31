@@ -12,3 +12,6 @@
 -keep interface org.freedesktop.dbus.interfaces.Properties { *; }
 
 -ignorewarnings
+
+
+-printmapping mappings-desktop-currentOS.txt
