@@ -116,15 +116,8 @@ class SearchResultScreen(
                 current = tab,
                 onCurrentChange = { tab = it },
             ) {
-                data[tab]?.invoke()
+                data[it]?.invoke()
             }
-//            TabContainer(
-//                state = tab,
-//                tab = data.map { pair -> pair.first },
-//                modifier = Modifier.padding(paddingValues),
-//            ) { index ->
-//                data[index].second.invoke()
-//            }
         }
     }
 }
