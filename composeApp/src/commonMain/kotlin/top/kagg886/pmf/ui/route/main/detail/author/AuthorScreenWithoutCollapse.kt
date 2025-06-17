@@ -2,7 +2,6 @@ package top.kagg886.pmf.ui.route.main.detail.author
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,12 +9,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.follow
+import top.kagg886.pmf.illustration_bookmarks
+import top.kagg886.pmf.illustration_works
+import top.kagg886.pmf.load_failed
+import top.kagg886.pmf.novel_bookmarks
+import top.kagg886.pmf.novel_works
+import top.kagg886.pmf.personal_profile
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.TabContainer
-import top.kagg886.pmf.ui.route.main.detail.author.tabs.*
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorFollow
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorIllust
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorIllustBookmark
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorNovel
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorNovelBookmark
+import top.kagg886.pmf.ui.route.main.detail.author.tabs.AuthorProfile
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.util.stringResource
 
 class AuthorScreenWithoutCollapse(override val id: Int) : AuthorScreen(id) {
     @Composable
@@ -36,7 +49,6 @@ class AuthorScreenWithoutCollapse(override val id: Int) : AuthorScreen(id) {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun AuthorContent(state: AuthorScreenState) {
         val model = rememberScreenModel {
@@ -44,7 +56,7 @@ class AuthorScreenWithoutCollapse(override val id: Int) : AuthorScreen(id) {
         }
         when (state) {
             AuthorScreenState.Error -> {
-                ErrorPage(text = "加载失败", showBackButton = true) {
+                ErrorPage(text = stringResource(Res.string.load_failed), showBackButton = true) {
                     model.loadUserById(id)
                 }
             }
@@ -57,28 +69,26 @@ class AuthorScreenWithoutCollapse(override val id: Int) : AuthorScreen(id) {
                 val key = remember {
                     mutableIntStateOf(0)
                 }
-                val data = remember {
-                    linkedMapOf<String, @Composable () -> Unit>(
-                        "个人信息" to {
-                            AuthorProfile(state.user)
-                        },
-                        "插画作品" to {
-                            AuthorIllust(state.user)
-                        },
-                        "小说作品" to {
-                            AuthorNovel(state.user)
-                        },
-                        "插画收藏" to {
-                            AuthorIllustBookmark(state.user)
-                        },
-                        "小说收藏" to {
-                            AuthorNovelBookmark(state.user)
-                        },
-                        "关注" to {
-                            AuthorFollow(state.user)
-                        },
-                    ).toList()
-                }
+                val data = linkedMapOf<String, @Composable () -> Unit>(
+                    stringResource(Res.string.personal_profile) to {
+                        AuthorProfile(state.user)
+                    },
+                    stringResource(Res.string.illustration_works) to {
+                        AuthorIllust(state.user)
+                    },
+                    stringResource(Res.string.novel_works) to {
+                        AuthorNovel(state.user)
+                    },
+                    stringResource(Res.string.illustration_bookmarks) to {
+                        AuthorIllustBookmark(state.user)
+                    },
+                    stringResource(Res.string.novel_bookmarks) to {
+                        AuthorNovelBookmark(state.user)
+                    },
+                    stringResource(Res.string.follow) to {
+                        AuthorFollow(state.user)
+                    },
+                ).toList()
                 TabContainer(
                     state = key,
                     tab = data.map { it.first },

@@ -11,8 +11,16 @@ import top.kagg886.pixko.module.novel.getNovelSeries
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.follow_fail
+import top.kagg886.pmf.follow_success
+import top.kagg886.pmf.follow_success_private
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.unfollow_fail
+import top.kagg886.pmf.unfollow_success
+import top.kagg886.pmf.unknown_error
+import top.kagg886.pmf.util.getString
 
 class NovelSeriesScreenModel(
     private val seriesId: Int,
@@ -35,8 +43,9 @@ class NovelSeriesScreenModel(
             client.getNovelSeries(seriesId)
         }
         if (data.isFailure) {
+            val unknown = getString(Res.string.unknown_error)
             reduce {
-                NovelSeriesScreenState.LoadingFailed(data.exceptionOrNull()!!.message ?: "未知错误")
+                NovelSeriesScreenState.LoadingFailed(data.exceptionOrNull()!!.message ?: unknown)
             }
             return@intent
         }
@@ -53,13 +62,13 @@ class NovelSeriesScreenModel(
                 client.followUser(state.info.user.id, if (private) UserLikePublicity.PRIVATE else UserLikePublicity.PUBLIC)
             }
             if (result.isFailure) {
-                postSideEffect(NovelSeriesScreenSideEffect.Toast("关注失败~"))
+                postSideEffect(NovelSeriesScreenSideEffect.Toast(getString(Res.string.follow_fail)))
                 return@runOn
             }
             if (private) {
-                postSideEffect(NovelSeriesScreenSideEffect.Toast("悄悄关注是不想让别人看到嘛⁄(⁄ ⁄•⁄ω⁄•⁄ ⁄)⁄"))
+                postSideEffect(NovelSeriesScreenSideEffect.Toast(getString(Res.string.follow_success_private)))
             } else {
-                postSideEffect(NovelSeriesScreenSideEffect.Toast("关注成功~"))
+                postSideEffect(NovelSeriesScreenSideEffect.Toast(getString(Res.string.follow_success)))
             }
         }
     }
@@ -71,10 +80,10 @@ class NovelSeriesScreenModel(
                 client.unFollowUser(state.info.user.id)
             }
             if (result.isFailure) {
-                postSideEffect(NovelSeriesScreenSideEffect.Toast("取关失败~(*^▽^*)"))
+                postSideEffect(NovelSeriesScreenSideEffect.Toast(getString(Res.string.unfollow_fail)))
                 return@runOn
             }
-            postSideEffect(NovelSeriesScreenSideEffect.Toast("取关成功~o(╥﹏╥)o"))
+            postSideEffect(NovelSeriesScreenSideEffect.Toast(getString(Res.string.unfollow_success)))
         }
     }
 }

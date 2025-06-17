@@ -11,15 +11,25 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import okio.Path
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.dataPath
+import top.kagg886.pmf.browser_archive_should_be_tar_gz
+import top.kagg886.pmf.creating_install_lock
+import top.kagg886.pmf.downloading_browser
+import top.kagg886.pmf.init_browser
+import top.kagg886.pmf.installing_browser
+import top.kagg886.pmf.unknown_error
+import top.kagg886.pmf.unzipping_browser
 import top.kagg886.pmf.util.absolutePath
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.xattr_setting
 
 private val WEBVIEW_INSTALL_DIR = dataPath.resolve("web-view").toFile()
 private val WEBVIEW_INSTALL_LOCK_PATH = WEBVIEW_INSTALL_DIR.resolve("install.lock")
 
 @Suppress("DefaultLocale")
 actual fun LoginScreenViewModel.initKCEF() = intent {
-    val loading = LoginViewState.LoginType.BrowserLogin.Loading(MutableStateFlow("正在初始化嵌入式浏览器..."))
+    val loading = LoginViewState.LoginType.BrowserLogin.Loading(MutableStateFlow(getString(Res.string.init_browser)))
     reduce { loading }
     KCEF.init(
         builder = {
@@ -30,11 +40,15 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
             }
             progress {
                 onDownloading {
-                    loading.msg.tryEmit("下载浏览器内核中... ${String.format("%.2f", it)}")
+                    intent {
+                        loading.msg.tryEmit(getString(Res.string.downloading_browser, it))
+                    }
                 }
 
                 onExtracting {
-                    loading.msg.tryEmit("解压浏览器内核中...")
+                    intent {
+                        loading.msg.tryEmit(getString(Res.string.unzipping_browser))
+                    }
                 }
 
                 onInitialized {
@@ -59,8 +73,9 @@ actual fun LoginScreenViewModel.initKCEF() = intent {
         },
         onError = {
             runBlocking {
+                val defaultError = Throwable(getString(Res.string.unknown_error))
                 reduce {
-                    LoginViewState.LoginType.BrowserLogin.Error(it ?: Throwable("未知错误"))
+                    LoginViewState.LoginType.BrowserLogin.Error(it ?: defaultError)
                 }
             }
         },
@@ -72,26 +87,26 @@ actual fun LoginScreenViewModel.initKCEFLocal(file: Path): Job = intent {
         return@intent initKCEF().join()
     }
     if (file.name.endsWith(".tar.gz")) {
-        postSideEffect(LoginSideEffect.Toast("必须是.tar.gz结尾的文件！"))
+        postSideEffect(LoginSideEffect.Toast(getString(Res.string.browser_archive_should_be_tar_gz)))
         return@intent
     }
-    val state = LoginViewState.LoginType.BrowserLogin.Loading(MutableStateFlow("解压浏览器内核中..."))
+    val state = LoginViewState.LoginType.BrowserLogin.Loading(MutableStateFlow(getString(Res.string.unzipping_browser)))
     reduce { state }
     TarGzExtractor.extract(
         WEBVIEW_INSTALL_DIR,
         file.toFile(),
         4096,
     )
-    state.msg.tryEmit("安装浏览器内核中")
+    state.msg.tryEmit(getString(Res.string.installing_browser))
     TarGzExtractor.move(
         WEBVIEW_INSTALL_DIR,
     )
 
     if (Platform.getCurrentPlatform().os.isMacOSX) {
-        state.msg.tryEmit("正在设置xattr...")
+        state.msg.tryEmit(getString(Res.string.xattr_setting))
         WEBVIEW_INSTALL_DIR.unquarantine()
     }
-    state.msg.tryEmit("创建安装锁...")
+    state.msg.tryEmit(getString(Res.string.creating_install_lock))
     WEBVIEW_INSTALL_LOCK_PATH.createNewFile()
 
     if (!WEBVIEW_INSTALL_LOCK_PATH.exists()) {

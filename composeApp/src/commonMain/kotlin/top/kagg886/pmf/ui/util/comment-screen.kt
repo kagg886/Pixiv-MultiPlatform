@@ -1,19 +1,40 @@
 package top.kagg886.pmf.ui.util
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -23,10 +44,19 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.comment
+import top.kagg886.pmf.no_more_data
+import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.reply_for
+import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
+import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.FavoriteButton
+import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
 @Composable
@@ -35,15 +65,12 @@ fun CommentPanel(model: CommentViewModel, modifier: Modifier = Modifier) {
     CommentPanelContainer(model, state, modifier)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewState, modifier: Modifier) {
-    when (state) {
-        CommentViewState.Loading -> {
-            Loading(modifier)
-        }
-
-        is CommentViewState.Success -> {
+    val data = model.data.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        state is CommentViewState.Success -> {
             val scroll = state.scrollerState
             val host = LocalSnackBarHost.current
 
@@ -61,20 +88,18 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                 PullToRefreshBox(
                     isRefreshing = isRefresh,
                     onRefresh = {
-                        isRefresh = true
                         scope.launch {
-                            model.load(true).join()
-                        }.invokeOnCompletion {
+                            isRefresh = true
+                            model.refresh()
+                            data.awaitNextState()
                             isRefresh = false
                         }
                     },
                     modifier = Modifier.fillMaxWidth().weight(1f),
                 ) {
-                    if (state.comments.isEmpty()) {
-                        ErrorPage(text = "页面为空") {
-                            scope.launch {
-                                model.load()
-                            }
+                    if (data.itemCount == 0 && data.loadState.isIdle) {
+                        ErrorPage(text = stringResource(Res.string.page_is_empty)) {
+                            data.retry()
                         }
                         return@PullToRefreshBox
                     }
@@ -88,7 +113,11 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     KeyListenerFromGlobalPipe(controller)
 
                     LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
-                        items(state.comments) { comment ->
+                        items(
+                            count = data.itemCount,
+                            key = { i -> data.peek(i)!!.id },
+                        ) { i ->
+                            val comment = data[i]!!
                             OutlinedCard(
                                 modifier = Modifier.fillMaxWidth().padding(5.dp),
                             ) {
@@ -111,7 +140,7 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                         AnimatedContent(
                                             targetState = when {
                                                 comment.hasReplies -> -1
-                                                comment == (state as? CommentViewState.Success.HasReply)?.replyTarget -> 1
+                                                comment == (state as? CommentViewState.Success.HasReply)?.target -> 1
                                                 else -> 0
                                             },
                                             transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -160,59 +189,44 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                                     }
                                 }
 
-                                if (state is CommentViewState.Success.HasReply) {
-                                    if (state.replyTarget.id == comment.id) {
-                                        Column(Modifier.fillMaxWidth()) reply@{
-                                            for (i in state.replyList) {
-                                                ListItem(
-                                                    headlineContent = {
-                                                        Text(i.user.name, style = MaterialTheme.typography.labelSmall)
-                                                    },
-                                                    leadingContent = {
+                                if (state is CommentViewState.Success.HasReply && state.target.id == comment.id) {
+                                    val reply = state.reply.collectAsLazyPagingItems()
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        for (i in 0..<reply.itemCount) {
+                                            val item = reply[i]!!
+                                            ListItem(
+                                                headlineContent = {
+                                                    Text(item.user.name, style = MaterialTheme.typography.labelSmall)
+                                                },
+                                                leadingContent = {
+                                                    AsyncImage(
+                                                        model = item.user.profileImageUrls.content,
+                                                        modifier = Modifier.size(25.dp).clickable { nav.push(AuthorScreen(item.user.id)) },
+                                                        contentDescription = null,
+                                                    )
+                                                },
+                                                supportingContent = {
+                                                    if (item.stamp == null) {
+                                                        Text(item.comment)
+                                                    } else {
                                                         AsyncImage(
-                                                            model = i.user.profileImageUrls.content,
-                                                            modifier = Modifier.size(25.dp).clickable { nav.push(AuthorScreen(i.user.id)) },
+                                                            model = item.stamp!!.url,
+                                                            modifier = Modifier.size(80.dp),
                                                             contentDescription = null,
                                                         )
-                                                    },
-                                                    supportingContent = {
-                                                        if (i.stamp == null) {
-                                                            Text(i.comment)
-                                                        } else {
-                                                            AsyncImage(
-                                                                model = i.stamp!!.url,
-                                                                modifier = Modifier.size(80.dp),
-                                                                contentDescription = null,
-                                                            )
-                                                        }
-                                                    },
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                )
-                                            }
-
-                                            LaunchedEffect(Unit) {
-                                                if (!state.replyNoMoreData) {
-                                                    model.loadReplyMore()
-                                                }
-                                            }
-                                            if (!state.replyNoMoreData) {
-                                                Loading()
-                                                return@reply
-                                            }
+                                                    }
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                            )
+                                        }
+                                        if (!data.loadState.isIdle) {
+                                            Loading()
+                                        } else {
                                             Text(
                                                 textAlign = TextAlign.Center,
-                                                modifier = Modifier.fillMaxWidth()
-                                                    .padding(ButtonDefaults.TextButtonContentPadding),
-                                                text = "没有更多了",
+                                                modifier = Modifier.fillMaxWidth().padding(ButtonDefaults.TextButtonContentPadding),
+                                                text = stringResource(Res.string.no_more_data),
                                             )
-//                                            TextButton(
-//                                                onClick = {
-//                                                    model.loadReplyMore()
-//                                                },
-//                                                modifier = Modifier.align(Alignment.CenterHorizontally)
-//                                            ) {
-//                                                Text("加载更多")
-//                                            }
                                         }
                                     }
                                 }
@@ -220,20 +234,15 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         }
 
                         item {
-                            LaunchedEffect(Unit) {
-                                if (!state.noMoreData) {
-                                    model.loadMore()
-                                }
-                            }
-                            if (!state.noMoreData) {
+                            if (!data.loadState.isIdle) {
                                 Loading()
-                                return@item
+                            } else {
+                                Text(
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = stringResource(Res.string.no_more_data),
+                                )
                             }
-                            Text(
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                                text = "没有更多了",
-                            )
                         }
                     }
 
@@ -245,18 +254,12 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                     BackToTopOrRefreshButton(
                         isNotInTop = scroll.canScrollBackward,
                         modifier = Modifier.align(Alignment.BottomEnd),
-                        onBackToTop = {
-                            scope.launch {
-                                scroll.animateScrollToItem(0)
-                            }
-                        },
+                        onBackToTop = { scroll.animateScrollToItem(0) },
                         onRefresh = {
                             isRefresh = true
-                            scope.launch {
-                                model.load(pullDown = true).join()
-                            }.invokeOnCompletion {
-                                isRefresh = false
-                            }
+                            model.refresh()
+                            data.awaitNextState()
+                            isRefresh = false
                         },
                     )
                 }
@@ -284,17 +287,17 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                         ) {
                             when (it) {
                                 is CommentViewState.Success.HasReply -> {
-                                    Text("回复 ${it.replyTarget.user.name} 的评论")
+                                    Text(stringResource(Res.string.reply_for, it.target.user.name))
                                 }
 
                                 else -> {
-                                    Text("评论")
+                                    Text(stringResource(Res.string.comment))
                                 }
                             }
                         }
                     },
                     leadingIcon = {
-                        AnimatedVisibility((state as? CommentViewState.Success.HasReply)?.replyTarget != null) {
+                        AnimatedVisibility((state as? CommentViewState.Success.HasReply)?.target != null) {
                             IconButton(
                                 onClick = {
                                     model.clearReply()

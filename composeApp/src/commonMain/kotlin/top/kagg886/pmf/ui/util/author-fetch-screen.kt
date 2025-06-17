@@ -5,16 +5,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.no_more_data
+import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
@@ -22,6 +28,7 @@ import top.kagg886.pmf.ui.component.collapsable.v3.LocalConnectedStateKey
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun AuthorFetchScreen(model: AuthorFetchViewModel) {
@@ -29,22 +36,15 @@ fun AuthorFetchScreen(model: AuthorFetchViewModel) {
     AuthorFetchContent0(state, model)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchViewModel) {
-    when (state) {
-        is AuthorFetchViewState.Loading -> {
-            Loading()
-        }
-
-        is AuthorFetchViewState.ShowAuthorList -> {
+    val data = model.data.collectAsLazyPagingItems()
+    when {
+        !data.loadState.isIdle && data.itemCount == 0 -> Loading()
+        else -> {
             val scroll = state.scrollerState
-
             val scope = rememberCoroutineScope()
-
-            var refresh by remember {
-                mutableStateOf(false)
-            }
+            var refresh by remember { mutableStateOf(false) }
 
             val controller = remember {
                 keyboardScrollerController(scroll) {
@@ -59,57 +59,49 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
             PullToRefreshBox(
                 isRefreshing = refresh,
                 onRefresh = {
-                    refresh = true
                     scope.launch {
-                        model.loading(true).join()
-                    }.invokeOnCompletion {
+                        refresh = true
+                        model.refresh()
+                        data.awaitNextState()
                         refresh = false
                     }
                 },
-                modifier = Modifier
-                    .ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }
-                    .fillMaxSize(),
+                modifier = Modifier.ifThen(x != null) { nestedScrollWorkaround(state.scrollerState, x!!) }.fillMaxSize(),
             ) {
-                if (state.data.isEmpty()) {
-                    ErrorPage(text = "页面为空") {
-                        scope.launch {
-                            model.loading()
-                        }
+                if (data.itemCount == 0 && data.loadState.isIdle) {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
+                        data.retry()
                     }
                     return@PullToRefreshBox
                 }
                 LazyColumn(state = scroll, modifier = Modifier.padding(end = 8.dp)) {
-                    items(state.data, key = { it.id }) {
+                    items(
+                        count = data.itemCount,
+                        key = { i -> data.peek(i)!!.id },
+                    ) { i ->
+                        val item = data[i]!!
                         AuthorCard(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
-                            user = it,
-                            onFavoritePrivateClick = {
-                                model.followUser(it, true)
-                            },
+                            user = item,
+                            onFavoritePrivateClick = { model.followUser(item, true) },
                         ) { isRequestFavorite ->
                             if (isRequestFavorite) {
-                                model.followUser(it).join()
+                                model.followUser(item).join()
                             } else {
-                                model.unFollowUser(it).join()
+                                model.unFollowUser(item).join()
                             }
                         }
                     }
-
                     item {
-                        LaunchedEffect(Unit) {
-                            if (!state.noMoreData) {
-                                model.loadMore()
-                            }
-                        }
-                        if (!state.noMoreData) {
+                        if (!data.loadState.isIdle) {
                             Loading()
-                            return@item
+                        } else {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                                text = stringResource(Res.string.no_more_data),
+                            )
                         }
-                        Text(
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "没有更多了",
-                        )
                     }
                 }
                 VerticalScrollbar(
@@ -119,18 +111,12 @@ private fun AuthorFetchContent0(state: AuthorFetchViewState, model: AuthorFetchV
                 BackToTopOrRefreshButton(
                     isNotInTop = scroll.canScrollBackward,
                     modifier = Modifier.align(Alignment.BottomEnd),
-                    onBackToTop = {
-                        scope.launch {
-                            scroll.animateScrollToItem(0)
-                        }
-                    },
+                    onBackToTop = { scroll.animateScrollToItem(0) },
                     onRefresh = {
                         refresh = true
-                        scope.launch {
-                            model.loading(true).join()
-                        }.invokeOnCompletion {
-                            refresh = false
-                        }
+                        model.refresh()
+                        data.awaitNextState()
+                        refresh = false
                     },
                 )
             }

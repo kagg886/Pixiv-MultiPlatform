@@ -6,7 +6,8 @@ import io.github.vinceglb.filekit.core.FileKit
 import io.github.vinceglb.filekit.core.PickerType
 import io.github.vinceglb.filekit.core.pickFile
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import okio.Path
 import okio.buffer
@@ -19,19 +20,33 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.PixivVerification
 import top.kagg886.pixko.TokenType
 import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.account_verification_failed
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.backend.useTempFile
-import top.kagg886.pmf.ui.route.login.v2.LoginType.*
+import top.kagg886.pmf.checking_token
+import top.kagg886.pmf.no_file_selected
+import top.kagg886.pmf.parsing_user_info
+import top.kagg886.pmf.token_verification_failed
+import top.kagg886.pmf.ui.route.login.v2.LoginType.BrowserLogin
+import top.kagg886.pmf.ui.route.login.v2.LoginType.InputTokenLogin
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.welcome_user
 
-class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, ViewModel(), ScreenModel, KoinComponent {
+class LoginScreenViewModel :
+    ContainerHost<LoginViewState, LoginSideEffect>,
+    ViewModel(),
+    ScreenModel,
+    KoinComponent {
     private val storage by inject<PixivTokenStorage>()
-    override val container: Container<LoginViewState, LoginSideEffect> = container(LoginViewState.WaitChooseLogin)
+    override val container: Container<LoginViewState, LoginSideEffect> =
+        container(LoginViewState.WaitChooseLogin)
 
     @OptIn(OrbitExperimental::class)
     fun selectLoginType(loginType: LoginType) = intent {
@@ -60,8 +75,9 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
     }
 
     fun challengeRefreshToken(token: String) = intent {
+        val checkingToken = getString(Res.string.checking_token)
         reduce {
-            LoginViewState.ProcessingUserData("正在检查token...")
+            LoginViewState.ProcessingUserData(checkingToken)
         }
         val tempStorage = PixivTokenStorage().apply {
             this.setToken(TokenType.REFRESH, token)
@@ -76,7 +92,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             null
         }
         if (u == null) {
-            postSideEffect(LoginSideEffect.Toast("验证token有效性时出现问题。请重新验证"))
+            postSideEffect(LoginSideEffect.Toast(getString(Res.string.token_verification_failed)))
             reduce {
                 LoginViewState.LoginType.InputTokenLogin
             }
@@ -85,16 +101,18 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         PixivConfig.pixiv_user = u
         storage.setToken(TokenType.ACCESS, tempStorage.getToken(TokenType.ACCESS)!!)
         storage.setToken(TokenType.REFRESH, tempStorage.getToken(TokenType.REFRESH)!!)
+        val welcomeString = getString(Res.string.welcome_user, u.name)
 
         reduce {
-            LoginViewState.ProcessingUserData("欢迎您！ ${u.name}")
+            LoginViewState.ProcessingUserData(welcomeString)
         }
         delay(3.seconds)
         postSideEffect(LoginSideEffect.NavigateToMain)
     }
 
     fun challengePixivLoginUrl(factory: PixivVerification<*>, url: String) = intent {
-        reduce { LoginViewState.ProcessingUserData("正在解析用户信息...") }
+        val parsingUserInfo = getString(Res.string.parsing_user_info)
+        reduce { LoginViewState.ProcessingUserData(parsingUserInfo) }
         val u = try {
             val account = factory.verify(url) {
                 this.storage = this@LoginScreenViewModel.storage
@@ -106,15 +124,17 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
         }
 
         if (u == null) {
-            postSideEffect(LoginSideEffect.Toast("验证账号状态时出了点问题，请重新登录。"))
+            postSideEffect(LoginSideEffect.Toast(getString(Res.string.account_verification_failed)))
             reduce {
                 LoginViewState.LoginType.BrowserLogin.ShowBrowser
             }
             return@intent
         }
         PixivConfig.pixiv_user = u
+        val welcomeString = getString(Res.string.welcome_user, u.name)
+
         reduce {
-            LoginViewState.ProcessingUserData("欢迎您！ ${u.name}")
+            LoginViewState.ProcessingUserData(welcomeString)
         }
         delay(3.seconds)
         postSideEffect(LoginSideEffect.NavigateToMain)
@@ -125,7 +145,7 @@ class LoginScreenViewModel : ContainerHost<LoginViewState, LoginSideEffect>, Vie
             type = PickerType.File(listOf("tar.gz")),
         )
         if (platformFile == null) {
-            postSideEffect(LoginSideEffect.Toast("未选择文件"))
+            postSideEffect(LoginSideEffect.Toast(getString(Res.string.no_file_selected)))
             return@intent
         }
         useTempFile { tmp ->

@@ -2,14 +2,12 @@ package top.kagg886.pmf.backend
 
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.seconds
-import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.atomicfu.locks.ReentrantLock
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.debounce
@@ -50,7 +48,6 @@ object SystemConfig {
     private val debounceJobScope = CoroutineScope(Dispatchers.IO)
     private val configCache = mutableMapOf<String, Settings>()
 
-    @OptIn(FlowPreview::class)
     fun getConfig(name: String = "default"): Settings {
         return configCache.getOrPut(name) {
             val file = dataPath.resolve("config").resolve("$name.properties", false)
@@ -170,7 +167,6 @@ private class JsonDefaultSettings(
 expect val dataPath: Path
 expect val cachePath: Path
 
-@OptIn(ExperimentalUuidApi::class)
 inline fun <T : Any> useTempFile(block: (Path) -> T): T {
     val file = cachePath.resolve(Uuid.random().toHexString())
     file.parentFile()?.mkdirs() ?: throw FileNotFoundException("parent file not found")
@@ -183,7 +179,6 @@ inline fun <T : Any> useTempFile(block: (Path) -> T): T {
     }
 }
 
-@OptIn(ExperimentalUuidApi::class)
 inline fun <T : Any> useTempDir(block: (Path) -> T): T {
     val file = cachePath.resolve(Uuid.random().toHexString())
     file.mkdirs()

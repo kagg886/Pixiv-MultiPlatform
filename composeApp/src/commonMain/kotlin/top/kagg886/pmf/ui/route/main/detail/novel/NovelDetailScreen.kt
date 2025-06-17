@@ -1,7 +1,18 @@
 package top.kagg886.pmf.ui.route.main.detail.novel
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -10,8 +21,31 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,22 +68,52 @@ import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.advanced_bookmark_settings
+import top.kagg886.pmf.copy_novel_title_success
+import top.kagg886.pmf.copy_pid
+import top.kagg886.pmf.create_time
+import top.kagg886.pmf.export_to_epub
+import top.kagg886.pmf.find_similar_novel
+import top.kagg886.pmf.no_description_novel
+import top.kagg886.pmf.novel_comments
+import top.kagg886.pmf.novel_detail
+import top.kagg886.pmf.novel_intro
 import top.kagg886.pmf.openBrowser
-import top.kagg886.pmf.ui.component.*
+import top.kagg886.pmf.open_in_browser
+import top.kagg886.pmf.series_belong
+import top.kagg886.pmf.tags
+import top.kagg886.pmf.ui.component.ErrorPage
+import top.kagg886.pmf.ui.component.FavoriteButton
+import top.kagg886.pmf.ui.component.FavoriteState
+import top.kagg886.pmf.ui.component.ImagePreviewer
+import top.kagg886.pmf.ui.component.Loading
+import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
+import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.AuthorCard
+import top.kagg886.pmf.ui.util.CommentPanel
+import top.kagg886.pmf.ui.util.HTMLRichText
+import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
+import top.kagg886.pmf.ui.util.RichText
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.ui.util.keyboardScrollerController
+import top.kagg886.pmf.ui.util.withClickable
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
 class NovelDetailScreen(private val id: Long) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val nav = LocalNavigator.currentOrThrow
@@ -95,7 +159,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text("小说详情")
+                            Text(stringResource(Res.string.novel_detail))
                         },
                         navigationIcon = {
                             IconButton(onClick = {
@@ -120,14 +184,14 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         onDismissRequest = { expanded = false },
                                     ) {
                                         DropdownMenuItem(
-                                            text = { Text("导出为epub") },
+                                            text = { Text(stringResource(Res.string.export_to_epub)) },
                                             onClick = {
                                                 model.exportToEpub()
                                                 expanded = false
                                             },
                                         )
                                         DropdownMenuItem(
-                                            text = { Text("在浏览器中打开") },
+                                            text = { Text(stringResource(Res.string.open_in_browser)) },
                                             onClick = {
                                                 openBrowser("https://www.pixiv.net/novel/show.php?id=$id")
                                                 expanded = false
@@ -158,7 +222,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    @OptIn(ExperimentalLayoutApi::class)
     private fun NovelPreviewContent(model: NovelDetailViewModel, state: NovelDetailViewState) {
         val coil = LocalPlatformContext.current
         when (state) {
@@ -177,7 +240,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
                 TabContainer(
                     state = page.page,
-                    tab = listOf("简介", "评论:${state.novel.totalComments}"),
+                    tab = listOf(stringResource(Res.string.novel_intro), stringResource(Res.string.novel_comments, state.novel.totalComments)),
                 ) {
                     when (it) {
                         0 -> {
@@ -207,7 +270,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                     state.novel.title,
                                                 ) {
                                                     model.intent {
-                                                        postSideEffect(NovelDetailSideEffect.Toast("已复制小说标题"))
+                                                        postSideEffect(
+                                                            NovelDetailSideEffect.Toast(
+                                                                getString(Res.string.copy_novel_title_success),
+                                                            ),
+                                                        )
                                                     }
                                                 }
                                             },
@@ -243,7 +310,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             headlineContent = {
                                                 SelectionContainer {
                                                     HTMLRichText(
-                                                        html = state.novel.caption.ifEmpty { "没有简介" },
+                                                        html = state.novel.caption.ifEmpty { stringResource(Res.string.no_description_novel) },
                                                     )
                                                 }
                                             },
@@ -271,7 +338,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             if (betterFavoriteDialog) {
                                                 TagFavoriteDialog(
                                                     tags = state.novel.tags,
-                                                    title = { Text("高级收藏设置") },
+                                                    title = { Text(stringResource(Res.string.advanced_bookmark_settings)) },
                                                     confirm = { tags, publicity ->
                                                         model.likeNovel(publicity, tags).join()
                                                         betterFavoriteDialog = false
@@ -323,7 +390,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                             clip.setText(buildAnnotatedString { append(state.novel.id.toString()) })
                                                             model.intent {
                                                                 postSideEffect(
-                                                                    NovelDetailSideEffect.Toast("已复制pid"),
+                                                                    NovelDetailSideEffect.Toast(
+                                                                        getString(Res.string.copy_pid),
+                                                                    ),
                                                                 )
                                                             }
                                                         }
@@ -338,7 +407,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {
-                                                Text("标签")
+                                                Text(stringResource(Res.string.tags))
                                             },
                                             supportingContent = {
                                                 FlowRow(
@@ -372,7 +441,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
                                             ListItem(
                                                 headlineContent = {
-                                                    Text("所属系列")
+                                                    Text(stringResource(Res.string.series_belong))
                                                 },
                                                 supportingContent = {
                                                     Text(state.novel.series.title)
@@ -394,10 +463,24 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
                                         ListItem(
                                             headlineContent = {
-                                                Text("创建时间")
+                                                Text(stringResource(Res.string.create_time))
                                             },
                                             supportingContent = {
                                                 Text(state.novel.createDate.toReadableString())
+                                            },
+                                        )
+                                    }
+                                }
+
+                                item {
+                                    Spacer(Modifier.height(16.dp))
+                                    OutlinedCard(Modifier.padding(horizontal = 8.dp)) {
+                                        ListItem(
+                                            headlineContent = {
+                                                Text(stringResource(Res.string.find_similar_novel))
+                                            },
+                                            modifier = Modifier.clickable {
+                                                nav.push(NovelSimilarScreen(state.novel.id.toLong()))
                                             },
                                         )
                                     }
@@ -410,7 +493,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                         }
 
                         1 -> {
-                            NovelComment(state.novel, model)
+                            NovelComment(state.novel)
                         }
                     }
                 }
@@ -419,7 +502,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    private fun NovelComment(novel: Novel, detailViewModel: NovelDetailViewModel) {
+    private fun NovelComment(novel: Novel) {
         val model = rememberScreenModel("novel_comment_${novel.id}") {
             NovelCommentViewModel(id)
         }

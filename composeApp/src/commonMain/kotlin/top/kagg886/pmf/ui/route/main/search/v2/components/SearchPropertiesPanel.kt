@@ -1,20 +1,32 @@
 package top.kagg886.pmf.ui.route.main.search.v2.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.trending.TrendingTags
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.hot_tags
+import top.kagg886.pmf.load_failed
+import top.kagg886.pmf.search_mode
+import top.kagg886.pmf.sort_mode
 import top.kagg886.pmf.ui.component.SupportListItem
 import top.kagg886.pmf.ui.route.main.search.v2.toDisplayString
+import top.kagg886.pmf.util.stringResource
 
 sealed interface TagPropertiesState {
     data object Loading : TagPropertiesState
@@ -22,7 +34,6 @@ sealed interface TagPropertiesState {
     data class Failed(val msg: String) : TagPropertiesState
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchPropertiesPanel(
     modifier: Modifier = Modifier,
@@ -37,7 +48,7 @@ fun SearchPropertiesPanel(
     Column(modifier = modifier) {
         ListItem(
             headlineContent = {
-                Text("排序方式")
+                Text(stringResource(Res.string.sort_mode))
             },
             supportingContent = {
                 FlowRow {
@@ -58,7 +69,7 @@ fun SearchPropertiesPanel(
         )
         ListItem(
             headlineContent = {
-                Text("搜索模式")
+                Text(stringResource(Res.string.search_mode))
             },
             supportingContent = {
                 FlowRow {
@@ -90,7 +101,7 @@ fun SearchPropertiesPanel(
                 }
             },
             headlineContent = {
-                Text("热门tag")
+                Text(stringResource(Res.string.hot_tags))
             },
             supportingContent = {
                 when (tag) {
@@ -115,7 +126,7 @@ fun SearchPropertiesPanel(
                             }
                         }
                     }
-                    is TagPropertiesState.Failed -> Text("加载失败")
+                    is TagPropertiesState.Failed -> Text(stringResource(Res.string.load_failed))
                 }
             },
         )

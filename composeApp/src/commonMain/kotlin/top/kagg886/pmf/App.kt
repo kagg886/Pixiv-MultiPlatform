@@ -15,7 +15,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,7 +54,6 @@ import cafe.adriel.voyager.transitions.ScreenTransition
 import co.touchlab.kermit.Severity
 import coil3.ComponentRegistry
 import coil3.ImageLoader
-import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.disk.DiskCache
 import coil3.network.ConnectivityChecker
@@ -74,6 +72,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.serialization.json.Json
 import okio.Path
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.core.Koin
 import org.koin.core.context.startKoin
@@ -92,7 +91,8 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.database.getDataBaseBuilder
+import top.kagg886.pmf.backend.currentPlatform
+import top.kagg886.pmf.backend.database.databaseBuilder
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.ui.component.dialog.CheckUpdateDialog
@@ -118,8 +118,10 @@ import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.UgoiraFetcher
+import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toColorScheme
 
 val LocalSnackBarHost = compositionLocalOf<SnackbarHostState> {
@@ -179,10 +181,11 @@ fun App(initScreen: Screen = WelcomeScreen()) {
                             when (toast) {
                                 is DownloadScreenSideEffect.Toast -> {
                                     if (toast.jump) {
+                                        val actionYes = getString(Res.string.yes)
                                         val result = s.showSnackbar(
                                             object : SnackbarVisuals {
                                                 override val actionLabel: String
-                                                    get() = "是"
+                                                    get() = actionYes
                                                 override val duration: SnackbarDuration
                                                     get() = SnackbarDuration.Long
                                                 override val message: String
@@ -220,7 +223,6 @@ fun App(initScreen: Screen = WelcomeScreen()) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
     val nav = LocalNavigator.currentOrThrow
@@ -234,7 +236,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                         selected = entry == type,
                         onClick = { if (entry != type) nav.push(entry()) },
                         icon = { Icon(imageVector = entry.icon, null) },
-                        label = { Text(entry.title) },
+                        label = { Text(stringResource(entry.title)) },
                     )
                 }
                 Spacer(Modifier.weight(1f))
@@ -247,7 +249,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             topBar = {
                 TopAppBar(
-                    title = { Text(title) },
+                    title = { Text(stringResource(title)) },
                     navigationIcon = { ProfileAvatar() },
                     actions = { SearchButton() },
                 )
@@ -259,7 +261,7 @@ fun NavigationItem.composeWithAppBar(content: @Composable () -> Unit) {
                             selected = entry == type,
                             onClick = { if (entry != type) nav.push(entry()) },
                             icon = { Icon(imageVector = entry.icon, null) },
-                            label = { Text(entry.title) },
+                            label = { Text(stringResource(entry.title)) },
                         )
                     }
                 }
@@ -310,7 +312,6 @@ fun SearchButton() {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
 fun ImageLoader.Builder.applyCustomConfig() = apply {
     logger(
         object : CoilLogger {
@@ -438,12 +439,12 @@ fun setupEnv() {
             // data base
             module(createdAtStart = true) {
                 single {
-                    getDataBaseBuilder()
-                        .fallbackToDestructiveMigrationOnDowngrade(true)
-                        .fallbackToDestructiveMigration(true)
-                        .fallbackToDestructiveMigrationFrom(true, 1)
-                        .setQueryCoroutineContext(Dispatchers.IO)
-                        .build()
+                    databaseBuilder().apply {
+                        fallbackToDestructiveMigrationOnDowngrade(true)
+                        fallbackToDestructiveMigration(true)
+                        fallbackToDestructiveMigrationFrom(true, 1)
+                        setQueryCoroutineContext(Dispatchers.IO)
+                    }.build()
                 }
                 single {
                     DownloadScreenModel()
@@ -454,6 +455,18 @@ fun setupEnv() {
             },
         )
     }
+
+    co.touchlab.kermit.Logger.withTag("Application").i(
+        """
+            Application Info:
+            - App Name: ${BuildConfig.APP_NAME}
+            - App Version: ${BuildConfig.APP_VERSION_NAME}
+            - App Version Code: ${BuildConfig.APP_VERSION_CODE}
+            - App Commit ID: ${BuildConfig.APP_COMMIT_ID}
+            - App Database Version ${BuildConfig.DATABASE_VERSION}
+            - Platform: $currentPlatform
+        """.trimIndent(),
+    )
 }
 
 expect fun openBrowser(link: String)
@@ -476,13 +489,13 @@ expect fun shareFile(file: Path, name: String = file.name, mime: String = "*/*")
 expect suspend fun copyImageToClipboard(bitmap: ByteArray)
 
 enum class NavigationItem(
-    val title: String,
+    val title: StringResource,
     val icon: ImageVector,
     val content: () -> Screen,
 ) {
-    RECOMMEND("推荐", Icons.Default.Home, { RecommendScreen() }),
-    RANK("排行榜", Icons.Default.DateRange, { RankScreen() }),
-    SPACE("动态", Icons.Default.Star, { SpaceScreen() }),
+    RECOMMEND(Res.string.recommend, Icons.Default.Home, { RecommendScreen() }),
+    RANK(Res.string.rank, Icons.Default.DateRange, { RankScreen() }),
+    SPACE(Res.string.space, Icons.Default.Star, { SpaceScreen() }),
     ;
 
     operator fun invoke(): Screen = content()

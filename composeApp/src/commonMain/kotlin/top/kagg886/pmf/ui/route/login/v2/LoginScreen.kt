@@ -40,14 +40,34 @@ import com.multiplatform.webview.web.rememberWebViewState
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.browser_init_failed
+import top.kagg886.pmf.browser_init_failed_msg_backend
+import top.kagg886.pmf.browser_init_failed_msg_clickable
+import top.kagg886.pmf.browser_init_failed_msg_fronted
+import top.kagg886.pmf.browser_init_failed_msg_this_link
+import top.kagg886.pmf.choose_zip_path
+import top.kagg886.pmf.confirm
+import top.kagg886.pmf.copy_to_clipboard
+import top.kagg886.pmf.error_details
+import top.kagg886.pmf.help
+import top.kagg886.pmf.input_token
+import top.kagg886.pmf.login_guide
+import top.kagg886.pmf.login_wizard
+import top.kagg886.pmf.retry
+import top.kagg886.pmf.token_login
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.ui.util.withLink
+import top.kagg886.pmf.use_browser_login
+import top.kagg886.pmf.use_token_login
+import top.kagg886.pmf.util.stringResource
+import top.kagg886.pmf.warning
 
 class LoginScreen(clearOldSession: Boolean = false) : Screen {
     override val key: ScreenKey = uniqueScreenKey
@@ -92,7 +112,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
             LoginViewState.WaitChooseLogin -> {
                 GuideScaffold(
                     title = {
-                        Text("登录向导")
+                        Text(stringResource(Res.string.login_wizard))
                     },
                     subTitle = {},
                     confirmButton = {
@@ -101,7 +121,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 model.selectLoginType(LoginType.BrowserLogin)
                             },
                         ) {
-                            Text("使用嵌入式浏览器登录")
+                            Text(stringResource(Res.string.use_browser_login))
                         }
                     },
                     skipButton = {
@@ -110,18 +130,12 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                 model.selectLoginType(LoginType.InputTokenLogin)
                             },
                         ) {
-                            Text("使用token登录")
+                            Text(stringResource(Res.string.use_token_login))
                         }
                     },
                     content = {
                         Text(
-                            buildAnnotatedString {
-                                appendLine("        现在，我们要进行登录操作。")
-                                appendLine("        Pixiv-MultiPlatform支持使用嵌入式浏览器登录和token登录。")
-                                appendLine("        1. 嵌入式浏览器登录适用于第一次使用Pixiv-MultiPlatform的情况。在浏览器中输入账号密码后，程序就会自动解析token并进行登录操作。")
-                                appendLine("注意：在电脑端使用嵌入式浏览器登录需要下载大约300M的Chromium内核。若您介意，请在手机登录后使用token登录。")
-                                appendLine("        2. token登录适用于已经在手机里使用Pixiv-MultiPlatform但不想在电脑重复输入账号密码的情况。")
-                            },
+                            stringResource(Res.string.login_guide),
                         )
                     },
                 )
@@ -141,28 +155,28 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                         model.challengeRefreshToken(text)
                                     },
                                 ) {
-                                    Text("确定")
+                                    Text(stringResource(Res.string.confirm))
                                 }
                             },
                             dismissButton = {
                                 val uri = LocalUriHandler.current
                                 TextButton(
                                     onClick = {
-                                        uri.openUri("https://pmf.kagg886.top/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
+                                        uri.openUri("https://pmf.kagg886.top/docs/main/login.html#3-%E6%88%91%E8%AF%A5%E5%A6%82%E4%BD%95%E5%AF%BC%E5%87%BA%E7%99%BB%E5%BD%95token")
                                     },
                                 ) {
-                                    Text("帮助")
+                                    Text(stringResource(Res.string.help))
                                 }
                             },
                             title = {
-                                Text("token登录")
+                                Text(stringResource(Res.string.token_login))
                             },
                             text = {
                                 TextField(
                                     value = text,
                                     onValueChange = { text = it },
                                     label = {
-                                        Text("请输入token")
+                                        Text(stringResource(Res.string.input_token))
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                 )
@@ -184,10 +198,10 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                             is LoginViewState.LoginType.BrowserLogin.Error -> {
                                 GuideScaffold(
                                     title = {
-                                        Text("警告")
+                                        Text(stringResource(Res.string.warning))
                                     },
                                     subTitle = {
-                                        Text("无法初始化嵌入式浏览器")
+                                        Text(stringResource(Res.string.browser_init_failed))
                                     },
                                     skipButton = {
                                         TextButton(
@@ -195,7 +209,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                 model.installKCEFLocal()
                                             },
                                         ) {
-                                            Text("选择压缩包路径")
+                                            Text(stringResource(Res.string.choose_zip_path))
                                         }
                                     },
                                     confirmButton = {
@@ -204,7 +218,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                 model.selectLoginType(LoginType.BrowserLogin)
                                             },
                                         ) {
-                                            Text("重试")
+                                            Text(stringResource(Res.string.retry))
                                         }
                                     },
                                     content = {
@@ -218,7 +232,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                     detailsDialog = false
                                                 },
                                                 title = {
-                                                    Text("错误详情")
+                                                    Text(stringResource(Res.string.error_details))
                                                 },
                                                 text = {
                                                     Text(state.exception.stackTraceToString(), modifier = Modifier.verticalScroll(rememberScrollState()))
@@ -234,21 +248,21 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                             )
                                                         },
                                                     ) {
-                                                        Text("复制")
+                                                        Text(stringResource(Res.string.copy_to_clipboard))
                                                     }
                                                 },
                                             )
                                         }
+                                        val fronted = stringResource(Res.string.browser_init_failed_msg_fronted)
+                                        val thisLink = stringResource(Res.string.browser_init_failed_msg_this_link)
+                                        val back = stringResource(Res.string.browser_init_failed_msg_backend)
+                                        val clickable = stringResource(Res.string.browser_init_failed_msg_clickable)
                                         Text(
                                             buildAnnotatedString {
-                                                appendLine("由于一些未知的原因，无法初始化嵌入式浏览器。")
-                                                appendLine("请关闭程序后尝试使用token登录。")
-                                                append("或者参阅")
-                                                withLink(theme, "https://pmf.kagg886.top/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98", "此链接")
-                                                append("的内容以手动安装嵌入式浏览器。")
-                                                appendLine()
-                                                appendLine()
-                                                withClickable(theme, "点击此文本以查看详细信息") {
+                                                append(fronted)
+                                                withLink(theme, "https://pmf.kagg886.top/docs/main/login.html#3-%E7%99%BB%E5%BD%95%E7%9A%84%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98", thisLink)
+                                                append(back)
+                                                withClickable(theme, clickable) {
                                                     detailsDialog = true
                                                 }
                                             },
@@ -274,6 +288,10 @@ private fun WebViewLogin(model: LoginScreenViewModel) {
         PixivAccountFactory.newAccount(PlatformEngine)
     }
     val state = rememberWebViewState(auth.url)
+//    val state = rememberWebViewState("https://useragent.buyaocha.com/")
+    // 不能使用LaunchedEffect，初始化后不能修改UA
+    // issue: https://github.com/KevinnZou/compose-webview-multiplatform/issues/142
+    state.webSettings.customUserAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36 EdgA/135.0.0.0"
     val webNav = rememberWebViewNavigator(
         requestInterceptor = object : RequestInterceptor {
             override fun onInterceptUrlRequest(

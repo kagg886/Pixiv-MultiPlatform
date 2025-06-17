@@ -2,7 +2,12 @@ package top.kagg886.pmf.ui.route.main.search.v2
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -10,8 +15,18 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
@@ -26,7 +41,6 @@ import com.dokar.chiptextfield.Chip
 import com.dokar.chiptextfield.ChipTextFieldState
 import com.dokar.chiptextfield.m3.ChipTextField
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,6 +49,13 @@ import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.found_illust
+import top.kagg886.pmf.found_novel
+import top.kagg886.pmf.found_novel_series
+import top.kagg886.pmf.found_user
+import top.kagg886.pmf.please_bookmark_author_to_detail
+import top.kagg886.pmf.search_result_none
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
@@ -44,6 +65,8 @@ import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.ui.util.collectSideEffect
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
 
 class SearchPanelScreen(
     private val sort: SearchSort = SearchSort.DATE_DESC,
@@ -55,7 +78,7 @@ class SearchPanelScreen(
         "search_panel_${sort}_${target}_${keyword}_$initialText"
     }
 
-    @OptIn(InternalVoyagerApi::class, FlowPreview::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
         val model = rememberScreenModel { SearchPanelViewModel(sort, target, keyword, initialText) }
@@ -232,7 +255,7 @@ class SearchPanelScreen(
                                     if (currentState.illust != null) {
                                         ListItem(
                                             overlineContent = {
-                                                Text("找到插画")
+                                                Text(stringResource(Res.string.found_illust))
                                             },
                                             leadingContent = {
                                                 AsyncImage(
@@ -262,7 +285,7 @@ class SearchPanelScreen(
                                     if (currentState.novel != null) {
                                         ListItem(
                                             overlineContent = {
-                                                Text("找到小说")
+                                                Text(stringResource(Res.string.found_novel))
                                             },
                                             leadingContent = {
                                                 AsyncImage(
@@ -288,7 +311,7 @@ class SearchPanelScreen(
                                     if (currentState.series != null) {
                                         ListItem(
                                             overlineContent = {
-                                                Text("找到小说系列")
+                                                Text(stringResource(Res.string.found_novel_series))
                                             },
                                             headlineContent = {
                                                 Text(currentState.series.novelSeriesDetail.title)
@@ -305,14 +328,14 @@ class SearchPanelScreen(
                                         val toast = LocalSnackBarHost.current
                                         ListItem(
                                             overlineContent = {
-                                                Text("找到用户")
+                                                Text(stringResource(Res.string.found_user))
                                             },
                                             headlineContent = {},
                                             supportingContent = {
                                                 AuthorCard(
                                                     user = currentState.user.user,
                                                     onFavoriteClick = {
-                                                        toast.showSnackbar("请前往详情页面收藏作者！")
+                                                        toast.showSnackbar(getString(Res.string.please_bookmark_author_to_detail))
                                                     },
                                                 )
                                             },
@@ -327,7 +350,7 @@ class SearchPanelScreen(
                                         currentState.series == null
                                     ) {
                                         ErrorPage(
-                                            text = "没有搜索结果",
+                                            text = stringResource(Res.string.search_result_none),
                                         ) {}
                                     }
                                 }

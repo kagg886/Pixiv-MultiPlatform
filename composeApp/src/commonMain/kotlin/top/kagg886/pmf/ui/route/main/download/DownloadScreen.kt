@@ -1,11 +1,22 @@
 package top.kagg886.pmf.ui.route.main.download
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,6 +31,9 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import top.kagg886.pixko.module.illust.get
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.download_success
+import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.icon.Download
@@ -27,6 +41,7 @@ import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.util.collectAsState
 import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.stringResource
 
 class DownloadScreen : Screen {
     @Composable
@@ -49,7 +64,7 @@ class DownloadScreen : Screen {
             is DownloadScreenState.Loaded -> {
                 val data by state.illust.collectAsState(emptyList())
                 if (data.isEmpty()) {
-                    ErrorPage(text = "没有项目！") {
+                    ErrorPage(text = stringResource(Res.string.page_is_empty)) {
                     }
                     return
                 }
@@ -127,7 +142,7 @@ class DownloadScreen : Screen {
                                     },
                                     supportingContent = {
                                         if (it.success) {
-                                            Text("下载完成")
+                                            Text(stringResource(Res.string.download_success))
                                             return@ListItem
                                         }
                                         if (it.progress != -1f) {

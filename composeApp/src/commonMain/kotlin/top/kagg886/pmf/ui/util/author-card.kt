@@ -1,11 +1,13 @@
 package top.kagg886.pmf.ui.util
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -14,14 +16,18 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import top.kagg886.pixko.User
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.no_description
 import top.kagg886.pmf.ui.component.FavoriteButton
 import top.kagg886.pmf.ui.component.FavoriteState
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
+import top.kagg886.pmf.util.stringResource
 
 @Composable
 fun AuthorCard(
     modifier: Modifier = Modifier,
     user: User,
+    followNumber: Int? = null,
     onCardClick: (nav: Navigator) -> Unit = { it.push(AuthorScreen(user.id)) },
     onFavoritePrivateClick: suspend () -> Unit = {},
     onFavoriteClick: suspend (Boolean) -> Unit = {},
@@ -33,7 +39,7 @@ fun AuthorCard(
                 Text(user.name)
             },
             supportingContent = {
-                Text(user.comment?.lines()?.first()?.takeIf { it.isNotEmpty() } ?: "没有简介")
+                Text(user.comment?.lines()?.first()?.takeIf { it.isNotEmpty() } ?: stringResource(Res.string.no_description))
             },
             leadingContent = {
                 AsyncImage(
@@ -43,15 +49,21 @@ fun AuthorCard(
                 )
             },
             trailingContent = {
-                FavoriteButton(
-                    isFavorite = user.isFollowed == true,
-                    onModify = {
-                        onFavoriteClick(it == FavoriteState.Favorite)
-                    },
-                    onDoubleClick = {
-                        onFavoritePrivateClick()
-                    },
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    FavoriteButton(
+                        isFavorite = user.isFollowed == true,
+                        onModify = {
+                            onFavoriteClick(it == FavoriteState.Favorite)
+                        },
+                        onDoubleClick = {
+                            onFavoritePrivateClick()
+                        },
+                    )
+                    if (followNumber != null) {
+                        // can't use rolling number here, because it can make some bug.
+                        Text(followNumber.toString())
+                    }
+                }
             },
         )
     }

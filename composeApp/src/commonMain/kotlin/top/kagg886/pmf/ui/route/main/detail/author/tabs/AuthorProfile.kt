@@ -7,7 +7,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -16,30 +15,50 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.profile.CountryCode
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.account_info
+import top.kagg886.pmf.birthday
+import top.kagg886.pmf.copy_to_clipboard_success_args
+import top.kagg886.pmf.country
+import top.kagg886.pmf.homepage
+import top.kagg886.pmf.is_premium_member
+import top.kagg886.pmf.job
+import top.kagg886.pmf.no
+import top.kagg886.pmf.pawoo_link
+import top.kagg886.pmf.personal_profile
+import top.kagg886.pmf.region
+import top.kagg886.pmf.twitter_account
+import top.kagg886.pmf.twitter_link
 import top.kagg886.pmf.ui.util.withClickable
+import top.kagg886.pmf.unknown
+import top.kagg886.pmf.username
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.stringResource
+import top.kagg886.pmf.yes
 
 @Composable
 fun AuthorProfile(user: UserInfo) {
     val scroll = rememberScrollState()
     Column(modifier = Modifier.verticalScroll(scroll)) {
-        Title("账户信息")
-        Value("用户名", user.user.name)
+        val unknown = stringResource(Res.string.unknown)
+        Title(stringResource(Res.string.account_info))
+        Value(stringResource(Res.string.username), user.user.name)
         Value("ID", user.user.id.toString())
         Value("PID", user.user.account)
-        Title("个人资料")
+        Title(stringResource(Res.string.personal_profile))
 
-        Value("生日", user.profile.birth?.toString() ?: "未知")
-        Value("职业", user.profile.job.display)
-        Value("地区", user.profile.region)
+        Value(stringResource(Res.string.birthday), user.profile.birth?.toString() ?: unknown)
+        Value(stringResource(Res.string.job), user.profile.job.display)
+        Value(stringResource(Res.string.region), user.profile.region)
         Value(
-            "地区",
+            stringResource(Res.string.country),
             "${user.profile.country.display} ${if (user.profile.country === CountryCode.JAPAN) "---${user.profile.address}" else ""}",
         )
-        Value("主页", user.profile.webpage ?: "未知")
-        Value("twitter账号", user.profile.twitterAccount)
-        Value("twitter链接", user.profile.twitterUrl ?: "未知")
-        Value("pawoo链接", user.profile.pawooUrl ?: "未知")
-        Value("是否为高级会员", if (user.profile.isPremium) "是" else "否")
+        Value(stringResource(Res.string.homepage), user.profile.webpage ?: unknown)
+        Value(stringResource(Res.string.twitter_account), user.profile.twitterAccount)
+        Value(stringResource(Res.string.twitter_link), user.profile.twitterUrl ?: unknown)
+        Value(stringResource(Res.string.pawoo_link), user.profile.pawooUrl ?: unknown)
+        Value(stringResource(Res.string.is_premium_member), if (user.profile.isPremium) stringResource(Res.string.yes) else stringResource(Res.string.no))
     }
 }
 
@@ -79,7 +98,7 @@ private fun Item(
                                     },
                                 )
                                 scope.launch {
-                                    snack.showSnackbar("已将${headline}复制到剪切板")
+                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success_args, headline ?: ""))
                                 }
                             },
                         )

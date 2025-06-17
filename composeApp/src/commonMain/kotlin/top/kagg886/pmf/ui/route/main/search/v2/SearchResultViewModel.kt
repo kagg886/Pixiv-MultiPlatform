@@ -30,26 +30,21 @@ class SearchResultViewModel(
     private val database by inject<AppDatabase>()
 
     override val container: Container<SearchResultState, SearchResultSideEffect> = container(
-        initialState = SearchResultState(
+        initialState = initViewModel(),
+    ) {
+        saveHistoryIfConfigOn(keyword, sort, target)
+    }
+
+    private fun initViewModel(): SearchResultState {
+        val (illust, novel, author) = calcThreeRepo(keyword, sort, target)
+        return SearchResultState(
             keyword = keyword,
             sort = sort,
             target = target,
-            illustRepo = null,
-            novelRepo = null,
-            authorRepo = null,
-        ),
-    ) {
-        val (illust, novel, author) = calcThreeRepo(keyword, sort, target)
-
-        reduce {
-            state.copy(
-                illustRepo = illust,
-                novelRepo = novel,
-                authorRepo = author,
-            )
-        }
-
-        saveHistoryIfConfigOn(keyword, sort, target)
+            illustRepo = illust,
+            novelRepo = novel,
+            authorRepo = author,
+        )
     }
 
     private fun saveHistoryIfConfigOn(tag: List<String>, sort: SearchSort, target: SearchTarget) {

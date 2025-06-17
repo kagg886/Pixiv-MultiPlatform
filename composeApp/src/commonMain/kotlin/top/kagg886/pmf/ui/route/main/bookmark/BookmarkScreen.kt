@@ -1,10 +1,27 @@
 package top.kagg886.pmf.ui.route.main.bookmark
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.DrawerDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,9 +38,23 @@ import top.kagg886.pixko.module.user.FavoriteTagsType
 import top.kagg886.pixko.module.user.FavoriteTagsType.Illust
 import top.kagg886.pixko.module.user.FavoriteTagsType.Novel
 import top.kagg886.pixko.module.user.UserLikePublicity
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.bookmark
+import top.kagg886.pmf.bookmark_settings
+import top.kagg886.pmf.illust
+import top.kagg886.pmf.novel
+import top.kagg886.pmf.private
+import top.kagg886.pmf.public
+import top.kagg886.pmf.type
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
-import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.ui.util.IllustFetchScreen
+import top.kagg886.pmf.ui.util.NovelFetchScreen
+import top.kagg886.pmf.ui.util.TagsFetchDrawerSheetContainer
+import top.kagg886.pmf.ui.util.TagsFetchViewModel
+import top.kagg886.pmf.ui.util.collectAsState
+import top.kagg886.pmf.util.stringResource
+import top.kagg886.pmf.visibility
 
 class BookmarkScreen : Screen {
     @Composable
@@ -38,7 +69,7 @@ class BookmarkScreen : Screen {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class, InternalVoyagerApi::class)
+    @OptIn(InternalVoyagerApi::class)
     @Composable
     private fun BookmarkContent(model: BookmarkViewModel, state: BookmarkViewState, goBack: () -> Unit) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -64,12 +95,12 @@ class BookmarkScreen : Screen {
                             Column(Modifier.width(DrawerDefaults.MaximumDrawerWidth)) {
                                 TopAppBar(
                                     title = {
-                                        Text("收藏设置")
+                                        Text(stringResource(Res.string.bookmark_settings))
                                     },
                                 )
                                 ListItem(
                                     overlineContent = {
-                                        Text("可见性")
+                                        Text(stringResource(Res.string.visibility))
                                     },
                                     headlineContent = {
                                         TabRow(
@@ -86,8 +117,8 @@ class BookmarkScreen : Screen {
                                                         },
                                                         text = {
                                                             when (entry) {
-                                                                UserLikePublicity.PUBLIC -> Text("公开")
-                                                                UserLikePublicity.PRIVATE -> Text("私密")
+                                                                UserLikePublicity.PUBLIC -> Text(stringResource(Res.string.public))
+                                                                UserLikePublicity.PRIVATE -> Text(stringResource(Res.string.private))
                                                             }
                                                         },
                                                     )
@@ -98,7 +129,7 @@ class BookmarkScreen : Screen {
                                 )
                                 ListItem(
                                     overlineContent = {
-                                        Text("类型")
+                                        Text(stringResource(Res.string.type))
                                     },
                                     headlineContent = {
                                         TabRow(
@@ -115,8 +146,8 @@ class BookmarkScreen : Screen {
                                                         },
                                                         text = {
                                                             when (entry) {
-                                                                Illust -> Text("插画")
-                                                                Novel -> Text("小说")
+                                                                Illust -> Text(stringResource(Res.string.illust))
+                                                                Novel -> Text(stringResource(Res.string.novel))
                                                             }
                                                         },
                                                     )
@@ -135,7 +166,7 @@ class BookmarkScreen : Screen {
                         topBar = {
                             TopAppBar(
                                 title = {
-                                    Text("收藏")
+                                    Text(stringResource(Res.string.bookmark))
                                 },
                                 navigationIcon = {
                                     IconButton(
@@ -169,10 +200,8 @@ class BookmarkScreen : Screen {
                         Box(Modifier.padding(it).fillMaxSize()) {
                             val tagState by tagModel.collectAsState()
                             LaunchedEffect(tagState) {
-                                (tagState as? TagsFetchViewState.ShowTagsList)?.let {
-                                    drawerState.close()
-                                    model.selectTagFilter(it.selectedTagsFilter)
-                                }
+                                drawerState.close()
+                                model.selectTagFilter(tagState.selectedTagsFilter)
                             }
 
                             when (state.mode) {

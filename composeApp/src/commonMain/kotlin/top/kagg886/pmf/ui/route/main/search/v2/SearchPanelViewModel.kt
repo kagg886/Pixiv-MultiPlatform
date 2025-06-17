@@ -21,9 +21,12 @@ import top.kagg886.pixko.module.search.searchTag
 import top.kagg886.pixko.module.trending.getRecommendTags
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pixko.module.user.getUserInfo
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.ui.route.main.search.v2.components.TagPropertiesState
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.unknown
+import top.kagg886.pmf.util.getString
 
 class SearchPanelViewModel(
     initialSort: SearchSort,
@@ -163,8 +166,9 @@ class SearchPanelViewModel(
                 state.copy(panelState = SearchPanelState.SelectTag(result))
             }
         } catch (e: Exception) {
+            val unknown = getString(Res.string.unknown)
             reduce {
-                state.copy(panelState = SearchPanelState.SearchingFailed(e.message ?: "未知错误"))
+                state.copy(panelState = SearchPanelState.SearchingFailed(e.message ?: unknown))
             }
         }
     }

@@ -3,14 +3,41 @@ package top.kagg886.pmf.ui.route.main.profile
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.PermanentNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -20,15 +47,25 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
+import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.download_manager
+import top.kagg886.pmf.history
+import top.kagg886.pmf.my_bookmark
+import top.kagg886.pmf.personal_profile
+import top.kagg886.pmf.settings
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen
 import top.kagg886.pmf.ui.route.main.history.HistoryScreen
-import top.kagg886.pmf.ui.route.main.profile.ProfileItem.*
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem.Download
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem.History
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem.Setting
+import top.kagg886.pmf.ui.route.main.profile.ProfileItem.ViewProfile
 import top.kagg886.pmf.ui.route.main.setting.SettingScreen
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializableWrapper
+import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.wrap
 
 enum class ProfileItem {
@@ -43,7 +80,6 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
     private val me by me
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         var page by rememberSaveable {
@@ -86,7 +122,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                     val scope = rememberCoroutineScope()
                     NavigationDrawerItem(
                         label = {
-                            Text("个人信息")
+                            Text(stringResource(Res.string.personal_profile))
                         },
                         icon = {
                             Icon(Icons.Default.Person, "")
@@ -102,7 +138,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
                     NavigationDrawerItem(
                         label = {
-                            Text("我的收藏")
+                            Text(stringResource(Res.string.my_bookmark))
                         },
                         icon = {
                             Icon(Icons.Default.Favorite, "")
@@ -118,7 +154,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
                     NavigationDrawerItem(
                         label = {
-                            Text("下载管理")
+                            Text(stringResource(Res.string.download_manager))
                         },
                         icon = {
                             Icon(top.kagg886.pmf.ui.component.icon.Download, "")
@@ -134,7 +170,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
                     NavigationDrawerItem(
                         label = {
-                            Text("历史记录")
+                            Text(stringResource(Res.string.history))
                         },
                         icon = {
                             Icon(Icons.Default.MailOutline, "")
@@ -150,7 +186,7 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
 
                     NavigationDrawerItem(
                         label = {
-                            Text("程序设置")
+                            Text(stringResource(Res.string.settings))
                         },
                         icon = {
                             Icon(Icons.Default.Settings, "")
@@ -204,10 +240,10 @@ class ProfileScreen(me: SerializableWrapper<SimpleMeProfile>, private val target
                             title = {
                                 Text(
                                     when (page) {
-                                        ViewProfile -> "个人信息"
-                                        History -> "历史记录"
-                                        Download -> "下载管理"
-                                        Setting -> "程序设置"
+                                        ViewProfile -> stringResource(Res.string.personal_profile)
+                                        History -> stringResource(Res.string.history)
+                                        Download -> stringResource(Res.string.download_manager)
+                                        Setting -> stringResource(Res.string.settings)
                                     },
                                 )
                             },

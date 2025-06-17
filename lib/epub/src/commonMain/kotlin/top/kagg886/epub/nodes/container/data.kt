@@ -28,7 +28,7 @@ internal inline fun XmlBuilder.rootFiles(crossinline block: XmlBuilder.() -> Uni
     block = block
 )
 
-internal inline fun XmlBuilder.rootFile(fullPath: String) = node(
+internal fun XmlBuilder.rootFile(fullPath: String) = node(
     tag = "rootfile",
     props = arrayOf(
         "full-path" to fullPath,

@@ -1,6 +1,10 @@
 package top.kagg886.pmf.ui.route.main.setting
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
@@ -8,12 +12,28 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -35,10 +55,121 @@ import org.koin.mp.KoinPlatform.getKoin
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
+import top.kagg886.pmf.Res
+import top.kagg886.pmf.about
+import top.kagg886.pmf.advanced
+import top.kagg886.pmf.app_language
+import top.kagg886.pmf.app_language_feature_pr
+import top.kagg886.pmf.appearance
+import top.kagg886.pmf.auto_typography
+import top.kagg886.pmf.auto_typography_description
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.pixiv.PixivConfig
+import top.kagg886.pmf.bypass_none
+import top.kagg886.pmf.bypass_proxy
+import top.kagg886.pmf.bypass_sni
+import top.kagg886.pmf.bypass_solution
+import top.kagg886.pmf.bypass_solution_description
+import top.kagg886.pmf.cache_size_limit
+import top.kagg886.pmf.calculate_by_width
+import top.kagg886.pmf.cancel
+import top.kagg886.pmf.check_update
+import top.kagg886.pmf.check_update_on_start
+import top.kagg886.pmf.clear_log_archive
+import top.kagg886.pmf.clear_log_archive_description
+import top.kagg886.pmf.click_to_modify
+import top.kagg886.pmf.column_calculation
+import top.kagg886.pmf.column_calculation_description
+import top.kagg886.pmf.confirm
+import top.kagg886.pmf.confirm_logout
+import top.kagg886.pmf.confirm_logout_description
+import top.kagg886.pmf.coroutine_exception
+import top.kagg886.pmf.coroutine_exception_description
+import top.kagg886.pmf.current_mode
+import top.kagg886.pmf.current_value
+import top.kagg886.pmf.dark_mode
+import top.kagg886.pmf.display_mode
+import top.kagg886.pmf.doh_address
+import top.kagg886.pmf.doh_address_description
+import top.kagg886.pmf.doh_address_hint
+import top.kagg886.pmf.doh_timeout
+import top.kagg886.pmf.doh_timeout_description
+import top.kagg886.pmf.doh_timeout_hint
+import top.kagg886.pmf.download_theme
+import top.kagg886.pmf.export_all_logs
+import top.kagg886.pmf.export_all_logs_description
+import top.kagg886.pmf.export_login_session
+import top.kagg886.pmf.export_login_session_description
+import top.kagg886.pmf.export_single_log
+import top.kagg886.pmf.export_single_log_description
+import top.kagg886.pmf.filter_ai_illustrations
+import top.kagg886.pmf.filter_ai_novel
+import top.kagg886.pmf.filter_ai_server_hint
+import top.kagg886.pmf.filter_long_tag
+import top.kagg886.pmf.filter_long_tag_description
+import top.kagg886.pmf.filter_r18_benefit
+import top.kagg886.pmf.filter_r18_description
+import top.kagg886.pmf.filter_r18_illustrations
+import top.kagg886.pmf.filter_r18_novel
+import top.kagg886.pmf.filter_r18g_description
+import top.kagg886.pmf.filter_r18g_enabled_condition
+import top.kagg886.pmf.filter_r18g_illustrations
+import top.kagg886.pmf.filter_r18g_novel
+import top.kagg886.pmf.filter_short_novel
+import top.kagg886.pmf.filter_short_novel_description
+import top.kagg886.pmf.fixed_column_count
+import top.kagg886.pmf.follow_system
+import top.kagg886.pmf.format_error
+import top.kagg886.pmf.gallery_cache_size
+import top.kagg886.pmf.gallery_cache_size_description
+import top.kagg886.pmf.gallery_column_count
+import top.kagg886.pmf.gallery_column_count_description
+import top.kagg886.pmf.gallery_settings
+import top.kagg886.pmf.history_records
+import top.kagg886.pmf.ignore_ssl_errors
+import top.kagg886.pmf.ignore_ssl_errors_description
+import top.kagg886.pmf.illust_details_show_all
+import top.kagg886.pmf.import_theme_fail
+import top.kagg886.pmf.ip_pool
+import top.kagg886.pmf.ip_pool_description
+import top.kagg886.pmf.ip_pool_hint
+import top.kagg886.pmf.light_mode
+import top.kagg886.pmf.login_session_copied
+import top.kagg886.pmf.login_sessions
+import top.kagg886.pmf.logout
+import top.kagg886.pmf.logout_description
+import top.kagg886.pmf.main_thread_exception
+import top.kagg886.pmf.main_thread_exception_description
+import top.kagg886.pmf.network_settings
+import top.kagg886.pmf.night_mode_not_supported
+import top.kagg886.pmf.novel_filter_length
+import top.kagg886.pmf.novel_filter_length_description
+import top.kagg886.pmf.novel_settings
+import top.kagg886.pmf.proxy_address
+import top.kagg886.pmf.proxy_port
+import top.kagg886.pmf.proxy_type
+import top.kagg886.pmf.record_illustration_history
+import top.kagg886.pmf.record_illustration_history_off
+import top.kagg886.pmf.record_novel_history
+import top.kagg886.pmf.record_novel_history_off
+import top.kagg886.pmf.record_search_history
+import top.kagg886.pmf.record_search_history_off
+import top.kagg886.pmf.reset_theme
+import top.kagg886.pmf.reset_theme_description
+import top.kagg886.pmf.set_theme
+import top.kagg886.pmf.settings
 import top.kagg886.pmf.shareFile
+import top.kagg886.pmf.show_toast_when_failed
+import top.kagg886.pmf.show_toast_when_latest
+import top.kagg886.pmf.single_column_width
+import top.kagg886.pmf.single_column_width_description
+import top.kagg886.pmf.tag_max_length
+import top.kagg886.pmf.tag_max_length_description
+import top.kagg886.pmf.text_size
+import top.kagg886.pmf.theme_builder_hint
+import top.kagg886.pmf.theme_builder_url
+import top.kagg886.pmf.theme_json_hint
 import top.kagg886.pmf.ui.component.settings.SettingsDropdownMenu
 import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
@@ -46,21 +177,52 @@ import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.useWideScreenMode
-import top.kagg886.pmf.util.*
+import top.kagg886.pmf.update
+import top.kagg886.pmf.util.ComposeI18N
+import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.b
+import top.kagg886.pmf.util.deleteRecursively
+import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.stringResource
+import top.kagg886.pmf.util.zip
 
 class SettingScreen : Screen {
-    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         Column(Modifier.verticalScroll(rememberScrollState())) {
             if (useWideScreenMode) {
                 TopAppBar(
                     title = {
-                        Text("设置")
+                        Text(stringResource(Res.string.settings))
                     },
                 )
             }
-            SettingsGroup(title = { Text("外观") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.appearance)) }) {
+                var locale by remember {
+                    mutableStateOf(AppConfig.locale)
+                }
+
+                LaunchedEffect(locale) {
+                    AppConfig.locale = locale
+                    ComposeI18N.locale.value = locale.locale
+                }
+
+                SettingsDropdownMenu<AppConfig.LanguageSettings>(
+                    title = { Text(stringResource(Res.string.app_language)) },
+                    subTitle = {
+                        Text(stringResource(Res.string.app_language_feature_pr))
+                    },
+                    optionsFormat = {
+                        stringResource(it.tag)
+                    },
+                    current = locale,
+                    data = AppConfig.LanguageSettings.entries,
+                    onSelected = {
+                        locale = it
+                    },
+                )
+
                 var darkMode by LocalDarkSettings.current
 
                 LaunchedEffect(darkMode) {
@@ -68,23 +230,24 @@ class SettingScreen : Screen {
                 }
 
                 SettingsDropdownMenu<AppConfig.DarkMode>(
-                    title = { Text("显示模式") },
+                    title = { Text(stringResource(Res.string.display_mode)) },
                     subTitle = {
                         Text(
-                            "当前为:${
+                            stringResource(
+                                Res.string.current_mode,
                                 when (darkMode) {
-                                    AppConfig.DarkMode.System -> "跟随系统"
-                                    AppConfig.DarkMode.Light -> "日间模式"
-                                    AppConfig.DarkMode.Dark -> "夜间模式"
-                                }
-                            }",
+                                    AppConfig.DarkMode.System -> stringResource(Res.string.follow_system)
+                                    AppConfig.DarkMode.Light -> stringResource(Res.string.light_mode)
+                                    AppConfig.DarkMode.Dark -> stringResource(Res.string.dark_mode)
+                                },
+                            ),
                         )
                     },
                     optionsFormat = {
                         when (it) {
-                            AppConfig.DarkMode.System -> "跟随系统"
-                            AppConfig.DarkMode.Light -> "日间模式"
-                            AppConfig.DarkMode.Dark -> "夜间模式"
+                            AppConfig.DarkMode.System -> stringResource(Res.string.follow_system)
+                            AppConfig.DarkMode.Light -> stringResource(Res.string.light_mode)
+                            AppConfig.DarkMode.Dark -> stringResource(Res.string.dark_mode)
                         }
                     },
                     current = darkMode,
@@ -105,7 +268,7 @@ class SettingScreen : Screen {
                 val inNight =
                     darkMode == AppConfig.DarkMode.Dark || (darkMode == AppConfig.DarkMode.System && isSystemInDarkTheme())
                 SettingsFileUpload(
-                    title = { Text("设置主题") },
+                    title = { Text(stringResource(Res.string.set_theme)) },
                     enabled = !inNight,
                     extensions = listOf("zip", "json"),
                     subTitle = {
@@ -113,16 +276,16 @@ class SettingScreen : Screen {
                             inNight,
                         ) {
                             if (it) {
-                                Text("夜间模式的主题暂不支持设置")
+                                Text(stringResource(Res.string.night_mode_not_supported))
                                 return@AnimatedContent
                             }
                             val colors = MaterialTheme.colorScheme
                             Text(
                                 buildAnnotatedString {
-                                    append("请前往")
+                                    append(stringResource(Res.string.theme_builder_hint))
                                     withLink(
                                         LinkAnnotation.Url(
-                                            url = "https://material-foundation.github.io/material-theme-builder/",
+                                            url = stringResource(Res.string.theme_builder_url),
                                             styles = TextLinkStyles(
                                                 style = SpanStyle(color = colors.primary),
                                                 hoveredStyle = SpanStyle(
@@ -132,10 +295,10 @@ class SettingScreen : Screen {
                                             ),
                                         ),
                                     ) {
-                                        append("https://material-foundation.github.io/material-theme-builder/")
+                                        append(stringResource(Res.string.theme_builder_url))
                                     }
-                                    appendLine("下载主题")
-                                    append("导出的格式只有为json时才能正确解析！")
+                                    appendLine(stringResource(Res.string.download_theme))
+                                    append(stringResource(Res.string.theme_json_hint))
                                 },
                             )
                         }
@@ -151,7 +314,7 @@ class SettingScreen : Screen {
                     }
                     if (theme.isFailure) {
                         scope.launch {
-                            snack.showSnackbar("无法导入主题，原因：${theme.exceptionOrNull()!!.message}")
+                            snack.showSnackbar(getString(Res.string.import_theme_fail, theme.exceptionOrNull()!!.message.toString()))
                         }
                         return@SettingsFileUpload
                     }
@@ -159,24 +322,24 @@ class SettingScreen : Screen {
                 }
 
                 SettingsMenuLink(
-                    title = { Text("还原主题") },
-                    subtitle = { Text("将主题重置为默认") },
+                    title = { Text(stringResource(Res.string.reset_theme)) },
+                    subtitle = { Text(stringResource(Res.string.reset_theme_description)) },
                     onClick = { colorScheme = null },
                     enabled = colorScheme != null,
                 )
             }
-            SettingsGroup(title = { Text(text = "画廊设置") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.gallery_settings)) }) {
                 var data by remember { mutableStateOf(AppConfig.galleryOptions) }
                 LaunchedEffect(data) {
                     AppConfig.galleryOptions = data
                 }
                 SettingsDropdownMenu(
-                    title = { Text("列数计算方式") },
-                    subTitle = { Text("指定程序以什么样的方式计算画廊的列数") },
+                    title = { Text(stringResource(Res.string.column_calculation)) },
+                    subTitle = { Text(stringResource(Res.string.column_calculation_description)) },
                     optionsFormat = {
                         when (it) {
-                            is AppConfig.Gallery.FixColumnCount -> "固定列数"
-                            is AppConfig.Gallery.FixWidth -> "根据列宽计算"
+                            is AppConfig.Gallery.FixColumnCount -> stringResource(Res.string.fixed_column_count)
+                            is AppConfig.Gallery.FixWidth -> stringResource(Res.string.calculate_by_width)
                         }
                     },
                     current = data,
@@ -196,10 +359,10 @@ class SettingScreen : Screen {
                             }
                             SettingsSlider(
                                 title = {
-                                    Text("画廊列数")
+                                    Text(stringResource(Res.string.gallery_column_count))
                                 },
                                 subtitle = {
-                                    Text("控制画廊页面的列数,当前值:$defaultGalleryWidth")
+                                    Text(stringResource(Res.string.gallery_column_count_description, defaultGalleryWidth))
                                 },
                                 value = defaultGalleryWidth,
                                 valueRange = 2f..5f,
@@ -217,10 +380,10 @@ class SettingScreen : Screen {
                             }
                             SettingsSlider(
                                 title = {
-                                    Text("单列宽度")
+                                    Text(stringResource(Res.string.single_column_width))
                                 },
                                 subtitle = {
-                                    Text("控制画廊页面单列的大小,当前值:$defaultGalleryWidth")
+                                    Text(stringResource(Res.string.single_column_width_description, defaultGalleryWidth))
                                 },
                                 value = defaultGalleryWidth.toFloat(),
                                 valueRange = 50f..1000f,
@@ -241,17 +404,17 @@ class SettingScreen : Screen {
                 }
                 SettingsTextField(
                     title = {
-                        Text("画廊本地缓存大小(重启生效)")
+                        Text(stringResource(Res.string.gallery_cache_size))
                     },
                     subTitle = {
                         Column {
-                            Text("控制画廊页面的本地缓存大小,单位为MB。")
-                            Text("当前值:${cacheSize.b}")
-                            Text("点击此条目进行修改。")
+                            Text(stringResource(Res.string.gallery_cache_size_description))
+                            Text(stringResource(Res.string.current_value, cacheSize.b))
+                            Text(stringResource(Res.string.click_to_modify))
                         }
                     },
                     dialogLabel = {
-                        Text("最小值:64MB,最大值:2048MB")
+                        Text(stringResource(Res.string.cache_size_limit))
                     },
                     value = cacheSize.b.mb.roundToLong().toString(),
                     onValueChange = {
@@ -272,10 +435,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterAi,
                     title = {
-                        Text("AI插画过滤")
+                        Text(stringResource(Res.string.filter_ai_illustrations))
                     },
                     subtitle = {
-                        Text("若在服务端设置了过滤，则可以不用开启")
+                        Text(stringResource(Res.string.filter_ai_server_hint))
                     },
                     onCheckedChange = {
                         filterAi = it
@@ -294,12 +457,12 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterR18,
                     title = {
-                        Text("R18插画过滤")
+                        Text(stringResource(Res.string.filter_r18_illustrations))
                     },
                     subtitle = {
                         Column {
-                            Text("建议关闭官方的R18过滤功能并开启这个")
-                            Text("这样可以防止R15-R18之间的插画被误杀(暴露图片的商单仍会被过滤)")
+                            Text(stringResource(Res.string.filter_r18_description))
+                            Text(stringResource(Res.string.filter_r18_benefit))
                         }
                     },
                     onCheckedChange = {
@@ -313,20 +476,29 @@ class SettingScreen : Screen {
                     state = filterR18G,
                     enabled = !filterR18, // 不过滤r18时启用
                     title = {
-                        Text("R18G插画过滤")
+                        Text(stringResource(Res.string.filter_r18g_illustrations))
                     },
                     subtitle = {
                         Column {
-                            Text("会过滤关于R18G的内容。")
-                            Text("仅在关闭R18过滤后可选择")
+                            Text(stringResource(Res.string.filter_r18g_description))
+                            Text(stringResource(Res.string.filter_r18g_enabled_condition))
                         }
                     },
                     onCheckedChange = {
                         filterR18G = it
                     },
                 )
+                var illustDetailsShowAll by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
+                LaunchedEffect(illustDetailsShowAll) {
+                    AppConfig.illustDetailsShowAll = illustDetailsShowAll
+                }
+                SettingsSwitch(
+                    state = illustDetailsShowAll,
+                    title = { Text(stringResource(Res.string.illust_details_show_all)) },
+                    onCheckedChange = { illustDetailsShowAll = it },
+                )
             }
-            SettingsGroup(title = { Text("小说设置") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.novel_settings)) }) {
                 var filterAiNovel by remember {
                     mutableStateOf(AppConfig.filterAiNovel)
                 }
@@ -336,10 +508,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterAiNovel,
                     title = {
-                        Text("AI小说过滤")
+                        Text(stringResource(Res.string.filter_ai_novel))
                     },
                     subtitle = {
-                        Text("若在服务端设置了过滤，则可以不用开启")
+                        Text(stringResource(Res.string.filter_ai_server_hint))
                     },
                     onCheckedChange = {
                         filterAiNovel = it
@@ -358,12 +530,12 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterR18Novel,
                     title = {
-                        Text("R18小说过滤")
+                        Text(stringResource(Res.string.filter_r18_novel))
                     },
                     subtitle = {
                         Column {
-                            Text("建议关闭官方的R18过滤功能并开启这个")
-                            Text("这样可以防止R15-R18之间的插画被误杀(暴露图片的商单仍会被过滤)")
+                            Text(stringResource(Res.string.filter_r18_description))
+                            Text(stringResource(Res.string.filter_r18_benefit))
                         }
                     },
                     onCheckedChange = {
@@ -377,12 +549,12 @@ class SettingScreen : Screen {
                     state = filterR18GNovel,
                     enabled = !filterR18Novel, // 不过滤r18时启用
                     title = {
-                        Text("R18G小说过滤")
+                        Text(stringResource(Res.string.filter_r18g_novel))
                     },
                     subtitle = {
                         Column {
-                            Text("会过滤关于R18G的内容。")
-                            Text("仅在关闭R18过滤后可选择")
+                            Text(stringResource(Res.string.filter_r18g_description))
+                            Text(stringResource(Res.string.filter_r18g_enabled_condition))
                         }
                     },
                     onCheckedChange = {
@@ -404,10 +576,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = autoTypo,
                     title = {
-                        Text("自动排版")
+                        Text(stringResource(Res.string.auto_typography))
                     },
                     subtitle = {
-                        Text("去除多余的空行，并首行缩进${textSize * 2}sp")
+                        Text(stringResource(Res.string.auto_typography_description, textSize * 2))
                     },
                     onCheckedChange = {
                         autoTypo = it
@@ -421,7 +593,7 @@ class SettingScreen : Screen {
                         textSize = it.roundToInt()
                     },
                     title = {
-                        Text("正文大小")
+                        Text(stringResource(Res.string.text_size))
                     },
                     subtitle = {
                         Text("${textSize}sp", fontSize = textSize.sp)
@@ -442,10 +614,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterLongTag,
                     title = {
-                        Text("过滤长TAG小说")
+                        Text(stringResource(Res.string.filter_long_tag))
                     },
                     subtitle = {
-                        Text("这类小说内部的主题很可能与TAG不相关")
+                        Text(stringResource(Res.string.filter_long_tag_description))
                     },
                     onCheckedChange = {
                         filterLongTag = it
@@ -454,12 +626,12 @@ class SettingScreen : Screen {
                 SettingsSlider(
                     enabled = filterLongTag,
                     title = {
-                        Text("TAG最大长度")
+                        Text(stringResource(Res.string.tag_max_length))
                     },
                     subtitle = {
                         Column {
-                            Text("当某一TAG长度超出这个值时，将不会显示")
-                            Text("当前值:$filterLongTagLength")
+                            Text(stringResource(Res.string.tag_max_length_description))
+                            Text(stringResource(Res.string.current_value, filterLongTagLength))
                         }
                     },
                     value = filterLongTagLength.toFloat(),
@@ -484,10 +656,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = filterShortNovel,
                     title = {
-                        Text("过滤极短小说")
+                        Text(stringResource(Res.string.filter_short_novel))
                     },
                     subtitle = {
-                        Text("这类小说内部很有可能是引流广告")
+                        Text(stringResource(Res.string.filter_short_novel_description))
                     },
                     onCheckedChange = {
                         filterShortNovel = it
@@ -496,12 +668,12 @@ class SettingScreen : Screen {
                 SettingsSlider(
                     enabled = filterShortNovel,
                     title = {
-                        Text("小说过滤长度")
+                        Text(stringResource(Res.string.novel_filter_length))
                     },
                     subtitle = {
                         Column {
-                            Text("当小说长度小于这个值时，将不会显示")
-                            Text("当前值:$filterShortNovelLength")
+                            Text(stringResource(Res.string.novel_filter_length_description))
+                            Text(stringResource(Res.string.current_value, filterShortNovelLength))
                         }
                     },
                     value = filterShortNovelLength.toFloat(),
@@ -512,7 +684,7 @@ class SettingScreen : Screen {
                     },
                 )
             }
-            SettingsGroup(title = { Text(text = "历史记录") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.history_records)) }) {
                 var recordIllustHistory by remember {
                     mutableStateOf(AppConfig.recordIllustHistory)
                 }
@@ -522,10 +694,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = recordIllustHistory,
                     title = {
-                        Text("记录插画浏览记录")
+                        Text(stringResource(Res.string.record_illustration_history))
                     },
                     subtitle = {
-                        Text("关闭后将不会记录插画历史")
+                        Text(stringResource(Res.string.record_illustration_history_off))
                     },
                     onCheckedChange = {
                         recordIllustHistory = it
@@ -541,10 +713,10 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = recordNovelHistory,
                     title = {
-                        Text("记录小说浏览记录")
+                        Text(stringResource(Res.string.record_novel_history))
                     },
                     subtitle = {
-                        Text("关闭后将不会记录小说历史")
+                        Text(stringResource(Res.string.record_novel_history_off))
                     },
                     onCheckedChange = {
                         recordNovelHistory = it
@@ -560,17 +732,17 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = recordSearchHistory,
                     title = {
-                        Text("记录搜索记录")
+                        Text(stringResource(Res.string.record_search_history))
                     },
                     subtitle = {
-                        Text("关闭后将不会记录搜索记录")
+                        Text(stringResource(Res.string.record_search_history_off))
                     },
                     onCheckedChange = {
                         recordSearchHistory = it
                     },
                 )
             }
-            SettingsGroup(title = { Text(text = "网络设置") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.network_settings)) }) {
                 var bypassSetting by remember {
                     mutableStateOf(AppConfig.bypassSettings)
                 }
@@ -582,8 +754,8 @@ class SettingScreen : Screen {
                 }
 
                 SettingsDropdownMenu(
-                    title = { Text("直连方案") },
-                    subTitle = { Text("在部分地区无法访问Pixiv API，可以更改此设置以解除限制。") },
+                    title = { Text(stringResource(Res.string.bypass_solution)) },
+                    subTitle = { Text(stringResource(Res.string.bypass_solution_description)) },
                     data = listOf(
                         AppConfig.BypassSetting.None,
                         AppConfig.BypassSetting.Proxy(),
@@ -595,9 +767,9 @@ class SettingScreen : Screen {
                     },
                     optionsFormat = {
                         when (it) {
-                            AppConfig.BypassSetting.None -> "无"
-                            is AppConfig.BypassSetting.Proxy -> "代理"
-                            is AppConfig.BypassSetting.SNIReplace -> "SNI替换"
+                            AppConfig.BypassSetting.None -> stringResource(Res.string.bypass_none)
+                            is AppConfig.BypassSetting.Proxy -> stringResource(Res.string.bypass_proxy)
+                            is AppConfig.BypassSetting.SNIReplace -> stringResource(Res.string.bypass_sni)
                         }
                     },
                 )
@@ -611,7 +783,7 @@ class SettingScreen : Screen {
                             AppConfig.BypassSetting.None -> {}
                             is AppConfig.BypassSetting.Proxy -> {
                                 SettingsDropdownMenu(
-                                    title = { Text("代理类型") },
+                                    title = { Text(stringResource(Res.string.proxy_type)) },
                                     current = readOnlySettings.type,
                                     data = AppConfig.BypassSetting.Proxy.ProxyType.entries,
                                     onSelected = {
@@ -620,14 +792,14 @@ class SettingScreen : Screen {
                                 )
 
                                 SettingsTextField(
-                                    title = { Text("代理地址") },
+                                    title = { Text(stringResource(Res.string.proxy_address)) },
                                     value = readOnlySettings.host,
                                     onValueChange = {
                                         bypassSetting = readOnlySettings.copy(host = it)
                                     },
                                 )
                                 SettingsTextField(
-                                    title = { Text("代理端口") },
+                                    title = { Text(stringResource(Res.string.proxy_port)) },
                                     value = readOnlySettings.port.toString(),
                                     onValueChange = {
                                         val port = it.toIntOrNull() ?: return@SettingsTextField
@@ -640,12 +812,12 @@ class SettingScreen : Screen {
                                 val snack = LocalSnackBarHost.current
                                 val scope = rememberCoroutineScope()
                                 SettingsTextField(
-                                    title = { Text("DoH地址") },
+                                    title = { Text(stringResource(Res.string.doh_address)) },
                                     subTitle = {
                                         Text(
                                             buildAnnotatedString {
-                                                appendLine("通过DoH来解析Pixiv真实ip。")
-                                                appendLine("若默认DoH不可用，请尝试更换此值为合法且能解析pixivvision.net的DoH服务器。")
+                                                appendLine(stringResource(Res.string.doh_address_description))
+                                                appendLine(stringResource(Res.string.doh_address_hint))
                                             },
                                         )
                                     },
@@ -656,12 +828,12 @@ class SettingScreen : Screen {
                                 )
 
                                 SettingsTextField(
-                                    title = { Text("DoH超时时间") },
+                                    title = { Text(stringResource(Res.string.doh_timeout)) },
                                     subTitle = {
                                         Text(
                                             buildAnnotatedString {
-                                                appendLine("设置DoH的超时时间，单位为秒")
-                                                appendLine("若DoH解析失败，请尝试调高DoH解析时间以给予更多超时时间以解析DoH")
+                                                appendLine(stringResource(Res.string.doh_timeout_description))
+                                                appendLine(stringResource(Res.string.doh_timeout_hint))
                                             },
                                         )
                                     },
@@ -669,7 +841,7 @@ class SettingScreen : Screen {
                                     onValueChange = {
                                         val data = it.toIntOrNull() ?: run {
                                             scope.launch {
-                                                snack.showSnackbar("格式错误")
+                                                snack.showSnackbar(getString(Res.string.format_error))
                                             }
                                             return@run 5
                                         }
@@ -679,22 +851,22 @@ class SettingScreen : Screen {
                                 SettingsSwitch(
                                     state = readOnlySettings.nonStrictSSL,
                                     title = {
-                                        Text("忽略SSL错误")
+                                        Text(stringResource(Res.string.ignore_ssl_errors))
                                     },
                                     subtitle = {
-                                        Text("关闭后将不会忽略非严格SSL错误(可能造成DoH解析失败)，一般不会调整此设置。")
+                                        Text(stringResource(Res.string.ignore_ssl_errors_description))
                                     },
                                     onCheckedChange = {
                                         bypassSetting = readOnlySettings.copy(nonStrictSSL = it)
                                     },
                                 )
                                 SettingsTextField(
-                                    title = { Text("内置IP池列表") },
+                                    title = { Text(stringResource(Res.string.ip_pool)) },
                                     subTitle = {
                                         Text(
                                             buildAnnotatedString {
-                                                appendLine("DoH不可用时直接提供此表中的IP")
-                                                appendLine("作为最后的防御手段，该ip一定要可以直连")
+                                                appendLine(stringResource(Res.string.ip_pool_description))
+                                                appendLine(stringResource(Res.string.ip_pool_hint))
                                             },
                                         )
                                     },
@@ -702,9 +874,9 @@ class SettingScreen : Screen {
                                     onValueChange = {
                                         val fallback = try {
                                             Json.decodeFromString<Map<String, List<String>>>(it)
-                                        } catch (e: Exception) {
+                                        } catch (_: Exception) {
                                             scope.launch {
-                                                snack.showSnackbar("格式错误")
+                                                snack.showSnackbar(getString(Res.string.format_error))
                                             }
                                             return@SettingsTextField
                                         }
@@ -716,16 +888,16 @@ class SettingScreen : Screen {
                     }
                 }
             }
-            SettingsGroup(title = { Text(text = "登录会话") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.login_sessions)) }) {
                 val clip = LocalClipboardManager.current
                 val scope = rememberCoroutineScope()
                 val snack = LocalSnackBarHost.current
                 SettingsMenuLink(
                     title = {
-                        Text("导出登录会话")
+                        Text(stringResource(Res.string.export_login_session))
                     },
                     subtitle = {
-                        Text("可以使用此会话登录多个Pixiv第三方客户端。")
+                        Text(stringResource(Res.string.export_login_session_description))
                     },
                     onClick = {
                         scope.launch {
@@ -734,7 +906,7 @@ class SettingScreen : Screen {
                                     append(PixivConfig.refreshToken)
                                 },
                             )
-                            snack.showSnackbar("已将会话信息已复制到剪切板。注意：请勿将此会话发送到公开场合，这可能会导致您的账户被恶意修改。")
+                            snack.showSnackbar(getString(Res.string.login_session_copied))
                         }
                     },
                 )
@@ -747,10 +919,10 @@ class SettingScreen : Screen {
                             nav.pop()
                         },
                         title = {
-                            Text("确定退出登录？")
+                            Text(stringResource(Res.string.confirm_logout))
                         },
                         text = {
-                            Text("这会清除您在本机上的登录状态，确定要这么做吗？")
+                            Text(stringResource(Res.string.confirm_logout_description))
                         },
                         confirmButton = {
                             TextButton(
@@ -758,7 +930,7 @@ class SettingScreen : Screen {
                                     nav.replaceAll(LoginScreen(true))
                                 },
                             ) {
-                                Text("确定")
+                                Text(stringResource(Res.string.confirm))
                             }
                         },
                         dismissButton = {
@@ -767,30 +939,30 @@ class SettingScreen : Screen {
                                     show = false
                                 },
                             ) {
-                                Text("取消")
+                                Text(stringResource(Res.string.cancel))
                             }
                         },
                     )
                 }
                 SettingsMenuLink(
                     title = {
-                        Text("退出登录")
+                        Text(stringResource(Res.string.logout))
                     },
                     subtitle = {
-                        Text("清空会话并进入登录页面")
+                        Text(stringResource(Res.string.logout_description))
                     },
                     onClick = {
                         show = true
                     },
                 )
             }
-            SettingsGroup(title = { Text("高级") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.advanced)) }) {
                 SettingsMenuLink(
                     title = {
-                        Text("主线程抛出异常")
+                        Text(stringResource(Res.string.main_thread_exception))
                     },
                     subtitle = {
-                        Text("调试用，没事别点")
+                        Text(stringResource(Res.string.main_thread_exception_description))
                     },
                     onClick = {
                         throw RuntimeException("测试异常，请不要反馈。")
@@ -799,10 +971,10 @@ class SettingScreen : Screen {
                 val scope = rememberCoroutineScope()
                 SettingsMenuLink(
                     title = {
-                        Text("协程内抛出异常")
+                        Text(stringResource(Res.string.coroutine_exception))
                     },
                     subtitle = {
-                        Text("调试用，没事别点")
+                        Text(stringResource(Res.string.coroutine_exception_description))
                     },
                     onClick = {
                         scope.launch {
@@ -813,10 +985,10 @@ class SettingScreen : Screen {
 
                 SettingsMenuLink(
                     title = {
-                        Text("导出单次日志")
+                        Text(stringResource(Res.string.export_single_log))
                     },
                     subtitle = {
-                        Text("可能会很卡")
+                        Text(stringResource(Res.string.export_single_log_description))
                     },
                     onClick = {
                         scope.launch {
@@ -826,10 +998,10 @@ class SettingScreen : Screen {
                 )
                 SettingsMenuLink(
                     title = {
-                        Text("清空日志归档")
+                        Text(stringResource(Res.string.clear_log_archive))
                     },
                     subtitle = {
-                        Text("日志可能会占用存储空间")
+                        Text(stringResource(Res.string.clear_log_archive_description))
                     },
                     onClick = {
                         scope.launch {
@@ -842,10 +1014,10 @@ class SettingScreen : Screen {
                 )
                 SettingsMenuLink(
                     title = {
-                        Text("导出全部日志")
+                        Text(stringResource(Res.string.export_all_logs))
                     },
                     subtitle = {
-                        Text("一定会很卡")
+                        Text(stringResource(Res.string.export_all_logs_description))
                     },
                     onClick = {
                         scope.launch {
@@ -854,7 +1026,7 @@ class SettingScreen : Screen {
                     },
                 )
             }
-            SettingsGroup(title = { Text("更新") }) {
+            SettingsGroup(title = { Text(stringResource(Res.string.update)) }) {
                 val model = remember {
                     getKoin().get<UpdateCheckViewModel>()
                 }
@@ -886,7 +1058,7 @@ class SettingScreen : Screen {
                 SettingsSwitch(
                     state = checkUpdateOnStart,
                     title = {
-                        Text("启动时检查更新")
+                        Text(stringResource(Res.string.check_update_on_start))
                     },
                     onCheckedChange = {
                         checkUpdateOnStart = it
@@ -902,7 +1074,7 @@ class SettingScreen : Screen {
                         enabled = checkUpdateOnStart,
                         state = showCheckSuccessToast,
                         title = {
-                            Text("检查为最新版本时显示Toast")
+                            Text(stringResource(Res.string.show_toast_when_latest))
                         },
                         onCheckedChange = {
                             showCheckSuccessToast = it
@@ -913,7 +1085,7 @@ class SettingScreen : Screen {
                         enabled = checkUpdateOnStart,
                         state = showCheckFailedToast,
                         title = {
-                            Text("检查失败时显示Toast")
+                            Text(stringResource(Res.string.show_toast_when_failed))
                         },
                         onCheckedChange = {
                             showCheckFailedToast = it
@@ -923,7 +1095,7 @@ class SettingScreen : Screen {
 
                 SettingsMenuLink(
                     title = {
-                        Text("检查更新")
+                        Text(stringResource(Res.string.check_update))
                     },
                     onClick = {
                         model.checkUpdate(true)
@@ -935,7 +1107,7 @@ class SettingScreen : Screen {
                 val nav = LocalNavigator.currentOrThrow
                 SettingsMenuLink(
                     title = {
-                        Text("关于")
+                        Text(stringResource(Res.string.about))
                     },
                     onClick = {
                         nav.push(AboutScreen())

@@ -1,7 +1,6 @@
 package top.kagg886.pmf
 
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.*
 import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
@@ -15,7 +14,6 @@ import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.ui.route.crash.CrashApp
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun launchApp(init: () -> Screen = { WelcomeScreen() }) {
     setupEnv()
     SingletonImageLoader.setSafe {

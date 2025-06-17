@@ -5,14 +5,11 @@ import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-
+import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
 fun prop(key: String) = project.findProperty(key) as String
 
 val pkgName: String = "top.kagg886.pmf"
-
-// val pkgVersion: String = "1.0.0"
-// val pkgCode: Int = 1
 
 val appVersionName = System.getenv("APP_VERSION_NAME") ?: prop("APP_VERSION_NAME")
 check(appVersionName.startsWith("v")) { "APP_VERSION not supported, current is $appVersionName" }
@@ -56,6 +53,7 @@ buildConfig {
     buildConfigField("APP_VERSION_CODE", pkgCode)
 
     buildConfigField("DATABASE_VERSION", 6)
+    buildConfigField("APP_COMMIT_ID", getGitSha())
 }
 kotlin {
     jvmToolchain(17)
@@ -66,8 +64,31 @@ kotlin {
         it.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
-            linkerOpts.add("-lsqlite3")
+            linkerOpts += "-lsqlite3"
         }
+    }
+
+    compilerOptions {
+        progressiveMode = true
+        optIn.addAll(
+            "coil3.annotation.ExperimentalCoilApi",
+            "androidx.compose.foundation.layout.ExperimentalLayoutApi",
+            "androidx.compose.material3.ExperimentalMaterial3Api",
+            "androidx.compose.material3.ExperimentalMaterial3ExpressiveApi",
+            "androidx.compose.ui.ExperimentalComposeUiApi",
+            "androidx.compose.foundation.ExperimentalFoundationApi",
+            "androidx.compose.animation.ExperimentalAnimationApi",
+            "androidx.compose.animation.ExperimentalSharedTransitionApi",
+            "kotlin.ExperimentalStdlibApi",
+            "kotlin.uuid.ExperimentalUuidApi",
+            "kotlin.concurrent.atomics.ExperimentalAtomicApi",
+            "kotlin.contracts.ExperimentalContracts",
+            "kotlinx.coroutines.ExperimentalCoroutinesApi",
+            "kotlinx.coroutines.FlowPreview",
+            "kotlinx.serialization.ExperimentalSerializationApi",
+            "org.jetbrains.compose.resources.ExperimentalResourceApi",
+        )
+        freeCompilerArgs.addAll("-Xexpect-actual-classes")
     }
 
     sourceSets {
@@ -80,16 +101,17 @@ kotlin {
             // compose
             implementation(compose.runtime)
             implementation(compose.foundation)
+            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.androidx.paging)
 
             // voyager
             implementation(libs.voyager.navigator)
-            implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.koin)
             implementation(libs.voyager.transitions)
             implementation(libs.koin.core)
@@ -115,7 +137,7 @@ kotlin {
             api(libs.compose.webview.multiplatform)
 
             // https://coil-kt.github.io/coil/changelog/
-            implementation(project.dependencies.platform(libs.coil.bom))
+            implementation(dependencies.platform(libs.coil.bom))
             implementation(libs.bundles.coil)
             implementation(libs.telephoto.zoomable)
 
@@ -128,7 +150,7 @@ kotlin {
             implementation(libs.ktor.client.logging)
 
             // room
-            implementation(libs.androidx.room.runtime)
+            implementation(libs.bundles.room)
 
             // save file to storage
             implementation(libs.filekit.compose)
@@ -172,16 +194,16 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
-            implementation(libs.androidx.sqlite.bundled)
         }
 
         commonTest.dependencies {
+            implementation("com.russhwolf:multiplatform-settings-test:1.3.0")
             implementation(kotlin("test"))
         }
     }
 }
 
-aboutLibraries {
+aboutLibraries.library {
     duplicationMode = MERGE
     duplicationRule = GROUP
 }
@@ -191,7 +213,6 @@ android {
     compileSdk = prop("TARGET_SDK").toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-//    sourceSets["main"].res.srcDirs("src/androidMain/res", "src/commonMain/composeResources")
 
     sourceSets {
         getByName("main") {
@@ -244,7 +265,7 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles("core-rules.pro")
             signingConfig = signConfig
         }
 
@@ -261,11 +282,13 @@ android {
         debugImplementation(compose.uiTooling)
     }
 }
+
 compose.resources {
-    publicResClass = false
+    publicResClass = true
     packageOfResClass = pkgName
     generateResClass = auto
 }
+
 compose.desktop {
     application {
         mainClass = "$pkgName.MainKt"
@@ -275,7 +298,7 @@ compose.desktop {
                 *buildList {
                     add(TargetFormat.Msi)
                     add(TargetFormat.Dmg)
-                    if (!System.getProperty("os.name").contains("Mac")) {
+                    if ("Mac" !in System.getProperty("os.name")) {
                         add(TargetFormat.AppImage)
                     }
                 }.toTypedArray(),
@@ -283,28 +306,16 @@ compose.desktop {
             packageName = rootProject.name
             packageVersion = pkgVersion
 
-            windows {
-                iconFile.set(project.file("icons/pixiv.ico"))
-            }
-
-            linux {
-                iconFile.set(project.file("icons/pixiv.png"))
-            }
-
-            macOS {
-                iconFile.set(project.file("icons/pixiv.icns"))
-            }
-        }
-
-        buildTypes.release.proguard {
-            isEnabled = false
+            windows { iconFile.set(file("icons/pixiv.ico")) }
+            linux { iconFile.set(file("icons/pixiv.png")) }
+            macOS { iconFile.set(file("icons/pixiv.icns")) }
         }
 
         // release mode
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
         jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
 
-        if (System.getProperty("os.name").contains("Mac")) {
+        if ("Mac" in System.getProperty("os.name")) {
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
             jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
         }
@@ -312,15 +323,42 @@ compose.desktop {
             tasks.withType<JavaExec> {
                 // debug mode
                 jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-                jvmArgs(
-                    "--add-opens",
-                    "java.desktop/java.awt.peer=ALL-UNNAMED",
-                )
+                jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
 
-                if (System.getProperty("os.name").contains("Mac")) {
+                if ("Mac" in System.getProperty("os.name")) {
                     jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
                     jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(AbstractProguardTask::class.java) {
+    val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
+    proguardFile.deleteOnExit()
+
+    compose.desktop.application.buildTypes.release.proguard {
+        configurationFiles.from(proguardFile, file("core-rules.pro"), file("desktop-rules.pro"))
+        optimize = false // fixme(tarsin): proguard internal error
+        obfuscate = true
+        joinOutputJars = true
+    }
+
+    doFirst {
+        proguardFile.bufferedWriter().use { proguardFileWriter ->
+            sourceSets["desktopMain"].runtimeClasspath.filter { it.extension == "jar" }.forEach { jar ->
+                val zip = zipTree(jar)
+                zip.matching { include("META-INF/**/proguard/*.pro") }.forEach {
+                    proguardFileWriter.appendLine("########   ${jar.name} ${it.name}")
+                    proguardFileWriter.appendLine(it.readText())
+                }
+                zip.matching { include("META-INF/services/*") }.forEach {
+                    it.readLines().forEach { cls ->
+                        val rule = "-keep class $cls"
+                        proguardFileWriter.appendLine(rule)
+                    }
                 }
             }
         }
@@ -346,6 +384,17 @@ spotless {
     kotlinGradle {
         ktlint(ktlintVersion)
     }
+}
+
+fun getGitSha(): String {
+    val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
+        .redirectErrorStream(true)
+        .start()
+    val rtn = process.inputStream.readAllBytes().decodeToString().trim()
+    check(rtn.length == 7) {
+        throw IllegalStateException("git rev-parse failed, rtn:\n$rtn")
+    }
+    return rtn
 }
 
 // ------------------ IOS Packages Build ------------------
