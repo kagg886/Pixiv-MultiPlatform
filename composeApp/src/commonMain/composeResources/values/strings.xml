@@ -21,7 +21,7 @@
     <string name="un_bookmark_failed">取消收藏失败...</string>
     <string name="page_is_empty">页面为空</string>
     <string name="init_browser">正在初始化嵌入式浏览器...</string>
-    <string name="downloading_browser">下载浏览器内核中...%2$s</string>
+    <string name="downloading_browser">下载浏览器内核中...%1$s</string>
     <string name="unzipping_browser">解压浏览器内核中...</string>
     <string name="installing_browser">安装浏览器内核中...</string>
     <string name="xattr_setting">正在设置xattr......</string>
