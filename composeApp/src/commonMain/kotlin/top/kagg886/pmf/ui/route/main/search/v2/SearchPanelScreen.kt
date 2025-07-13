@@ -44,6 +44,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
@@ -63,8 +65,6 @@ import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.ui.route.main.search.v2.components.SearchPropertiesPanel
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.AuthorCard
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.stringResource
 

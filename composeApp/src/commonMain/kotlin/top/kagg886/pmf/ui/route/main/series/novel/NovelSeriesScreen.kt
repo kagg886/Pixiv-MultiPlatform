@@ -41,6 +41,8 @@ import cafe.adriel.voyager.core.screen.ScreenKey
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
@@ -54,8 +56,6 @@ import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.util.AuthorCard
 import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.word_count

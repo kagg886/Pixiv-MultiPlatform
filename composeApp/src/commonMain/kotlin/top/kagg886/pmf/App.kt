@@ -87,6 +87,7 @@ import org.koin.core.logger.MESSAGE
 import org.koin.dsl.module
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformConfig
 import top.kagg886.pmf.backend.PlatformEngine
@@ -113,7 +114,6 @@ import top.kagg886.pmf.ui.route.main.space.SpaceScreen
 import top.kagg886.pmf.ui.route.welcome.WelcomeModel
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.rememberSupportPixivNavigateUriHandler
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.SerializedTheme

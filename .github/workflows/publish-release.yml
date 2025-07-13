@@ -1,7 +1,6 @@
 name: Release
 on:
   push:
-    #    branches: [ "master" ]
     tags:
       - v*.*.*
 jobs:
@@ -16,9 +15,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      - name: Install Rust Toolchain
-        run: rustup default 1.86.0 && rustup component add rustfmt clippy
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
@@ -64,9 +60,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Rust Toolchain
-        run: rustup default 1.86.0 && rustup component add rustfmt clippy
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
@@ -108,7 +101,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default 1.86.0 && rustup target add aarch64-linux-android x86_64-linux-android && rustup component add rustfmt clippy
+        run: rustup target add aarch64-linux-android x86_64-linux-android
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
@@ -151,9 +144,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Rust Toolchain
-        run: rustup default 1.86.0 && rustup component add rustfmt clippy
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
 
@@ -195,7 +185,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Rust Toolchain
-        run: rustup default 1.86.0 && rustup target add aarch64-apple-ios && rustup component add rustfmt clippy
+        run: rustup target add aarch64-apple-ios
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -223,7 +213,7 @@ jobs:
           path: composeApp/build/archives/release/ios.ipa
   create-release:
     runs-on: ubuntu-latest
-    needs: [build-windows, build-android, build-linux, build-macos,build-ios]
+    needs: [ build-windows, build-android, build-linux, build-macos,build-ios ]
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4

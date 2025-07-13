@@ -25,6 +25,8 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.click_to_search
@@ -32,8 +34,6 @@ import top.kagg886.pmf.no_history
 import top.kagg886.pmf.search
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.search.v2.components.HistoryItem
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.stringResource
 
 class EmptySearchScreen : Screen {
