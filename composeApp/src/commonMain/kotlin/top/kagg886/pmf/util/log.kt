@@ -4,11 +4,15 @@ import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import io.ktor.utils.io.core.*
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
-import kotlinx.datetime.*
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeComponents
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import okio.Path
 import okio.buffer
 import org.koin.ext.getFullName
@@ -90,6 +94,6 @@ private fun Instant.toLogFileString() = format(
         char('-')
         monthNumber()
         char('-')
-        dayOfMonth()
+        day()
     },
 )

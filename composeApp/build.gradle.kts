@@ -80,6 +80,7 @@ kotlin {
             "androidx.compose.animation.ExperimentalAnimationApi",
             "androidx.compose.animation.ExperimentalSharedTransitionApi",
             "kotlin.ExperimentalStdlibApi",
+            "kotlin.time.ExperimentalTime",
             "kotlin.uuid.ExperimentalUuidApi",
             "kotlin.concurrent.atomics.ExperimentalAtomicApi",
             "kotlin.contracts.ExperimentalContracts",

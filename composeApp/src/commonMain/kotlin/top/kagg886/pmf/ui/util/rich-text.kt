@@ -29,7 +29,7 @@ import com.fleeksoft.ksoup.nodes.Node
 import com.fleeksoft.ksoup.nodes.TextNode
 import kotlin.math.absoluteValue
 import kotlin.random.Random
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
