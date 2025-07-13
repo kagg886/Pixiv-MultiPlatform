@@ -12,6 +12,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
 import top.kagg886.pmf.Res
@@ -21,7 +22,6 @@ import top.kagg886.pmf.latest
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.ui.util.IllustFetchSideEffect
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.stringResource
 
 class SpaceScreen : Screen {

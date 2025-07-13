@@ -54,6 +54,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
@@ -106,8 +108,6 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.LANGUA
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.SHIELD
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.THEME
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.WELCOME
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withLink
 import top.kagg886.pmf.unknown_error

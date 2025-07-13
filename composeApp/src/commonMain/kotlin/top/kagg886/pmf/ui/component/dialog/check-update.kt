@@ -11,6 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import org.koin.mp.KoinPlatform.getKoin
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
@@ -22,8 +24,6 @@ import top.kagg886.pmf.platform_not_support
 import top.kagg886.pmf.ui.util.UpdateCheckSideEffect
 import top.kagg886.pmf.ui.util.UpdateCheckState
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
-import top.kagg886.pmf.ui.util.collectAsState
-import top.kagg886.pmf.ui.util.collectSideEffect
 import top.kagg886.pmf.util.stringResource
 
 @Composable
