@@ -117,7 +117,8 @@ val jvmCargoBuildRelease = tasks.register<Exec>("jvmCargoBuildRelease") {
     workingDir = project.file("src/rust")
     when (currentJvmPlatform) {
         JvmDesktopPlatform.WINDOWS -> commandLine("cmd", "/c", cmd)
-        JvmDesktopPlatform.LINUX, JvmDesktopPlatform.MACOS -> commandLine("bash", "-c", cmd)
+        JvmDesktopPlatform.LINUX -> commandLine("bash", "-c", cmd)
+        JvmDesktopPlatform.MACOS -> commandLine("zsh", "-c", cmd)
     }
 }
 
@@ -149,7 +150,7 @@ for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
     val iosNativeCargoTask = tasks.register<Exec>("${kotlinArch}NativeCargoTask") {
         onlyIf { System.getProperty("os.name").startsWith("Mac") }
         workingDir = project.file("src/rust")
-        commandLine("bash", "-c", "cargo build --release --target $rustArch")
+        commandLine("zsh", "-c", "cargo build --release --target $rustArch")
     }
     tasks.named("cinteropGif${kotlinArch.replaceFirstChar(Char::uppercaseChar)}") {
         dependsOn(iosNativeCargoTask)

@@ -3,11 +3,10 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.time.Clock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
-import kotlinx.io.readByteArray
 import okio.*
 
 class ByteReadChannelReadTest {

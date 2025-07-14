@@ -128,8 +128,9 @@ kotlin {
             implementation(libs.multiplatform.settings.serialization)
 
             // settings-ui
-            implementation(libs.compose.settings.ui)
-            implementation(libs.compose.settings.extended)
+            implementation(project(":lib:compose-settings"))
+//            implementation(libs.compose.settings.ui)
+//            implementation(libs.compose.settings.extended)
 
             // search-page-ui
             implementation(project(":lib:chip-text-field"))

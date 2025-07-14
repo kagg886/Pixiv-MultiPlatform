@@ -12,7 +12,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		93CAA94B2D9D703300D9B16D /* Exceptions for "Pixiv-MultiPlatform" folder in "Pixiv-MultiPlatform" target */ = {
+		93CAA94B2D9D703300D9B16D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -25,7 +25,7 @@
 		93CAA9232D9D566F00D9B16D /* Pixiv-MultiPlatform */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				93CAA94B2D9D703300D9B16D /* Exceptions for "Pixiv-MultiPlatform" folder in "Pixiv-MultiPlatform" target */,
+				93CAA94B2D9D703300D9B16D /* PBXFileSystemSynchronizedBuildFileExceptionSet */,
 			);
 			path = "Pixiv-MultiPlatform";
 			sourceTree = "<group>";
@@ -297,6 +297,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pixiv-MultiPlatform/Preview Content\"";
+				DEVELOPMENT_TEAM = "${TEAM_ID}";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -310,13 +311,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
 					"\"ComposeApp\"",
 					"-lsqlite3",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "top.kagg886.pmf.Pixiv-MultiPlatform";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -346,13 +347,13 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
 					"\"ComposeApp\"",
 					"-lsqlite3",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "top.kagg886.pmf.Pixiv-MultiPlatform";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
