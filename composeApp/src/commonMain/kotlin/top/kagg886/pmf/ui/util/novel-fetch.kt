@@ -47,7 +47,7 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
 
         //FIXME: 需要移植到Pixko中。
         val isCoverLegal = run {
-            val a = imageUrls.content == "https://s.pximg.net/common/images/limit_r18_100.png"
+            val a = imageUrls.content != "https://s.pximg.net/common/images/limit_r18_100.png"
 
             a
         }
