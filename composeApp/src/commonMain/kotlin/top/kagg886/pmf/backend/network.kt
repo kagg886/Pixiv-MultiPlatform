@@ -9,7 +9,8 @@ import top.kagg886.pmf.util.logger
 
 private val KermitLogger = object : Logger {
     override fun log(message: String) {
-        logger.d(message)
+        //煞笔android会截断单行过长日志
+        logger.d(message.chunked(2048).joinToString("\n"))
     }
 }
 
@@ -23,7 +24,7 @@ val PlatformConfig: HttpClientConfig<*>.() -> Unit = {
     }
     install(Logging) {
         logger = KermitLogger
-        level = LogLevel.INFO
+        level = LogLevel.ALL
         filter {
             !it.url.host.contains("pximg")
         }
