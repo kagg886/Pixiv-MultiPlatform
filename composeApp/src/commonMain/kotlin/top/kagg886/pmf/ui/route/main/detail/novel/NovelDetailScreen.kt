@@ -50,7 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
@@ -114,6 +114,7 @@ import top.kagg886.pmf.ui.util.RichText
 import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
@@ -351,21 +352,17 @@ class NovelDetailScreen(private val id: Long, private val seriesInfo: SeriesInfo
                                                 Text("pid")
                                             },
                                             headlineContent = {
-                                                val clip = LocalClipboardManager.current
+                                                val clip = LocalClipboard.current
                                                 Text(
                                                     buildAnnotatedString {
                                                         withClickable(
                                                             theme,
                                                             state.novel.id.toString(),
                                                         ) {
-                                                            clip.setText(
-                                                                buildAnnotatedString {
-                                                                    append(
-                                                                        state.novel.id.toString(),
-                                                                    )
-                                                                },
-                                                            )
                                                             model.intent {
+                                                                clip.setText(
+                                                                state.novel.id.toString(),
+                                                            )
                                                                 postSideEffect(
                                                                     NovelDetailSideEffect.Toast(
                                                                         getString(Res.string.copy_pid),

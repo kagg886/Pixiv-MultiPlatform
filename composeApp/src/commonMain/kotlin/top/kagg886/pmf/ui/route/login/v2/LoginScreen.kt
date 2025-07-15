@@ -18,9 +18,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -37,6 +38,7 @@ import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.WebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
+import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.PixivAccountFactory
@@ -66,6 +68,7 @@ import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.ui.util.withLink
 import top.kagg886.pmf.use_browser_login
 import top.kagg886.pmf.use_token_login
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.warning
 
@@ -238,14 +241,15 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                     Text(state.exception.stackTraceToString(), modifier = Modifier.verticalScroll(rememberScrollState()))
                                                 },
                                                 confirmButton = {
-                                                    val clip = LocalClipboardManager.current
+                                                    val clip = LocalClipboard.current
+                                                    val scope = rememberCoroutineScope()
                                                     TextButton(
                                                         onClick = {
-                                                            clip.setText(
-                                                                buildAnnotatedString {
-                                                                    append(state.exception.stackTraceToString())
-                                                                },
-                                                            )
+                                                            scope.launch {
+                                                                clip.setText(
+                                                                    state.exception.stackTraceToString()
+                                                                )
+                                                            }
                                                         },
                                                     ) {
                                                         Text(stringResource(Res.string.copy_to_clipboard))

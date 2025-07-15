@@ -27,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -186,6 +186,7 @@ import top.kagg886.pmf.util.b
 import top.kagg886.pmf.util.deleteRecursively
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.zip
 
@@ -911,7 +912,7 @@ class SettingScreen : Screen {
                 }
             }
             SettingsGroup(title = { Text(stringResource(Res.string.login_sessions)) }) {
-                val clip = LocalClipboardManager.current
+                val clip = LocalClipboard.current
                 val scope = rememberCoroutineScope()
                 val snack = LocalSnackBarHost.current
                 SettingsMenuLink(
@@ -924,9 +925,7 @@ class SettingScreen : Screen {
                     onClick = {
                         scope.launch {
                             clip.setText(
-                                buildAnnotatedString {
-                                    append(PixivConfig.refreshToken)
-                                },
+                                PixivConfig.refreshToken,
                             )
                             snack.showSnackbar(getString(Res.string.login_session_copied))
                         }

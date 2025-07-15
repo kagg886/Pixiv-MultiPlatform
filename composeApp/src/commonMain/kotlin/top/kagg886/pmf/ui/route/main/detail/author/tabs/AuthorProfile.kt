@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.unknown
 import top.kagg886.pmf.username
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.yes
 
@@ -82,7 +84,7 @@ private fun Item(
     ListItem(
         supportingContent = {
             if (supporting != null) {
-                val clip = LocalClipboardManager.current
+                val clip = LocalClipboard.current
                 val color = MaterialTheme.colorScheme
                 val snack = LocalSnackBarHost.current
                 val scope = rememberCoroutineScope()
@@ -92,12 +94,10 @@ private fun Item(
                             colors = color,
                             text = supporting,
                             onClick = {
-                                clip.setText(
-                                    buildAnnotatedString {
-                                        append(supporting)
-                                    },
-                                )
                                 scope.launch {
+                                    clip.setText(
+                                        supporting
+                                    )
                                     snack.showSnackbar(getString(Res.string.copy_to_clipboard_success_args, headline ?: ""))
                                 }
                             },
