@@ -271,6 +271,7 @@ class NovelDetailViewModel(
                 null
             } else {
                 seriesInfo ?: detail.series.id?.let {
+                    if (it == -1) return@let null // 默认值为-1
                     val seriesInfo = client.getNovelSeries(it)
                     val mutex = Mutex()
                     var progress = 0
