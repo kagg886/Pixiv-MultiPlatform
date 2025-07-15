@@ -407,8 +407,8 @@ fun ipaArguments(
     sdk: String = "iphoneos",
 ): Array<String> = arrayOf(
     "xcodebuild",
-    "-project", "Pixiv-MultiPlatform.xcodeproj",
-    "-scheme", "Pixiv-MultiPlatform",
+    "-project", "${rootProject.name}.xcodeproj",
+    "-scheme", "${rootProject.name}",
     "-destination", destination,
     "-sdk", sdk,
     "CODE_SIGNING_ALLOWED=NO",
@@ -420,7 +420,7 @@ val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
     description = "Builds the iOS framework for Release"
     workingDir(rootProject.file("iosApp"))
 
-    val output = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
+    val output = layout.buildDirectory.dir("archives/release/${rootProject.name}.xcarchive")
     outputs.dir(output)
     commandLine(
         *ipaArguments(),
@@ -437,8 +437,8 @@ tasks.register("buildReleaseIpa", BuildIpaTask::class) {
     group = "build"
 
     // Adjust these paths as needed
-    archiveDir = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
-    outputIpa = layout.buildDirectory.file("archives/release/Pixiv-MultiPlatform.ipa")
+    archiveDir = layout.buildDirectory.dir("archives/release/${rootProject.name}.xcarchive")
+    outputIpa = layout.buildDirectory.file("archives/release/${rootProject.name}.ipa")
     dependsOn(buildReleaseArchive)
 }
 
@@ -455,20 +455,20 @@ abstract class BuildIpaTask : DefaultTask() {
     @TaskAction
     fun buildIpa() {
         // 1. Locate the .app in the .xcarchive
-        val appDir = archiveDir.get().asFile.resolve("Products/Applications/Pixiv-MultiPlatform.app")
+        val appDir = archiveDir.get().asFile.resolve("Products/Applications/${rootProject.name}.app")
         if (!appDir.exists()) {
-            throw GradleException("Could not find Pixiv-MultiPlatform.app in archive at: ${appDir.absolutePath}")
+            throw GradleException("Could not find ${rootProject.name}.app in archive at: ${appDir.absolutePath}")
         }
 
         // 2. Create a temporary Payload folder
         val payloadDir = File(temporaryDir, "Payload").apply { mkdirs() }
-        val destApp = File(payloadDir, "Pixiv-MultiPlatform.app")
+        val destApp = File(payloadDir, "${rootProject.name}.app")
 
         // 3. Copy the .app into Payload/
         appDir.copyRecursively(destApp, overwrite = true)
 
         // 4. Zip the Payload folder
-        val zipFile = File(temporaryDir, "Pixiv-MultiPlatform.zip")
+        val zipFile = File(temporaryDir, "${rootProject.name}.zip")
         zipDirectory(payloadDir, zipFile)
 
         // 5. Rename .zip to .ipa
