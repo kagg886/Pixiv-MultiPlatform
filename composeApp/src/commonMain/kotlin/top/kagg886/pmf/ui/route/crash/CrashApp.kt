@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.core.FileKit
 import kotlin.time.Clock
 import kotlinx.coroutines.launch
+import okio.use
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
@@ -37,10 +38,17 @@ import top.kagg886.pmf.app_crash
 import top.kagg886.pmf.app_crash_message
 import top.kagg886.pmf.app_crash_title
 import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.confirm
+import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Save
+import top.kagg886.pmf.util.createNewFile
+import top.kagg886.pmf.util.delete
+import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.util.writeString
 
 private fun getHostEnvironment(): String = buildString {
     appendLine("App Version: ${BuildConfig.APP_VERSION_NAME}(${BuildConfig.APP_VERSION_CODE}) --- ${BuildConfig.APP_COMMIT_ID}")
@@ -115,19 +123,20 @@ fun CrashApp(
                         }) {
                             Icon(imageVector = Github, contentDescription = null)
                         }
-                        val scope = rememberCoroutineScope()
                         IconButton(
                             onClick = {
-                                scope.launch {
-                                    FileKit.saveFile(
-                                        bytes = buildString {
-                                            appendLine(getHostEnvironment())
-                                            appendLine(throwable)
-                                        }.encodeToByteArray(),
-                                        baseName = "${BuildConfig.APP_NAME} Crash Info - ${Clock.System.now()}",
-                                        extension = "log",
-                                    )
+                                val f = cachePath.resolve("crash.log")
+                                if (f.exists()) {
+                                    f.delete()
                                 }
+                                f.createNewFile()
+                                f.writeString(
+                                    buildString {
+                                        appendLine(getHostEnvironment())
+                                        appendLine(throwable)
+                                    }
+                                )
+                                shareFile(f, name = "${BuildConfig.APP_NAME} Crash Info - ${Clock.System.now()}.log", mime = "text/plain")
                             },
                         ) {
                             Icon(imageVector = Save, contentDescription = null)
