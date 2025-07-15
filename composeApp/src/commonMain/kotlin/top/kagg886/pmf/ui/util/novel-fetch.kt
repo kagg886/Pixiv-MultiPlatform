@@ -35,8 +35,9 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
     override val container: Container<NovelFetchViewState, NovelFetchSideEffect> = container(NovelFetchViewState())
     abstract fun source(): Flow<PagingData<Novel>>
 
+    // 返回true代表拦截
     fun Novel.block() = with(AppConfig) {
-        val isUserAllow = run {
+        val isUserDisAllow = run {
             val a = filterShortNovel && textLength <= filterShortNovelMaxLength
             val b = filterLongTag && tags.any { it.name.length > filterLongTagMinLength }
             val c = filterAiNovel && isAI
@@ -45,14 +46,14 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
             a || b || c || d || e
         }
 
-        //FIXME: 需要移植到Pixko中。
-        val isCoverLegal = run {
-            val a = imageUrls.content != "https://s.pximg.net/common/images/limit_r18_100.png"
+        // FIXME: 需要移植到Pixko中。
+        val isCoverIllegal = run {
+            val a = imageUrls.content == "https://s.pximg.net/common/images/limit_r18_100.png"
 
             a
         }
 
-        isUserAllow && isCoverLegal
+        isUserDisAllow || isCoverIllegal
     }
 
     val data = merge(flowOf(Unit), signal).flatMapLatestScoped { scope, _ ->

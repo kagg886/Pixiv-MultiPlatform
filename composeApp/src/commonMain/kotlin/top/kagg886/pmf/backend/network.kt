@@ -9,7 +9,7 @@ import top.kagg886.pmf.util.logger
 
 private val KermitLogger = object : Logger {
     override fun log(message: String) {
-        //煞笔android会截断单行过长日志
+        // 煞笔android会截断单行过长日志
         logger.d(message.chunked(2048).joinToString("\n"))
     }
 }
