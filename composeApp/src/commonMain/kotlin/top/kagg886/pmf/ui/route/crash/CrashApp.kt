@@ -28,7 +28,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.pickFile
 import kotlin.time.Clock
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -57,7 +56,7 @@ private fun getHostEnvironment(): String = buildString {
 fun CrashApp(
     modifier: Modifier = Modifier,
     throwable: String,
-    onExitHandler: () -> Unit = { exitProcess(0) }
+    onExitHandler: () -> Unit = { exitProcess(0) },
 ) {
     var dialog by remember {
         mutableStateOf(true)
@@ -129,7 +128,7 @@ fun CrashApp(
                                         extension = "log",
                                     )
                                 }
-                            }
+                            },
                         ) {
                             Icon(imageVector = Save, contentDescription = null)
                         }
