@@ -145,6 +145,8 @@ import top.kagg886.pmf.network_settings
 import top.kagg886.pmf.night_mode_not_supported
 import top.kagg886.pmf.novel_filter_length
 import top.kagg886.pmf.novel_filter_length_description
+import top.kagg886.pmf.novel_see_next
+import top.kagg886.pmf.novel_see_next_description
 import top.kagg886.pmf.novel_settings
 import top.kagg886.pmf.proxy_address
 import top.kagg886.pmf.proxy_port
@@ -599,6 +601,26 @@ class SettingScreen : Screen {
                         Text("${textSize}sp", fontSize = textSize.sp)
                     },
                 )
+
+                var enableFetchSeries by remember {
+                    mutableStateOf(AppConfig.enableFetchSeries)
+                }
+                LaunchedEffect(enableFetchSeries) {
+                    AppConfig.enableFetchSeries = enableFetchSeries
+                }
+                SettingsSwitch(
+                    state = enableFetchSeries,
+                    title = {
+                        Text(stringResource(Res.string.novel_see_next))
+                    },
+                    subtitle = {
+                        Text(stringResource(Res.string.novel_see_next_description))
+                    },
+                    onCheckedChange = {
+                        enableFetchSeries = it
+                    },
+                )
+
                 var filterLongTag by remember {
                     mutableStateOf(AppConfig.filterLongTag)
                 }

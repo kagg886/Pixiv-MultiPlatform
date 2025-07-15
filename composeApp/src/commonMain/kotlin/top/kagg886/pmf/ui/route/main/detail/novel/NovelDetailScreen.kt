@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -67,22 +68,26 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.module.novel.Novel
+import top.kagg886.pixko.module.novel.SeriesInfo
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.advanced_bookmark_settings
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.copy_novel_title_success
 import top.kagg886.pmf.copy_pid
 import top.kagg886.pmf.create_time
 import top.kagg886.pmf.export_to_epub
 import top.kagg886.pmf.find_similar_novel
+import top.kagg886.pmf.next_page
 import top.kagg886.pmf.no_description_novel
 import top.kagg886.pmf.novel_comments
 import top.kagg886.pmf.novel_detail
 import top.kagg886.pmf.novel_intro
 import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.open_in_browser
+import top.kagg886.pmf.previous_page
 import top.kagg886.pmf.series_belong
 import top.kagg886.pmf.tags
 import top.kagg886.pmf.ui.component.ErrorPage
@@ -112,7 +117,7 @@ import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
-class NovelDetailScreen(private val id: Long) : Screen {
+class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo? = null) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
@@ -120,24 +125,30 @@ class NovelDetailScreen(private val id: Long) : Screen {
     @Composable
     override fun Content() {
         val model = rememberScreenModel("novel_detail_$id") {
-            NovelDetailViewModel(id)
+            NovelDetailViewModel(id,seriesInfo)
         }
 
         val ctx = LocalPlatformContext.current
+        val state by model.collectAsState()
         LaunchedEffect(Unit) {
-            model.reload(ctx)
+            if (state !is NovelDetailViewState.Success) {
+                model.reload(ctx)
+            }
         }
 
         val snack = LocalSnackBarHost.current
+        val nav = LocalNavigator.currentOrThrow
         model.collectSideEffect {
             when (it) {
                 is NovelDetailSideEffect.Toast -> {
                     snack.showSnackbar(it.msg)
                 }
+
+                is NovelDetailSideEffect.NavigateToOtherNovel -> {
+                    nav.push(NovelDetailScreen(it.id,it.seriesInfo))
+                }
             }
         }
-
-        val state by model.collectAsState()
 
         val drawer = rememberDrawerState(DrawerValue.Closed)
 
@@ -565,7 +576,8 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
             is NovelDetailViewState.Success -> {
                 val scroll = rememberScrollState()
-                val connect = rememberConnectedScrollState(immediatelyShowTopBarWhenFingerPullDown = true)
+                val connect =
+                    rememberConnectedScrollState(immediatelyShowTopBarWhenFingerPullDown = true)
 
                 Column(modifier) {
                     // TopAppBar 使用 connectedScroll 来实现联动滚动
@@ -591,13 +603,32 @@ class NovelDetailScreen(private val id: Long) : Screen {
 
                         KeyListenerFromGlobalPipe(controller)
 
-                        RichText(
-                            state = state.nodeMap,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 15.dp)
-                                .verticalScroll(scroll),
-                        )
+                        Column(Modifier.verticalScroll(scroll)) {
+                            RichText(
+                                state = state.nodeMap,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp)
+                            )
+
+                            if (AppConfig.enableFetchSeries) {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(64.dp, alignment = Alignment.CenterHorizontally)) {
+                                    TextButton(
+                                        onClick = {
+                                            model.navigatePreviousPage()
+                                        }
+                                    ) {
+                                        Text(stringResource(Res.string.previous_page))
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            model.navigateNextPage()
+                                        }
+                                    ) {
+                                        Text(stringResource(Res.string.next_page))
+                                    }
+                                }
+                            }
+                        }
 
                         VerticalScrollbar(
                             adapter = rememberScrollbarAdapter(scroll),

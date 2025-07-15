@@ -25,6 +25,8 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okio.Buffer
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -40,10 +42,13 @@ import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.NovelData
 import top.kagg886.pixko.module.novel.NovelImagesSize
+import top.kagg886.pixko.module.novel.SeriesDetail
+import top.kagg886.pixko.module.novel.SeriesInfo
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
 import top.kagg886.pixko.module.novel.getNovelContent
 import top.kagg886.pixko.module.novel.getNovelDetail
+import top.kagg886.pixko.module.novel.getNovelSeries
 import top.kagg886.pixko.module.novel.parser.v2.CombinedText
 import top.kagg886.pixko.module.novel.parser.v2.JumpPageNode
 import top.kagg886.pixko.module.novel.parser.v2.JumpUriNode
@@ -55,6 +60,7 @@ import top.kagg886.pixko.module.novel.parser.v2.UploadImageNode
 import top.kagg886.pixko.module.novel.parser.v2.content
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
+import top.kagg886.pixko.module.user.getNovelSeries
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
@@ -64,6 +70,8 @@ import top.kagg886.pmf.backend.database.dao.NovelHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_failed
 import top.kagg886.pmf.bookmark_success
+import top.kagg886.pmf.cant_jump_series_because_no_series
+import top.kagg886.pmf.cant_jump_series_because_page_incorrect_in_last
 import top.kagg886.pmf.exporting
 import top.kagg886.pmf.follow_fail
 import top.kagg886.pmf.follow_success
@@ -72,6 +80,8 @@ import top.kagg886.pmf.get_novel_detail
 import top.kagg886.pmf.jump_to_chapter
 import top.kagg886.pmf.load_failed
 import top.kagg886.pmf.parse_novel_node
+import top.kagg886.pmf.parsing_novel_series
+import top.kagg886.pmf.parsing_novel_series_progress
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
@@ -82,10 +92,10 @@ import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 
-class NovelDetailViewModel(val id: Long) :
-    ViewModel(),
-    ScreenModel,
-    ContainerHost<NovelDetailViewState, NovelDetailSideEffect>,
+class NovelDetailViewModel(
+    val id: Long,
+    val seriesInfo: SeriesInfo? = null,
+) : ViewModel(), ScreenModel, ContainerHost<NovelDetailViewState, NovelDetailSideEffect>,
     KoinComponent {
     override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
         container(NovelDetailViewState.Loading(MutableStateFlow("Loading...")))
@@ -97,7 +107,8 @@ class NovelDetailViewModel(val id: Long) :
 
     @OptIn(ExperimentalNovelParserAPI::class)
     fun reload(coil: PlatformContext) = intent {
-        val loading = NovelDetailViewState.Loading(MutableStateFlow(getString(Res.string.get_novel_detail)))
+        val loading =
+            NovelDetailViewState.Loading(MutableStateFlow(getString(Res.string.get_novel_detail)))
         reduce { loading }
 
         val result = kotlin.runCatching {
@@ -134,7 +145,11 @@ class NovelDetailViewModel(val id: Long) :
                     is JumpUriNode -> {
                         nodeMap[index] = NovelNodeElement.JumpUri(i.text, i.uri)
                         parsed++
-                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                        loading.text.emit(
+                            getString(
+                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                            )
+                        )
                     }
 
                     is UploadImageNode -> {
@@ -151,13 +166,22 @@ class NovelDetailViewModel(val id: Long) :
                             }.getOrNull()
                         }
 
-                        val resp = SingletonImageLoader.get(coil).execute(ImageRequest.Builder(context = coil).size(CoilSize.ORIGINAL).data(img).build())
+                        val resp = SingletonImageLoader.get(coil).execute(
+                            ImageRequest.Builder(context = coil).size(CoilSize.ORIGINAL).data(img)
+                                .build()
+                        )
                         if (resp is SuccessResult) {
                             val info = resp.image
-                            nodeMap[index] = NovelNodeElement.UploadImage(img, Size(info.width.toFloat(), info.height.toFloat()))
+                            nodeMap[index] = NovelNodeElement.UploadImage(
+                                img, Size(info.width.toFloat(), info.height.toFloat())
+                            )
 
                             parsed++
-                            loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                            loading.text.emit(
+                                getString(
+                                    Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                                )
+                            )
 
                             continue
                         }
@@ -171,45 +195,100 @@ class NovelDetailViewModel(val id: Long) :
                                 illust,
                             )
                             parsed++
-                            loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                            loading.text.emit(
+                                getString(
+                                    Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                                )
+                            )
                         }
                     }
 
                     is NewPageNode -> {
                         nodeMap[index] = NovelNodeElement.NewPage(index + 1)
                         parsed++
-                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                        loading.text.emit(
+                            getString(
+                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                            )
+                        )
                     }
 
                     is TextNode -> {
                         nodeMap[index] = NovelNodeElement.Plain(i.text.toPlainString())
                         parsed++
-                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                        loading.text.emit(
+                            getString(
+                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                            )
+                        )
                     }
 
                     is TitleNode -> {
                         nodeMap[index] = NovelNodeElement.Title(i.text.toPlainString())
                         parsed++
-                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                        loading.text.emit(
+                            getString(
+                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                            )
+                        )
                     }
 
                     is JumpPageNode -> {
                         nodeMap[index] = NovelNodeElement.JumpPage(i.page)
                         parsed++
-                        loading.text.emit(getString(Res.string.parse_novel_node, parsed, data.getOrThrow().size))
+                        loading.text.emit(
+                            getString(
+                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
+                            )
+                        )
                     }
                 }
             }
         }
+
+        //在传入seriesInfo时使用seriesInfo，否则拉取所有series。
+        //如果为null代表这个小说没有series
+        loading.text.emit(getString(Res.string.parsing_novel_series))
+
+        val seriesInfo =
+            if (!AppConfig.enableFetchSeries) null else seriesInfo ?: detail.series.id?.let {
+                val seriesInfo = client.getNovelSeries(it)
+                val mutex = Mutex()
+                var progress = 0
+                val other = coroutineScope {
+                    (2..<seriesInfo.novelSeriesDetail.pageCount).map { page ->
+                        async {
+                            client.getNovelSeries(it, page).novels.apply {
+                                mutex.withLock {
+                                    loading.text.emit(
+                                        getString(
+                                            Res.string.parsing_novel_series_progress,
+                                            ++progress,
+                                            seriesInfo.novelSeriesDetail.pageCount - 1
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }.awaitAll()
+                }
+                SeriesInfo(
+                    novelSeriesDetail = seriesInfo.novelSeriesDetail,
+                    novels = seriesInfo.novels + other.flatten()
+                )
+            }
+
         reduce {
             NovelDetailViewState.Success(
                 detail,
                 content,
                 nodeMap.toList().sortedBy { it.first }.map { it.second },
+                seriesInfo = seriesInfo,
             )
         }
         if (AppConfig.recordNovelHistory) {
-            database.novelHistoryDAO().insert(NovelHistory(id, detail, Clock.System.now().toEpochMilliseconds()))
+            database.novelHistoryDAO()
+                .insert(NovelHistory(id, detail, Clock.System.now().toEpochMilliseconds()))
         }
     }
 
@@ -219,7 +298,9 @@ class NovelDetailViewModel(val id: Long) :
             postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.exporting)))
 
             val coverImage = ResourceItem(
-                file = Buffer().write(img.get(with(state.novel.imageUrls) { original ?: contentLarge }).bodyAsBytes()),
+                file = Buffer().write(img.get(with(state.novel.imageUrls) {
+                    original ?: contentLarge
+                }).bodyAsBytes()),
                 extension = "png",
                 mediaType = "image/png",
                 properties = "cover-image",
@@ -230,7 +311,9 @@ class NovelDetailViewModel(val id: Long) :
                     when (it) {
                         is NovelNodeElement.PixivImage -> {
                             it to ResourceItem(
-                                file = Buffer().write(img.post(it.illust.imageUrls.content).bodyAsBytes()),
+                                file = Buffer().write(
+                                    img.post(it.illust.imageUrls.content).bodyAsBytes()
+                                ),
                                 extension = "png",
                                 mediaType = "image/png",
                             )
@@ -260,9 +343,7 @@ class NovelDetailViewModel(val id: Long) :
                     }
 
                     is NovelNodeElement.JumpUri -> {
-                        doc.body().appendElement("p")
-                            .appendElement("a")
-                            .attr("href", i.uri)
+                        doc.body().appendElement("p").appendElement("a").attr("href", i.uri)
                             .text(i.text)
                     }
 
@@ -271,14 +352,12 @@ class NovelDetailViewModel(val id: Long) :
                     }
 
                     is NovelNodeElement.UploadImage -> {
-                        doc.body().appendElement("img")
-                            .attr("src", inlineImages[i]!!.fileName)
+                        doc.body().appendElement("img").attr("src", inlineImages[i]!!.fileName)
                             .attr("alt", Uuid.random().toHexString())
                     }
 
                     is NovelNodeElement.PixivImage -> {
-                        doc.body().appendElement("img")
-                            .attr("src", inlineImages[i]!!.fileName)
+                        doc.body().appendElement("img").attr("src", inlineImages[i]!!.fileName)
                             .attr("alt", Uuid.random().toHexString())
                     }
 
@@ -291,8 +370,7 @@ class NovelDetailViewModel(val id: Long) :
                     }
 
                     is NovelNodeElement.JumpPage -> {
-                        doc.body().appendElement("a")
-                            .attr("href", "#Chapter${i.page}")
+                        doc.body().appendElement("a").attr("href", "#Chapter${i.page}")
                             .text(getString(Res.string.jump_to_chapter, i.page))
                     }
                 }
@@ -428,15 +506,77 @@ class NovelDetailViewModel(val id: Long) :
             }
         }
     }
+
+    @OptIn(OrbitExperimental::class)
+    fun navigateNextPage() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val info = state.seriesInfo
+            if (info == null) {
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.cant_jump_series_because_no_series)))
+                return@runOn
+            }
+
+            val target = info.novels.indexOfFirst { it.id.toLong() == id }
+
+            if (target == -1) {
+                throw IllegalStateException("the series get failed")
+            }
+
+            if (target == info.novels.size - 1) {
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.cant_jump_series_because_page_incorrect_in_last)))
+                return@runOn
+            }
+
+            postSideEffect(
+                NovelDetailSideEffect.NavigateToOtherNovel(
+                    id = info.novels[target + 1].id.toLong(), seriesInfo = info
+                )
+            )
+        }
+    }
+
+    @OptIn(OrbitExperimental::class)
+    fun navigatePreviousPage() = intent {
+        runOn<NovelDetailViewState.Success> {
+            val info = state.seriesInfo
+            if (info == null) {
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.cant_jump_series_because_no_series)))
+                return@runOn
+            }
+
+            val target = info.novels.indexOfFirst { it.id.toLong() == id }
+
+            if (target == -1) {
+                throw IllegalStateException("the series get failed")
+            }
+
+            if (target == 0) {
+                postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.cant_jump_series_because_page_incorrect_in_last)))
+                return@runOn
+            }
+
+            postSideEffect(
+                NovelDetailSideEffect.NavigateToOtherNovel(
+                    id = info.novels[target - 1].id.toLong(), seriesInfo = info
+                )
+            )
+        }
+    }
 }
 
 sealed class NovelDetailViewState {
     data class Loading(val text: MutableStateFlow<String>) : NovelDetailViewState()
     data class Error(val cause: String) : NovelDetailViewState()
-    data class Success(val novel: Novel, val core: NovelData, val nodeMap: List<NovelNodeElement>) :
-        NovelDetailViewState()
+    data class Success(
+        val novel: Novel,
+        val core: NovelData,
+        val nodeMap: List<NovelNodeElement>,
+        val seriesInfo: SeriesInfo? = null,
+    ) : NovelDetailViewState()
 }
 
 sealed class NovelDetailSideEffect {
     data class Toast(val msg: String) : NovelDetailSideEffect()
+    data class NavigateToOtherNovel(val id: Long, val seriesInfo: SeriesInfo?) :
+        NovelDetailSideEffect()
 }

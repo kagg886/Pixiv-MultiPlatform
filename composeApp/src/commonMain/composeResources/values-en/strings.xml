@@ -341,4 +341,11 @@
     <string name="ai_blocked">No</string>
     <string name="setup_finish_note">        Setup complete! We'll redirect to login. These settings can be changed later.\n        We'll download a 300MB embedded browser for login experience.</string>
     <string name="setup_finish_note_simple">        Setup complete! We'll redirect to login. These settings can be changed later.</string>
+
+    <string name="previous_page">Previous</string>
+    <string name="next_page">Next</string>
+    <string name="cant_jump_series_because_no_series">Can't jump because there was no series to this novel.</string>
+    <string name="cant_jump_series_because_page_incorrect_in_last">Can't jump because you are in the last page</string>
+    <string name="novel_see_next">fetch series when fetching novel</string>
+    <string name="novel_see_next_description">then we can navigate the next/previous page on the novel's end</string>
 </resources>
