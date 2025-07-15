@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -26,6 +27,10 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
+import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.core.pickFile
+import kotlin.time.Clock
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
@@ -36,6 +41,8 @@ import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.confirm
 import top.kagg886.pmf.ui.component.icon.Github
+import top.kagg886.pmf.ui.component.icon.Save
+
 private fun getHostEnvironment(): String = buildString {
     appendLine("App Version: ${BuildConfig.APP_VERSION_NAME}(${BuildConfig.APP_VERSION_CODE}) --- ${BuildConfig.APP_COMMIT_ID}")
     appendLine("Running Platform: ${currentPlatform.name}")
@@ -47,7 +54,11 @@ private fun getHostEnvironment(): String = buildString {
 }
 
 @Composable
-fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: () -> Unit = { exitProcess(0) }) {
+fun CrashApp(
+    modifier: Modifier = Modifier,
+    throwable: String,
+    onExitHandler: () -> Unit = { exitProcess(0) }
+) {
     var dialog by remember {
         mutableStateOf(true)
     }
@@ -104,6 +115,23 @@ fun CrashApp(modifier: Modifier = Modifier, throwable: String, onExitHandler: ()
                             handler.openUri("https://github.com/kagg886/Pixiv-MultiPlatform/issues/new/choose")
                         }) {
                             Icon(imageVector = Github, contentDescription = null)
+                        }
+                        val scope = rememberCoroutineScope()
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    FileKit.saveFile(
+                                        bytes = buildString {
+                                            appendLine(getHostEnvironment())
+                                            appendLine(throwable)
+                                        }.encodeToByteArray(),
+                                        baseName = "${BuildConfig.APP_NAME} Crash Info - ${Clock.System.now()}",
+                                        extension = "log",
+                                    )
+                                }
+                            }
+                        ) {
+                            Icon(imageVector = Save, contentDescription = null)
                         }
                     }
                 },
