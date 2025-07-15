@@ -32,10 +32,8 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -95,7 +93,6 @@ import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.component.TabContainer
 import top.kagg886.pmf.ui.component.collapsable.v3.connectedScroll
-import top.kagg886.pmf.ui.component.collapsable.v3.connectedScrollContainer
 import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
 import top.kagg886.pmf.ui.component.collapsable.v3.rememberConnectedScrollState
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
@@ -160,7 +157,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
             rtlLayout = true,
             drawerState = drawer,
         ) {
-            NovelDetailContent(model = model,state = state, modifier = Modifier.fillMaxSize()) {
+            NovelDetailContent(model = model, state = state, modifier = Modifier.fillMaxSize()) {
                 scope.launch {
                     drawer.open()
                 }
@@ -194,7 +191,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                     state = page.page,
                     tab = listOf(
                         stringResource(Res.string.novel_intro),
-                        stringResource(Res.string.novel_comments, state.novel.totalComments)
+                        stringResource(Res.string.novel_comments, state.novel.totalComments),
                     ),
                 ) {
                     when (it) {
@@ -270,7 +267,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                     HTMLRichText(
                                                         html = state.novel.caption.ifEmpty {
                                                             stringResource(
-                                                                Res.string.no_description_novel
+                                                                Res.string.no_description_novel,
                                                             )
                                                         },
                                                     )
@@ -350,11 +347,13 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                             theme,
                                                             state.novel.id.toString(),
                                                         ) {
-                                                            clip.setText(buildAnnotatedString {
-                                                                append(
-                                                                    state.novel.id.toString()
-                                                                )
-                                                            })
+                                                            clip.setText(
+                                                                buildAnnotatedString {
+                                                                    append(
+                                                                        state.novel.id.toString(),
+                                                                    )
+                                                                },
+                                                            )
                                                             model.intent {
                                                                 postSideEffect(
                                                                     NovelDetailSideEffect.Toast(
@@ -480,7 +479,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
     private fun NovelDetailTopAppBar(
         model: NovelDetailViewModel,
         modifier: Modifier = Modifier,
-        onDrawerOpen: ()-> Unit = {},
+        onDrawerOpen: () -> Unit = {},
     ) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
@@ -492,7 +491,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 IconButton(
                     onClick = {
                         nav.pop()
-                    }
+                    },
                 ) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
                 }
@@ -535,7 +534,6 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
             },
         )
-
     }
 
     @Composable
@@ -543,7 +541,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
         model: NovelDetailViewModel,
         state: NovelDetailViewState,
         modifier: Modifier = Modifier,
-        onDrawerOpen: () -> Unit = {}
+        onDrawerOpen: () -> Unit = {},
     ) {
         val ctx = LocalPlatformContext.current
         when (state) {
@@ -575,7 +573,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                     NovelDetailTopAppBar(
                         model = model,
                         modifier = Modifier.connectedScroll(connect),
-                        onDrawerOpen = onDrawerOpen
+                        onDrawerOpen = onDrawerOpen,
                     )
 
                     // 内容区域，应用 nestedScroll 来处理滚动事件
@@ -583,7 +581,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                         modifier = Modifier
                             .weight(1f)
                             .nestedScroll(connect.nestedScrollConnection)
-                            .nestedScrollWorkaround(scroll, connect)
+                            .nestedScrollWorkaround(scroll, connect),
                     ) {
                         val controller = remember {
                             keyboardScrollerController(scroll) {
