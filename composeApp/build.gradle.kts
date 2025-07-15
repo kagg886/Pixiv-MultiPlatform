@@ -4,16 +4,6 @@ import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
@@ -415,11 +405,10 @@ fun getGitSha(): String {
 fun ipaArguments(
     destination: String = "generic/platform=iOS",
     sdk: String = "iphoneos",
-    scheme: String = "${rootProject.name}-Release",
 ): Array<String> = arrayOf(
     "xcodebuild",
-    "-project", "${rootProject.name}.xcodeproj",
-    "-scheme", scheme,
+    "-project", "Pixiv-MultiPlatform.xcodeproj",
+    "-scheme", "Pixiv-MultiPlatform",
     "-destination", destination,
     "-sdk", sdk,
     "CODE_SIGNING_ALLOWED=NO",
@@ -431,7 +420,7 @@ val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
     description = "Builds the iOS framework for Release"
     workingDir(rootProject.file("iosApp"))
 
-    val output = layout.buildDirectory.dir("archives/release/${rootProject.name}.xcarchive")
+    val output = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
     outputs.dir(output)
     commandLine(
         *ipaArguments(),
@@ -443,7 +432,16 @@ val buildReleaseArchive = tasks.register("buildReleaseArchive", Exec::class) {
     )
 }
 
-// Define BuildIpaTask as a top-level class to avoid "non-static inner class" error
+tasks.register("buildReleaseIpa", BuildIpaTask::class) {
+    description = "Manually packages the .app from the .xcarchive into an unsigned .ipa"
+    group = "build"
+
+    // Adjust these paths as needed
+    archiveDir = layout.buildDirectory.dir("archives/release/Pixiv-MultiPlatform.xcarchive")
+    outputIpa = layout.buildDirectory.file("archives/release/Pixiv-MultiPlatform.ipa")
+    dependsOn(buildReleaseArchive)
+}
+
 @CacheableTask
 abstract class BuildIpaTask : DefaultTask() {
 
@@ -457,20 +455,20 @@ abstract class BuildIpaTask : DefaultTask() {
     @TaskAction
     fun buildIpa() {
         // 1. Locate the .app in the .xcarchive
-        val appDir = archiveDir.get().asFile.resolve("Products/Applications/${project.rootProject.name}.app")
+        val appDir = archiveDir.get().asFile.resolve("Products/Applications/Pixiv-MultiPlatform.app")
         if (!appDir.exists()) {
-            throw GradleException("Could not find ${project.rootProject.name}.app in archive at: ${appDir.absolutePath}")
+            throw GradleException("Could not find Pixiv-MultiPlatform.app in archive at: ${appDir.absolutePath}")
         }
 
         // 2. Create a temporary Payload folder
         val payloadDir = File(temporaryDir, "Payload").apply { mkdirs() }
-        val destApp = File(payloadDir, "${project.rootProject.name}.app")
+        val destApp = File(payloadDir, "Pixiv-MultiPlatform.app")
 
         // 3. Copy the .app into Payload/
         appDir.copyRecursively(destApp, overwrite = true)
 
         // 4. Zip the Payload folder
-        val zipFile = File(temporaryDir, "${project.rootProject.name}.zip")
+        val zipFile = File(temporaryDir, "Pixiv-MultiPlatform.zip")
         zipDirectory(payloadDir, zipFile)
 
         // 5. Rename .zip to .ipa
@@ -498,14 +496,4 @@ abstract class BuildIpaTask : DefaultTask() {
             }
         }
     }
-}
-
-tasks.register("buildReleaseIpa", BuildIpaTask::class) {
-    description = "Manually packages the .app from the .xcarchive into an unsigned .ipa"
-    group = "build"
-
-    // Adjust these paths as needed
-    archiveDir = layout.buildDirectory.dir("archives/release/${rootProject.name}.xcarchive")
-    outputIpa = layout.buildDirectory.file("archives/release/${rootProject.name}.ipa")
-    dependsOn(buildReleaseArchive)
 }

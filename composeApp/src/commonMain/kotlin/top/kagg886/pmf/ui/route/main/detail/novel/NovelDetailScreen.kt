@@ -19,9 +19,12 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -622,28 +625,13 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                             )
 
                             if (AppConfig.enableFetchSeries) {
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        64.dp,
-                                        alignment = Alignment.CenterHorizontally,
-                                    ),
-                                ) {
-                                    TextButton(
-                                        onClick = {
-                                            model.navigatePreviousPage()
-                                        },
-                                    ) {
-                                        Text(stringResource(Res.string.previous_page))
-                                    }
-                                    TextButton(
-                                        onClick = {
-                                            model.navigateNextPage()
-                                        },
-                                    ) {
-                                        Text(stringResource(Res.string.next_page))
-                                    }
-                                }
+                                SeriesNavigationIndicator(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    seriesInfo = state.seriesInfo,
+                                    currentNovelId = id,
+                                    onNavigatePrevious = { model.navigatePreviousPage() },
+                                    onNavigateNext = { model.navigateNextPage() }
+                                )
                             }
                         }
 
@@ -656,6 +644,89 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeriesNavigationIndicator(
+    modifier: Modifier = Modifier,
+    seriesInfo: SeriesInfo?,
+    currentNovelId: Long,
+    onNavigatePrevious: () -> Unit,
+    onNavigateNext: () -> Unit
+) {
+    if (seriesInfo == null) return
+
+    val currentIndex = seriesInfo.novels.indexOfFirst { it.id.toLong() == currentNovelId }
+    if (currentIndex == -1) return
+
+    val canNavigatePrevious = currentIndex > 0
+    val canNavigateNext = currentIndex < seriesInfo.novels.size - 1
+    val currentPosition = currentIndex + 1
+    val totalCount = seriesInfo.novels.size
+
+    Card(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Previous button
+            IconButton(
+                onClick = onNavigatePrevious,
+                enabled = canNavigatePrevious
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(Res.string.previous_page),
+                    tint = if (canNavigatePrevious) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    }
+                )
+            }
+
+            // Page indicator
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "$currentPosition / $totalCount",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = stringResource(Res.string.series_belong),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+
+            // Next button
+            IconButton(
+                onClick = onNavigateNext,
+                enabled = canNavigateNext
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(Res.string.next_page),
+                    tint = if (canNavigateNext) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                    }
+                )
             }
         }
     }
