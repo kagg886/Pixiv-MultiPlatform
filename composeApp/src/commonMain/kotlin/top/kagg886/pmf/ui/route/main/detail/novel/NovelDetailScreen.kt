@@ -113,14 +113,21 @@ import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.RichText
 import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.withClickable
+import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
+import top.kagg886.pmf.util.wrap
 
-class NovelDetailScreen(private val id: Long, private val seriesInfo: SeriesInfo? = null) : Screen {
+class NovelDetailScreen(private val id: Long, seriesInfo: SerializableWrapper<SeriesInfo>) :
+    Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
+
+    constructor(id: Long, seriesInfo: SeriesInfo) : this(id, wrap(seriesInfo))
+
+    private val seriesInfo by seriesInfo
 
     @OptIn(InternalVoyagerApi::class)
     @Composable
@@ -361,8 +368,8 @@ class NovelDetailScreen(private val id: Long, private val seriesInfo: SeriesInfo
                                                         ) {
                                                             model.intent {
                                                                 clip.setText(
-                                                                state.novel.id.toString(),
-                                                            )
+                                                                    state.novel.id.toString(),
+                                                                )
                                                                 postSideEffect(
                                                                     NovelDetailSideEffect.Toast(
                                                                         getString(Res.string.copy_pid),
@@ -608,7 +615,13 @@ class NovelDetailScreen(private val id: Long, private val seriesInfo: SeriesInfo
                             )
 
                             if (AppConfig.enableFetchSeries) {
-                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(64.dp, alignment = Alignment.CenterHorizontally)) {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(
+                                        64.dp,
+                                        alignment = Alignment.CenterHorizontally
+                                    )
+                                ) {
                                     TextButton(
                                         onClick = {
                                             model.navigatePreviousPage()
