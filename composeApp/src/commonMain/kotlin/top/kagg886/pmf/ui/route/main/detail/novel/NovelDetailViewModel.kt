@@ -42,7 +42,6 @@ import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.NovelData
 import top.kagg886.pixko.module.novel.NovelImagesSize
-import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pixko.module.novel.SeriesInfo
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
@@ -95,7 +94,9 @@ import top.kagg886.pmf.util.logger
 class NovelDetailViewModel(
     val id: Long,
     val seriesInfo: SeriesInfo? = null,
-) : ViewModel(), ScreenModel, ContainerHost<NovelDetailViewState, NovelDetailSideEffect>,
+) : ViewModel(),
+    ScreenModel,
+    ContainerHost<NovelDetailViewState, NovelDetailSideEffect>,
     KoinComponent {
     override val container: Container<NovelDetailViewState, NovelDetailSideEffect> =
         container(NovelDetailViewState.Loading(MutableStateFlow("Loading...")))
@@ -147,8 +148,10 @@ class NovelDetailViewModel(
                         parsed++
                         loading.text.emit(
                             getString(
-                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                            )
+                                Res.string.parse_novel_node,
+                                parsed,
+                                data.getOrThrow().size,
+                            ),
                         )
                     }
 
@@ -168,19 +171,22 @@ class NovelDetailViewModel(
 
                         val resp = SingletonImageLoader.get(coil).execute(
                             ImageRequest.Builder(context = coil).size(CoilSize.ORIGINAL).data(img)
-                                .build()
+                                .build(),
                         )
                         if (resp is SuccessResult) {
                             val info = resp.image
                             nodeMap[index] = NovelNodeElement.UploadImage(
-                                img, Size(info.width.toFloat(), info.height.toFloat())
+                                img,
+                                Size(info.width.toFloat(), info.height.toFloat()),
                             )
 
                             parsed++
                             loading.text.emit(
                                 getString(
-                                    Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                                )
+                                    Res.string.parse_novel_node,
+                                    parsed,
+                                    data.getOrThrow().size,
+                                ),
                             )
 
                             continue
@@ -197,8 +203,10 @@ class NovelDetailViewModel(
                             parsed++
                             loading.text.emit(
                                 getString(
-                                    Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                                )
+                                    Res.string.parse_novel_node,
+                                    parsed,
+                                    data.getOrThrow().size,
+                                ),
                             )
                         }
                     }
@@ -208,8 +216,10 @@ class NovelDetailViewModel(
                         parsed++
                         loading.text.emit(
                             getString(
-                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                            )
+                                Res.string.parse_novel_node,
+                                parsed,
+                                data.getOrThrow().size,
+                            ),
                         )
                     }
 
@@ -218,8 +228,10 @@ class NovelDetailViewModel(
                         parsed++
                         loading.text.emit(
                             getString(
-                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                            )
+                                Res.string.parse_novel_node,
+                                parsed,
+                                data.getOrThrow().size,
+                            ),
                         )
                     }
 
@@ -228,8 +240,10 @@ class NovelDetailViewModel(
                         parsed++
                         loading.text.emit(
                             getString(
-                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                            )
+                                Res.string.parse_novel_node,
+                                parsed,
+                                data.getOrThrow().size,
+                            ),
                         )
                     }
 
@@ -238,44 +252,50 @@ class NovelDetailViewModel(
                         parsed++
                         loading.text.emit(
                             getString(
-                                Res.string.parse_novel_node, parsed, data.getOrThrow().size
-                            )
+                                Res.string.parse_novel_node,
+                                parsed,
+                                data.getOrThrow().size,
+                            ),
                         )
                     }
                 }
             }
         }
 
-        //在传入seriesInfo时使用seriesInfo，否则拉取所有series。
-        //如果为null代表这个小说没有series
+        // 在传入seriesInfo时使用seriesInfo，否则拉取所有series。
+        // 如果为null代表这个小说没有series
         loading.text.emit(getString(Res.string.parsing_novel_series))
 
         val seriesInfo =
-            if (!AppConfig.enableFetchSeries) null else seriesInfo ?: detail.series.id?.let {
-                val seriesInfo = client.getNovelSeries(it)
-                val mutex = Mutex()
-                var progress = 0
-                val other = coroutineScope {
-                    (2..<seriesInfo.novelSeriesDetail.pageCount).map { page ->
-                        async {
-                            client.getNovelSeries(it, page).novels.apply {
-                                mutex.withLock {
-                                    loading.text.emit(
-                                        getString(
-                                            Res.string.parsing_novel_series_progress,
-                                            ++progress,
-                                            seriesInfo.novelSeriesDetail.pageCount - 1
+            if (!AppConfig.enableFetchSeries) {
+                null
+            } else {
+                seriesInfo ?: detail.series.id?.let {
+                    val seriesInfo = client.getNovelSeries(it)
+                    val mutex = Mutex()
+                    var progress = 0
+                    val other = coroutineScope {
+                        (2..<seriesInfo.novelSeriesDetail.pageCount).map { page ->
+                            async {
+                                client.getNovelSeries(it, page).novels.apply {
+                                    mutex.withLock {
+                                        loading.text.emit(
+                                            getString(
+                                                Res.string.parsing_novel_series_progress,
+                                                ++progress,
+                                                seriesInfo.novelSeriesDetail.pageCount - 1,
+                                            ),
                                         )
-                                    )
+                                    }
                                 }
                             }
-                        }
-                    }.awaitAll()
+                        }.awaitAll()
+                    }
+                    SeriesInfo(
+                        novelSeriesDetail = seriesInfo.novelSeriesDetail,
+                        novels = seriesInfo.novels + other.flatten(),
+                    )
                 }
-                SeriesInfo(
-                    novelSeriesDetail = seriesInfo.novelSeriesDetail,
-                    novels = seriesInfo.novels + other.flatten()
-                )
             }
 
         reduce {
@@ -298,9 +318,13 @@ class NovelDetailViewModel(
             postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.exporting)))
 
             val coverImage = ResourceItem(
-                file = Buffer().write(img.get(with(state.novel.imageUrls) {
-                    original ?: contentLarge
-                }).bodyAsBytes()),
+                file = Buffer().write(
+                    img.get(
+                        with(state.novel.imageUrls) {
+                            original ?: contentLarge
+                        },
+                    ).bodyAsBytes(),
+                ),
                 extension = "png",
                 mediaType = "image/png",
                 properties = "cover-image",
@@ -312,7 +336,7 @@ class NovelDetailViewModel(
                         is NovelNodeElement.PixivImage -> {
                             it to ResourceItem(
                                 file = Buffer().write(
-                                    img.post(it.illust.imageUrls.content).bodyAsBytes()
+                                    img.post(it.illust.imageUrls.content).bodyAsBytes(),
                                 ),
                                 extension = "png",
                                 mediaType = "image/png",
@@ -529,8 +553,9 @@ class NovelDetailViewModel(
 
             postSideEffect(
                 NovelDetailSideEffect.NavigateToOtherNovel(
-                    id = info.novels[target + 1].id.toLong(), seriesInfo = info
-                )
+                    id = info.novels[target + 1].id.toLong(),
+                    seriesInfo = info,
+                ),
             )
         }
     }
@@ -557,8 +582,9 @@ class NovelDetailViewModel(
 
             postSideEffect(
                 NovelDetailSideEffect.NavigateToOtherNovel(
-                    id = info.novels[target - 1].id.toLong(), seriesInfo = info
-                )
+                    id = info.novels[target - 1].id.toLong(),
+                    seriesInfo = info,
+                ),
             )
         }
     }

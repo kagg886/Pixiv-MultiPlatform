@@ -117,7 +117,7 @@ import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 
-class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo? = null) : Screen {
+class NovelDetailScreen(private val id: Long, private val seriesInfo: SeriesInfo? = null) : Screen {
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
@@ -125,7 +125,7 @@ class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo?
     @Composable
     override fun Content() {
         val model = rememberScreenModel("novel_detail_$id") {
-            NovelDetailViewModel(id,seriesInfo)
+            NovelDetailViewModel(id, seriesInfo)
         }
 
         val ctx = LocalPlatformContext.current
@@ -145,7 +145,7 @@ class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo?
                 }
 
                 is NovelDetailSideEffect.NavigateToOtherNovel -> {
-                    nav.push(NovelDetailScreen(it.id,it.seriesInfo))
+                    nav.push(NovelDetailScreen(it.id, it.seriesInfo))
                 }
             }
         }
@@ -607,7 +607,7 @@ class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo?
                             RichText(
                                 state = state.nodeMap,
                                 modifier = Modifier
-                                    .padding(horizontal = 15.dp)
+                                    .padding(horizontal = 15.dp),
                             )
 
                             if (AppConfig.enableFetchSeries) {
@@ -615,14 +615,14 @@ class NovelDetailScreen(private val id: Long,private val seriesInfo: SeriesInfo?
                                     TextButton(
                                         onClick = {
                                             model.navigatePreviousPage()
-                                        }
+                                        },
                                     ) {
                                         Text(stringResource(Res.string.previous_page))
                                     }
                                     TextButton(
                                         onClick = {
                                             model.navigateNextPage()
-                                        }
+                                        },
                                     ) {
                                         Text(stringResource(Res.string.next_page))
                                     }
