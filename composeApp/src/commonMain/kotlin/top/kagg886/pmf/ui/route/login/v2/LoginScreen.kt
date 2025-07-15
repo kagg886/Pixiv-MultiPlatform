@@ -247,7 +247,7 @@ private fun WaitLoginContent(a: LoginViewState, model: LoginScreenViewModel) {
                                                         onClick = {
                                                             scope.launch {
                                                                 clip.setText(
-                                                                    state.exception.stackTraceToString()
+                                                                    state.exception.stackTraceToString(),
                                                                 )
                                                             }
                                                         },

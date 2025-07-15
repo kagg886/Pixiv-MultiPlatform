@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.buildAnnotatedString
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.profile.CountryCode
@@ -96,7 +95,7 @@ private fun Item(
                             onClick = {
                                 scope.launch {
                                     clip.setText(
-                                        supporting
+                                        supporting,
                                     )
                                     snack.showSnackbar(getString(Res.string.copy_to_clipboard_success_args, headline ?: ""))
                                 }

@@ -6,6 +6,6 @@ import androidx.compose.ui.platform.Clipboard
 
 actual suspend fun Clipboard.setText(text: String) = setClipEntry(
     ClipEntry(
-        clipData = ClipData.newPlainText("",text)
-    )
+        clipData = ClipData.newPlainText("", text),
+    ),
 )

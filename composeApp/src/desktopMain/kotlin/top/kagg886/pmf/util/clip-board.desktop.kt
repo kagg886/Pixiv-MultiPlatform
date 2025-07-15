@@ -7,5 +7,5 @@ import java.awt.datatransfer.StringSelection
 actual suspend fun Clipboard.setText(text: String) = setClipEntry(
     ClipEntry(
         nativeClipEntry = StringSelection(text),
-    )
+    ),
 )

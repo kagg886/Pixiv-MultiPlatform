@@ -400,7 +400,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                         withClickable(theme, illust.id.toString()) {
                                             model.intent {
                                                 clipboard.setText(
-                                                    illust.id.toString()
+                                                    illust.id.toString(),
                                                 )
                                                 postSideEffect(
                                                     IllustDetailSideEffect.Toast(

@@ -65,6 +65,7 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.toUri
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.module.novel.Novel
@@ -120,12 +121,18 @@ import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
-class NovelDetailScreen(private val id: Long, seriesInfo: SerializableWrapper<SeriesInfo>) :
+@Serializable
+private data class SeriesInfoWrapper(
+    val seriesInfo: SeriesInfo? = null,
+)
+
+class NovelDetailScreen private constructor(private val id: Long, seriesInfo: SerializableWrapper<SeriesInfoWrapper>) :
     Screen {
+
     override val key: ScreenKey
         get() = "novel_detail_$id"
 
-    constructor(id: Long, seriesInfo: SeriesInfo) : this(id, wrap(seriesInfo))
+    constructor(id: Long, seriesInfo: SeriesInfo? = null) : this(id, wrap(SeriesInfoWrapper(seriesInfo)))
 
     private val seriesInfo by seriesInfo
 
@@ -133,7 +140,7 @@ class NovelDetailScreen(private val id: Long, seriesInfo: SerializableWrapper<Se
     @Composable
     override fun Content() {
         val model = rememberScreenModel("novel_detail_$id") {
-            NovelDetailViewModel(id, seriesInfo)
+            NovelDetailViewModel(id, seriesInfo.seriesInfo)
         }
 
         val ctx = LocalPlatformContext.current
@@ -619,8 +626,8 @@ class NovelDetailScreen(private val id: Long, seriesInfo: SerializableWrapper<Se
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(
                                         64.dp,
-                                        alignment = Alignment.CenterHorizontally
-                                    )
+                                        alignment = Alignment.CenterHorizontally,
+                                    ),
                                 ) {
                                     TextButton(
                                         onClick = {

@@ -24,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import kotlin.time.Clock
@@ -115,7 +114,7 @@ fun CrashApp(
                                     buildString {
                                         appendLine(getHostEnvironment())
                                         appendLine(throwable)
-                                    }
+                                    },
                                 )
                             }
 //                            clip.setText(
