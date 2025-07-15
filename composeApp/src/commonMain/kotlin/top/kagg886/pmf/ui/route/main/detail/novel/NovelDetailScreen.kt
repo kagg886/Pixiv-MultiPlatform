@@ -36,7 +36,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -630,7 +629,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                                     seriesInfo = state.seriesInfo,
                                     currentNovelId = id,
                                     onNavigatePrevious = { model.navigatePreviousPage() },
-                                    onNavigateNext = { model.navigateNextPage() }
+                                    onNavigateNext = { model.navigateNextPage() },
                                 )
                             }
                         }
@@ -655,7 +654,7 @@ private fun SeriesNavigationIndicator(
     seriesInfo: SeriesInfo?,
     currentNovelId: Long,
     onNavigatePrevious: () -> Unit,
-    onNavigateNext: () -> Unit
+    onNavigateNext: () -> Unit,
 ) {
     if (seriesInfo == null) return
 
@@ -670,21 +669,21 @@ private fun SeriesNavigationIndicator(
     Card(
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Previous button
             IconButton(
                 onClick = onNavigatePrevious,
-                enabled = canNavigatePrevious
+                enabled = canNavigatePrevious,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -693,30 +692,30 @@ private fun SeriesNavigationIndicator(
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    }
+                    },
                 )
             }
 
             // Page indicator
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = "$currentPosition / $totalCount",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = stringResource(Res.string.series_belong),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                 )
             }
 
             // Next button
             IconButton(
                 onClick = onNavigateNext,
-                enabled = canNavigateNext
+                enabled = canNavigateNext,
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -725,7 +724,7 @@ private fun SeriesNavigationIndicator(
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    }
+                    },
                 )
             }
         }
