@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -27,10 +26,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
-import io.github.vinceglb.filekit.core.FileKit
 import kotlin.time.Clock
-import kotlinx.coroutines.launch
-import okio.use
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
@@ -47,7 +43,6 @@ import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.util.createNewFile
 import top.kagg886.pmf.util.delete
 import top.kagg886.pmf.util.exists
-import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.writeString
 
 private fun getHostEnvironment(): String = buildString {
@@ -134,7 +129,7 @@ fun CrashApp(
                                     buildString {
                                         appendLine(getHostEnvironment())
                                         appendLine(throwable)
-                                    }
+                                    },
                                 )
                                 shareFile(f, name = "${BuildConfig.APP_NAME} Crash Info - ${Clock.System.now()}.log", mime = "text/plain")
                             },
