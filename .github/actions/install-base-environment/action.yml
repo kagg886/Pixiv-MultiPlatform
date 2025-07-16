@@ -1,0 +1,32 @@
+name: 'Setup Base Environment'
+description: 'Sets up the Base environment'
+inputs:
+  windows:
+    description: 'Whether to include Windows-specific setup'
+    required: false
+    default: 'false'
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-java@v4
+      name: Set up JDK 22
+      with:
+        java-version: '22'
+        distribution: 'temurin'
+
+    - uses: gradle/actions/setup-gradle@v4
+      name: Setup Gradle
+
+    - uses: Setup Rust For Android
+      run: rustup target add aarch64-linux-android x86_64-linux-android
+      if: ${{ inputs.for-android == 'true' }}
+
+    - uses: Setup Rust For iOS
+      run: rustup target add aarch64-linux-android x86_64-linux-android
+      if: ${{ inputs.for-ios == 'true' }}
+
+    - name: Spotless Check
+      run: ./gradlew spotlessCheck
+
+    - name: Generate AboutLibraries Metadata
+      run: ./gradlew exportLibraryDefinitions

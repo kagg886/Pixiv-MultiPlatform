@@ -19,14 +19,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build MSI And Content with Gradle Wrapper
         run: ./gradlew light
@@ -64,14 +58,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build with Gradle Wrapper
         run: |
@@ -108,14 +96,10 @@ jobs:
       - name: Install Rust Toolchain
         run: rustup target add aarch64-linux-android x86_64-linux-android
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions -PaboutLibraries.exportVariant=release
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
+        with:
+          for-android: 'true'
 
       - name: Build with Gradle Wrapper
         run: |
@@ -147,14 +131,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build with Gradle Wrapper
         run: ./gradlew packageReleaseDmg
@@ -189,17 +167,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Rust Toolchain
-        run: rustup target add aarch64-apple-ios
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
+        with:
+          for-ios: 'true'
 
       - name: Build with Gradle Wrapper
         run: |

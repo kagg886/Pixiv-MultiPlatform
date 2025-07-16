@@ -16,16 +16,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build MSI And Content with Gradle Wrapper
         run: ./gradlew light
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: zip binaries artifact
         run: powershell -Command "Compress-Archive -Path 'composeApp\build\compose\binaries\main-release\app\Pixiv-MultiPlatform' -DestinationPath 'composeApp\build\compose\binaries\main-release\app\windows.zip'"
@@ -60,18 +55,13 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build with Gradle Wrapper
         run: |
           chmod +x ./gradlew
           ./gradlew packageReleaseDistributionForCurrentOS
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: Zip artifact
         run: tar -czvf linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .
@@ -103,18 +93,15 @@ jobs:
       - name: Install Rust Toolchain
         run: rustup target add aarch64-linux-android x86_64-linux-android
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions -PaboutLibraries.exportVariant=release
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
+        with:
+          for-android: 'true'
 
       - name: Build with Gradle Wrapper
         run: |
           chmod +x ./gradlew
           ./gradlew assembleRelease
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
       - name: Rename apk
         run: |
           mv composeApp/build/outputs/apk/release/composeApp-release.apk composeApp/build/outputs/apk/release/android.apk
@@ -123,15 +110,12 @@ jobs:
         with:
           name: android.apk
           path: composeApp/build/outputs/apk/release/android.apk
-
       - name: Upload Proguard Mapping File
         uses: actions/upload-artifact@v4
         with:
           name: proguard-android.mapping
           path: composeApp/build/outputs/mapping/release/mapping.txt
           if-no-files-found: error
-
-
   build-macos:
     runs-on: macos-latest
     permissions:
@@ -144,16 +128,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
 
       - name: Build with Gradle Wrapper
         run: ./gradlew packageReleaseDmg
-        env:
-          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: Rename artifact
         run: |
@@ -172,6 +151,7 @@ jobs:
           name: proguard-macos.mapping
           path: composeApp/mappings-desktop-currentOS.txt
           if-no-files-found: error
+
   build-ios:
     runs-on: macos-15
     permissions:
@@ -184,17 +164,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Rust Toolchain
-        run: rustup target add aarch64-apple-ios
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Spotless Check
-        run: ./gradlew spotlessCheck
-
-      - name: Generate AboutLibraries Metadata
-        run: ./gradlew exportLibraryDefinitions
+      - name: Setup Environment
+        uses: ./.github/actions/install-base-environment
+        with:
+          for-ios: 'true'
 
       - name: Build with Gradle Wrapper
         run: |
@@ -211,6 +184,7 @@ jobs:
         with:
           name: ios.ipa
           path: composeApp/build/archives/release/ios.ipa
+
   create-release:
     runs-on: ubuntu-latest
     needs: [ build-windows, build-android, build-linux, build-macos,build-ios ]
