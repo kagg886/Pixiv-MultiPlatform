@@ -23,13 +23,15 @@ import kotlin.math.roundToInt
 @Composable
 fun rememberConnectedScrollState(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
+    immediatelyShowTopBarWhenFingerPullDown: Boolean = false,
 ): ConnectedScrollState = remember(flingBehavior) {
-    ConnectedScrollState(flingBehavior)
+    ConnectedScrollState(flingBehavior, immediatelyShowTopBarWhenFingerPullDown)
 }
 
 @Stable
 class ConnectedScrollState(
     val flingBehavior: FlingBehavior,
+    val immediatelyShowTopBarWhenFingerPullDown: Boolean,
 ) {
     val scrollableState = ScrollableState { available ->
         val previous = scrolledOffset
@@ -85,6 +87,10 @@ class ConnectedScrollState(
             available: Offset,
             source: NestedScrollSource,
         ): Offset = if (available.y < 0) {
+            // 向上滑动，优先隐藏 TopAppBar
+            Offset(0f, scrollableState.dispatchRawDelta(available.y))
+        } else if (available.y > 0 && scrolledOffset < 0 && immediatelyShowTopBarWhenFingerPullDown) {
+            // 向下滑动，且 TopAppBar 未完全显示时，优先显示 TopAppBar
             Offset(0f, scrollableState.dispatchRawDelta(available.y))
         } else {
             Offset.Zero

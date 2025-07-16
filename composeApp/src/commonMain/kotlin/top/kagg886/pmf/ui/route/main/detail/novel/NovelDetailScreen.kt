@@ -19,9 +19,12 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,7 +35,6 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -48,9 +50,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -64,25 +69,30 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import coil3.toUri
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.module.novel.Novel
+import top.kagg886.pixko.module.novel.SeriesInfo
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.advanced_bookmark_settings
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.copy_novel_title_success
 import top.kagg886.pmf.copy_pid
 import top.kagg886.pmf.create_time
 import top.kagg886.pmf.export_to_epub
 import top.kagg886.pmf.find_similar_novel
+import top.kagg886.pmf.next_page
 import top.kagg886.pmf.no_description_novel
 import top.kagg886.pmf.novel_comments
 import top.kagg886.pmf.novel_detail
 import top.kagg886.pmf.novel_intro
 import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.open_in_browser
+import top.kagg886.pmf.previous_page
 import top.kagg886.pmf.series_belong
 import top.kagg886.pmf.tags
 import top.kagg886.pmf.ui.component.ErrorPage
@@ -92,6 +102,9 @@ import top.kagg886.pmf.ui.component.ImagePreviewer
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.component.TabContainer
+import top.kagg886.pmf.ui.component.collapsable.v3.connectedScroll
+import top.kagg886.pmf.ui.component.collapsable.v3.nestedScrollWorkaround
+import top.kagg886.pmf.ui.component.collapsable.v3.rememberConnectedScrollState
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
@@ -105,37 +118,56 @@ import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
 import top.kagg886.pmf.ui.util.RichText
 import top.kagg886.pmf.ui.util.keyboardScrollerController
 import top.kagg886.pmf.ui.util.withClickable
+import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
+import top.kagg886.pmf.util.wrap
 
-class NovelDetailScreen(private val id: Long) : Screen {
+@Serializable
+private data class SeriesInfoWrapper(
+    val seriesInfo: SeriesInfo? = null,
+)
+
+class NovelDetailScreen private constructor(private val id: Long, seriesInfo: SerializableWrapper<SeriesInfoWrapper>) :
+    Screen {
+
     override val key: ScreenKey
         get() = "novel_detail_$id"
+
+    constructor(id: Long, seriesInfo: SeriesInfo? = null) : this(id, wrap(SeriesInfoWrapper(seriesInfo)))
+
+    private val seriesInfo by seriesInfo
 
     @OptIn(InternalVoyagerApi::class)
     @Composable
     override fun Content() {
-        val nav = LocalNavigator.currentOrThrow
         val model = rememberScreenModel("novel_detail_$id") {
-            NovelDetailViewModel(id)
+            NovelDetailViewModel(id, seriesInfo.seriesInfo)
         }
 
         val ctx = LocalPlatformContext.current
+        val state by model.collectAsState()
         LaunchedEffect(Unit) {
-            model.reload(ctx)
+            if (state !is NovelDetailViewState.Success) {
+                model.reload(ctx)
+            }
         }
 
         val snack = LocalSnackBarHost.current
+        val nav = LocalNavigator.currentOrThrow
         model.collectSideEffect {
             when (it) {
                 is NovelDetailSideEffect.Toast -> {
                     snack.showSnackbar(it.msg)
                 }
+
+                is NovelDetailSideEffect.NavigateToOtherNovel -> {
+                    nav.push(NovelDetailScreen(it.id, it.seriesInfo))
+                }
             }
         }
-
-        val state by model.collectAsState()
 
         val drawer = rememberDrawerState(DrawerValue.Closed)
 
@@ -155,64 +187,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
             rtlLayout = true,
             drawerState = drawer,
         ) {
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(stringResource(Res.string.novel_detail))
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = {
-                                nav.pop()
-                            }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
-                            }
-                        },
-                        actions = {
-                            Row {
-                                Column {
-                                    var expanded by remember { mutableStateOf(false) }
-                                    IconButton(
-                                        onClick = {
-                                            expanded = true
-                                        },
-                                    ) {
-                                        Icon(Icons.Default.Menu, null)
-                                    }
-                                    DropdownMenu(
-                                        expanded = expanded,
-                                        onDismissRequest = { expanded = false },
-                                    ) {
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(Res.string.export_to_epub)) },
-                                            onClick = {
-                                                model.exportToEpub()
-                                                expanded = false
-                                            },
-                                        )
-                                        DropdownMenuItem(
-                                            text = { Text(stringResource(Res.string.open_in_browser)) },
-                                            onClick = {
-                                                openBrowser("https://www.pixiv.net/novel/show.php?id=$id")
-                                                expanded = false
-                                            },
-                                        )
-                                    }
-                                }
-
-                                IconButton(onClick = {
-                                    scope.launch {
-                                        drawer.open()
-                                    }
-                                }) {
-                                    Icon(Icons.Default.Edit, null)
-                                }
-                            }
-                        },
-                    )
-                },
-            ) {
-                NovelDetailContent(model, state, Modifier.padding(it))
+            NovelDetailContent(model = model, state = state, modifier = Modifier.fillMaxSize()) {
+                scope.launch {
+                    drawer.open()
+                }
             }
         }
     }
@@ -233,6 +211,7 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 val text by state.text.collectAsState()
                 Loading(text = text)
             }
+
             is NovelDetailViewState.Success -> {
                 val nav = LocalNavigator.currentOrThrow
                 val page = rememberScreenModel {
@@ -240,7 +219,10 @@ class NovelDetailScreen(private val id: Long) : Screen {
                 }
                 TabContainer(
                     state = page.page,
-                    tab = listOf(stringResource(Res.string.novel_intro), stringResource(Res.string.novel_comments, state.novel.totalComments)),
+                    tab = listOf(
+                        stringResource(Res.string.novel_intro),
+                        stringResource(Res.string.novel_comments, state.novel.totalComments),
+                    ),
                 ) {
                     when (it) {
                         0 -> {
@@ -258,7 +240,9 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         AsyncImage(
                                             model = state.novel.imageUrls.content,
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).height(256.dp).padding(top = 16.dp).clickable { preview = true },
+                                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                                                .height(256.dp).padding(top = 16.dp)
+                                                .clickable { preview = true },
                                             contentScale = ContentScale.FillHeight,
                                             contentDescription = null,
                                         )
@@ -284,7 +268,8 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                         )
                                         Spacer(Modifier.height(8.dp))
                                         AuthorCard(
-                                            modifier = Modifier.align(Alignment.CenterHorizontally).fillMaxWidth().padding(horizontal = 8.dp),
+                                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                                                .fillMaxWidth().padding(horizontal = 8.dp),
                                             state.novel.user,
                                             onFavoriteClick = {
                                                 if (it) {
@@ -310,7 +295,11 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                             headlineContent = {
                                                 SelectionContainer {
                                                     HTMLRichText(
-                                                        html = state.novel.caption.ifEmpty { stringResource(Res.string.no_description_novel) },
+                                                        html = state.novel.caption.ifEmpty {
+                                                            stringResource(
+                                                                Res.string.no_description_novel,
+                                                            )
+                                                        },
                                                     )
                                                 }
                                             },
@@ -319,7 +308,8 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                 }
                                 item {
                                     Row(
-                                        Modifier.fillMaxSize().padding(horizontal = 64.dp, vertical = 8.dp),
+                                        Modifier.fillMaxSize()
+                                            .padding(horizontal = 64.dp, vertical = 8.dp),
                                         horizontalArrangement = Arrangement.SpaceEvenly,
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
@@ -380,15 +370,17 @@ class NovelDetailScreen(private val id: Long) : Screen {
                                                 Text("pid")
                                             },
                                             headlineContent = {
-                                                val clip = LocalClipboardManager.current
+                                                val clip = LocalClipboard.current
                                                 Text(
                                                     buildAnnotatedString {
                                                         withClickable(
                                                             theme,
                                                             state.novel.id.toString(),
                                                         ) {
-                                                            clip.setText(buildAnnotatedString { append(state.novel.id.toString()) })
                                                             model.intent {
+                                                                clip.setText(
+                                                                    state.novel.id.toString(),
+                                                                )
                                                                 postSideEffect(
                                                                     NovelDetailSideEffect.Toast(
                                                                         getString(Res.string.copy_pid),
@@ -510,39 +502,263 @@ class NovelDetailScreen(private val id: Long) : Screen {
     }
 
     @Composable
-    private fun NovelDetailContent(model: NovelDetailViewModel, state: NovelDetailViewState, modifier: Modifier) {
+    private fun NovelDetailTopAppBar(
+        model: NovelDetailViewModel,
+        modifier: Modifier = Modifier,
+        onDrawerOpen: () -> Unit = {},
+    ) {
+        val nav = LocalNavigator.currentOrThrow
+        TopAppBar(
+            modifier = modifier,
+            title = {
+                Text(stringResource(Res.string.novel_detail))
+            },
+            navigationIcon = {
+                IconButton(
+                    onClick = {
+                        nav.pop()
+                    },
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                }
+            },
+            actions = {
+                Row {
+                    Column {
+                        var expanded by remember { mutableStateOf(false) }
+                        IconButton(
+                            onClick = {
+                                expanded = true
+                            },
+                        ) {
+                            Icon(Icons.Default.Menu, null)
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_to_epub)) },
+                                onClick = {
+                                    model.exportToEpub()
+                                    expanded = false
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.open_in_browser)) },
+                                onClick = {
+                                    openBrowser("https://www.pixiv.net/novel/show.php?id=$id")
+                                    expanded = false
+                                },
+                            )
+                        }
+                    }
+
+                    IconButton(onClick = onDrawerOpen) {
+                        Icon(Icons.Default.Edit, null)
+                    }
+                }
+            },
+        )
+    }
+
+    @Composable
+    private fun NovelDetailContent(
+        model: NovelDetailViewModel,
+        state: NovelDetailViewState,
+        modifier: Modifier = Modifier,
+        onDrawerOpen: () -> Unit = {},
+    ) {
         val ctx = LocalPlatformContext.current
         when (state) {
             is NovelDetailViewState.Error -> {
-                ErrorPage(modifier, text = state.cause) {
-                    model.reload(ctx)
+                Column(modifier) {
+                    NovelDetailTopAppBar(model, onDrawerOpen = onDrawerOpen)
+                    ErrorPage(Modifier.weight(1f), text = state.cause) {
+                        model.reload(ctx)
+                    }
                 }
             }
 
             is NovelDetailViewState.Loading -> {
                 val text by state.text.collectAsState()
-                Loading(modifier, text)
+
+                Column(modifier) {
+                    NovelDetailTopAppBar(model, onDrawerOpen = onDrawerOpen)
+                    Loading(Modifier.weight(1f), text)
+                }
             }
 
             is NovelDetailViewState.Success -> {
-                Box(modifier.fillMaxWidth()) {
-                    val scroll = rememberScrollState()
-                    val controller = remember {
-                        keyboardScrollerController(scroll) {
-                            scroll.viewportSize.toFloat()
-                        }
-                    }
+                val scroll = rememberScrollState()
+                val connect =
+                    rememberConnectedScrollState(immediatelyShowTopBarWhenFingerPullDown = true)
 
-                    KeyListenerFromGlobalPipe(controller)
-
-                    RichText(
-                        state = state.nodeMap,
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).verticalScroll(scroll),
+                Column(modifier) {
+                    // TopAppBar 使用 connectedScroll 来实现联动滚动
+                    // 当向上滚动时会向上移动并减少高度，最终完全隐藏
+                    NovelDetailTopAppBar(
+                        model = model,
+                        modifier = Modifier.connectedScroll(connect),
+                        onDrawerOpen = onDrawerOpen,
                     )
 
-                    VerticalScrollbar(
-                        adapter = rememberScrollbarAdapter(scroll),
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 5.dp).fillMaxHeight(),
+                    // 内容区域，应用 nestedScroll 来处理滚动事件
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .nestedScroll(connect.nestedScrollConnection)
+                            .nestedScrollWorkaround(scroll, connect),
+                    ) {
+                        val controller = remember {
+                            keyboardScrollerController(scroll) {
+                                scroll.viewportSize.toFloat()
+                            }
+                        }
+
+                        KeyListenerFromGlobalPipe(controller)
+
+                        Column(Modifier.verticalScroll(scroll)) {
+                            RichText(
+                                state = state.nodeMap,
+                                modifier = Modifier
+                                    .padding(horizontal = 15.dp),
+                            )
+
+                            if (AppConfig.enableFetchSeries) {
+                                SeriesNavigationIndicator(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    seriesInfo = state.seriesInfo,
+                                    currentNovelId = id,
+                                    onNavigatePrevious = { model.navigatePreviousPage() },
+                                    onNavigateNext = { model.navigateNextPage() },
+                                )
+                            }
+                        }
+
+                        VerticalScrollbar(
+                            adapter = rememberScrollbarAdapter(scroll),
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 5.dp)
+                                .fillMaxHeight(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeriesNavigationIndicator(
+    modifier: Modifier = Modifier,
+    seriesInfo: SeriesInfo?,
+    currentNovelId: Long,
+    onNavigatePrevious: () -> Unit,
+    onNavigateNext: () -> Unit,
+) {
+    if (seriesInfo == null) return
+
+    val currentIndex = seriesInfo.novels.indexOfFirst { it.id.toLong() == currentNovelId }
+    if (currentIndex == -1) return
+
+    val canNavigatePrevious = currentIndex > 0
+    val canNavigateNext = currentIndex < seriesInfo.novels.size - 1
+    val currentPosition = currentIndex + 1
+    val totalCount = seriesInfo.novels.size
+
+    Card(
+        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            // Previous button with novel title
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
+            ) {
+                IconButton(
+                    onClick = onNavigatePrevious,
+                    enabled = canNavigatePrevious,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(Res.string.previous_page),
+                        tint = if (canNavigatePrevious) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+                if (canNavigatePrevious) {
+                    Text(
+                        text = seriesInfo.novels[currentIndex - 1].title,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                }
+            }
+
+            // Page indicator
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = "$currentPosition / $totalCount",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(Res.string.series_belong),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                )
+            }
+
+            // Next button with novel title
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
+            ) {
+                IconButton(
+                    onClick = onNavigateNext,
+                    enabled = canNavigateNext,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(Res.string.next_page),
+                        tint = if (canNavigateNext) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+                if (canNavigateNext) {
+                    Text(
+                        text = seriesInfo.novels[currentIndex + 1].title,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 4.dp),
                     )
                 }
             }

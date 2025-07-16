@@ -27,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -145,6 +145,8 @@ import top.kagg886.pmf.network_settings
 import top.kagg886.pmf.night_mode_not_supported
 import top.kagg886.pmf.novel_filter_length
 import top.kagg886.pmf.novel_filter_length_description
+import top.kagg886.pmf.novel_see_next
+import top.kagg886.pmf.novel_see_next_description
 import top.kagg886.pmf.novel_settings
 import top.kagg886.pmf.proxy_address
 import top.kagg886.pmf.proxy_port
@@ -184,6 +186,7 @@ import top.kagg886.pmf.util.b
 import top.kagg886.pmf.util.deleteRecursively
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.zip
 
@@ -599,6 +602,26 @@ class SettingScreen : Screen {
                         Text("${textSize}sp", fontSize = textSize.sp)
                     },
                 )
+
+                var enableFetchSeries by remember {
+                    mutableStateOf(AppConfig.enableFetchSeries)
+                }
+                LaunchedEffect(enableFetchSeries) {
+                    AppConfig.enableFetchSeries = enableFetchSeries
+                }
+                SettingsSwitch(
+                    state = enableFetchSeries,
+                    title = {
+                        Text(stringResource(Res.string.novel_see_next))
+                    },
+                    subtitle = {
+                        Text(stringResource(Res.string.novel_see_next_description))
+                    },
+                    onCheckedChange = {
+                        enableFetchSeries = it
+                    },
+                )
+
                 var filterLongTag by remember {
                     mutableStateOf(AppConfig.filterLongTag)
                 }
@@ -889,7 +912,7 @@ class SettingScreen : Screen {
                 }
             }
             SettingsGroup(title = { Text(stringResource(Res.string.login_sessions)) }) {
-                val clip = LocalClipboardManager.current
+                val clip = LocalClipboard.current
                 val scope = rememberCoroutineScope()
                 val snack = LocalSnackBarHost.current
                 SettingsMenuLink(
@@ -902,9 +925,7 @@ class SettingScreen : Screen {
                     onClick = {
                         scope.launch {
                             clip.setText(
-                                buildAnnotatedString {
-                                    append(PixivConfig.refreshToken)
-                                },
+                                PixivConfig.refreshToken,
                             )
                             snack.showSnackbar(getString(Res.string.login_session_copied))
                         }

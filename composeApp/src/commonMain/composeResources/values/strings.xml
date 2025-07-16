@@ -342,4 +342,13 @@
     <string name="ai_blocked">AI，达咩！</string>
     <string name="setup_finish_note">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。\n        在初次登录前，我们会下载嵌入式浏览器以提供完整的登录体验，这会占用您大约300M的磁盘空间。</string>
     <string name="setup_finish_note_simple">        您已经完成了所有的设置。现在，我们将跳转到登录页面。这些设置可以在登录后前往设置页面进行修改。</string>
+
+    <string name="previous_page">上一章</string>
+    <string name="next_page">下一章</string>
+    <string name="cant_jump_series_because_no_series">无法跳转。该小说无所属系列</string>
+    <string name="cant_jump_series_because_page_incorrect_in_last">无法跳转。您已到达最后一章</string>
+    <string name="parsing_novel_series">解析小说节点中...</string>
+    <string name="parsing_novel_series_progress">解析小说节点中... %1$s/%2$s</string>
+    <string name="novel_see_next">在拉取小说时也拉取小说系列</string>
+    <string name="novel_see_next_description">这样会启用在小说结尾的导航栏以前往上一章/下一章</string>
 </resources>
