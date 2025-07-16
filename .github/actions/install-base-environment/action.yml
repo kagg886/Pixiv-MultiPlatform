@@ -23,15 +23,19 @@ runs:
       name: Setup Gradle
 
     - name: Setup Rust For Android
+      shell: bash
       run: rustup target add aarch64-linux-android x86_64-linux-android
       if: ${{ inputs.for-android == 'true' }}
 
     - name: Setup Rust For iOS
+      shell: bash
       run: rustup target add aarch64-linux-android x86_64-linux-android
       if: ${{ inputs.for-ios == 'true' }}
 
     - name: Spotless Check
+      shell: bash
       run: ./gradlew spotlessCheck
 
     - name: Generate AboutLibraries Metadata
+      shell: bash
       run: ./gradlew exportLibraryDefinitions
