@@ -280,9 +280,10 @@ private fun CommentPanelContainer(model: CommentViewModel, state: CommentViewSta
                             state,
                             transitionSpec = {
                                 (fadeIn() + slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)) togetherWith (
-                                    fadeOut() + slideOutOfContainer(
-                                        AnimatedContentTransitionScope.SlideDirection.Up,
-                                    )
+                                    fadeOut() +
+                                        slideOutOfContainer(
+                                            AnimatedContentTransitionScope.SlideDirection.Up,
+                                        )
                                     )
                             },
                             modifier = Modifier.fillMaxWidth(),

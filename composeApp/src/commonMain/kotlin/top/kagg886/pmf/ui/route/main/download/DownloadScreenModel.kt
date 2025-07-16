@@ -223,7 +223,7 @@ class DownloadScreenModel :
             it.downloadRootPath().zip(
                 target = cachePath.resolve("share")
                     .resolve("${it.id}.zip"),
-            ).source().buffer().readByteArray()
+            ).source().buffer().readByteArray(),
         )
     }
 

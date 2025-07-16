@@ -152,12 +152,12 @@ class LoginScreenViewModel :
             return@intent
         }
         useTempFile { tmp ->
-            tmp.sink().buffer().use { out->
+            tmp.sink().buffer().use { out ->
                 platformFile.source().buffered().use { input ->
                     val buffer = ByteArray(2048)
-                    var len:Int
+                    var len: Int
                     while (input.readAvailable(buffer).also { len = it } != -1) {
-                        out.write(buffer,0,len)
+                        out.write(buffer, 0, len)
                     }
                 }
                 out.flush()
