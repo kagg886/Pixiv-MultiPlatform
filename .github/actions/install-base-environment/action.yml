@@ -1,10 +1,15 @@
 name: 'Setup Base Environment'
 description: 'Sets up the Base environment'
 inputs:
-  windows:
-    description: 'Whether to include Windows-specific setup'
+  for-android:
+    description: 'Whether to include android-specific setup'
     required: false
     default: 'false'
+  for-ios:
+    description: 'Whether to include ios-specific setup'
+    required: false
+    default: 'false'
+
 runs:
   using: "composite"
   steps:
