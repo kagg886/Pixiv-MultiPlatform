@@ -47,7 +47,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -116,6 +116,7 @@ import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
@@ -390,19 +391,17 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                 }
                 item(key = "info") {
                     OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-                        val clipboard = LocalClipboardManager.current
+                        val clipboard = LocalClipboard.current
                         val theme = MaterialTheme.colorScheme
                         SupportListItem(
                             overlineContent = {
                                 Text(
                                     text = buildAnnotatedString {
                                         withClickable(theme, illust.id.toString()) {
-                                            clipboard.setText(
-                                                buildAnnotatedString {
-                                                    append(illust.id.toString())
-                                                },
-                                            )
                                             model.intent {
+                                                clipboard.setText(
+                                                    illust.id.toString(),
+                                                )
                                                 postSideEffect(
                                                     IllustDetailSideEffect.Toast(
                                                         getString(Res.string.copy_pid),
@@ -418,12 +417,8 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                 Text(
                                     text = buildAnnotatedString {
                                         withClickable(theme, illust.title) {
-                                            clipboard.setText(
-                                                buildAnnotatedString {
-                                                    append(illust.title)
-                                                },
-                                            )
                                             model.intent {
+                                                clipboard.setText(illust.title)
                                                 postSideEffect(
                                                     IllustDetailSideEffect.Toast(
                                                         getString(Res.string.copy_title_success),

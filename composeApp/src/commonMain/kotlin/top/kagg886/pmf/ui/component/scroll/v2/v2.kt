@@ -174,8 +174,10 @@ internal abstract class LazyLineContentAdapter : ScrollbarAdapter {
     override val contentSize: Double
         get() {
             val totalLineCount = totalLineCount()
-            return averageVisibleLineSize * totalLineCount +
-                lineSpacing * (totalLineCount - 1).coerceAtLeast(0) +
+            return averageVisibleLineSize *
+                totalLineCount +
+                lineSpacing *
+                (totalLineCount - 1).coerceAtLeast(0) +
                 contentPadding()
         }
 
@@ -467,7 +469,8 @@ internal class LazyGridScrollbarAdapter(
         val lineSpacingSum = (lineCount - 1) * lineSpacing
         return (
             last.mainAxisOffset() + lastLineSize - first.mainAxisOffset() - lineSpacingSum
-            ).toDouble() / lineCount
+            ).toDouble() /
+            lineCount
     }
 
     override val lineSpacing get() = scrollState.layoutInfo.mainAxisItemSpacing

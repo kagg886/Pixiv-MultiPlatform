@@ -35,13 +35,25 @@ abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFet
     override val container: Container<NovelFetchViewState, NovelFetchSideEffect> = container(NovelFetchViewState())
     abstract fun source(): Flow<PagingData<Novel>>
 
+    // 返回true代表拦截
     fun Novel.block() = with(AppConfig) {
-        val a = filterShortNovel && textLength <= filterShortNovelMaxLength
-        val b = filterLongTag && tags.any { it.name.length > filterLongTagMinLength }
-        val c = filterAiNovel && isAI
-        val d = filterR18GNovel && isR18G
-        val e = filterR18Novel && (isR18 || isR18G)
-        a || b || c || d || e
+        val isUserDisAllow = run {
+            val a = filterShortNovel && textLength <= filterShortNovelMaxLength
+            val b = filterLongTag && tags.any { it.name.length > filterLongTagMinLength }
+            val c = filterAiNovel && isAI
+            val d = filterR18GNovel && isR18G
+            val e = filterR18Novel && (isR18 || isR18G)
+            a || b || c || d || e
+        }
+
+        // FIXME: 需要移植到Pixko中。
+        val isCoverIllegal = run {
+            val a = imageUrls.content == "https://s.pximg.net/common/images/limit_r18_100.png"
+
+            a
+        }
+
+        isUserDisAllow || isCoverIllegal
     }
 
     val data = merge(flowOf(Unit), signal).flatMapLatestScoped { scope, _ ->

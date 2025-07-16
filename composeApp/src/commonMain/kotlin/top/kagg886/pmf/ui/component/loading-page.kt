@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun Loading(modifier: Modifier = Modifier, text: String? = "") {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+fun Loading(modifier: Modifier = Modifier.fillMaxSize(), text: String? = "") {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
             text?.let {

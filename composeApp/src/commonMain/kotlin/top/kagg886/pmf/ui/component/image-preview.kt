@@ -38,7 +38,9 @@ import coil3.Uri
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
-import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openFileSaver
+import io.github.vinceglb.filekit.write
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
@@ -145,11 +147,11 @@ fun ImagePreviewer(
                                 if (bytes == null) {
                                     snack.showSnackbar(getString(Res.string.file_was_downloading))
                                 } else {
-                                    FileKit.saveFile(
-                                        bytes = bytes,
+                                    val platformFile = FileKit.openFileSaver(
+                                        suggestedName = Uuid.random().toHexString(),
                                         extension = if (isGif) "gif" else "png",
-                                        baseName = Uuid.random().toHexString(),
                                     )
+                                    platformFile?.write(bytes)
                                 }
                                 showBottomDialog = false
                             }

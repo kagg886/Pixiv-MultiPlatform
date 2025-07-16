@@ -5,8 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
-import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.core.PickerType
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
+import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 
 @Composable
@@ -19,7 +20,7 @@ fun SettingsFileUpload(
     onValueChange: (ByteArray) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val launcher = rememberFilePickerLauncher(type = PickerType.File(extensions)) {
+    val launcher = rememberFilePickerLauncher(type = FileKitType.File(extensions)) {
         if (it != null) {
             scope.launch {
                 onValueChange(it.readBytes())
