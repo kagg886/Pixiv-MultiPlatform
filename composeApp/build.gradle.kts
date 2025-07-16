@@ -156,6 +156,7 @@ kotlin {
 
             // save file to storage
             implementation(libs.filekit.compose)
+            implementation(libs.filekit.core)
 
             // logging
             implementation(libs.kermit)

@@ -2,13 +2,16 @@ package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.github.vinceglb.filekit.core.FileKit
-import io.github.vinceglb.filekit.core.PickerType
-import io.github.vinceglb.filekit.core.pickFile
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.FileKitType
+import io.github.vinceglb.filekit.dialogs.openFilePicker
+import io.github.vinceglb.filekit.source
+import io.ktor.utils.io.core.readAvailable
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.io.buffered
 import okio.Path
 import okio.buffer
 import okio.use
@@ -141,24 +144,23 @@ class LoginScreenViewModel :
     }
 
     fun installKCEFLocal() = intent {
-        val platformFile = FileKit.pickFile(
-            type = PickerType.File(listOf("tar.gz")),
+        val platformFile = FileKit.openFilePicker(
+            type = FileKitType.File(listOf("tar.gz")),
         )
         if (platformFile == null) {
             postSideEffect(LoginSideEffect.Toast(getString(Res.string.no_file_selected)))
             return@intent
         }
         useTempFile { tmp ->
-            tmp.sink().buffer().use {
-                val stream = platformFile.getStream()
-                val buffer = ByteArray(2048)
-                var len: Int
-                while (stream.hasBytesAvailable()) {
-                    len = stream.readInto(buffer, buffer.size)
-                    it.write(buffer, 0, len)
+            tmp.sink().buffer().use { out->
+                platformFile.source().buffered().use { input ->
+                    val buffer = ByteArray(2048)
+                    var len:Int
+                    while (input.readAvailable(buffer).also { len = it } != -1) {
+                        out.write(buffer,0,len)
+                    }
                 }
-
-                it.flush()
+                out.flush()
             }
             initKCEFLocal(tmp).join()
         }

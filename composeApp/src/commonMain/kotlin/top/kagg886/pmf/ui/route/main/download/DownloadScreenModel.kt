@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import arrow.fx.coroutines.fixedRate
 import arrow.fx.coroutines.raceN
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.github.vinceglb.filekit.core.FileKit
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openFileSaver
+import io.github.vinceglb.filekit.write
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.prepareGet
@@ -206,20 +208,22 @@ class DownloadScreenModel :
     fun saveToExternalFile(it: DownloadItem) = intent {
         val listFiles = it.downloadRootPath().listFile()
         if (listFiles.size == 1) {
-            FileKit.saveFile(
-                bytes = listFiles[0].source().buffer().readByteArray(),
-                baseName = it.illust.title,
+            val platformFile = FileKit.openFileSaver(
+                suggestedName = it.illust.title,
                 extension = "png",
             )
+            platformFile?.write(listFiles[0].source().buffer().readByteArray())
             return@intent
         }
-        FileKit.saveFile(
-            bytes = it.downloadRootPath().zip(
+        val platformFile = FileKit.openFileSaver(
+            suggestedName = "${it.illust.title}(${it.id})",
+            extension = "zip",
+        )
+        platformFile?.write(
+            it.downloadRootPath().zip(
                 target = cachePath.resolve("share")
                     .resolve("${it.id}.zip"),
-            ).source().buffer().readByteArray(),
-            baseName = "${it.illust.title}(${it.id})",
-            extension = "zip",
+            ).source().buffer().readByteArray()
         )
     }
 
