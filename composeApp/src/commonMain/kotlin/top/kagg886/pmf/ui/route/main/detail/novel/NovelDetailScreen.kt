@@ -54,6 +54,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.ScreenModel
@@ -680,25 +682,42 @@ private fun SeriesNavigationIndicator(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Previous button
-            IconButton(
-                onClick = onNavigatePrevious,
-                enabled = canNavigatePrevious,
+            // Previous button with novel title
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(Res.string.previous_page),
-                    tint = if (canNavigatePrevious) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    },
-                )
+                IconButton(
+                    onClick = onNavigatePrevious,
+                    enabled = canNavigatePrevious,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(Res.string.previous_page),
+                        tint = if (canNavigatePrevious) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+                if (canNavigatePrevious) {
+                    Text(
+                        text = seriesInfo.novels[currentIndex - 1].title,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                }
             }
 
             // Page indicator
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
             ) {
                 Text(
                     text = "$currentPosition / $totalCount",
@@ -712,20 +731,36 @@ private fun SeriesNavigationIndicator(
                 )
             }
 
-            // Next button
-            IconButton(
-                onClick = onNavigateNext,
-                enabled = canNavigateNext,
+            // Next button with novel title
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.weight(1f),
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = stringResource(Res.string.next_page),
-                    tint = if (canNavigateNext) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    },
-                )
+                IconButton(
+                    onClick = onNavigateNext,
+                    enabled = canNavigateNext,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = stringResource(Res.string.next_page),
+                        tint = if (canNavigateNext) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        },
+                    )
+                }
+                if (canNavigateNext) {
+                    Text(
+                        text = seriesInfo.novels[currentIndex + 1].title,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                    )
+                }
             }
         }
     }
