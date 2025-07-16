@@ -17,11 +17,11 @@ runs:
     - uses: gradle/actions/setup-gradle@v4
       name: Setup Gradle
 
-    - uses: Setup Rust For Android
+    - name: Setup Rust For Android
       run: rustup target add aarch64-linux-android x86_64-linux-android
       if: ${{ inputs.for-android == 'true' }}
 
-    - uses: Setup Rust For iOS
+    - name: Setup Rust For iOS
       run: rustup target add aarch64-linux-android x86_64-linux-android
       if: ${{ inputs.for-ios == 'true' }}
 
