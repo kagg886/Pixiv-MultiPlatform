@@ -3,6 +3,9 @@ package top.kagg886.filepicker
 import javax.swing.SwingUtilities
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.Sink
@@ -23,20 +26,28 @@ actual suspend fun FilePicker.openFileSaver(
     suggestedName: String,
     extension: String?,
     directory: Path?,
-): Sink? = suspendCoroutine {
-    SwingUtilities.invokeLater {
-        val rtnPath = nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString())
-        it.resume(rtnPath?.toPath()?.sink())
+): Sink? {
+    val deferred = CompletableDeferred<Sink?>()
+    withContext(Dispatchers.Main) {
+        nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString()) { path ->
+            deferred.complete(path?.toPath()?.sink())
+        }
     }
+    return deferred.await()
 }
 
 actual suspend fun FilePicker.openFilePicker(
     ext: List<String>?,
     title: String?,
     directory: Path?,
-): Source? = suspendCoroutine {
-    SwingUtilities.invokeLater {
-        val rtnPath = nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString())
-        it.resume(rtnPath?.toPath()?.source())
+): Source? {
+    val deferred = CompletableDeferred<Source?>()
+
+    withContext(Dispatchers.Main) {
+        nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString()) { path ->
+            deferred.complete(path?.toPath()?.source())
+        }
     }
+
+    return deferred.await()
 }

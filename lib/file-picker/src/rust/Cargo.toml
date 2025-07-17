@@ -12,7 +12,8 @@ jvm = ["dep:jni", "dep:jni_fn"]
 [dependencies]
 jni = { version = "0.21", optional = true }
 jni_fn = { version = "0.1", optional = true }
-rfd = { version = "0.15.4", features = ["gtk3"]}
+rfd = { version = "0.15.4"}
+futures = "0.3.31"
 
 [profile.release]
 panic = "abort"

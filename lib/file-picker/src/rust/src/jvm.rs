@@ -1,12 +1,13 @@
 #![cfg(feature = "jvm")]
 
-use jni::sys::jstring;
+use jni::objects::{JObject, JValue};
 use jni::{
     JNIEnv,
     objects::{JClass, JObjectArray, JString},
 };
 use jni_fn::jni_fn;
-use rfd::FileDialog;
+use rfd::{AsyncFileDialog};
+use std::thread;
 
 /// JNI interface for NativeFilePicker.openFileSaver
 ///
@@ -18,7 +19,7 @@ use rfd::FileDialog;
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, extension: JString, directory: JString) -> jstring {
+pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, extension: JString, directory: JString,callback: JObject) {
     // suggestedName: String => String
     let suggested_name: String = env.get_string(&suggested_name).unwrap().into();
 
@@ -35,7 +36,7 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
     };
 
     // 构建对话框
-    let mut dialog = FileDialog::new();
+    let mut dialog = AsyncFileDialog::new();
 
     if let Some(dir) = &directory {
         dialog = dialog.set_directory(dir);
@@ -48,16 +49,26 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
     dialog = dialog.set_file_name(&suggested_name);
 
     // 弹出保存对话框
-    let result = dialog.save_file();
+    let resultFuture = dialog.save_file();
 
-    // 返回给 Java（null 或路径字符串）
-    match result {
-        Some(path) => {
-            let path_str = path.display().to_string();
-            env.new_string(path_str).ok().map(|s| s.into_raw()).unwrap_or(std::ptr::null_mut())
-        }
-        None => std::ptr::null_mut(),
-    }
+    let jvm = env.get_java_vm().unwrap();
+    let callbackGlobalRef = env.new_global_ref(callback).unwrap();
+    execute(async move {
+        let resultOptions = resultFuture.await;
+        let mut env = jvm.attach_current_thread().unwrap(); // 新线程/任务内 attach
+
+        let arg = match resultOptions {
+            Some(p) => {
+                let s = env.new_string(p.path().display().to_string()).unwrap();
+                JObject::from(s)
+            }
+            None => JObject::null(),
+        };
+
+
+        // 2. 调用 Callback.onComplete(String)
+        env.call_method(callbackGlobalRef.as_obj(), "onComplete", "(Ljava/lang/String;)V", &[JValue::from(&arg)]).unwrap().v().unwrap();
+    });
 }
 
 /// JNI interface for NativeFilePicker.openFilePicker
@@ -70,7 +81,7 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString) -> jstring {
+pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString,callback:JObject) {
     // ext: Array<String>? => Option<Vec<String>>
     let extensions = {
         let raw = ext.as_raw(); // jobjectArray
@@ -101,7 +112,7 @@ pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title:
     };
 
     // === 弹出对话框 ===
-    let mut dialog = FileDialog::new();
+    let mut dialog = AsyncFileDialog::new();
 
     if let Some(exts) = &extensions {
         if !exts.is_empty() {
@@ -117,14 +128,29 @@ pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title:
         dialog = dialog.set_directory(dir);
     }
 
-    let result = dialog.pick_file(); // Option<PathBuf>
+    let resultFuture = dialog.pick_file(); // Option<PathBuf>
 
-    // === 转换为 jstring 返回 ===
-    match result {
-        Some(path) => {
-            let path_str = path.display().to_string();
-            env.new_string(path_str).ok().map(|s| s.into_raw()).unwrap_or(std::ptr::null_mut())
-        }
-        None => std::ptr::null_mut(),
-    }
+    let jvm = env.get_java_vm().unwrap();
+    let callbackGlobalRef = env.new_global_ref(callback).unwrap();
+    execute(async move {
+        let resultOptions = resultFuture.await;
+        let mut env = jvm.attach_current_thread().unwrap(); // 新线程/任务内 attach
+
+        let arg = match resultOptions {
+            Some(p) => {
+                let s = env.new_string(p.path().display().to_string()).unwrap();
+                JObject::from(s)
+            }
+            None => JObject::null(),
+        };
+
+
+        // 2. 调用 Callback.onComplete(String)
+        env.call_method(callbackGlobalRef.as_obj(), "onComplete", "(Ljava/lang/String;)V", &[JValue::from(&arg)]).unwrap().v().unwrap();
+    });
+}
+
+fn execute<F: Future<Output = ()> + Send + 'static>(f: F) {
+    // this is stupid... use any executor of your choice instead
+    thread::spawn(move || futures::executor::block_on(f));
 }

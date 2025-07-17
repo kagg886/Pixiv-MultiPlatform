@@ -1,7 +1,10 @@
+import kotlin.jvm.java
 import okio.HashingSink
 import okio.blackholeSink
 import okio.buffer
 import okio.source
+import org.gradle.kotlin.dsl.assign
+import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -68,6 +71,10 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.filekit.compose)
             implementation(libs.filekit.core)
+        }
+
+        jvmTest.dependencies {
+            implementation(libs.kotlinx.coroutines.swing)
         }
     }
 }
