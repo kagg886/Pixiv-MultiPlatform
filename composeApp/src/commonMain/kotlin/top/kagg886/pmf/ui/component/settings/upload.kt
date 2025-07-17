@@ -5,10 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.alorma.compose.settings.ui.base.internal.SettingsTileScaffold
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
+import okio.BufferedSource
+import okio.buffer
+import okio.use
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFilePicker
 
 @Composable
 fun SettingsFileUpload(
@@ -20,19 +22,26 @@ fun SettingsFileUpload(
     onValueChange: (ByteArray) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val launcher = rememberFilePickerLauncher(type = FileKitType.File(extensions)) {
-        if (it != null) {
-            scope.launch {
-                onValueChange(it.readBytes())
-            }
-        }
-    }
+//    val launcher = rememberFilePickerLauncher(type = FileKitType.File(extensions)) {
+//        if (it != null) {
+//            scope.launch {
+//                onValueChange(it.readBytes())
+//            }
+//        }
+//    }
     SettingsTileScaffold(
         title = title,
         enabled = enabled,
         subtitle = subTitle,
         modifier = modifier.clickable(enabled) {
-            launcher.launch()
+            scope.launch {
+                val path = FilePicker.openFilePicker(
+                    ext = extensions
+                )
+                if (path != null) {
+                    onValueChange(path.buffer().use(BufferedSource::readByteArray))
+                }
+            }
         },
     )
 }
