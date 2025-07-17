@@ -36,7 +36,7 @@ fun SettingsFileUpload(
         modifier = modifier.clickable(enabled) {
             scope.launch {
                 val path = FilePicker.openFilePicker(
-                    ext = extensions
+                    ext = extensions,
                 )
                 if (path != null) {
                     onValueChange(path.buffer().use(BufferedSource::readByteArray))
