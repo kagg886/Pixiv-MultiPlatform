@@ -15,7 +15,7 @@ import top.kagg886.filepicker.openFileSaver
 
 class TestFilePicker {
     @Test
-    fun testFilePicker():Unit = runBlocking {
+    fun testFilePicker(): Unit = runBlocking {
         val source = FilePicker.openFilePicker()
 
         if (source == null) return@runBlocking
@@ -28,7 +28,7 @@ class TestFilePicker {
     }
 
     @Test
-    fun testFileWriter():Unit = runBlocking {
+    fun testFileWriter(): Unit = runBlocking {
         val source = FilePicker.openFileSaver(
             suggestedName = UUID.randomUUID().toString(),
             extension = ".png",

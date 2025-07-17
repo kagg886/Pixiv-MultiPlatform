@@ -22,10 +22,10 @@ actual object FilePicker {
 actual suspend fun FilePicker.openFileSaver(
     suggestedName: String,
     extension: String?,
-    directory: Path?
+    directory: Path?,
 ): Sink? = suspendCoroutine {
     SwingUtilities.invokeLater {
-        val rtnPath = nativeFilePicker.openFileSaver(suggestedName,extension,directory?.toString())
+        val rtnPath = nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString())
         it.resume(rtnPath?.toPath()?.sink())
     }
 }
@@ -33,10 +33,10 @@ actual suspend fun FilePicker.openFileSaver(
 actual suspend fun FilePicker.openFilePicker(
     ext: List<String>?,
     title: String?,
-    directory: Path?
+    directory: Path?,
 ): Source? = suspendCoroutine {
     SwingUtilities.invokeLater {
-        val rtnPath = nativeFilePicker.openFilePicker(ext?.toTypedArray(),title,directory?.toString())
+        val rtnPath = nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString())
         it.resume(rtnPath?.toPath()?.source())
     }
 }

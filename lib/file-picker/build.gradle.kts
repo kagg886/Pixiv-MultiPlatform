@@ -63,13 +63,12 @@ kotlin {
             implementation(kotlin("test"))
         }
 
-        //jvm使用rust-lib实现，其他平台照常使用filekit
+        // jvm使用rust-lib实现，其他平台照常使用filekit
         androidMain.dependencies {
             // save file to storage
             implementation(libs.filekit.compose)
             implementation(libs.filekit.core)
             implementation(libs.androidx.activity.compose)
-
         }
 
         iosMain.dependencies {

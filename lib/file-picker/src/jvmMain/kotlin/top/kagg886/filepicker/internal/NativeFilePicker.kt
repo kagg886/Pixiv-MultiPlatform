@@ -10,5 +10,5 @@ import okio.Path
  */
 internal class NativeFilePicker {
     external fun openFileSaver(suggestedName: String, extension: String?, directory: String?): String?
-    external fun openFilePicker(ext: Array<String>?, title: String?, directory: String?):String?
+    external fun openFilePicker(ext: Array<String>?, title: String?, directory: String?): String?
 }

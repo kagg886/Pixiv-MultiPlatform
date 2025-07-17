@@ -21,12 +21,12 @@ actual object FilePicker
 actual suspend fun FilePicker.openFileSaver(
     suggestedName: String,
     extension: String?,
-    directory: Path?
+    directory: Path?,
 ): Sink? {
     val file = FileKit.openFileSaver(
         suggestedName = suggestedName,
         extension = extension,
-        directory = directory?.let { PlatformFile(it.toString().toPath()) }
+        directory = directory?.let { PlatformFile(it.toString().toPath()) },
     )
 
     if (file == null) {
@@ -44,19 +44,18 @@ actual suspend fun FilePicker.openFileSaver(
         override fun timeout(): Timeout = Timeout.NONE
 
         override fun close() = sink.close()
-
     }
 }
 
 actual suspend fun FilePicker.openFilePicker(
     ext: List<String>?,
     title: String?,
-    directory: Path?
+    directory: Path?,
 ): Source? {
     val file = FileKit.openFilePicker(
         type = FileKitType.File(extensions = ext?.toSet()),
         title = title,
-        directory = directory?.let { PlatformFile(it.toString().toPath()) }
+        directory = directory?.let { PlatformFile(it.toString().toPath()) },
     )
 
     if (file == null) {
@@ -71,7 +70,7 @@ actual suspend fun FilePicker.openFilePicker(
             val len = source.readAtMostTo(buffer)
 
             if (len != -1) {
-                sink.write(buffer,0,len)
+                sink.write(buffer, 0, len)
             }
 
             return len.toLong()
@@ -80,6 +79,5 @@ actual suspend fun FilePicker.openFilePicker(
         override fun timeout(): Timeout = Timeout.NONE
 
         override fun close() = source.close()
-
     }
 }
