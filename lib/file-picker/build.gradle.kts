@@ -34,12 +34,6 @@ android {
             )
         }
     }
-
-    externalNativeBuild {
-        cmake {
-            path = File("src/rust/CMakeLists.txt")
-        }
-    }
 }
 kotlin {
     jvmToolchain(17)
