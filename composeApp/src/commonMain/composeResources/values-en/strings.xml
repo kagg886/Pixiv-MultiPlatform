@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="about">About</string>
     <string name="account_info">Account information</string>
@@ -39,6 +39,8 @@
     <string name="cache_size_limit">Min: 64MB, Max: 2048MB</string>
     <string name="calculate_by_width">By Column Width</string>
     <string name="cancel">Cancel</string>
+    <string name="cant_jump_series_because_no_series">Can't jump because there was no series to this novel.</string>
+    <string name="cant_jump_series_because_page_incorrect_in_last">Can't jump because you are in the last page</string>
     <string name="cant_load_illust">Cannot load illustration: %1$d</string>
     <string name="check_update">Check Updates</string>
     <string name="check_update_on_start">Check Updates on Start</string>
@@ -198,6 +200,7 @@
     <string name="match_title_caption">Title/caption match (illust/author only)</string>
     <string name="my_bookmark">My Bookmarks</string>
     <string name="network_settings">Network</string>
+    <string name="next_page">Next</string>
     <string name="next_step">Next</string>
     <string name="night_mode">Dark</string>
     <string name="night_mode_not_supported">Theme setting not supported in dark mode</string>
@@ -219,6 +222,8 @@
     <string name="novel_filter_length_description">Hide novels shorter than this</string>
     <string name="novel_intro">Intro</string>
     <string name="novel_parse_failed">Failed to parse novel: %1$s</string>
+    <string name="novel_see_next">fetch series when fetching novel</string>
+    <string name="novel_see_next_description">then we can navigate the next/previous page on the novel's end</string>
     <string name="novel_series">Series</string>
     <string name="novel_settings">Novel Settings</string>
     <string name="novel_works">Novels</string>
@@ -232,6 +237,7 @@
     <string name="platform_not_support">Not supported</string>
     <string name="please_bookmark_author_to_detail">Go to details page to bookmark author</string>
     <string name="please_input">Please input</string>
+    <string name="previous_page">Previous</string>
     <string name="previous_step">Back</string>
     <string name="private">Private</string>
     <string name="proxy_address">Proxy Address</string>
@@ -266,7 +272,7 @@
     <string name="save">Save</string>
     <string name="search">Search</string>
     <string name="search_mode">Search mode</string>
-    <string name="search_result_for">Results for "%1$s"</string>
+    <string name="search_result_for">Results for &quot;%1$s&quot;</string>
     <string name="search_result_none">No results</string>
     <string name="series_belong">Series</string>
     <string name="session_copied">Session copied. Do not share publicly.</string>
