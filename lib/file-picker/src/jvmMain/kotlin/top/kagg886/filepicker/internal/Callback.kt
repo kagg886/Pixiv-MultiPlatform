@@ -7,5 +7,5 @@ package top.kagg886.filepicker.internal
  * ================================================
  */
 fun interface Callback {
-    fun onComplete(it:String?)
+    fun onComplete(it: String?)
 }
