@@ -98,7 +98,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         @Serializable
         @SerialName("sni-replace")
         data class SNIReplace(
-            val url: String = "https://1.0.0.1/dns-query",
+            val url: String = "https://77.88.8.8/dns-query",
             val fallback: Map<String, List<String>> = mapOf(
                 "app-api.pixiv.net" to listOf("210.140.139.155"),
                 "oauth.secure.pixiv.net" to listOf("210.140.139.155"),
