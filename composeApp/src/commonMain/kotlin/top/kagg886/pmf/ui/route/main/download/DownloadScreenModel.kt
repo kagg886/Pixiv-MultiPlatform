@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import arrow.fx.coroutines.fixedRate
 import arrow.fx.coroutines.raceN
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.github.vinceglb.filekit.FileKit
-import io.github.vinceglb.filekit.dialogs.openFileSaver
-import io.github.vinceglb.filekit.write
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.prepareGet
@@ -35,11 +32,14 @@ import okio.Buffer as OkioBuffer
 import okio.Path
 import okio.Sink as OkioSink
 import okio.buffer
+import okio.use
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFileSaver
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
@@ -208,23 +208,25 @@ class DownloadScreenModel :
     fun saveToExternalFile(it: DownloadItem) = intent {
         val listFiles = it.downloadRootPath().listFile()
         if (listFiles.size == 1) {
-            val platformFile = FileKit.openFileSaver(
+            val platformFile = FilePicker.openFileSaver(
                 suggestedName = it.illust.title,
                 extension = "png",
             )
-            platformFile?.write(listFiles[0].source().buffer().readByteArray())
+            platformFile?.buffer()?.use { buf -> buf.write(listFiles[0].source().buffer().readByteArray()) }
             return@intent
         }
-        val platformFile = FileKit.openFileSaver(
+        val platformFile = FilePicker.openFileSaver(
             suggestedName = "${it.illust.title}(${it.id})",
             extension = "zip",
         )
-        platformFile?.write(
-            it.downloadRootPath().zip(
-                target = cachePath.resolve("share")
-                    .resolve("${it.id}.zip"),
-            ).source().buffer().readByteArray(),
-        )
+        platformFile?.buffer()?.use { buf ->
+            buf.write(
+                it.downloadRootPath().zip(
+                    target = cachePath.resolve("share")
+                        .resolve("${it.id}.zip"),
+                ).source().buffer().readByteArray(),
+            )
+        }
     }
 
     fun shareFile(it: DownloadItem) = intent {
