@@ -72,6 +72,7 @@ jobs:
           ./gradlew packageReleaseDistributionForCurrentOS
         env:
           APP_VERSION_NAME: ${{ github.ref_name }}
+          RUST_BACKTRACE: "1"
 
       - name: Zip artifact
         run: tar -czvf linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .

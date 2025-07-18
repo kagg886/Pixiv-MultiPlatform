@@ -77,6 +77,8 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew packageReleaseDistributionForCurrentOS
+        env:
+          RUST_BACKTRACE: "1"
 
       - name: Zip artifact
         run: tar -czvf linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .
