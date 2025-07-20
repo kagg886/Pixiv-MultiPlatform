@@ -1,10 +1,11 @@
 package top.kagg886.pmf.backend
 
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.boolean
-import com.russhwolf.settings.string
+import top.kagg886.mkmb.MMKV
+import top.kagg886.mkmb.mmkvWithID
+import top.kagg886.pmf.util.boolean
+import top.kagg886.pmf.util.string
 
-object CrashConfig : Settings by SystemConfig.getConfig("crash-info") {
+object CrashConfig : MMKV by MMKV.mmkvWithID("crash-info") {
     var hasUnResolveCrash by boolean("hasUnResolveCrash", false)
     var crashText by string("crashText", "")
 }
