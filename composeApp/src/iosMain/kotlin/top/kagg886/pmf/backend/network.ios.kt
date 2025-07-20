@@ -24,7 +24,7 @@ private val InternalType: HttpClientConfig<DarwinClientEngineConfig>.() -> Unit 
             is AppConfig.BypassSetting.Proxy -> {
                 configureSession {
                     connectionProxyDictionary = buildMap {
-                        if (config.type == AppConfig.BypassSetting.Proxy.ProxyType.HTTP) {
+                        if (config.method == AppConfig.BypassSetting.Proxy.ProxyType.HTTP) {
                             put("HTTPEnable", true)
                             put("HTTPProxy", config.host)
                             put("HTTPPort", config.port)
@@ -33,7 +33,7 @@ private val InternalType: HttpClientConfig<DarwinClientEngineConfig>.() -> Unit 
                             put("HTTPSProxy", config.host)
                             put("HTTPSPort", config.port)
                         }
-                        if (config.type == AppConfig.BypassSetting.Proxy.ProxyType.SOCKS) {
+                        if (config.method == AppConfig.BypassSetting.Proxy.ProxyType.SOCKS) {
                             put("SOCKSEnable", true)
                             put("SOCKSProxy", config.host)
                             put("SOCKSPort", config.port)

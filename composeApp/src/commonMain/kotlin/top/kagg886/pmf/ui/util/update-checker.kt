@@ -1,8 +1,6 @@
 package top.kagg886.pmf.ui.util
 
 import androidx.lifecycle.ViewModel
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.nullableString
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -14,14 +12,16 @@ import kotlinx.serialization.json.Json
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.mkmb.MMKV
+import top.kagg886.mkmb.defaultMMKV
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformEngine
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.update_check_failed
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.string
 import top.kagg886.pmf.version_latest
 import top.kagg886.pmf.you_can_still_check_update_on_setting
 
@@ -45,7 +45,7 @@ data class Release(
 )
 
 class UpdateCheckViewModel(
-    config: Settings = SystemConfig.getConfig(),
+    config: MMKV = MMKV.defaultMMKV(),
 ) : ContainerHost<UpdateCheckState, UpdateCheckSideEffect>, ViewModel() {
     override val container: Container<UpdateCheckState, UpdateCheckSideEffect> = container(UpdateCheckState.Loading) {
         if (AppConfig.checkUpdateOnStart) {
@@ -53,7 +53,7 @@ class UpdateCheckViewModel(
         }
     }
 
-    private var skipVersion by config.nullableString("skip_version")
+    private var skipVersion by config.string("skip_version")
 
     val net = HttpClient(PlatformEngine) {
         install(ContentNegotiation) {

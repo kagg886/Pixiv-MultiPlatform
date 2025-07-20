@@ -807,10 +807,10 @@ class SettingScreen : Screen {
                             is AppConfig.BypassSetting.Proxy -> {
                                 SettingsDropdownMenu(
                                     title = { Text(stringResource(Res.string.proxy_type)) },
-                                    current = readOnlySettings.type,
+                                    current = readOnlySettings.method,
                                     data = AppConfig.BypassSetting.Proxy.ProxyType.entries,
                                     onSelected = {
-                                        bypassSetting = readOnlySettings.copy(type = it)
+                                        bypassSetting = readOnlySettings.copy(method = it)
                                     },
                                 )
 

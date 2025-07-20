@@ -25,7 +25,7 @@ private val InternalType: HttpClientConfig<OkHttpConfig>.() -> Unit = {
 
                 is AppConfig.BypassSetting.Proxy -> {
                     this.proxy(
-                        Proxy(Proxy.Type.valueOf(config.type.toString()), InetSocketAddress.createUnresolved(config.host, config.port)),
+                        Proxy(Proxy.Type.valueOf(config.method.toString()), InetSocketAddress.createUnresolved(config.host, config.port)),
                     )
                 }
             }

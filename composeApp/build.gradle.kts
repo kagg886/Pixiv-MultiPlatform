@@ -56,11 +56,11 @@ buildConfig {
     buildConfigField("APP_COMMIT_ID", getGitSha())
 }
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(22)
     androidTarget()
     jvm("desktop")
 
-    listOf(iosX64(), iosArm64(), iosSimulatorArm64()).forEach {
+    listOf(iosArm64(), iosSimulatorArm64()).forEach {
         it.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
@@ -124,8 +124,10 @@ kotlin {
             implementation(libs.pixko)
 
             // storage
-            implementation(libs.multiplatform.settings)
-            implementation(libs.multiplatform.settings.serialization)
+            implementation(libs.mkmb.core)
+
+//            implementation(libs.multiplatform.settings)
+//            implementation(libs.multiplatform.settings.serialization)
 
             // settings-ui
             implementation(project(":lib:compose-settings"))
@@ -186,6 +188,13 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.ktor.client.java)
             implementation(libs.androidx.sqlite.bundled)
+
+            val host = System.getProperty("os.name")
+            when {
+                host.contains("Mac") -> implementation(libs.mkmb.macos)
+                host.contains("Linux") -> implementation(libs.mkmb.linux)
+                host.contains("Windows") -> implementation(libs.mkmb.windows)
+            }
         }
 
         androidMain.dependencies {

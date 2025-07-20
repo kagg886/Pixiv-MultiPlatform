@@ -120,6 +120,7 @@ import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.UgoiraFetcher
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.initFileLogger
+import top.kagg886.pmf.util.initializeMMKV
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toColorScheme
@@ -361,7 +362,7 @@ fun ImageLoader.Builder.applyCustomConfig() = apply {
 fun setupEnv() {
     // init logger
     initFileLogger()
-
+    initializeMMKV()
     // init koin
     startKoin {
         logger(
