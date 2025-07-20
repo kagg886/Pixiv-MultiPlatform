@@ -1,6 +1,6 @@
 [versions]
 aboutlibraries = "12.2.4"
-agp = "8.10.0"
+agp = "8.11.1"
 androidx-lifecycle = "2.9.1"
 arrow = "2.1.2"
 coil = "3.2.0"
