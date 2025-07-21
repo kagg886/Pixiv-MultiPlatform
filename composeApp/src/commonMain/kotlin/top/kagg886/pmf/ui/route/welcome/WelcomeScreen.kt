@@ -48,15 +48,18 @@ import cafe.adriel.voyager.koin.koinNavigatorScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.alorma.compose.settings.ui.SettingsSwitch
-import io.github.vinceglb.filekit.dialogs.compose.rememberFilePickerLauncher
-import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
+import okio.BufferedSource
+import okio.buffer
+import okio.use
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFilePicker
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
@@ -253,6 +256,7 @@ class WelcomeScreen : Screen {
                     }
                 }
             }
+
             WELCOME -> {
                 val scheme = MaterialTheme.colorScheme
                 Text(
@@ -305,39 +309,6 @@ class WelcomeScreen : Screen {
                                 LaunchedEffect(colorScheme) {
                                     AppConfig.colorScheme = colorScheme
                                 }
-                                val launcher = rememberFilePickerLauncher {
-                                    if (it == null) {
-                                        return@rememberFilePickerLauncher
-                                    }
-
-                                    scope.launch {
-                                        val theme = kotlin.runCatching {
-                                            val j = Json {
-                                                ignoreUnknownKeys = true
-                                            }
-                                            Json.decodeFromString<JsonObject>(
-                                                it.readBytes().decodeToString(),
-                                            )["schemes"]!!.jsonObject["light"]!!.jsonObject.let {
-                                                j.decodeFromJsonElement<SerializedTheme>(it)
-                                            }
-                                        }
-                                        if (theme.isFailure) {
-                                            scope.launch {
-                                                snack.showSnackbar(
-                                                    getString(
-                                                        Res.string.import_theme_fail,
-                                                        theme.exceptionOrNull()?.message
-                                                            ?: getString(
-                                                                Res.string.unknown_error,
-                                                            ),
-                                                    ),
-                                                )
-                                            }
-                                            return@launch
-                                        }
-                                        colorScheme = theme.getOrThrow()
-                                    }
-                                }
 
                                 AnimatedContent(colorScheme != null) {
                                     if (it) {
@@ -352,7 +323,40 @@ class WelcomeScreen : Screen {
                                     }
                                     IconButton(
                                         onClick = {
-                                            launcher.launch()
+                                            scope.launch {
+                                                val platformFile = FilePicker.openFilePicker(
+                                                    ext = listOf("zip", "json"),
+                                                )
+                                                if (platformFile == null) {
+                                                    return@launch
+                                                }
+
+                                                val theme = kotlin.runCatching {
+                                                    val j = Json {
+                                                        ignoreUnknownKeys = true
+                                                    }
+                                                    val src = platformFile.buffer().use(BufferedSource::readByteArray)
+                                                        .decodeToString()
+                                                    Json.decodeFromString<JsonObject>(src)["schemes"]!!.jsonObject["light"]!!.jsonObject.let {
+                                                        j.decodeFromJsonElement<SerializedTheme>(it)
+                                                    }
+                                                }
+                                                if (theme.isFailure) {
+                                                    scope.launch {
+                                                        snack.showSnackbar(
+                                                            getString(
+                                                                Res.string.import_theme_fail,
+                                                                theme.exceptionOrNull()?.message
+                                                                    ?: getString(
+                                                                        Res.string.unknown_error,
+                                                                    ),
+                                                            ),
+                                                        )
+                                                    }
+                                                    return@launch
+                                                }
+                                                colorScheme = theme.getOrThrow()
+                                            }
                                         },
                                     ) {
                                         Icon(imageVector = Icons.Default.Edit, null)
