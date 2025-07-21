@@ -155,8 +155,9 @@ kotlin {
             implementation(libs.bundles.room)
 
             // save file to storage
-            implementation(libs.filekit.compose)
-            implementation(libs.filekit.core)
+            implementation(project(":lib:file-picker"))
+//            implementation(libs.filekit.compose)
+//            implementation(libs.filekit.core)
 
             // logging
             implementation(libs.kermit)
