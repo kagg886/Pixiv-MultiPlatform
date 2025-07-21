@@ -20,25 +20,12 @@ pub struct FFIClosure {
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
 pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, extension: JString, directory: JString) -> *mut FFIClosure {
     let suggested_name: String = env.get_string(&suggested_name).unwrap().into();
-    let extension: Option<String> = {
-        let raw = extension.as_raw();
-        if raw.is_null() { None } else { Some(env.get_string(&extension).unwrap().into()) }
-    };
-    let directory: Option<String> = {
-        let raw = directory.as_raw();
-        if raw.is_null() { Some(String::from("~")) } else { Some(env.get_string(&directory).unwrap().into()) }
-    };
-    let mut dialog = AsyncFileDialog::new();
-
-    if let Some(dir) = &directory {
-        dialog = dialog.set_directory(dir);
+    let dir = if directory.is_null() { String::from("~") } else { env.get_string(&directory).unwrap().into() };
+    let mut dialog = AsyncFileDialog::new().set_directory(dir).set_file_name(suggested_name);
+    if !extension.is_null() {
+        let ext: String = env.get_string(&extension).unwrap().into();
+        dialog = dialog.add_filter("file", &[ext])
     }
-
-    if let Some(ext) = &extension {
-        dialog = dialog.add_filter("file", &[ext]);
-    }
-
-    dialog = dialog.set_file_name(&suggested_name);
     let fut = dialog.save_file();
     let f = Box::new(|| futures::executor::block_on(fut));
     let bo = Box::new(FFIClosure { f });
