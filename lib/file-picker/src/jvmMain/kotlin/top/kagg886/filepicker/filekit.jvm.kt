@@ -1,15 +1,9 @@
 package top.kagg886.filepicker
 
-import javax.swing.SwingUtilities
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
-import okio.Sink
-import okio.Source
 import top.kagg886.filepicker.internal.NativeFilePicker
 import top.kagg886.filepicker.internal.initNativeLib
 import top.kagg886.pmf.util.sink
@@ -37,14 +31,9 @@ actual suspend fun FilePicker.openFilePicker(
     ext: List<String>?,
     title: String?,
     directory: Path?,
-): Source? {
-    val deferred = CompletableDeferred<Source?>()
-
-    withContext(Dispatchers.Main) {
-        nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString()) { path ->
-            deferred.complete(path?.toPath()?.source())
-        }
+) = withContext(Dispatchers.Main) {
+    val ptr = nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString())
+    withContext(Dispatchers.IO) {
+        nativeFilePicker.awaitFilePicker(ptr)?.toPath()?.source()
     }
-
-    return deferred.await()
 }

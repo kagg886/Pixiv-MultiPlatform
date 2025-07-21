@@ -1,6 +1,6 @@
 #![cfg(feature = "jvm")]
 
-use jni::objects::{JObject, JValue};
+use jni::objects::JObject;
 use jni::sys::jstring;
 use jni::{
     JNIEnv,
@@ -8,9 +8,7 @@ use jni::{
 };
 use jni_fn::jni_fn;
 use rfd::{AsyncFileDialog, FileHandle};
-use std::thread;
 
-#[repr(C)]
 pub struct FFIClosure {
     f: Box<dyn FnOnce() -> Option<FileHandle>>,
 }
@@ -41,17 +39,10 @@ pub fn awaitFileSaver(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstr
     hnd.map_or(*JObject::null(), |s| *JObject::from(env.new_string(s).unwrap()))
 }
 
-/// JNI interface for NativeFilePicker.openFilePicker
-///
-/// Parameters:
-/// - ext: Array<String>? - 文件扩展名数组（可为null）
-/// - title: String? - 对话框标题（可为null）
-/// - directory: String? - 目录路径（可为null）
-/// - callback: Callback - 回调接口
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString, callback: JObject) {
+pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString) -> *mut FFIClosure {
     // ext: Array<String>? => Option<Vec<String>>
     let extensions = {
         let raw = ext.as_raw(); // jobjectArray
@@ -98,28 +89,17 @@ pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title:
         dialog = dialog.set_directory(dir);
     }
 
-    let resultFuture = dialog.pick_file(); // Option<PathBuf>
-
-    let jvm = env.get_java_vm().unwrap();
-    let callbackGlobalRef = env.new_global_ref(callback).unwrap();
-    execute(async move {
-        let resultOptions = resultFuture.await;
-        let mut env = jvm.attach_current_thread().unwrap(); // 新线程/任务内 attach
-
-        let arg = match resultOptions {
-            Some(p) => {
-                let s = env.new_string(p.path().display().to_string()).unwrap();
-                JObject::from(s)
-            }
-            None => JObject::null(),
-        };
-
-        // 2. 调用 Callback.onComplete(String)
-        env.call_method(callbackGlobalRef.as_obj(), "onComplete", "(Ljava/lang/String;)V", &[JValue::from(&arg)]).unwrap().v().unwrap();
-    });
+    let fut = dialog.pick_file();
+    let f = Box::new(|| futures::executor::block_on(fut));
+    let bo = Box::new(FFIClosure { f });
+    Box::into_raw(bo)
 }
 
-fn execute<F: Future<Output = ()> + Send + 'static>(f: F) {
-    // this is stupid... use any executor of your choice instead
-    thread::spawn(move || futures::executor::block_on(f));
+#[unsafe(no_mangle)]
+#[allow(non_snake_case)]
+#[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
+pub fn awaitFilePicker(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstring {
+    let f = unsafe { Box::from_raw(ptr) };
+    let hnd = (f.f)().map(|x| x.path().display().to_string());
+    hnd.map_or(*JObject::null(), |s| *JObject::from(env.new_string(s).unwrap()))
 }
