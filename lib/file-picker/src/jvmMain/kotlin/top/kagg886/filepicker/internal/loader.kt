@@ -16,13 +16,6 @@ import top.kagg886.pmf.util.parentFile
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
 
-/**
- * ================================================
- * Author:     886kagg
- * Created on: 2025/7/17 14:03
- * ================================================
- */
-
 internal val jvmTarget by lazy {
     val osName = System.getProperty("os.name")
     when {
