@@ -2,10 +2,6 @@ package top.kagg886.pmf.ui.route.login.v2
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import io.github.vinceglb.filekit.FileKit
-import io.github.vinceglb.filekit.dialogs.FileKitType
-import io.github.vinceglb.filekit.dialogs.openFilePicker
-import io.github.vinceglb.filekit.source
 import io.ktor.utils.io.core.readAvailable
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
@@ -20,6 +16,8 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFilePicker
 import top.kagg886.pixko.PixivVerification
 import top.kagg886.pixko.TokenType
 import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
@@ -144,8 +142,8 @@ class LoginScreenViewModel :
     }
 
     fun installKCEFLocal() = intent {
-        val platformFile = FileKit.openFilePicker(
-            type = FileKitType.File(listOf("tar.gz")),
+        val platformFile = FilePicker.openFilePicker(
+            ext = listOf("tar.gz"),
         )
         if (platformFile == null) {
             postSideEffect(LoginSideEffect.Toast(getString(Res.string.no_file_selected)))
@@ -153,10 +151,10 @@ class LoginScreenViewModel :
         }
         useTempFile { tmp ->
             tmp.sink().buffer().use { out ->
-                platformFile.source().buffered().use { input ->
+                platformFile.buffer().use { input ->
                     val buffer = ByteArray(2048)
                     var len: Int
-                    while (input.readAvailable(buffer).also { len = it } != -1) {
+                    while (input.read(buffer).also { len = it } != -1) {
                         out.write(buffer, 0, len)
                     }
                 }

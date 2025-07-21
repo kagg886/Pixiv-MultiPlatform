@@ -64,6 +64,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install XDG development
+        run: sudo apt update && sudo apt install libwayland-dev
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
