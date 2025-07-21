@@ -26,14 +26,11 @@ actual suspend fun FilePicker.openFileSaver(
     suggestedName: String,
     extension: String?,
     directory: Path?,
-): Sink? {
-    val deferred = CompletableDeferred<Sink?>()
-    withContext(Dispatchers.Main) {
-        nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString()) { path ->
-            deferred.complete(path?.toPath()?.sink())
-        }
+) = withContext(Dispatchers.Main) {
+    val ptr = nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString())
+    withContext(Dispatchers.IO) {
+        nativeFilePicker.awaitFileSaver(ptr)?.toPath()?.sink()
     }
-    return deferred.await()
 }
 
 actual suspend fun FilePicker.openFilePicker(

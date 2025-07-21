@@ -1,41 +1,33 @@
 #![cfg(feature = "jvm")]
 
 use jni::objects::{JObject, JValue};
+use jni::sys::jstring;
 use jni::{
     JNIEnv,
     objects::{JClass, JObjectArray, JString},
 };
 use jni_fn::jni_fn;
-use rfd::{AsyncFileDialog};
+use rfd::{AsyncFileDialog, FileHandle};
 use std::thread;
 
-/// JNI interface for NativeFilePicker.openFileSaver
-///
-/// Parameters:
-/// - suggestedName: String - 建议的文件名
-/// - extension: String? - 文件扩展名（可为null）
-/// - directory: String? - 目录路径（可为null）
-/// - callback: Callback - 回调接口
+#[repr(C)]
+pub struct FFIClosure {
+    f: Box<dyn FnOnce() -> Option<FileHandle>>,
+}
+
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, extension: JString, directory: JString,callback: JObject) {
-    // suggestedName: String => String
+pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, extension: JString, directory: JString) -> *mut FFIClosure {
     let suggested_name: String = env.get_string(&suggested_name).unwrap().into();
-
-    // extension: String? => Option<String>
     let extension: Option<String> = {
         let raw = extension.as_raw();
         if raw.is_null() { None } else { Some(env.get_string(&extension).unwrap().into()) }
     };
-
-    // directory: String? => Option<String>
     let directory: Option<String> = {
         let raw = directory.as_raw();
         if raw.is_null() { Some(String::from("~")) } else { Some(env.get_string(&directory).unwrap().into()) }
     };
-
-    // 构建对话框
     let mut dialog = AsyncFileDialog::new();
 
     if let Some(dir) = &directory {
@@ -47,28 +39,19 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
     }
 
     dialog = dialog.set_file_name(&suggested_name);
+    let fut = dialog.save_file();
+    let f = Box::new(|| futures::executor::block_on(fut));
+    let bo = Box::new(FFIClosure { f });
+    Box::into_raw(bo)
+}
 
-    // 弹出保存对话框
-    let resultFuture = dialog.save_file();
-
-    let jvm = env.get_java_vm().unwrap();
-    let callbackGlobalRef = env.new_global_ref(callback).unwrap();
-    execute(async move {
-        let resultOptions = resultFuture.await;
-        let mut env = jvm.attach_current_thread().unwrap(); // 新线程/任务内 attach
-
-        let arg = match resultOptions {
-            Some(p) => {
-                let s = env.new_string(p.path().display().to_string()).unwrap();
-                JObject::from(s)
-            }
-            None => JObject::null(),
-        };
-
-
-        // 2. 调用 Callback.onComplete(String)
-        env.call_method(callbackGlobalRef.as_obj(), "onComplete", "(Ljava/lang/String;)V", &[JValue::from(&arg)]).unwrap().v().unwrap();
-    });
+#[unsafe(no_mangle)]
+#[allow(non_snake_case)]
+#[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
+pub fn awaitFileSaver(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstring {
+    let f = unsafe { Box::from_raw(ptr) };
+    let hnd = (f.f)().map(|x| x.path().display().to_string());
+    hnd.map_or(*JObject::null(), |s| *JObject::from(env.new_string(s).unwrap()))
 }
 
 /// JNI interface for NativeFilePicker.openFilePicker
@@ -81,7 +64,7 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString,callback:JObject) {
+pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString, callback: JObject) {
     // ext: Array<String>? => Option<Vec<String>>
     let extensions = {
         let raw = ext.as_raw(); // jobjectArray
@@ -143,7 +126,6 @@ pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title:
             }
             None => JObject::null(),
         };
-
 
         // 2. 调用 Callback.onComplete(String)
         env.call_method(callbackGlobalRef.as_obj(), "onComplete", "(Ljava/lang/String;)V", &[JValue::from(&arg)]).unwrap().v().unwrap();
