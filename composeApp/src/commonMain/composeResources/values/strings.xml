@@ -350,4 +350,10 @@
     <string name="xattr_setting">正在设置xattr......</string>
     <string name="yes">是</string>
     <string name="you_can_still_check_update_on_setting">您仍可以前往设置中检查更新</string>
+
+    <string name="options_filter_aspect_ratio">宽高比过滤</string>
+    <string name="option_filter_aspect_ratio_usage">选择手机/电脑壁纸用</string>
+    <string name="option_filter_aspect_ratio_none">不启用</string>
+    <string name="option_filter_aspect_ratio_phone">宽度>长度(手机壁纸)</string>
+    <string name="option_filter_aspect_ratio_pc">(长度＞宽度)(电脑壁纸)</string>
 </resources>

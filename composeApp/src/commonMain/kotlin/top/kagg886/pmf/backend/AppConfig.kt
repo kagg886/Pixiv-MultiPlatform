@@ -35,6 +35,8 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterAi by boolean("filter_ai", false)
     var filterR18 by boolean("filter_r18", false)
     var filterR18G by boolean("filter_r18g", false)
+
+    var filterAspectRatioType by serializedValue("filter_aspect_ratio", AspectRatioFilterType.NONE)
     var illustDetailsShowAll by boolean("illust_details_show_all", false)
 
     var filterAiNovel by boolean("filter_ai_novel", false)
@@ -86,6 +88,13 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         @Serializable
         @SerialName("fix_width")
         data class FixWidth(val size: Int) : Gallery
+    }
+
+    @Serializable
+    enum class AspectRatioFilterType {
+        NONE,
+        PHONE,
+        PC,
     }
 
     @Serializable
