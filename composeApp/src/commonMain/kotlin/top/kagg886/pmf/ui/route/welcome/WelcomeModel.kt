@@ -2,16 +2,16 @@ package top.kagg886.pmf.ui.route.welcome
 
 import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.boolean
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
-import top.kagg886.pmf.backend.SystemConfig
+import top.kagg886.mkmb.MMKV
+import top.kagg886.mkmb.defaultMMKV
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.boolean
 
 class WelcomeModel(
-    settings: Settings = SystemConfig.getConfig(),
+    settings: MMKV = MMKV.defaultMMKV(),
 ) : ContainerHost<WelcomeViewState, WelcomeSideEffect>, ViewModel(), ScreenModel {
 
     private var isInited by settings.boolean("welcome_init", false)
