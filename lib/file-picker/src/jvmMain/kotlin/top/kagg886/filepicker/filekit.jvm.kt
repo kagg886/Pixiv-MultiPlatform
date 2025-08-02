@@ -23,7 +23,7 @@ actual suspend fun FilePicker.openFileSaver(
 ) = withContext(Dispatchers.Main) {
     val ptr = nativeFilePicker.openFileSaver(suggestedName, extension, directory?.toString())
     withContext(Dispatchers.IO) {
-        nativeFilePicker.awaitFileSaver(ptr)?.toPath()?.sink()
+        nativeFilePicker.awaitDialog(ptr)?.toPath()?.sink()
     }
 }
 
@@ -34,6 +34,6 @@ actual suspend fun FilePicker.openFilePicker(
 ) = withContext(Dispatchers.Main) {
     val ptr = nativeFilePicker.openFilePicker(ext?.toTypedArray(), title, directory?.toString())
     withContext(Dispatchers.IO) {
-        nativeFilePicker.awaitFilePicker(ptr)?.toPath()?.source()
+        nativeFilePicker.awaitDialog(ptr)?.toPath()?.source()
     }
 }

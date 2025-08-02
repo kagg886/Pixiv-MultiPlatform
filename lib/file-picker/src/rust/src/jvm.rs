@@ -33,15 +33,6 @@ pub fn openFileSaver(mut env: JNIEnv, _class: JClass, suggested_name: JString, e
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn awaitFileSaver(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstring {
-    let f = unsafe { Box::from_raw(ptr) };
-    let hnd = (f.f)().map(|x| x.path().display().to_string());
-    hnd.map_or(*JObject::null(), |s| *JObject::from(env.new_string(s).unwrap()))
-}
-
-#[unsafe(no_mangle)]
-#[allow(non_snake_case)]
-#[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
 pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title: JString, directory: JString) -> *mut FFIClosure {
     let dir = if directory.is_null() { String::from("~") } else { env.get_string(&directory).unwrap().into() };
     let mut dialog = AsyncFileDialog::new().set_directory(dir);
@@ -70,7 +61,7 @@ pub fn openFilePicker(mut env: JNIEnv, _class: JClass, ext: JObjectArray, title:
 #[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 #[jni_fn("top.kagg886.filepicker.internal.NativeFilePicker")]
-pub fn awaitFilePicker(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstring {
+pub fn awaitDialog(env: JNIEnv, _class: JClass, ptr: *mut FFIClosure) -> jstring {
     let f = unsafe { Box::from_raw(ptr) };
     let hnd = (f.f)().map(|x| x.path().display().to_string());
     hnd.map_or(*JObject::null(), |s| *JObject::from(env.new_string(s).unwrap()))
