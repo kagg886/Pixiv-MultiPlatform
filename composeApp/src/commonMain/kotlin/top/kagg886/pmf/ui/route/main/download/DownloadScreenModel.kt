@@ -285,7 +285,7 @@ class DownloadScreenModel :
         useTempDir { dir ->
             for (image in listFiles) {
                 dir.resolve(image.name).sink().use { sink ->
-                    image.source().use { source ->
+                    system.source(image).use { source ->
                         source.transfer(sink)
                     }
                 }
@@ -305,7 +305,7 @@ class DownloadScreenModel :
         useTempDir { dir ->
             for (image in listFiles) {
                 dir.resolve(image.name).sink().use { sink ->
-                    image.source().use { source ->
+                    system.source(image).use { source ->
                         source.transfer(sink)
                     }
                 }
