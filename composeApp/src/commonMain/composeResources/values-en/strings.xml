@@ -354,4 +354,10 @@
     <string name="option_filter_aspect_ratio_none">Don't filter</string>
     <string name="option_filter_aspect_ratio_phone">Width > Height (Phone wallpapers)</string>
     <string name="option_filter_aspect_ratio_pc">Height > Width (Computer wallpapers)</string>
+
+
+    <string name="settings_download">Download Setting</string>
+    <string name="settings_download_path">Select Download Root Path</string>
+    <string name="settings_download_path_desc">the pictures and metadata will be placed in here.</string>
+    <string name="settings_download_path_not_supported">iOS not supported to select download root path.</string>
 </resources>
