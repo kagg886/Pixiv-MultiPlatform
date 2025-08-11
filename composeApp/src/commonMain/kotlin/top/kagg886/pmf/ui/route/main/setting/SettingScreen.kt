@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.alorma.compose.settings.ui.SettingsGroup
@@ -52,6 +53,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform.getKoin
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFilePicker
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
@@ -188,6 +191,7 @@ import top.kagg886.pmf.ui.component.settings.SettingsFileUpload
 import top.kagg886.pmf.ui.component.settings.SettingsTextField
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
 import top.kagg886.pmf.ui.route.main.about.AboutScreen
+import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.update
@@ -770,17 +774,27 @@ class SettingScreen : Screen {
                     mutableStateOf(AppConfig.downloadUri)
                 }
 
+                val downloadModel = koinScreenModel<DownloadScreenModel>()
                 LaunchedEffect(uri) {
                     AppConfig.downloadUri = uri
+                    downloadModel.stopAll()
+                    downloadModel.setSAFSystem(uri)
                 }
+
+                val scope = rememberCoroutineScope()
 
                 SettingsMenuLink(
                     title = { Text(stringResource(Res.string.settings_download_path)) },
                     enabled = platform !is Platform.Apple,
                     subtitle = {
-                        Text(stringResource(if (platform is Platform.Apple) Res.string.settings_download_path_not_supported else Res.string.settings_download_path))
+                        Text(stringResource(if (platform is Platform.Apple) Res.string.settings_download_path_not_supported else Res.string.settings_download_path_desc))
                     },
                     onClick = {
+                        scope.launch {
+                            getDownloadRootPath()?.let {
+                                uri = it
+                            }
+                        }
                     },
                 )
             }
@@ -1219,3 +1233,5 @@ class SettingScreen : Screen {
         }
     }
 }
+
+expect suspend fun getDownloadRootPath(): String?

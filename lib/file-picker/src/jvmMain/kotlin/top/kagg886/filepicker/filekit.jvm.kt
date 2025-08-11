@@ -37,3 +37,13 @@ actual suspend fun FilePicker.openFilePicker(
         nativeFilePicker.awaitFilePicker(ptr)?.toPath()?.source()
     }
 }
+
+suspend fun FilePicker.openFolderPicker(
+    title: String? = null,
+    directory: Path? = null,
+) = withContext(Dispatchers.Main) {
+    val ptr = nativeFilePicker.openDictionaryPicker(title, directory?.toString())
+    withContext(Dispatchers.IO) {
+        nativeFilePicker.awaitDictionaryPicker(ptr)?.toPath()
+    }
+}

@@ -361,4 +361,6 @@
     <string name="settings_download_path">下载根设置</string>
     <string name="settings_download_path_desc">选择程序将图片等所下载的位置</string>
     <string name="settings_download_path_not_supported">iOS不支持选取下载路径</string>
+    <string name="download_root_not_set">未设置下载根路径，请前往设置页面进行设置</string>
+    <string name="download_root_permission_revoked">下载根路径读写权限被系统收回，请前往设置页面重新进行设置</string>
 </resources>

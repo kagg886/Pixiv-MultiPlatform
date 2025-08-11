@@ -51,6 +51,8 @@ import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.download_completed
 import top.kagg886.pmf.download_failed
+import top.kagg886.pmf.download_root_not_set
+import top.kagg886.pmf.download_root_permission_revoked
 import top.kagg886.pmf.download_started
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
@@ -70,7 +72,13 @@ class DownloadScreenModel :
 
     private val jobs = mutableMapOf<Long, Job>()
 
-    private val system = safFileSystem(AppConfig.downloadUri)
+    private var internalSystem = lazy {
+        // make it lazy to upgrade.
+        safFileSystem(AppConfig.downloadUri)
+    }
+
+    private val system by internalSystem
+
     private fun DownloadItem.downloadRootPath(): Path = id.toString().toPath()
 
     fun startDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
@@ -79,6 +87,19 @@ class DownloadScreenModel :
             return@intent
         }
         orElse()
+    }
+
+    fun setSAFSystem(uri: String) {
+        internalSystem = lazy {
+            safFileSystem(uri)
+        }
+    }
+
+    fun stopAll(): Job = intent {
+        for (job in jobs.values) {
+            job.cancel()
+        }
+        jobs.clear()
     }
 
     @OptIn(OrbitExperimental::class)
@@ -95,6 +116,28 @@ class DownloadScreenModel :
             return null
         }
         val job = intent {
+            if (AppConfig.downloadUri.isEmpty()) { // 检查uri是否成功设置
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_not_set),
+                        false,
+                    ),
+                )
+                jobs.remove(illust.id.toLong())
+                return@intent
+            }
+
+            if (!system.exists("/".toPath())) {
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_permission_revoked),
+                        false,
+                    ),
+                )
+                jobs.remove(illust.id.toLong())
+                return@intent
+            }
+
             runOn<DownloadScreenState.Loaded> {
                 postSideEffect(
                     DownloadScreenSideEffect.Toast(
