@@ -64,7 +64,9 @@ import top.kagg886.pmf.appearance
 import top.kagg886.pmf.auto_typography
 import top.kagg886.pmf.auto_typography_description
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bypass_none
 import top.kagg886.pmf.bypass_proxy
@@ -166,6 +168,10 @@ import top.kagg886.pmf.reset_theme
 import top.kagg886.pmf.reset_theme_description
 import top.kagg886.pmf.set_theme
 import top.kagg886.pmf.settings
+import top.kagg886.pmf.settings_download
+import top.kagg886.pmf.settings_download_path
+import top.kagg886.pmf.settings_download_path_desc
+import top.kagg886.pmf.settings_download_path_not_supported
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.show_toast_when_failed
 import top.kagg886.pmf.show_toast_when_latest
@@ -322,7 +328,12 @@ class SettingScreen : Screen {
                     }
                     if (theme.isFailure) {
                         scope.launch {
-                            snack.showSnackbar(getString(Res.string.import_theme_fail, theme.exceptionOrNull()!!.message.toString()))
+                            snack.showSnackbar(
+                                getString(
+                                    Res.string.import_theme_fail,
+                                    theme.exceptionOrNull()!!.message.toString(),
+                                ),
+                            )
                         }
                         return@SettingsFileUpload
                     }
@@ -370,7 +381,12 @@ class SettingScreen : Screen {
                                     Text(stringResource(Res.string.gallery_column_count))
                                 },
                                 subtitle = {
-                                    Text(stringResource(Res.string.gallery_column_count_description, defaultGalleryWidth))
+                                    Text(
+                                        stringResource(
+                                            Res.string.gallery_column_count_description,
+                                            defaultGalleryWidth,
+                                        ),
+                                    )
                                 },
                                 value = defaultGalleryWidth,
                                 valueRange = 2f..5f,
@@ -391,7 +407,12 @@ class SettingScreen : Screen {
                                     Text(stringResource(Res.string.single_column_width))
                                 },
                                 subtitle = {
-                                    Text(stringResource(Res.string.single_column_width_description, defaultGalleryWidth))
+                                    Text(
+                                        stringResource(
+                                            Res.string.single_column_width_description,
+                                            defaultGalleryWidth,
+                                        ),
+                                    )
                                 },
                                 value = defaultGalleryWidth.toFloat(),
                                 valueRange = 50f..1000f,
@@ -742,6 +763,28 @@ class SettingScreen : Screen {
                     },
                 )
             }
+
+            SettingsGroup(title = { Text(stringResource(Res.string.settings_download)) }) {
+                val platform = currentPlatform
+                var uri by remember {
+                    mutableStateOf(AppConfig.downloadUri)
+                }
+
+                LaunchedEffect(uri) {
+                    AppConfig.downloadUri = uri
+                }
+
+                SettingsMenuLink(
+                    title = { Text(stringResource(Res.string.settings_download_path)) },
+                    enabled = platform !is Platform.Apple,
+                    subtitle = {
+                        Text(stringResource(if (platform is Platform.Apple) Res.string.settings_download_path_not_supported else Res.string.settings_download_path))
+                    },
+                    onClick = {
+                    },
+                )
+            }
+
             SettingsGroup(title = { Text(stringResource(Res.string.history_records)) }) {
                 var recordIllustHistory by remember {
                     mutableStateOf(AppConfig.recordIllustHistory)

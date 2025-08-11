@@ -1,15 +1,14 @@
 package top.kagg886.pmf.backend
 
 import okio.Path
-import okio.Path.Companion.toPath
-import platform.Foundation.NSDocumentDirectory
+import platform.Foundation.NSApplicationSupportDirectory
+import platform.Foundation.NSCachesDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
-import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUserDomainMask
 
 actual val dataPath: Path by lazy {
     val path = NSSearchPathForDirectoriesInDomains(
-        directory = NSDocumentDirectory,
+        directory = NSApplicationSupportDirectory,
         domainMask = NSUserDomainMask,
         true,
     )
@@ -18,5 +17,12 @@ actual val dataPath: Path by lazy {
     }
 }
 actual val cachePath: Path by lazy {
-    NSTemporaryDirectory().toPath()
+    val path = NSSearchPathForDirectoriesInDomains(
+        directory = NSCachesDirectory,
+        domainMask = NSUserDomainMask,
+        true,
+    )
+    with(Path) {
+        path[0]!!.toString().toPath()
+    }
 }
