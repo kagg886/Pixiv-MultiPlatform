@@ -30,6 +30,7 @@ import kotlinx.io.UnsafeIoApi
 import kotlinx.io.unsafe.UnsafeBufferOperations
 import okio.Buffer as OkioBuffer
 import okio.Path
+import okio.Path.Companion.toPath
 import okio.Sink as OkioSink
 import okio.buffer
 import okio.use
@@ -44,8 +45,8 @@ import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.dataPath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.download_completed
@@ -53,17 +54,10 @@ import top.kagg886.pmf.download_failed
 import top.kagg886.pmf.download_started
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.deleteRecursively
-import top.kagg886.pmf.util.exists
 import top.kagg886.pmf.util.getString
-import top.kagg886.pmf.util.listFile
 import top.kagg886.pmf.util.logger
-import top.kagg886.pmf.util.mkdirs
-import top.kagg886.pmf.util.sink
-import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.safFileSystem
 import top.kagg886.pmf.util.zip
-
-fun DownloadItem.downloadRootPath(): Path = dataPath.resolve("download").resolve(id.toString())
 
 class DownloadScreenModel :
     ContainerHost<DownloadScreenState, DownloadScreenSideEffect>,
@@ -75,6 +69,17 @@ class DownloadScreenModel :
     private val net by inject<HttpClient>()
 
     private val jobs = mutableMapOf<Long, Job>()
+
+    private val system = safFileSystem(AppConfig.downloadUri)
+    private fun DownloadItem.downloadRootPath(): Path = id.toString().toPath()
+
+    fun startDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
+        if (!system.exists(item.downloadRootPath())) {
+            startDownload(item.illust)?.join()
+            return@intent
+        }
+        orElse()
+    }
 
     @OptIn(OrbitExperimental::class)
     fun startDownload(illust: Illust): Job? {
@@ -112,12 +117,12 @@ class DownloadScreenModel :
                 // 获取下载的根目录
                 val file = task.downloadRootPath()
                 logger.d("the illust:${illust.id} will be download to $file")
-                if (file.exists()) {
+                if (system.exists(file)) {
                     logger.d("the illust:${illust.id} has been downloaded, delete it")
                     // 有的话就递归删除重下
-                    file.deleteRecursively()
+                    system.deleteRecursively(file)
                 }
-                file.mkdirs()
+                system.createDirectories(file)
 
                 // 获取所有下载链接
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
@@ -145,7 +150,7 @@ class DownloadScreenModel :
                                     logger.d("the illust:${illust.id}'s download link: $url, length is: $length")
 
                                     val src = resp.bodyAsChannel().counted()
-                                    (file / "$index.png").sink().asRawSink().use { sink ->
+                                    system.sink(file / "$index.png").asRawSink().use { sink ->
                                         raceN(
                                             {
                                                 val upd = {
@@ -190,7 +195,7 @@ class DownloadScreenModel :
                             getString(Res.string.download_failed, illust.title, illust.id),
                         ),
                     )
-                    file.deleteRecursively()
+                    system.deleteRecursively(file)
                     return@runOn
                 }
                 dao.update(task.copy(success = true, progress = -1f))
@@ -206,13 +211,13 @@ class DownloadScreenModel :
     }
 
     fun saveToExternalFile(it: DownloadItem) = intent {
-        val listFiles = it.downloadRootPath().listFile()
+        val listFiles = system.list(it.downloadRootPath())
         if (listFiles.size == 1) {
             val platformFile = FilePicker.openFileSaver(
                 suggestedName = it.illust.title,
                 extension = "png",
             )
-            platformFile?.buffer()?.use { buf -> buf.write(listFiles[0].source().buffer().readByteArray()) }
+            platformFile?.buffer()?.use { buf -> buf.write(system.source(listFiles[0]).buffer().readByteArray()) }
             return@intent
         }
         val platformFile = FilePicker.openFileSaver(
@@ -221,16 +226,18 @@ class DownloadScreenModel :
         )
         platformFile?.buffer()?.use { buf ->
             buf.write(
-                it.downloadRootPath().zip(
-                    target = cachePath.resolve("share")
-                        .resolve("${it.id}.zip"),
-                ).source().buffer().readByteArray(),
+                system.source(
+                    it.downloadRootPath().zip(
+                        target = cachePath.resolve("share")
+                            .resolve("${it.id}.zip"),
+                    ),
+                ).buffer().readByteArray(),
             )
         }
     }
 
     fun shareFile(it: DownloadItem) = intent {
-        val listFiles = it.downloadRootPath().listFile()
+        val listFiles = system.list(it.downloadRootPath())
         if (listFiles.size == 1) {
             top.kagg886.pmf.shareFile(listFiles[0])
             return@intent
