@@ -11,10 +11,12 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.contentLength
 import io.ktor.utils.io.asByteWriteChannel
 import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.core.copyTo
 import io.ktor.utils.io.counted
 import kotlin.math.min
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +51,8 @@ import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
+import top.kagg886.pmf.backend.useTempDir
+import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.download_completed
 import top.kagg886.pmf.download_failed
 import top.kagg886.pmf.download_root_not_set
@@ -56,9 +60,15 @@ import top.kagg886.pmf.download_root_permission_revoked
 import top.kagg886.pmf.download_started
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
+import top.kagg886.pmf.util.delete
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.listFile
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.nameWithoutExtension
 import top.kagg886.pmf.util.safFileSystem
+import top.kagg886.pmf.util.sink
+import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.transfer
 import top.kagg886.pmf.util.zip
 
 class DownloadScreenModel :
@@ -267,29 +277,47 @@ class DownloadScreenModel :
             suggestedName = "${it.illust.title}(${it.id})",
             extension = "zip",
         )
-        platformFile?.buffer()?.use { buf ->
-            buf.write(
-                system.source(
-                    it.downloadRootPath().zip(
-                        target = cachePath.resolve("share")
-                            .resolve("${it.id}.zip"),
-                    ),
-                ).buffer().readByteArray(),
-            )
+
+        if (platformFile == null) {
+            return@intent
+        }
+
+        useTempDir { dir ->
+            for (image in listFiles) {
+                dir.resolve(image.name).sink().use { sink ->
+                    image.source().use { source ->
+                        source.transfer(sink)
+                    }
+                }
+            }
+
+            dir.zip().apply {
+                source().use { source -> source.transfer(platformFile) }
+                delete()
+            }
         }
     }
 
     fun shareFile(it: DownloadItem) = intent {
         val listFiles = system.list(it.downloadRootPath())
-        if (listFiles.size == 1) {
-            top.kagg886.pmf.shareFile(listFiles[0])
-            return@intent
+
+        // transfer it to app cache.
+        useTempDir { dir ->
+            for (image in listFiles) {
+                dir.resolve(image.name).sink().use { sink ->
+                    image.source().use { source ->
+                        source.transfer(sink)
+                    }
+                }
+            }
+
+            if (listFiles.size == 1) {
+                top.kagg886.pmf.shareFile(dir.listFile()[0])
+                return@intent
+            }
+
+            top.kagg886.pmf.shareFile(dir.zip(cachePath.resolve("${Uuid.random().toHexString()}.zip")))
         }
-        top.kagg886.pmf.shareFile(
-            it.downloadRootPath().zip(
-                target = cachePath.resolve("${it.id}.zip"),
-            ),
-        )
     }
 
     override val container: Container<DownloadScreenState, DownloadScreenSideEffect> =
