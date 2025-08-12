@@ -77,6 +77,8 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bypass_intro
 import top.kagg886.pmf.bypass_note
 import top.kagg886.pmf.day_mode
+import top.kagg886.pmf.download_path_current
+import top.kagg886.pmf.download_path_not_set
 import top.kagg886.pmf.follow_system
 import top.kagg886.pmf.import_theme_fail
 import top.kagg886.pmf.next_step
@@ -87,6 +89,10 @@ import top.kagg886.pmf.r18_acceptance
 import top.kagg886.pmf.r18_allowed
 import top.kagg886.pmf.r18_blocked
 import top.kagg886.pmf.r18g_acceptance
+import top.kagg886.pmf.select_path
+import top.kagg886.pmf.settings_download
+import top.kagg886.pmf.settings_download_path
+import top.kagg886.pmf.settings_download_path_desc
 import top.kagg886.pmf.setup_complete
 import top.kagg886.pmf.setup_finish_note
 import top.kagg886.pmf.setup_finish_note_simple
@@ -106,7 +112,9 @@ import top.kagg886.pmf.ui.component.icon.DarkMode
 import top.kagg886.pmf.ui.component.icon.LightMode
 import top.kagg886.pmf.ui.component.icon.SystemSuggest
 import top.kagg886.pmf.ui.route.login.v2.LoginScreen
+import top.kagg886.pmf.ui.route.main.setting.getDownloadRootPath
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.BYPASS
+import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.DOWNLOAD
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.FINISH
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.LANGUAGE
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.SHIELD
@@ -171,6 +179,7 @@ class WelcomeScreen : Screen {
                                     WELCOME -> stringResource(Res.string.welcome)
                                     THEME -> stringResource(Res.string.theme_setting)
                                     BYPASS -> stringResource(Res.string.sni_bypass)
+                                    DOWNLOAD -> stringResource(Res.string.settings_download)
                                     SHIELD -> stringResource(Res.string.shield_config)
                                     FINISH -> stringResource(Res.string.setup_complete)
                                 },
@@ -230,6 +239,7 @@ class WelcomeScreen : Screen {
             WELCOME -> WelcomeTextContent()
             THEME -> ThemeSelectionContent()
             BYPASS -> BypassSettingsContent()
+            DOWNLOAD -> DownloadSettingsContent()
             SHIELD -> ShieldSettingsContent()
             FINISH -> FinishSetupContent()
         }
@@ -605,6 +615,71 @@ class WelcomeScreen : Screen {
                 stringResource(Res.string.setup_finish_note_simple)
             },
         )
+    }
+
+    @Composable
+    private fun DownloadSettingsContent() {
+        Text(
+            stringResource(Res.string.settings_download_path_desc),
+        )
+        Spacer(Modifier.height(16.dp))
+
+        var downloadUri by remember {
+            mutableStateOf(AppConfig.downloadUri)
+        }
+
+        var downloadTips by remember {
+            mutableStateOf("")
+        }
+
+        LaunchedEffect(downloadUri) {
+            AppConfig.downloadUri = downloadUri
+
+            downloadTips = if (downloadUri.isEmpty()) {
+                getString(Res.string.download_path_not_set)
+            } else {
+                getString(Res.string.download_path_current, downloadUri)
+            }
+        }
+
+        val scope = rememberCoroutineScope()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f).padding(end = 16.dp),
+                ) {
+                    Text(
+                        text = stringResource(Res.string.settings_download_path),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = downloadTips,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        scope.launch {
+                            getDownloadRootPath()?.let {
+                                downloadUri = it
+                            }
+                        }
+                    },
+                ) {
+                    Text(stringResource(Res.string.select_path))
+                }
+            }
+        }
     }
 
     @Composable

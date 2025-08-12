@@ -362,4 +362,7 @@
     <string name="settings_download_path_not_supported">iOS not supported to select download root path.</string>
     <string name="download_root_not_set">Download root path not set. Please go to settings to set it.</string>
     <string name="download_root_permission_revoked">Download root path permission revoked. Please go to settings to set it.</string>
+    <string name="download_path_not_set">Download path not set, tap here to select</string>
+    <string name="download_path_current">Current path: %1$s</string>
+    <string name="select_path">Select</string>
 </resources>
