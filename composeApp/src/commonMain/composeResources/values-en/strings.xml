@@ -29,9 +29,9 @@
     <string name="browser_init_failed_msg_clickable">Click for details</string>
     <string name="browser_init_failed_msg_fronted">Failed to initialize embedded browser.\nPlease close the program and try token login or refer to</string>
     <string name="browser_init_failed_msg_this_link">this link</string>
-    <string name="bypass_intro">        In some regions, Pixiv access may be restricted.\n        We offer SNI Bypass and Proxy solutions.\n        SNI Bypass: Uses DoH to connect directly to Pixiv IPs, bypassing blocks. Requires CloudFlare DoH and unblocked Pixiv IPs in your region.\n        Proxy: Forwards requests through a proxy server.</string>
+    <string name="bypass_intro">        In some regions, Pixiv access may be restricted.\n        We offer SNI Bypass and Proxy solutions.\n        SNI Bypass: Connects directly to Pixiv servers using special methods.\n        Proxy: Forwards requests through a proxy server.</string>
     <string name="bypass_none">Direct</string>
-    <string name="bypass_note">This doesn't affect the browser login. VPN still needed for login. Restart required after changes.</string>
+    <string name="bypass_note">If you use embedded browser with VPN to login to Pixiv, please do not enable SNI bypass, otherwise the program will not be able to login normally.\nRestart required after changes.</string>
     <string name="bypass_proxy">Proxy</string>
     <string name="bypass_sni">SNI Bypass</string>
     <string name="bypass_solution">Connection Method</string>
