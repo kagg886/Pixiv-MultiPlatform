@@ -73,6 +73,8 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew packageReleaseDistributionForCurrentOS
+        env:
+          APP_VERSION_NAME: ${{ github.ref_name }}
 
       - name: Zip artifact
         run: tar -czvf linux.tar.gz -C composeApp/build/compose/binaries/main-release/app .

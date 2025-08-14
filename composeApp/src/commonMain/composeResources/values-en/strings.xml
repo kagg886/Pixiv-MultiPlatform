@@ -95,7 +95,7 @@
     <string name="download_started">Download started. Go to downloads page?</string>
     <string name="download_success">Downloaded</string>
     <string name="download_theme">Download Theme</string>
-    <string name="downloading_browser">Downloading browser kernel...%2$s</string>
+    <string name="downloading_browser">Downloading browser kernel...%1$s</string>
     <string name="edit_prop">Edit properties</string>
     <string name="error">Error</string>
     <string name="error_details">Error Details</string>
@@ -348,4 +348,10 @@
     <string name="xattr_setting">Setting xattr...</string>
     <string name="yes">Yes</string>
     <string name="you_can_still_check_update_on_setting">You can still check for updates in settings</string>
+
+    <string name="options_filter_aspect_ratio">Filter by aspect ratio</string>
+    <string name="option_filter_aspect_ratio_usage">fast for phone or computer wallpapers</string>
+    <string name="option_filter_aspect_ratio_none">Don't filter</string>
+    <string name="option_filter_aspect_ratio_phone">Width > Height (Phone wallpapers)</string>
+    <string name="option_filter_aspect_ratio_pc">Height > Width (Computer wallpapers)</string>
 </resources>

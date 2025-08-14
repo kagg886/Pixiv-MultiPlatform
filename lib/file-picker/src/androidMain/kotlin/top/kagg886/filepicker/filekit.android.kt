@@ -9,8 +9,6 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.dialogs.openFileSaver
 import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.source
-import io.github.vinceglb.filekit.utils.toPath
-import kotlin.math.sin
 import kotlinx.io.buffered
 import okio.Buffer
 import okio.Path

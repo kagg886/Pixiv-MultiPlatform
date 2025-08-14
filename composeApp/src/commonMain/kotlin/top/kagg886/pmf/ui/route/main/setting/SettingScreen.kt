@@ -148,6 +148,11 @@ import top.kagg886.pmf.novel_filter_length_description
 import top.kagg886.pmf.novel_see_next
 import top.kagg886.pmf.novel_see_next_description
 import top.kagg886.pmf.novel_settings
+import top.kagg886.pmf.option_filter_aspect_ratio_none
+import top.kagg886.pmf.option_filter_aspect_ratio_pc
+import top.kagg886.pmf.option_filter_aspect_ratio_phone
+import top.kagg886.pmf.option_filter_aspect_ratio_usage
+import top.kagg886.pmf.options_filter_aspect_ratio
 import top.kagg886.pmf.proxy_address
 import top.kagg886.pmf.proxy_port
 import top.kagg886.pmf.proxy_type
@@ -491,6 +496,36 @@ class SettingScreen : Screen {
                         filterR18G = it
                     },
                 )
+
+                var filterAspectRatioType by remember {
+                    mutableStateOf(AppConfig.filterAspectRatioType)
+                }
+
+                LaunchedEffect(filterAspectRatioType) {
+                    AppConfig.filterAspectRatioType = filterAspectRatioType
+                }
+
+                SettingsDropdownMenu(
+                    title = {
+                        Text(stringResource(Res.string.options_filter_aspect_ratio))
+                    },
+                    subTitle = {
+                        Text(stringResource(Res.string.option_filter_aspect_ratio_usage))
+                    },
+                    optionsFormat = {
+                        when (it) {
+                            AppConfig.AspectRatioFilterType.NONE -> stringResource(Res.string.option_filter_aspect_ratio_none)
+                            AppConfig.AspectRatioFilterType.PHONE -> stringResource(Res.string.option_filter_aspect_ratio_phone)
+                            AppConfig.AspectRatioFilterType.PC -> stringResource(Res.string.option_filter_aspect_ratio_pc)
+                        }
+                    },
+                    current = filterAspectRatioType,
+                    data = AppConfig.AspectRatioFilterType.entries,
+                    onSelected = {
+                        filterAspectRatioType = it
+                    },
+                )
+
                 var illustDetailsShowAll by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
                 LaunchedEffect(illustDetailsShowAll) {
                     AppConfig.illustDetailsShowAll = illustDetailsShowAll

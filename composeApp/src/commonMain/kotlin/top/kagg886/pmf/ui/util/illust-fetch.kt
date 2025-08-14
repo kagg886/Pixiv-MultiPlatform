@@ -30,13 +30,27 @@ import top.kagg886.pmf.bookmark_success
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 
-abstract class IllustFetchViewModel : ContainerHost<IllustFetchViewState, IllustFetchSideEffect>, ViewModel(), ScreenModel {
+abstract class IllustFetchViewModel :
+    ContainerHost<IllustFetchViewState, IllustFetchSideEffect>,
+    ViewModel(),
+    ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
     private val signal = MutableSharedFlow<Unit>()
     override val container: Container<IllustFetchViewState, IllustFetchSideEffect> = container(IllustFetchViewState())
     abstract fun source(): Flow<PagingData<Illust>>
 
-    fun Illust.block() = with(AppConfig) { isLimited || (filterAi && isAI) || (filterR18G && isR18G) || (filterR18 && isR18) }
+    // 为true则不显示
+    fun Illust.block() = with(AppConfig) {
+        val base = isLimited || (filterAi && isAI) || (filterR18G && isR18G) || (filterR18 && isR18)
+
+        val aspectRatio = when (filterAspectRatioType) {
+            AppConfig.AspectRatioFilterType.NONE -> false
+            AppConfig.AspectRatioFilterType.PHONE -> width >= height
+            AppConfig.AspectRatioFilterType.PC -> width <= height
+        }
+
+        base || aspectRatio
+    }
 
     val data = merge(flowOf(Unit), signal).flatMapLatestScoped { scope, _ ->
         illustRouter.intercept(source().cachedIn(scope)).map { data -> data.filterNot { i -> i.block() } }
