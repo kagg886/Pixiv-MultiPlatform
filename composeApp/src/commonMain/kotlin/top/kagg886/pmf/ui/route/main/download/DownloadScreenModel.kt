@@ -48,7 +48,9 @@ import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.backend.useTempDir
@@ -126,7 +128,7 @@ class DownloadScreenModel :
             return null
         }
         val job = intent {
-            if (AppConfig.downloadUri.isEmpty()) { // 检查uri是否成功设置
+            if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
                 postSideEffect(
                     DownloadScreenSideEffect.Toast(
                         getString(Res.string.download_root_not_set),

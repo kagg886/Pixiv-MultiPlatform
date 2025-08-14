@@ -36,4 +36,8 @@ actual fun safFileSystem(uri: String): FileSystem = object : ForwardingFileSyste
             documentsPath / path.toString()
         }
     }
+
+    override fun listOrNull(dir: Path): List<Path>? = super.listOrNull(dir)?.map { it.relativeTo(documentsPath) }
+
+    override fun list(dir: Path): List<Path> = super.list(dir).map { it.relativeTo(documentsPath) }
 }

@@ -2,6 +2,7 @@ package top.kagg886.pmf.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlin.math.abs
 import kotlinx.coroutines.launch
 import okio.FileSystem
 import okio.ForwardingFileSystem
@@ -27,4 +28,8 @@ actual fun safFileSystem(uri: String): FileSystem = object : ForwardingFileSyste
             rootPath / path.toString()
         }
     }
+
+    override fun listOrNull(dir: Path): List<Path>? = super.listOrNull(dir)?.map { it.relativeTo(rootPath) }
+
+    override fun list(dir: Path): List<Path> = super.list(dir).map { it.relativeTo(rootPath) }
 }
