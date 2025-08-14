@@ -411,7 +411,7 @@ fun ipaArguments(
 ): Array<String> = arrayOf(
     "xcodebuild",
     "-project", "Pixiv-MultiPlatform.xcodeproj",
-    "-scheme", "Pixiv-MultiPlatform",
+    "-scheme", "Pixiv-MultiPlatform-Release",
     "-destination", destination,
     "-sdk", sdk,
     "CODE_SIGNING_ALLOWED=NO",
