@@ -1,12 +1,12 @@
 package top.kagg886.pmf.util
 
 import android.content.ContentResolver
-import android.net.Uri
-import androidx.compose.runtime.Composable
 import androidx.core.net.toUri
-import androidx.documentfile.provider.DocumentFile
+import com.lazygeniouz.dfc.file.DocumentFileCompat
 import java.io.FileNotFoundException
 import java.io.IOException
+import kotlin.io.copyTo
+import kotlin.io.use
 import okio.Buffer
 import okio.FileHandle
 import okio.FileMetadata
@@ -17,7 +17,17 @@ import okio.Sink
 import okio.Source
 import okio.Timeout
 import top.kagg886.pmf.PMFApplication
-import top.kagg886.pmf.util.logger
+
+typealias DocumentFile = DocumentFileCompat
+
+val DocumentFile.isFile: Boolean
+    get() = this.isFile()
+
+val DocumentFile.isDirectory: Boolean
+    get() = this.isDirectory()
+
+fun DocumentFile.length(): Long = this.length
+fun DocumentFile.lastModified(): Long = this.lastModified
 
 actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
     private val context = PMFApplication.getApp()
