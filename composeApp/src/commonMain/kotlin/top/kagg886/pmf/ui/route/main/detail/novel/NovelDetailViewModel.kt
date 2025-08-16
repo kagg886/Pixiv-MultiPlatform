@@ -393,7 +393,10 @@ class NovelDetailViewModel(
                     }
 
                     is NovelNodeElement.NewPage -> {
-                        doc.body().appendElement("h1").text("#Chapter${page++}")
+                        val page = ++page
+                        doc.body().appendElement("h1").text("Chapter${page}")
+                            .id("Chapter${page}")
+                            .attr("style", "height: 0;overflow: hidden;visibility: hidden;page-break-before: always;")
                     }
 
                     is NovelNodeElement.JumpPage -> {
