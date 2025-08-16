@@ -8,7 +8,6 @@ import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.mkmb.MMKV
 import top.kagg886.mkmb.defaultMMKV
 import top.kagg886.pmf.backend.Platform
-import top.kagg886.pmf.backend.SystemConfig
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.boolean

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalSettingsApi::class)
-
 package top.kagg886.pmf.backend
 
 import androidx.compose.ui.text.intl.Locale
@@ -20,6 +18,7 @@ import top.kagg886.pmf.util.json
 import top.kagg886.pmf.util.jsonOrNull
 import top.kagg886.pmf.util.long
 import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.string
 
 object AppConfig : MMKV by MMKV.mmkvWithID("app") {
     var locale by json("locale", LanguageSettings.DEFAULT)
@@ -36,7 +35,7 @@ object AppConfig : MMKV by MMKV.mmkvWithID("app") {
     var filterR18 by boolean("filter_r18", false)
     var filterR18G by boolean("filter_r18g", false)
 
-    var filterAspectRatioType by serializedValue("filter_aspect_ratio", AspectRatioFilterType.NONE)
+    var filterAspectRatioType by json("filter_aspect_ratio", AspectRatioFilterType.NONE)
     var illustDetailsShowAll by boolean("illust_details_show_all", false)
 
     var filterAiNovel by boolean("filter_ai_novel", false)
