@@ -6,16 +6,19 @@ import androidx.lifecycle.viewModelScope
 import cafe.adriel.voyager.core.model.ScreenModel
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
+import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.size.Size as CoilSize
 import com.fleeksoft.ksoup.nodes.Document
+import com.fleeksoft.ksoup.nodes.Entities
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.statement.bodyAsBytes
 import kotlin.collections.set
 import kotlin.time.Clock
+import kotlin.use
 import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +31,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import okio.Buffer
+import okio.buffer
+import okio.use
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -35,6 +40,8 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.epub.builder.EpubBuilder
 import top.kagg886.epub.data.ResourceItem
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFileSaver
 import top.kagg886.pixko.Tag
 import top.kagg886.pixko.anno.ExperimentalNovelParserAPI
 import top.kagg886.pixko.module.illust.BookmarkVisibility
@@ -59,7 +66,6 @@ import top.kagg886.pixko.module.novel.parser.v2.UploadImageNode
 import top.kagg886.pixko.module.novel.parser.v2.content
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
-import top.kagg886.pixko.module.user.getNovelSeries
 import top.kagg886.pixko.module.user.unFollowUser
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
@@ -81,15 +87,16 @@ import top.kagg886.pmf.load_failed
 import top.kagg886.pmf.parse_novel_node
 import top.kagg886.pmf.parsing_novel_series
 import top.kagg886.pmf.parsing_novel_series_progress
-import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.util.NovelNodeElement
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.un_bookmark_failed
 import top.kagg886.pmf.un_bookmark_success
 import top.kagg886.pmf.unfollow_fail
 import top.kagg886.pmf.unfollow_success
+import top.kagg886.pmf.util.delete
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.source
 
 class NovelDetailViewModel(
     val id: Long,
@@ -318,26 +325,13 @@ class NovelDetailViewModel(
         runOn<NovelDetailViewState.Success> {
             postSideEffect(NovelDetailSideEffect.Toast(getString(Res.string.exporting)))
 
-            val coverImage = ResourceItem(
-                file = Buffer().write(
-                    img.get(
-                        with(state.novel.imageUrls) {
-                            original ?: contentLarge
-                        },
-                    ).bodyAsBytes(),
-                ),
-                extension = "png",
-                mediaType = "image/png",
-                properties = "cover-image",
-            )
-
             val inlineImages = state.nodeMap.map {
                 viewModelScope.async(Dispatchers.IO) {
                     when (it) {
                         is NovelNodeElement.PixivImage -> {
                             it to ResourceItem(
                                 file = Buffer().write(
-                                    img.post(it.illust.imageUrls.content).bodyAsBytes(),
+                                    img.get(it.illust.imageUrls.content).bodyAsBytes(),
                                 ),
                                 extension = "png",
                                 mediaType = "image/png",
@@ -346,7 +340,7 @@ class NovelDetailViewModel(
 
                         is NovelNodeElement.UploadImage -> {
                             it to ResourceItem(
-                                file = Buffer().write(img.post(it.url).bodyAsBytes()),
+                                file = Buffer().write(img.get(it.url).bodyAsBytes()),
                                 extension = "png",
                                 mediaType = "image/png",
                             )
@@ -357,7 +351,15 @@ class NovelDetailViewModel(
                 }
             }.awaitAll().filterNotNull().toMap()
 
-            val doc = Document.createShell("")
+            val doc = Document.createShell("").apply {
+                outputSettings()
+                    .syntax(Document.OutputSettings.Syntax.xml)
+                    .escapeMode(Entities.EscapeMode.xhtml)
+                    .charset("UTF-8")
+                    .prettyPrint(false)
+
+                selectFirst("html")?.attr("xmlns", "http://www.w3.org/1999/xhtml")
+            }
             var page = 1
             for (i in state.nodeMap) {
                 when (i) {
@@ -407,6 +409,19 @@ class NovelDetailViewModel(
                 mediaType = "application/xhtml+xml",
             )
 
+            val coverImage = ResourceItem(
+                file = Buffer().write(
+                    img.get(
+                        with(state.novel.imageUrls) {
+                            original ?: contentLarge
+                        },
+                    ).bodyAsBytes(),
+                ),
+                extension = "png",
+                mediaType = "image/png",
+                properties = "cover-image",
+            )
+
             val epub = EpubBuilder(cachePath.resolve(Uuid.random().toHexString())) {
                 metadata {
                     title(state.novel.title)
@@ -414,6 +429,10 @@ class NovelDetailViewModel(
                     description(state.novel.caption)
                     publisher("github @Pixiv-MultiPlatform")
                     language("zh-CN")
+
+                    meta {
+                        put("cover", coverImage.uuid)
+                    }
                 }
 
                 manifest {
@@ -429,7 +448,11 @@ class NovelDetailViewModel(
 
             val dst = cachePath.resolve("${state.novel.title}.epub")
             epub.writeTo(dst)
-            shareFile(dst)
+
+            val saver = FilePicker.openFileSaver("${state.novel.title} - ${state.novel.user.name}", extension = "epub")
+            saver?.buffer()?.use { buf -> buf.write(dst.source().buffer().readByteArray()) }
+
+            dst.delete()
         }
     }
 
