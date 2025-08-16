@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSettingsApi::class)
+
 package top.kagg886.pmf.backend
 
 import androidx.compose.ui.text.intl.Locale
@@ -48,6 +50,8 @@ object AppConfig : MMKV by MMKV.mmkvWithID("app") {
 
     var filterLongTag by boolean("filter_long_tag", false)
     var filterLongTagMinLength by int("filter_long_tag_min_len", 15)
+
+    var downloadUri by string("download_root_uri", "")
 
     var recordIllustHistory by boolean("record_illust", true)
     var recordNovelHistory by boolean("record_novel", true)

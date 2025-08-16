@@ -199,10 +199,13 @@ jobs:
       - name: Generate AboutLibraries Metadata
         run: ./gradlew exportLibraryDefinitions
 
+      - name: Switch XCode
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+
       - name: Build with Gradle Wrapper
         run: |
-          export PATH=/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib:$PATH
-          export LIBRARY_PATH="$LIBRARY_PATH:/Applications/Xcode_16.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/usr/lib"
+          export PATH=/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/lib:$PATH
+          export LIBRARY_PATH="$LIBRARY_PATH:/Applications/Xcode_16.2.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/usr/lib"
           ./gradlew buildReleaseIpa
 
       - name: Rename artifact

@@ -18,12 +18,14 @@ ktor = "3.2.2"
 okio = "3.15.0"
 orbit = "10.0.0"
 paging = "3.3.6"
-pixko = "2.8"
+pixko = "2.9"
 room = "2.7.2"
 sqliteBundled = "2.5.2"
 telephoto = "0.16.0"
 versionCatalogUpdate = "1.0.0"
 voyagerVersion = "1.1.0-beta03"
+#androidx-documentfile = "1.1.0"
+androidx-documentfile = "1.2"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
@@ -42,6 +44,10 @@ coil-bom = { module = "io.coil-kt.coil3:coil-bom", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose" }
 coil-gif = { module = "io.coil-kt.coil3:coil-gif" }
 coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3" }
+#androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "androidx-documentfile" }
+androidx-documentfile = { module = "com.lazygeniouz:dfc", version.ref = "androidx-documentfile" }
+compose-settings-extended = { module = "com.github.alorma.compose-settings:ui-tiles-extended", version.ref = "compose-settings" }
+compose-settings-ui = { module = "com.github.alorma.compose-settings:ui-tiles", version.ref = "compose-settings" }
 compose-webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "composeWebviewMultiplatform" }
 mkmb-core = { module = "top.kagg886.mkmb:core", version.ref = "core" }
 mkmb-windows = { module = "top.kagg886.mkmb:platform-windows", version.ref = "core" }

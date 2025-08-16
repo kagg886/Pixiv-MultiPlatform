@@ -203,6 +203,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.coil.gif)
+            implementation(libs.androidx.documentfile)
         }
 
         iosMain.dependencies {

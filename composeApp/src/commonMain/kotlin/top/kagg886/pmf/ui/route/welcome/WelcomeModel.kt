@@ -7,6 +7,9 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.mkmb.MMKV
 import top.kagg886.mkmb.defaultMMKV
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.SystemConfig
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.boolean
 
@@ -34,7 +37,13 @@ class WelcomeModel(
     @OptIn(OrbitExperimental::class)
     fun nextStep() = intent {
         runOn<WelcomeViewState.ConfigureSetting> {
-            val nextState = WelcomeViewState.ConfigureSetting.entries.getOrNull(state.ordinal + 1)
+            var nextState = WelcomeViewState.ConfigureSetting.entries.getOrNull(state.ordinal + 1)
+
+            // 如果是iOS平台，跳过DOWNLOAD步骤
+            if (nextState == WelcomeViewState.ConfigureSetting.DOWNLOAD && currentPlatform is Platform.Apple) {
+                nextState = WelcomeViewState.ConfigureSetting.entries.getOrNull(state.ordinal + 2)
+            }
+
             if (nextState == null) {
                 isInited = true
                 postSideEffect(WelcomeSideEffect.NavigateToMain)
@@ -54,7 +63,13 @@ class WelcomeModel(
     @OptIn(OrbitExperimental::class)
     fun goback() = intent {
         runOn<WelcomeViewState.ConfigureSetting> {
-            val nextState = WelcomeViewState.ConfigureSetting.entries[state.ordinal - 1]
+            var nextState = WelcomeViewState.ConfigureSetting.entries[state.ordinal - 1]
+
+            // 如果是iOS平台且上一步是DOWNLOAD，再往前跳一步
+            if (nextState == WelcomeViewState.ConfigureSetting.DOWNLOAD && currentPlatform is Platform.Apple) {
+                nextState = WelcomeViewState.ConfigureSetting.entries[state.ordinal - 2]
+            }
+
             reduce { nextState }
         }
     }
@@ -68,6 +83,7 @@ sealed interface WelcomeViewState {
         WELCOME, // 欢迎
         THEME, // 配置主题
         BYPASS, // SNI绕过
+        DOWNLOAD, // 下载设置
         SHIELD, // 屏蔽R18，AI等
         FINISH, // 完成
     }

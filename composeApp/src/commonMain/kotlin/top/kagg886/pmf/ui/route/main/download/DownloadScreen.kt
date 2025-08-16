@@ -40,7 +40,6 @@ import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
-import top.kagg886.pmf.util.exists
 import top.kagg886.pmf.util.stringResource
 
 class DownloadScreen : Screen {
@@ -71,7 +70,10 @@ class DownloadScreen : Screen {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(5.dp)) {
                     items(data) {
                         val nav = LocalNavigator.currentOrThrow
-                        OutlinedCard(modifier = Modifier.padding(5.dp), onClick = { nav.push(IllustDetailScreen(it.illust)) }) {
+                        OutlinedCard(
+                            modifier = Modifier.padding(5.dp),
+                            onClick = { nav.push(IllustDetailScreen(it.illust)) },
+                        ) {
                             Row(
                                 modifier = Modifier.padding(5.dp).fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -108,11 +110,9 @@ class DownloadScreen : Screen {
                                                 Row {
                                                     IconButton(
                                                         onClick = {
-                                                            if (!it.downloadRootPath().exists()) {
-                                                                model.startDownload(it.illust)
-                                                                return@IconButton
+                                                            model.startDownloadOr(it) {
+                                                                model.saveToExternalFile(it)
                                                             }
-                                                            model.saveToExternalFile(it)
                                                         },
                                                     ) {
                                                         Icon(
@@ -122,11 +122,9 @@ class DownloadScreen : Screen {
                                                     }
                                                     IconButton(
                                                         onClick = {
-                                                            if (!it.downloadRootPath().exists()) {
-                                                                model.startDownload(it.illust)
-                                                                return@IconButton
+                                                            model.startDownloadOr(it) {
+                                                                model.shareFile(it)
                                                             }
-                                                            model.shareFile(it)
                                                         },
                                                     ) {
                                                         Icon(
