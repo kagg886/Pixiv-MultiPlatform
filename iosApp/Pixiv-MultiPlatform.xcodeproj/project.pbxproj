@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -12,7 +12,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		93CAA94B2D9D703300D9B16D /* Exceptions for "Pixiv-MultiPlatform" folder in "Pixiv-MultiPlatform" target */ = {
+		93CAA94B2D9D703300D9B16D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -22,14 +22,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		93CAA9232D9D566F00D9B16D /* Pixiv-MultiPlatform */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				93CAA94B2D9D703300D9B16D /* Exceptions for "Pixiv-MultiPlatform" folder in "Pixiv-MultiPlatform" target */,
-			);
-			path = "Pixiv-MultiPlatform";
-			sourceTree = "<group>";
-		};
+		93CAA9232D9D566F00D9B16D /* Pixiv-MultiPlatform */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (93CAA94B2D9D703300D9B16D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = "Pixiv-MultiPlatform"; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +103,7 @@
 				};
 			};
 			buildConfigurationList = 93CAA91C2D9D566F00D9B16D /* Build configuration list for PBXProject "Pixiv-MultiPlatform" */;
+			compatibilityVersion = "Xcode 15.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -118,7 +112,6 @@
 			);
 			mainGroup = 93CAA9182D9D566F00D9B16D;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 93CAA9222D9D566F00D9B16D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";

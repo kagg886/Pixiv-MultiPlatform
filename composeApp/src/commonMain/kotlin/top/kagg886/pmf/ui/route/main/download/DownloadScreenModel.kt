@@ -11,10 +11,12 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.contentLength
 import io.ktor.utils.io.asByteWriteChannel
 import io.ktor.utils.io.copyAndClose
+import io.ktor.utils.io.core.copyTo
 import io.ktor.utils.io.counted
 import kotlin.math.min
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.uuid.Uuid
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +32,7 @@ import kotlinx.io.UnsafeIoApi
 import kotlinx.io.unsafe.UnsafeBufferOperations
 import okio.Buffer as OkioBuffer
 import okio.Path
+import okio.Path.Companion.toPath
 import okio.Sink as OkioSink
 import okio.buffer
 import okio.use
@@ -44,26 +47,31 @@ import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
-import top.kagg886.pmf.backend.dataPath
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
+import top.kagg886.pmf.backend.useTempDir
+import top.kagg886.pmf.backend.useTempFile
 import top.kagg886.pmf.download_completed
 import top.kagg886.pmf.download_failed
+import top.kagg886.pmf.download_root_not_set
+import top.kagg886.pmf.download_root_permission_revoked
 import top.kagg886.pmf.download_started
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.util.deleteRecursively
-import top.kagg886.pmf.util.exists
+import top.kagg886.pmf.util.delete
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.listFile
 import top.kagg886.pmf.util.logger
-import top.kagg886.pmf.util.mkdirs
+import top.kagg886.pmf.util.nameWithoutExtension
+import top.kagg886.pmf.util.safFileSystem
 import top.kagg886.pmf.util.sink
 import top.kagg886.pmf.util.source
+import top.kagg886.pmf.util.transfer
 import top.kagg886.pmf.util.zip
-
-fun DownloadItem.downloadRootPath(): Path = dataPath.resolve("download").resolve(id.toString())
 
 class DownloadScreenModel :
     ContainerHost<DownloadScreenState, DownloadScreenSideEffect>,
@@ -75,6 +83,36 @@ class DownloadScreenModel :
     private val net by inject<HttpClient>()
 
     private val jobs = mutableMapOf<Long, Job>()
+
+    private var internalSystem = lazy {
+        // make it lazy to upgrade.
+        safFileSystem(AppConfig.downloadUri)
+    }
+
+    private val system by internalSystem
+
+    private fun DownloadItem.downloadRootPath(): Path = id.toString().toPath()
+
+    fun startDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
+        if (!system.exists(item.downloadRootPath())) {
+            startDownload(item.illust)?.join()
+            return@intent
+        }
+        orElse()
+    }
+
+    fun setSAFSystem(uri: String) {
+        internalSystem = lazy {
+            safFileSystem(uri)
+        }
+    }
+
+    fun stopAll(): Job = intent {
+        for (job in jobs.values) {
+            job.cancel()
+        }
+        jobs.clear()
+    }
 
     @OptIn(OrbitExperimental::class)
     fun startDownload(illust: Illust): Job? {
@@ -90,6 +128,28 @@ class DownloadScreenModel :
             return null
         }
         val job = intent {
+            if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_not_set),
+                        false,
+                    ),
+                )
+                jobs.remove(illust.id.toLong())
+                return@intent
+            }
+
+            if (!system.exists("/".toPath())) {
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_permission_revoked),
+                        false,
+                    ),
+                )
+                jobs.remove(illust.id.toLong())
+                return@intent
+            }
+
             runOn<DownloadScreenState.Loaded> {
                 postSideEffect(
                     DownloadScreenSideEffect.Toast(
@@ -112,12 +172,12 @@ class DownloadScreenModel :
                 // 获取下载的根目录
                 val file = task.downloadRootPath()
                 logger.d("the illust:${illust.id} will be download to $file")
-                if (file.exists()) {
+                if (system.exists(file)) {
                     logger.d("the illust:${illust.id} has been downloaded, delete it")
                     // 有的话就递归删除重下
-                    file.deleteRecursively()
+                    system.deleteRecursively(file)
                 }
-                file.mkdirs()
+                system.createDirectories(file)
 
                 // 获取所有下载链接
                 val urls = illust.contentImages[IllustImagesType.ORIGIN]!!
@@ -145,7 +205,7 @@ class DownloadScreenModel :
                                     logger.d("the illust:${illust.id}'s download link: $url, length is: $length")
 
                                     val src = resp.bodyAsChannel().counted()
-                                    (file / "$index.png").sink().asRawSink().use { sink ->
+                                    system.sink(file / "$index.png").asRawSink().use { sink ->
                                         raceN(
                                             {
                                                 val upd = {
@@ -190,7 +250,7 @@ class DownloadScreenModel :
                             getString(Res.string.download_failed, illust.title, illust.id),
                         ),
                     )
-                    file.deleteRecursively()
+                    system.deleteRecursively(file)
                     return@runOn
                 }
                 dao.update(task.copy(success = true, progress = -1f))
@@ -206,40 +266,60 @@ class DownloadScreenModel :
     }
 
     fun saveToExternalFile(it: DownloadItem) = intent {
-        val listFiles = it.downloadRootPath().listFile()
+        val listFiles = system.list(it.downloadRootPath())
         if (listFiles.size == 1) {
             val platformFile = FilePicker.openFileSaver(
                 suggestedName = it.illust.title,
                 extension = "png",
             )
-            platformFile?.buffer()?.use { buf -> buf.write(listFiles[0].source().buffer().readByteArray()) }
+            platformFile?.buffer()?.use { buf -> buf.write(system.source(listFiles[0]).buffer().readByteArray()) }
             return@intent
         }
         val platformFile = FilePicker.openFileSaver(
             suggestedName = "${it.illust.title}(${it.id})",
             extension = "zip",
         )
-        platformFile?.buffer()?.use { buf ->
-            buf.write(
-                it.downloadRootPath().zip(
-                    target = cachePath.resolve("share")
-                        .resolve("${it.id}.zip"),
-                ).source().buffer().readByteArray(),
-            )
+
+        if (platformFile == null) {
+            return@intent
+        }
+
+        useTempDir { dir ->
+            for (image in listFiles) {
+                dir.resolve(image.name).sink().use { sink ->
+                    system.source(image).use { source ->
+                        source.transfer(sink)
+                    }
+                }
+            }
+
+            dir.zip().apply {
+                source().use { source -> source.transfer(platformFile) }
+                delete()
+            }
         }
     }
 
     fun shareFile(it: DownloadItem) = intent {
-        val listFiles = it.downloadRootPath().listFile()
-        if (listFiles.size == 1) {
-            top.kagg886.pmf.shareFile(listFiles[0])
-            return@intent
+        val listFiles = system.list(it.downloadRootPath())
+
+        // transfer it to app cache.
+        useTempDir { dir ->
+            for (image in listFiles) {
+                dir.resolve(image.name).sink().use { sink ->
+                    system.source(image).use { source ->
+                        source.transfer(sink)
+                    }
+                }
+            }
+
+            if (listFiles.size == 1) {
+                top.kagg886.pmf.shareFile(dir.listFile()[0])
+                return@intent
+            }
+
+            top.kagg886.pmf.shareFile(dir.zip(cachePath.resolve("${Uuid.random().toHexString()}.zip")))
         }
-        top.kagg886.pmf.shareFile(
-            it.downloadRootPath().zip(
-                target = cachePath.resolve("${it.id}.zip"),
-            ),
-        )
     }
 
     override val container: Container<DownloadScreenState, DownloadScreenSideEffect> =

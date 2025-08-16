@@ -10,6 +10,7 @@ import com.russhwolf.settings.int
 import com.russhwolf.settings.long
 import com.russhwolf.settings.serialization.nullableSerializedValue
 import com.russhwolf.settings.serialization.serializedValue
+import com.russhwolf.settings.string
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -50,6 +51,8 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
     var filterLongTag by boolean("filter_long_tag", false)
     var filterLongTagMinLength by int("filter_long_tag_min_len", 15)
+
+    var downloadUri by string("download_root_uri", "")
 
     var recordIllustHistory by boolean("record_illust", true)
     var recordNovelHistory by boolean("record_novel", true)

@@ -29,9 +29,9 @@
     <string name="browser_init_failed_msg_clickable">点击此文本以查看详细信息</string>
     <string name="browser_init_failed_msg_fronted">由于一些未知的原因，无法初始化嵌入式浏览器。\n请关闭程序后尝试使用token登录。\n或者参阅</string>
     <string name="browser_init_failed_msg_this_link">此链接</string>
-    <string name="bypass_intro">        在某些地区，由于政策限制，可能无法访问Pixiv。\n        我们提供了SNI Bypass和代理这两种方案。\n        SNI Bypass：该功能通过DoH返回任意Pixiv子域名的服务器，并直连其ip的方式，从而获得绕过封锁，直连Pixiv的能力。要想启用该功能，请确保CloudFlare DoH服务在您的地区可用，并且Pixiv的ip地址未被封锁\n        代理：该功能通过代理的方式，将Pixiv的请求转发到Pixiv服务器，从而绕过封锁。</string>
+    <string name="bypass_intro">        在某些地区可能无法正常访问Pixiv。\n        我们提供了SNI绕过和代理两种连接方案。\n        SNI绕过：通过特殊方式直接连接Pixiv服务器。\n        代理：通过代理服务器转发请求。</string>
     <string name="bypass_none">无</string>
-    <string name="bypass_note">该功能不会影响内置浏览器的Pixiv登录功能。因此在登录Pixiv时，你仍然需要使用VPN等工具。\n启用/禁用功能后，你需要重启客户端以生效</string>
+    <string name="bypass_note">如果您使用嵌入式浏览器搭配梯子登录pixiv，请不要开启SNI绕过功能，否则程序将无法正常登录。\n启用/禁用功能后，你需要重启客户端以生效。</string>
     <string name="bypass_proxy">代理</string>
     <string name="bypass_sni">SNI替换</string>
     <string name="bypass_solution">直连方案</string>
@@ -356,4 +356,14 @@
     <string name="option_filter_aspect_ratio_none">不启用</string>
     <string name="option_filter_aspect_ratio_phone">宽度>长度(手机壁纸)</string>
     <string name="option_filter_aspect_ratio_pc">(长度＞宽度)(电脑壁纸)</string>
+
+    <string name="settings_download">下载设置</string>
+    <string name="settings_download_path">下载根设置</string>
+    <string name="settings_download_path_desc">选择程序将图片等所下载的位置</string>
+    <string name="settings_download_path_not_supported">iOS不支持选取下载路径</string>
+    <string name="download_root_not_set">未设置下载根路径，请前往设置页面进行设置</string>
+    <string name="download_root_permission_revoked">下载根路径读写权限被系统收回，请前往设置页面重新进行设置</string>
+    <string name="download_path_not_set">未设置下载路径，点击此处选择</string>
+    <string name="download_path_current">当前路径: %1$s</string>
+    <string name="select_path">选择</string>
 </resources>

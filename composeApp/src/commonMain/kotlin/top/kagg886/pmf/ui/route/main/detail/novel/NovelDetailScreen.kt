@@ -622,6 +622,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                             RichText(
                                 state = state.nodeMap,
                                 modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(horizontal = 15.dp),
                             )
 

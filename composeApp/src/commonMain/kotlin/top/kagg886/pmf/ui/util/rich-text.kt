@@ -229,14 +229,14 @@ fun RichText(
                         fun String.replaceBigLines() = replace("(\\s*\\r?\\n){2,}\n".toRegex(), "\n")
                         if (AppConfig.autoTypo) {
                             with(i.text.replaceBigLines().lines()) {
-                                appendLine(this[0])
+                                append(this[0])
                                 drop(1).filter { it.isNotBlank() }.map {
                                     if (currentPlatform is Platform.Android) {
                                         return@map it.trim()
                                     }
                                     // 8个空格
-                                    return@map "        ${it.trim()}"
-                                }.forEach(this@buildAnnotatedString::appendLine)
+                                    return@map "\n        ${it.trim()}"
+                                }.forEach(this@buildAnnotatedString::append)
                             }
                             continue
                         }
