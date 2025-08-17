@@ -4,12 +4,15 @@ import androidx.lifecycle.ViewModel
 import arrow.fx.coroutines.fixedRate
 import arrow.fx.coroutines.raceN
 import cafe.adriel.voyager.core.model.ScreenModel
+import com.fleeksoft.ksoup.nodes.Document
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
+import kotlinx.io.Buffer
+import korlibs.io.async.async
 import kotlin.math.min
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
@@ -18,7 +21,6 @@ import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.io.Buffer
 import kotlinx.io.RawSink
 import kotlinx.io.UnsafeIoApi
 import kotlinx.io.unsafe.UnsafeBufferOperations
@@ -33,22 +35,38 @@ import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
+import top.kagg886.epub.builder.EpubBuilder
+import top.kagg886.epub.data.ResourceItem
 import top.kagg886.filepicker.FilePicker
 import top.kagg886.filepicker.openFileSaver
+import top.kagg886.pixko.PixivAccount
+import top.kagg886.pixko.anno.ExperimentalNovelParserAPI
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
+import top.kagg886.pixko.module.illust.getIllustDetail
+import top.kagg886.pixko.module.novel.getNovelContent
+import top.kagg886.pixko.module.novel.parser.v2.JumpPageNode
+import top.kagg886.pixko.module.novel.parser.v2.JumpUriNode
+import top.kagg886.pixko.module.novel.parser.v2.NewPageNode
+import top.kagg886.pixko.module.novel.parser.v2.PixivImageNode
+import top.kagg886.pixko.module.novel.parser.v2.TextNode
+import top.kagg886.pixko.module.novel.parser.v2.TitleNode
+import top.kagg886.pixko.module.novel.parser.v2.UploadImageNode
+import top.kagg886.pixko.module.novel.parser.v2.content
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.*
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.backend.database.dao.DownloadItemType
 import top.kagg886.pmf.backend.database.dao.illust
+import top.kagg886.pmf.backend.database.dao.novel
 import top.kagg886.pmf.download_completed
 import top.kagg886.pmf.download_failed
 import top.kagg886.pmf.download_root_not_set
 import top.kagg886.pmf.download_root_permission_revoked
 import top.kagg886.pmf.download_started
+import top.kagg886.pmf.jump_to_chapter
 import top.kagg886.pmf.task_already_exists
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.*
@@ -61,6 +79,7 @@ class DownloadScreenModel :
     private val database by inject<AppDatabase>()
 
     private val net by inject<HttpClient>()
+    private val pixiv by inject<PixivAccount>()
 
     private val jobs = mutableMapOf<Long, Job>()
 
@@ -76,6 +95,14 @@ class DownloadScreenModel :
     fun startIllustDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
         if (!system.exists(item.downloadRootPath())) {
             startIllustDownload(item.illust)?.join()
+            return@intent
+        }
+        orElse()
+    }
+
+    fun startNovelDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
+        if (!system.exists(item.downloadRootPath())) {
+            startNovelDownload(item.novel)?.join()
             return@intent
         }
         orElse()
@@ -245,6 +272,221 @@ class DownloadScreenModel :
         return job
     }
 
+    @OptIn(OrbitExperimental::class, ExperimentalNovelParserAPI::class)
+    fun startNovelDownload(novel: top.kagg886.pixko.module.novel.Novel): Job? {
+        if (novel.id.toLong() in jobs.keys) {
+            intent {
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.task_already_exists),
+                        true,
+                    ),
+                )
+            }
+            return null
+        }
+        val job = intent {
+            if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_not_set),
+                        false,
+                    ),
+                )
+                jobs.remove(novel.id.toLong())
+                return@intent
+            }
+
+            if (!system.exists("/".toPath())) {
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_root_permission_revoked),
+                        false,
+                    ),
+                )
+                jobs.remove(novel.id.toLong())
+                return@intent
+            }
+
+
+
+            runOn<DownloadScreenState.Loaded> {
+                val dao = database.downloadDAO()
+                // 查找历史记录任务，若无任务的话则新建任务并插入
+                val task = dao.find(novel.id.toLong())?.copy(success = false) ?: DownloadItem(
+                    id = novel.id.toLong(),
+                    novel = novel,
+                    success = false,
+                ).apply {
+                    logger.d("create a record for novel:${novel.id} where not exists in database")
+                    dao.insert(this)
+                }
+
+
+                val file = task.downloadRootPath()
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_started),
+                        true,
+                    ),
+                )
+
+                val result = runCatching {
+                    if (system.exists(file)) {
+                        system.delete(file)
+                    }
+
+                    val coverImage = ResourceItem(
+                        file = OkioBuffer().write(
+                            net.get(
+                                with(novel.imageUrls) {
+                                    original ?: contentLarge
+                                },
+                            ).bodyAsBytes(),
+                        ),
+                        extension = "png",
+                        mediaType = "image/png",
+                        properties = "cover-image",
+                    )
+
+                    val content = pixiv.getNovelContent(novel.id.toLong())
+                    val result = content.content.value
+
+
+                    val inlineImages = result.filter { it is PixivImageNode || it is UploadImageNode }.map { node ->
+                        async(Dispatchers.IO) {
+                            val buf = when (node) {
+                                is PixivImageNode -> {
+                                    OkioBuffer().write(
+                                        net.get(pixiv.getIllustDetail(node.id.toLong()).imageUrls.content)
+                                            .bodyAsBytes(),
+                                    )
+                                }
+
+                                is UploadImageNode -> {
+                                    OkioBuffer().write(net.get(node.url).bodyAsBytes())
+                                }
+
+                                else -> error("Unexpected node type ${node::class}")
+                            }
+
+                            node to ResourceItem(
+                                file = buf,
+                                extension = "png",
+                                mediaType = "image/png",
+                            )
+                        }
+                    }.awaitAll().toMap()
+
+                    val doc = Document.createShell("")
+                    var page = 1
+                    for (i in result) {
+                        when (i) {
+                            is TitleNode -> {
+                                doc.body().appendElement("h1").text(i.text.toString())
+                            }
+
+                            is TextNode -> {
+                                doc.body().appendElement("p").text(i.text.toString())
+                            }
+
+                            is JumpPageNode -> {
+                                doc.body().appendElement("a").attr("href", "#Chapter${i.page}")
+                                    .text(getString(Res.string.jump_to_chapter, i.page))
+                            }
+
+                            is JumpUriNode -> {
+                                doc.body().appendElement("p").appendElement("a").attr("href", i.uri)
+                                    .text(i.text)
+                            }
+
+                            is NewPageNode -> {
+                                doc.body().appendElement("h1").text("#Chapter${page++}")
+                            }
+
+                            is PixivImageNode -> doc.body().appendElement("img")
+                                .attr("src", inlineImages[i]!!.fileName)
+                                .attr("alt", Uuid.random().toHexString())
+
+                            is UploadImageNode -> {
+                                doc.body().appendElement("img").attr("src", inlineImages[i]!!.fileName)
+                                    .attr("alt", Uuid.random().toHexString())
+                            }
+                        }
+                    }
+
+                    val docResource = ResourceItem(
+                        file = OkioBuffer().write(doc.html().encodeToByteArray()),
+                        extension = "html",
+                        mediaType = "application/xhtml+xml",
+                    )
+
+                    val epub = EpubBuilder(cachePath.resolve(Uuid.random().toHexString())) {
+                        metadata {
+                            title(novel.title)
+                            creator(novel.user.name)
+                            description(novel.caption)
+                            publisher("github @Pixiv-MultiPlatform")
+                            language("zh-CN")
+                        }
+
+                        manifest {
+                            add(coverImage)
+                            add(docResource)
+                            addAll(inlineImages.values)
+                        }
+
+                        spine {
+                            toc(novel.title, docResource)
+                        }
+                    }
+
+                    val platformFile = FilePicker.openFileSaver(
+                        suggestedName = "${novel.title} - ${novel.user.name}",
+                        extension = "epub",
+                    )
+
+                    useTempFile { f->
+                        epub.writeTo(f)
+
+                        f.source().use { i->
+                            platformFile?.use { o->
+                                i.transfer(o)
+                            }
+                        }
+                        Unit
+                    }
+                }
+
+
+                // 移除注册的任务
+                jobs.remove(novel.id.toLong())
+
+                if (result.isFailure) {
+                    dao.update(task.copy(progress = -1f))
+                    logger.e(result.exceptionOrNull()!!) { "Novel: [${novel.title}(${novel.id})] download failed: ${result.exceptionOrNull()?.message}" }
+                    postSideEffect(
+                        DownloadScreenSideEffect.Toast(
+                            getString(Res.string.download_failed, novel.title, novel.id),
+                        ),
+                    )
+                    system.delete(file)
+                    return@runOn
+                }
+
+                // 暂时标记为成功，实际实现时需要根据下载结果来设置
+                dao.update(task.copy(success = true, progress = -1f))
+                postSideEffect(
+                    DownloadScreenSideEffect.Toast(
+                        getString(Res.string.download_completed, novel.title, novel.id),
+                    ),
+                )
+            }
+        }
+        jobs[novel.id.toLong()] = job
+        return job
+    }
+
     fun saveToExternalFile(it: DownloadItem) = intent {
         if (!system.metadata(it.downloadRootPath()).isDirectory) {
             val ext = when (it.meta) {
@@ -350,7 +592,7 @@ class DownloadScreenModel :
 
 sealed class DownloadScreenState {
     data object Loading : DownloadScreenState()
-    data class Loaded(val illust: Flow<List<DownloadItem>>) : DownloadScreenState()
+    data class Loaded(val data: Flow<List<DownloadItem>>) : DownloadScreenState()
 }
 
 sealed class DownloadScreenSideEffect {
