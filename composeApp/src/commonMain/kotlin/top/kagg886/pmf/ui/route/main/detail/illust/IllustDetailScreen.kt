@@ -482,7 +482,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         IconButton(
                                             onClick = {
-                                                downloadModel.startDownload(illust)
+                                                downloadModel.startIllustDownload(illust)
                                             },
                                             enabled = illust.contentImages[IllustImagesType.ORIGIN] != null,
                                             modifier = Modifier.size(30.dp),
