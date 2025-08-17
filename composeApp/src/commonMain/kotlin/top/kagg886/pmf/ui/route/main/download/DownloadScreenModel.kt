@@ -11,7 +11,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.utils.io.*
-import kotlinx.io.Buffer
 import korlibs.io.async.async
 import kotlin.math.min
 import kotlin.time.Duration.Companion.hours
@@ -21,6 +20,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.io.Buffer
 import kotlinx.io.RawSink
 import kotlinx.io.UnsafeIoApi
 import kotlinx.io.unsafe.UnsafeBufferOperations
@@ -308,8 +308,6 @@ class DownloadScreenModel :
                 return@intent
             }
 
-
-
             runOn<DownloadScreenState.Loaded> {
                 val dao = database.downloadDAO()
                 // 查找历史记录任务，若无任务的话则新建任务并插入
@@ -321,7 +319,6 @@ class DownloadScreenModel :
                     logger.d("create a record for novel:${novel.id} where not exists in database")
                     dao.insert(this)
                 }
-
 
                 val file = task.downloadRootPath()
                 postSideEffect(
@@ -351,7 +348,6 @@ class DownloadScreenModel :
 
                     val content = pixiv.getNovelContent(novel.id.toLong())
                     val result = content.content.value
-
 
                     val inlineImages = result.filter { it is PixivImageNode || it is UploadImageNode }.map { node ->
                         async(Dispatchers.IO) {
@@ -446,18 +442,17 @@ class DownloadScreenModel :
                         extension = "epub",
                     )
 
-                    useTempFile { f->
+                    useTempFile { f ->
                         epub.writeTo(f)
 
-                        f.source().use { i->
-                            platformFile?.use { o->
+                        f.source().use { i ->
+                            platformFile?.use { o ->
                                 i.transfer(o)
                             }
                         }
                         Unit
                     }
                 }
-
 
                 // 移除注册的任务
                 jobs.remove(novel.id.toLong())

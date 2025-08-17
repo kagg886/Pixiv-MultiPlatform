@@ -78,14 +78,14 @@ class DownloadScreen : Screen {
                                 IllustDownloadItem(
                                     item = item,
                                     model = model,
-                                    modifier = Modifier.padding(5.dp)
+                                    modifier = Modifier.padding(5.dp),
                                 )
                             }
                             DownloadItemType.NOVEL -> {
                                 NovelDownloadItem(
                                     item = item,
                                     model = model,
-                                    modifier = Modifier.padding(5.dp)
+                                    modifier = Modifier.padding(5.dp),
                                 )
                             }
                         }
@@ -99,7 +99,7 @@ class DownloadScreen : Screen {
     private fun IllustDownloadItem(
         item: top.kagg886.pmf.backend.database.dao.DownloadItem,
         model: DownloadScreenModel,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         val nav = LocalNavigator.currentOrThrow
         OutlinedCard(
@@ -191,7 +191,7 @@ class DownloadScreen : Screen {
     private fun NovelDownloadItem(
         item: top.kagg886.pmf.backend.database.dao.DownloadItem,
         model: DownloadScreenModel,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
     ) {
         val nav = LocalNavigator.currentOrThrow
         OutlinedCard(
