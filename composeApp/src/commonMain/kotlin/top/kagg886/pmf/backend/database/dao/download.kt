@@ -56,7 +56,7 @@ fun DownloadItem(
     success: Boolean,
     progress: Float = -1f,
     createTime: Long = Clock.System.now().toEpochMilliseconds(),
-) = DownloadItem(id, illust.title, DownloadItemType.ILLUST, illust.toString(), success, progress, createTime)
+) = DownloadItem(id, illust.title, DownloadItemType.ILLUST, Json.encodeToString(illust), success, progress, createTime)
 
 fun DownloadItem(
     id: Long,
@@ -64,7 +64,7 @@ fun DownloadItem(
     success: Boolean,
     progress: Float = -1f,
     createTime: Long = Clock.System.now().toEpochMilliseconds(),
-) = DownloadItem(id, novel.title, DownloadItemType.NOVEL, novel.toString(), success, progress, createTime)
+) = DownloadItem(id, novel.title, DownloadItemType.NOVEL, Json.encodeToString(novel), success, progress, createTime)
 
 val DownloadItem.illust: Illust
     get() {

@@ -5,6 +5,7 @@ import arrow.fx.coroutines.fixedRate
 import arrow.fx.coroutines.raceN
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.fleeksoft.ksoup.nodes.Document
+import com.fleeksoft.ksoup.nodes.Entities
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -45,6 +46,7 @@ import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
+import top.kagg886.pixko.module.novel.NovelImagesSize
 import top.kagg886.pixko.module.novel.getNovelContent
 import top.kagg886.pixko.module.novel.parser.v2.JumpPageNode
 import top.kagg886.pixko.module.novel.parser.v2.JumpUriNode
@@ -61,6 +63,7 @@ import top.kagg886.pmf.backend.database.dao.DownloadItem
 import top.kagg886.pmf.backend.database.dao.DownloadItemType
 import top.kagg886.pmf.backend.database.dao.illust
 import top.kagg886.pmf.backend.database.dao.novel
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.download_completed
 import top.kagg886.pmf.download_failed
 import top.kagg886.pmf.download_root_not_set
@@ -79,7 +82,7 @@ class DownloadScreenModel :
     private val database by inject<AppDatabase>()
 
     private val net by inject<HttpClient>()
-    private val pixiv by inject<PixivAccount>()
+    private val pixiv = PixivConfig.newAccountFromConfig()
 
     private val jobs = mutableMapOf<Long, Job>()
 
@@ -90,7 +93,10 @@ class DownloadScreenModel :
 
     private val system by internalSystem
 
-    private fun DownloadItem.downloadRootPath(): Path = id.toString().toPath()
+    private fun DownloadItem.downloadRootPath(): Path = when (meta) {
+        DownloadItemType.ILLUST -> id.toString()
+        DownloadItemType.NOVEL -> "${novel.title} - ${novel.user.name}.epub"
+    }.toPath()
 
     fun startIllustDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
         if (!system.exists(item.downloadRootPath())) {
@@ -328,6 +334,7 @@ class DownloadScreenModel :
                     ),
                 )
 
+                dao.update(task.copy(progress = 0f))
                 val result = runCatching {
                     if (system.exists(file)) {
                         system.delete(file)
@@ -360,7 +367,19 @@ class DownloadScreenModel :
                                 }
 
                                 is UploadImageNode -> {
-                                    OkioBuffer().write(net.get(node.url).bodyAsBytes())
+                                    val priority = listOf(
+                                        NovelImagesSize.N480Mw,
+                                        NovelImagesSize.N1200x1200,
+                                        NovelImagesSize.N128x128,
+                                        NovelImagesSize.NOriginal,
+                                        NovelImagesSize.N240Mw,
+                                    )
+                                    val img = priority.firstNotNullOf {
+                                        kotlin.runCatching {
+                                            content.images[node.url]!![it]
+                                        }.getOrNull()
+                                    }
+                                    OkioBuffer().write(net.get(img).bodyAsBytes())
                                 }
 
                                 else -> error("Unexpected node type ${node::class}")
@@ -374,7 +393,15 @@ class DownloadScreenModel :
                         }
                     }.awaitAll().toMap()
 
-                    val doc = Document.createShell("")
+                    val doc = Document.createShell("").apply {
+                        outputSettings()
+                            .syntax(Document.OutputSettings.Syntax.xml)
+                            .escapeMode(Entities.EscapeMode.xhtml)
+                            .charset("UTF-8")
+                            .prettyPrint(false)
+
+                        selectFirst("html")?.attr("xmlns", "http://www.w3.org/1999/xhtml")
+                    }
                     var page = 1
                     for (i in result) {
                         when (i) {
@@ -383,7 +410,7 @@ class DownloadScreenModel :
                             }
 
                             is TextNode -> {
-                                doc.body().appendElement("p").text(i.text.toString())
+                                doc.body().appendElement("p").text(i.text.toString().replace("\\n", "\n"))
                             }
 
                             is JumpPageNode -> {
@@ -397,7 +424,10 @@ class DownloadScreenModel :
                             }
 
                             is NewPageNode -> {
-                                doc.body().appendElement("h1").text("#Chapter${page++}")
+                                val page = ++page
+                                doc.body().appendElement("h1").text("Chapter$page")
+                                    .id("Chapter$page")
+                                    .attr("style", "height: 0;overflow: hidden;visibility: hidden;page-break-before: always;")
                             }
 
                             is PixivImageNode -> doc.body().appendElement("img")
@@ -424,6 +454,10 @@ class DownloadScreenModel :
                             description(novel.caption)
                             publisher("github @Pixiv-MultiPlatform")
                             language("zh-CN")
+
+                            meta {
+                                put("cover", coverImage.uuid)
+                            }
                         }
 
                         manifest {
@@ -437,20 +471,14 @@ class DownloadScreenModel :
                         }
                     }
 
-                    val platformFile = FilePicker.openFileSaver(
-                        suggestedName = "${novel.title} - ${novel.user.name}",
-                        extension = "epub",
-                    )
-
                     useTempFile { f ->
                         epub.writeTo(f)
 
                         f.source().use { i ->
-                            platformFile?.use { o ->
+                            system.sink(file).use { o ->
                                 i.transfer(o)
                             }
                         }
-                        Unit
                     }
                 }
 
@@ -469,7 +497,6 @@ class DownloadScreenModel :
                     return@runOn
                 }
 
-                // 暂时标记为成功，实际实现时需要根据下载结果来设置
                 dao.update(task.copy(success = true, progress = -1f))
                 postSideEffect(
                     DownloadScreenSideEffect.Toast(
