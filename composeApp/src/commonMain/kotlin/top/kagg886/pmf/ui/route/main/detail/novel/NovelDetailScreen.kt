@@ -62,6 +62,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.ScreenKey
+import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
@@ -109,6 +110,7 @@ import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
+import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
 import top.kagg886.pmf.ui.route.main.series.novel.NovelSeriesScreen
 import top.kagg886.pmf.ui.util.AuthorCard
@@ -503,7 +505,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
 
     @Composable
     private fun NovelDetailTopAppBar(
-        model: NovelDetailViewModel,
+        novel: Novel?,
         modifier: Modifier = Modifier,
         onDrawerOpen: () -> Unit = {},
     ) {
@@ -537,10 +539,12 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                             expanded = expanded,
                             onDismissRequest = { expanded = false },
                         ) {
+                            val download = koinScreenModel<DownloadScreenModel>()
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_to_epub)) },
                                 onClick = {
-                                    model.exportToEpub()
+                                    if (novel == null) return@DropdownMenuItem
+                                    download.startNovelDownload(novel)
                                     expanded = false
                                 },
                             )
@@ -573,7 +577,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
         when (state) {
             is NovelDetailViewState.Error -> {
                 Column(modifier) {
-                    NovelDetailTopAppBar(model, onDrawerOpen = onDrawerOpen)
+                    NovelDetailTopAppBar(null, onDrawerOpen = onDrawerOpen)
                     ErrorPage(Modifier.weight(1f), text = state.cause) {
                         model.reload(ctx)
                     }
@@ -584,7 +588,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                 val text by state.text.collectAsState()
 
                 Column(modifier) {
-                    NovelDetailTopAppBar(model, onDrawerOpen = onDrawerOpen)
+                    NovelDetailTopAppBar(null, onDrawerOpen = onDrawerOpen)
                     Loading(Modifier.weight(1f), text)
                 }
             }
@@ -598,7 +602,7 @@ class NovelDetailScreen private constructor(private val id: Long, seriesInfo: Se
                     // TopAppBar 使用 connectedScroll 来实现联动滚动
                     // 当向上滚动时会向上移动并减少高度，最终完全隐藏
                     NovelDetailTopAppBar(
-                        model = model,
+                        novel = state.novel,
                         modifier = Modifier.connectedScroll(connect),
                         onDrawerOpen = onDrawerOpen,
                     )
