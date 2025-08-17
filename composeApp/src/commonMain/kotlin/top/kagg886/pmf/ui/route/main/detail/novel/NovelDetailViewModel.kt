@@ -394,8 +394,8 @@ class NovelDetailViewModel(
 
                     is NovelNodeElement.NewPage -> {
                         val page = ++page
-                        doc.body().appendElement("h1").text("Chapter${page}")
-                            .id("Chapter${page}")
+                        doc.body().appendElement("h1").text("Chapter$page")
+                            .id("Chapter$page")
                             .attr("style", "height: 0;overflow: hidden;visibility: hidden;page-break-before: always;")
                     }
 
