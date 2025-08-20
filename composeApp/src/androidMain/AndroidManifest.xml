@@ -8,7 +8,7 @@
             android:name=".PMFApplication"
             android:allowBackup="true"
             android:enableOnBackInvokedCallback="true"
-            android:icon="@drawable/kotlin"
+            android:icon="@mipmap/ic_launcher"
             android:label="${APP_NAME}"
             android:supportsRtl="true"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
