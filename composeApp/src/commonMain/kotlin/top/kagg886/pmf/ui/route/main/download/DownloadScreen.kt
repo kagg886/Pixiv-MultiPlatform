@@ -33,6 +33,8 @@ import coil3.compose.AsyncImage
 import org.orbitmvi.orbit.compose.collectAsState
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.download_success
 import top.kagg886.pmf.page_is_empty
 import top.kagg886.pmf.ui.component.ErrorPage
@@ -120,17 +122,19 @@ class DownloadScreen : Screen {
                                                             contentDescription = null,
                                                         )
                                                     }
-                                                    IconButton(
-                                                        onClick = {
-                                                            model.startDownloadOr(it) {
-                                                                model.shareFile(it)
-                                                            }
-                                                        },
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = Icons.Default.Share,
-                                                            contentDescription = null,
-                                                        )
+                                                    if (currentPlatform !is Platform.Desktop) {
+                                                        IconButton(
+                                                            onClick = {
+                                                                model.startDownloadOr(it) {
+                                                                    model.shareFile(it)
+                                                                }
+                                                            },
+                                                        ) {
+                                                            Icon(
+                                                                imageVector = Icons.Default.Share,
+                                                                contentDescription = null,
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
