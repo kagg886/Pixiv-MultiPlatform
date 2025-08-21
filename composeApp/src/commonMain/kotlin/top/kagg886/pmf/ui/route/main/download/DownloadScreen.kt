@@ -33,6 +33,8 @@ import coil3.compose.AsyncImage
 import org.orbitmvi.orbit.compose.collectAsState
 import top.kagg886.pixko.module.illust.get
 import top.kagg886.pmf.Res
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.dao.DownloadItemType
 import top.kagg886.pmf.backend.database.dao.illust
 import top.kagg886.pmf.backend.database.dao.novel
@@ -230,7 +232,7 @@ class DownloadScreen : Screen {
                                 }
                             }
 
-                            item.progress == -1f && item.success -> {
+                            item.progress == -1f && item.success && currentPlatform !is Platform.Desktop -> {
                                 Row {
                                     IconButton(
                                         onClick = {
