@@ -1,34 +1,32 @@
-@file:OptIn(ExperimentalSettingsApi::class)
-
 package top.kagg886.pmf.backend
 
 import androidx.compose.ui.text.intl.Locale
-import com.russhwolf.settings.ExperimentalSettingsApi
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.boolean
-import com.russhwolf.settings.int
-import com.russhwolf.settings.long
-import com.russhwolf.settings.serialization.nullableSerializedValue
-import com.russhwolf.settings.serialization.serializedValue
-import com.russhwolf.settings.string
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
+import top.kagg886.mkmb.MMKV
+import top.kagg886.mkmb.mmkvWithID
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.language_en
 import top.kagg886.pmf.language_zh
 import top.kagg886.pmf.system_default
 import top.kagg886.pmf.util.SerializedTheme
+import top.kagg886.pmf.util.boolean
+import top.kagg886.pmf.util.int
+import top.kagg886.pmf.util.json
+import top.kagg886.pmf.util.jsonOrNull
+import top.kagg886.pmf.util.long
 import top.kagg886.pmf.util.mb
+import top.kagg886.pmf.util.string
 
-object AppConfig : Settings by SystemConfig.getConfig("app") {
-    var locale by serializedValue("locale", LanguageSettings.DEFAULT)
-    var darkMode by serializedValue("dark_mode", DarkMode.System)
-    var colorScheme by nullableSerializedValue<SerializedTheme>("color_scheme")
-    var galleryOptions: Gallery by serializedValue(
+object AppConfig : MMKV by MMKV.mmkvWithID("app") {
+    var locale by json("locale", LanguageSettings.DEFAULT)
+    var darkMode by json("dark_mode", DarkMode.System)
+    var colorScheme by jsonOrNull<SerializedTheme>("color_scheme")
+    var galleryOptions: Gallery by json(
         key = "gallery_options",
-        defaultValue = Gallery.FixColumnCount(if (currentPlatform is Platform.Desktop || currentPlatform is Platform.Android.AndroidPad) 3 else 2),
+        default = Gallery.FixColumnCount(if (currentPlatform is Platform.Desktop || currentPlatform is Platform.Android.AndroidPad) 3 else 2),
     )
 
     var cacheSize by long("cache_size", 1024.mb.bytes)
@@ -37,7 +35,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterR18 by boolean("filter_r18", false)
     var filterR18G by boolean("filter_r18g", false)
 
-    var filterAspectRatioType by serializedValue("filter_aspect_ratio", AspectRatioFilterType.NONE)
+    var filterAspectRatioType by json("filter_aspect_ratio", AspectRatioFilterType.NONE)
     var illustDetailsShowAll by boolean("illust_details_show_all", false)
 
     var filterAiNovel by boolean("filter_ai_novel", false)
@@ -58,9 +56,9 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var recordNovelHistory by boolean("record_novel", true)
     var recordSearchHistory by boolean("record_search", true)
 
-    var bypassSettings: BypassSetting by serializedValue(
+    var bypassSettings: BypassSetting by json(
         key = "bypass_settings",
-        defaultValue = BypassSetting.None,
+        default = BypassSetting.None,
     )
 
     var checkUpdateOnStart by boolean("check_update_on_start", true)
@@ -126,7 +124,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         data class Proxy(
             val host: String = "localhost",
             val port: Int = 7890,
-            val type: ProxyType = ProxyType.HTTP,
+            val method: ProxyType = ProxyType.HTTP,
         ) : BypassSetting {
 
             enum class ProxyType {
