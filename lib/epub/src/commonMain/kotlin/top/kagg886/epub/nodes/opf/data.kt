@@ -52,7 +52,7 @@ internal inline fun XmlBuilder.metadata(block: XmlBuilder.() -> Unit) = node(
 internal fun XmlBuilder.dcMeta(name:String, value: String) = node(
     tag = "meta",
     props = arrayOf(
-        "property" to name,
+        "name" to name,
         "content" to value
     ),
 )
