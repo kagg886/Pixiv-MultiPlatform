@@ -154,17 +154,19 @@ class DownloadScreen : Screen {
                                             contentDescription = null,
                                         )
                                     }
-                                    IconButton(
-                                        onClick = {
-                                            model.startIllustDownloadOr(item) {
-                                                model.shareFile(item)
-                                            }
-                                        },
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Share,
-                                            contentDescription = null,
-                                        )
+                                    if (currentPlatform !is Platform.Desktop) {
+                                        IconButton(
+                                            onClick = {
+                                                model.startIllustDownloadOr(item) {
+                                                    model.shareFile(item)
+                                                }
+                                            },
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Share,
+                                                contentDescription = null,
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -232,7 +234,7 @@ class DownloadScreen : Screen {
                                 }
                             }
 
-                            item.progress == -1f && item.success && currentPlatform !is Platform.Desktop -> {
+                            item.progress == -1f && item.success -> {
                                 Row {
                                     IconButton(
                                         onClick = {
@@ -246,17 +248,19 @@ class DownloadScreen : Screen {
                                             contentDescription = null,
                                         )
                                     }
-                                    IconButton(
-                                        onClick = {
-                                            model.startNovelDownloadOr(item) {
-                                                model.shareFile(item)
-                                            }
-                                        },
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Share,
-                                            contentDescription = null,
-                                        )
+                                    if (currentPlatform !is Platform.Desktop) {
+                                        IconButton(
+                                            onClick = {
+                                                model.startNovelDownloadOr(item) {
+                                                    model.shareFile(item)
+                                                }
+                                            },
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Share,
+                                                contentDescription = null,
+                                            )
+                                        }
                                     }
                                 }
                             }
