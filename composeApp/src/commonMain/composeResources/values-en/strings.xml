@@ -365,4 +365,6 @@
     <string name="download_path_not_set">Download path not set, tap here to select</string>
     <string name="download_path_current">Current path: %1$s</string>
     <string name="select_path">Select</string>
+    <string name="show_original_image">Show original image</string>
+    <string name="show_original_image_hint">May slow down network speed. Enable with caution.</string>
 </resources>
