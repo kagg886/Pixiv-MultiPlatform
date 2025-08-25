@@ -176,6 +176,8 @@ import top.kagg886.pmf.settings_download_path
 import top.kagg886.pmf.settings_download_path_desc
 import top.kagg886.pmf.settings_download_path_not_supported
 import top.kagg886.pmf.shareFile
+import top.kagg886.pmf.show_original_image
+import top.kagg886.pmf.show_original_image_hint
 import top.kagg886.pmf.show_toast_when_failed
 import top.kagg886.pmf.show_toast_when_latest
 import top.kagg886.pmf.single_column_width
@@ -559,6 +561,17 @@ class SettingScreen : Screen {
                     state = illustDetailsShowAll,
                     title = { Text(stringResource(Res.string.illust_details_show_all)) },
                     onCheckedChange = { illustDetailsShowAll = it },
+                )
+
+                var showOriginalImage by remember { mutableStateOf(AppConfig.showOriginalImage) }
+                LaunchedEffect(showOriginalImage) {
+                    AppConfig.showOriginalImage = showOriginalImage
+                }
+                SettingsSwitch(
+                    state = showOriginalImage,
+                    title = { Text(stringResource(Res.string.show_original_image)) },
+                    subtitle = { Text(stringResource(Res.string.show_original_image_hint)) },
+                    onCheckedChange = { showOriginalImage = it },
                 )
             }
             SettingsGroup(title = { Text(stringResource(Res.string.novel_settings)) }) {
