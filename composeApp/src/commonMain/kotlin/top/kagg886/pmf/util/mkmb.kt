@@ -9,13 +9,21 @@ package top.kagg886.pmf.util
 import co.touchlab.kermit.Severity
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.serializer
 import top.kagg886.mkmb.MMKV
 import top.kagg886.mkmb.MMKVOptions
+import top.kagg886.mkmb.defaultMMKV
 import top.kagg886.mkmb.initialize
+import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
 import top.kagg886.pmf.backend.dataPath
+import top.kagg886.pmf.backend.pixiv.PixivConfig
 
 class DirectMMKVDelegate<T>(
     private val mmkv: MMKV,

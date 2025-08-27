@@ -17,6 +17,8 @@ fun Path.meta() = FileSystem.SYSTEM.metadata(this)
 
 fun Path.sink(append: Boolean = false): Sink = sink0(this, append)
 
+fun Path.readText() = source().buffer().use { it.readUtf8() }
+
 internal fun sink0(path: Path, append: Boolean = false) = with(FileSystem.SYSTEM.openReadWrite(path)) {
     FileHandleSink(this, if (append) appendingSink() else sink(fileOffset = 0))
 }

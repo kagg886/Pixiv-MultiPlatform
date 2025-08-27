@@ -122,6 +122,8 @@ import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.initFileLogger
 import top.kagg886.pmf.util.initializeMMKV
 import top.kagg886.pmf.util.logger
+import top.kagg886.pmf.util.migrateMultiplatformSettingsToMMKV
+import top.kagg886.pmf.util.migrateSketchToCoil
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toColorScheme
 
@@ -456,7 +458,6 @@ fun setupEnv() {
             },
         )
     }
-
     co.touchlab.kermit.Logger.withTag("Application").i(
         """
             Application Info:
@@ -468,6 +469,8 @@ fun setupEnv() {
             - Platform: $currentPlatform
         """.trimIndent(),
     )
+    migrateMultiplatformSettingsToMMKV()
+    migrateSketchToCoil()
 }
 
 expect fun openBrowser(link: String)
