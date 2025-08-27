@@ -39,6 +39,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
     var filterAspectRatioType by serializedValue("filter_aspect_ratio", AspectRatioFilterType.NONE)
     var illustDetailsShowAll by boolean("illust_details_show_all", false)
+    var showOriginalImage by boolean("show_original_image", false)
 
     var filterAiNovel by boolean("filter_ai_novel", false)
     var filterR18Novel by boolean("filter_r18_novel", false)
