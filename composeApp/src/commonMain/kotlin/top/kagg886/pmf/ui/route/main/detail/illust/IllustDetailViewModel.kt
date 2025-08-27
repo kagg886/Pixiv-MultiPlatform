@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import cafe.adriel.voyager.core.model.ScreenModel
 import coil3.Uri
 import coil3.toUri
+import io.ktor.http.Url
 import io.ktor.util.encodeBase64
 import kotlin.time.Clock
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.buildJsonArray
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
@@ -32,6 +34,7 @@ import top.kagg886.pmf.backend.database.dao.IllustHistory
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_failed
 import top.kagg886.pmf.bookmark_success
+import top.kagg886.pmf.file_was_downloading
 import top.kagg886.pmf.follow_fail
 import top.kagg886.pmf.follow_success
 import top.kagg886.pmf.follow_success_private
@@ -60,6 +63,26 @@ class IllustDetailViewModel(private val illust: Illust) :
 
     private val client = PixivConfig.newAccountFromConfig()
 
+    fun toggleOrigin() = intent {
+        val s = state
+        if (s !is IllustDetailViewState.Success) {
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.file_was_downloading)))
+            return@intent
+        }
+        val origin = s.illust.contentImages[IllustImagesType.ORIGIN]
+
+        if (origin == null) {
+            postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.get_original_fail)))
+            return@intent
+        }
+
+        reduce {
+            s.copy(
+                data = origin.map(String::toUri),
+            )
+        }
+    }
+
     fun load(showLoading: Boolean = true) = intent {
         val loadingState = IllustDetailViewState.Loading()
         if (showLoading) {
@@ -78,8 +101,15 @@ class IllustDetailViewModel(private val illust: Illust) :
             return@intent
         }
 
-        val img =
-            illust.contentImages[IllustImagesType.LARGE, IllustImagesType.MEDIUM]!!.map(String::toUri)
+        val options = buildList {
+            if (AppConfig.showOriginalImage) {
+                add(IllustImagesType.ORIGIN)
+            }
+            add(IllustImagesType.LARGE)
+            add(IllustImagesType.MEDIUM)
+        }
+
+        val img = illust.contentImages.get(*options.toTypedArray())!!.map(String::toUri)
         reduce {
             IllustDetailViewState.Success(illust, img)
         }
@@ -98,6 +128,16 @@ class IllustDetailViewModel(private val illust: Illust) :
                 postSideEffect(IllustDetailSideEffect.Toast(getString(Res.string.get_original_fail)))
             }
             saveDataBase(i)
+
+            val options = buildList {
+                if (AppConfig.showOriginalImage) {
+                    add(IllustImagesType.ORIGIN)
+                }
+                add(IllustImagesType.LARGE)
+                add(IllustImagesType.MEDIUM)
+            }
+
+            val img = i.contentImages.get(*options.toTypedArray())!!.map(String::toUri)
             reduce {
                 IllustDetailViewState.Success(i, img)
             }
