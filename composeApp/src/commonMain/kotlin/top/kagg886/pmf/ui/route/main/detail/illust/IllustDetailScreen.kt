@@ -3,6 +3,7 @@ package top.kagg886.pmf.ui.route.main.detail.illust
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,11 +12,17 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -116,12 +123,15 @@ import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.util.SerializableWrapper
 import top.kagg886.pmf.util.getString
+import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
 import top.kagg886.pmf.util.toReadableString
 import top.kagg886.pmf.util.wrap
 
-class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComponent {
+class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: SerializableWrapper<List<Illust>>) :
+    Screen,
+    KoinComponent {
 
     class PreFetch(private val id: Long) : Screen, KoinComponent {
         private val client = PixivConfig.newAccountFromConfig()
@@ -158,26 +168,38 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>) : Screen, KoinComp
         }
     }
 
-    constructor(illust: Illust) : this(wrap(illust))
+    constructor(illust: Illust, todos: List<Illust> = listOf(illust)) : this(wrap(illust), wrap(todos))
 
-    private val illust0 by illust
+    private val current by illust
+    private val todos by todos
 
     override val key: ScreenKey
-        get() = "illust_detail_${illust0.id}"
+        get() = "illust_detail_${current.id}"
+
+    init {
+        if (this.todos.size > 1) {
+            logger.i("Experimental Horizonal Illust: total is ${this.todos.size} current is ${this.todos.indexOf(current)}")
+        }
+    }
 
     @Composable
-    override fun Content() {
-        val model = rememberScreenModel(key) {
-            IllustDetailViewModel(illust0)
-        }
-        val state by model.collectAsState()
-        val host = LocalSnackBarHost.current
-        model.collectSideEffect {
-            when (it) {
-                is IllustDetailSideEffect.Toast -> host.showSnackbar(it.msg)
+    override fun Content() = BoxWithConstraints(Modifier.fillMaxSize()) {
+        HorizontalPager(state = rememberPagerState(initialPage = todos.indexOf(current)) { todos.size }) { index ->
+            val illust = todos[index]
+            val model = rememberScreenModel(illust.hashCode().toString()) {
+                IllustDetailViewModel(illust)
+            }
+            val state by model.collectAsState()
+            val host = LocalSnackBarHost.current
+            model.collectSideEffect {
+                when (it) {
+                    is IllustDetailSideEffect.Toast -> host.showSnackbar(it.msg)
+                }
+            }
+            Box(Modifier.width(maxWidth).height(maxHeight)) {
+                IllustDetailScreenContent(state, model)
             }
         }
-        IllustDetailScreenContent(state, model)
     }
 
     @Composable
