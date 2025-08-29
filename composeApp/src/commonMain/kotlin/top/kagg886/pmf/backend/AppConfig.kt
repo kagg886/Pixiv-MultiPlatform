@@ -72,6 +72,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     enum class LanguageSettings(val tag: StringResource, val locale: Locale) {
         EN(Res.string.language_en, Locale("en-US")),
         ZH(Res.string.language_zh, Locale("zh-CN")),
+        ZHTW(Res.string.language_zh_TW, Locale("zh-TW")),
         DEFAULT(Res.string.system_default, Locale.current),
     }
 
