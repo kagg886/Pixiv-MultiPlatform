@@ -180,6 +180,7 @@
     <string name="jump_to_chapter">跳轉至第 %1$s 章</string>
     <string name="language_en">English</string>
     <string name="language_zh">簡體中文</string>
+    <string name="language_zh_TW">繁體中文</string>
     <string name="latest">最新</string>
     <string name="light_mode">日間模式</string>
     <string name="load_failed">載入失敗</string>
