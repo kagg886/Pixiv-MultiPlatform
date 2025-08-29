@@ -18,6 +18,7 @@ import org.jetbrains.compose.resources.StringResource
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.language_en
 import top.kagg886.pmf.language_zh
+import top.kagg886.pmf.language_zh_TW
 import top.kagg886.pmf.system_default
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.mb
