@@ -116,7 +116,7 @@ private fun IllustFetchContent0(state: IllustFetchViewState, model: IllustFetchV
                         Box(modifier = Modifier.padding(5.dp)) {
                             Card(
                                 modifier = Modifier.fillMaxSize(),
-                                onClick = { nav.push(IllustDetailScreen(item)) },
+                                onClick = { nav.push(IllustDetailScreen(item, data.itemSnapshotList.items)) },
                             ) {
                                 AsyncImage(
                                     model = item.imageUrls.content,

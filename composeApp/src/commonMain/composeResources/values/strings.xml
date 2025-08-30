@@ -180,6 +180,7 @@
     <string name="jump_to_chapter">跳转到第%1$s章节</string>
     <string name="language_en">English</string>
     <string name="language_zh">简体中文</string>
+    <string name="language_zh_TW">繁體中文</string>
     <string name="latest">最新</string>
     <string name="light_mode">日间模式</string>
     <string name="load_failed">加载失败</string>
@@ -368,4 +369,8 @@
     <string name="select_path">选择</string>
     <string name="show_original_image">显示原图</string>
     <string name="show_original_image_hint">可能会拖慢网络速度，请谨慎开启</string>
+
+    <string name="illust_details_open_for">插画详情页面滑动时</string>
+    <string name="switch_detail">切换插画</string>
+    <string name="expand_comment">展开评论区</string>
 </resources>
