@@ -176,7 +176,7 @@ jobs:
           path: composeApp/mappings-desktop-currentOS.txt
           if-no-files-found: error
   build-ios:
-    runs-on: macos-15
+    runs-on: macos-14
     permissions:
       contents: read
     steps:
