@@ -39,6 +39,7 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
 
     var filterAspectRatioType by serializedValue("filter_aspect_ratio", AspectRatioFilterType.NONE)
     var illustDetailsShowAll by boolean("illust_details_show_all", false)
+    var illustDetailOpenFor by serializedValue("illust_details_open_for", DetailSlideOpenFor.SwitchDetail)
 
     var filterAiNovel by boolean("filter_ai_novel", false)
     var filterR18Novel by boolean("filter_r18_novel", false)
@@ -91,6 +92,12 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         @Serializable
         @SerialName("fix_width")
         data class FixWidth(val size: Int) : Gallery
+    }
+
+    @Serializable
+    enum class DetailSlideOpenFor {
+        SwitchDetail,
+        OpenComment,
     }
 
     @Serializable

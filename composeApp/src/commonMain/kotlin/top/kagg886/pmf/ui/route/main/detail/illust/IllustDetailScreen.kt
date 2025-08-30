@@ -26,6 +26,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
@@ -83,6 +84,8 @@ import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.Platform
+import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.bookmark_extra_options
 import top.kagg886.pmf.cant_load_illust
@@ -230,7 +233,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
     }
 
     @Composable
-    private fun IllustTopAppBar(illust: Illust) {
+    private fun IllustTopAppBar(illust: Illust, onCommentPanelBtnClick: () -> Unit = {}) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
             title = { Text(text = stringResource(Res.string.image_details)) },
@@ -243,7 +246,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                 var enabled by remember { mutableStateOf(false) }
                 IconButton(
                     onClick = { enabled = true },
-                    modifier = Modifier.padding(horizontal = 8.dp),
+                    modifier = Modifier.padding(start = 8.dp),
                 ) {
                     Icon(Icons.Default.Menu, null)
                 }
@@ -258,6 +261,14 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                             enabled = false
                         },
                     )
+                }
+                if (currentPlatform !is Platform.Desktop) {
+                    IconButton(
+                        onClick = onCommentPanelBtnClick,
+                        modifier = Modifier.padding(start = 8.dp),
+                    ) {
+                        Icon(Icons.Default.Edit, null)
+                    }
                 }
             },
         )
@@ -306,10 +317,20 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
             },
             rtlLayout = true,
             drawerState = drawerState,
+            // 滑动展开comment模式且comment panel open时，需要启用手势滑动关闭
+            gesturesEnabled = AppConfig.illustDetailOpenFor == AppConfig.DetailSlideOpenFor.OpenComment || drawerState.isOpen,
         ) {
             Scaffold(
                 topBar = {
-                    IllustTopAppBar(state.illust)
+                    IllustTopAppBar(state.illust) {
+                        scope.launch {
+                            if (drawerState.isOpen) {
+                                drawerState.close()
+                            } else {
+                                drawerState.open()
+                            }
+                        }
+                    }
                 },
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {

@@ -366,4 +366,8 @@
     <string name="download_path_not_set">未设置下载路径，点击此处选择</string>
     <string name="download_path_current">当前路径: %1$s</string>
     <string name="select_path">选择</string>
+    
+    <string name="illust_details_open_for">插画详情页面滑动时</string>
+    <string name="switch_detail">切换插画</string>
+    <string name="expand_comment">展开评论区</string>
 </resources>
