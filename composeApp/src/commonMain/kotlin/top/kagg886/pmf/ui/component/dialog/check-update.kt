@@ -34,7 +34,7 @@ fun CheckUpdateDialog() {
     updateModel.collectSideEffect {
         when (it) {
             is UpdateCheckSideEffect.Toast -> {
-                s.showSnackbar(it.msg)
+                s.showSnackbar(it.msg, withDismissAction = true)
             }
         }
     }
