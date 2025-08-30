@@ -67,9 +67,12 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
+import coil3.EventListener
 import coil3.compose.AsyncImagePainter.State
+import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import coil3.request.ImageRequest
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
@@ -100,6 +103,7 @@ import top.kagg886.pmf.no_description
 import top.kagg886.pmf.openBrowser
 import top.kagg886.pmf.open_in_browser
 import top.kagg886.pmf.publish_date
+import top.kagg886.pmf.show_original_image
 import top.kagg886.pmf.tags
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton
@@ -233,7 +237,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
     }
 
     @Composable
-    private fun IllustTopAppBar(illust: Illust, onCommentPanelBtnClick: () -> Unit = {}) {
+    private fun IllustTopAppBar(illust: Illust, onCommentPanelBtnClick: () -> Unit = {}, onOriginImageRequest: () -> Unit = {}) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
             title = { Text(text = stringResource(Res.string.image_details)) },
@@ -261,6 +265,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                             enabled = false
                         },
                     )
+
+                    DropdownMenuItem(
+                        text = { Text(stringResource(Res.string.show_original_image)) },
+                        onClick = onOriginImageRequest,
+                    )
                 }
                 if (currentPlatform !is Platform.Desktop) {
                     IconButton(
@@ -281,7 +290,13 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
     ) {
         Scaffold(
             topBar = {
-                IllustTopAppBar(state.illust)
+                IllustTopAppBar(
+                    illust = state.illust,
+                    onCommentPanelBtnClick = {},
+                    onOriginImageRequest = {
+                        model.toggleOrigin()
+                    }
+                )
             },
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
@@ -322,15 +337,21 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
         ) {
             Scaffold(
                 topBar = {
-                    IllustTopAppBar(state.illust) {
-                        scope.launch {
-                            if (drawerState.isOpen) {
-                                drawerState.close()
-                            } else {
-                                drawerState.open()
+                    IllustTopAppBar(
+                        illust = state.illust,
+                        onCommentPanelBtnClick = {
+                            scope.launch {
+                                if (drawerState.isOpen) {
+                                    drawerState.close()
+                                } else {
+                                    drawerState.open()
+                                }
                             }
+                        },
+                        onOriginImageRequest = {
+                            model.toggleOrigin()
                         }
-                    }
+                    )
                 },
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
@@ -366,7 +387,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
             }
 
             var expand by remember { mutableStateOf(AppConfig.illustDetailsShowAll) }
-            val img by remember(illust.hashCode(), expand) {
+            val img by remember(state.data.hashCode(), expand) {
                 mutableStateOf(state.data.let { if (!expand) it.take(3) else it })
             }
             LazyColumn(
@@ -388,7 +409,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                         contentDescription = null,
                     ) {
                         val state by painter.state.collectAsState()
-                        when (state) {
+                        when (val s = state) {
                             is State.Success -> SubcomposeAsyncImageContent(
                                 modifier = Modifier.clickable {
                                     startIndex = i
@@ -396,12 +417,20 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                                 },
                             )
 
-                            else -> Box(
+                            is State.Loading -> Box(
                                 modifier = Modifier.align(Alignment.Center),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 CircularProgressIndicator()
                             }
+
+                            is State.Error -> ErrorPage(
+                                modifier = Modifier.align(Alignment.Center),
+                                text = s.result.throwable.message ?: "Unknown Error",
+                                onClick = { model.load() },
+                            )
+
+                            else -> Unit
                         }
                     }
                 }
