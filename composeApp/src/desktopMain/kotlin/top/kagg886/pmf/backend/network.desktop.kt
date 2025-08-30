@@ -36,7 +36,7 @@ private val InternalType: HttpClientConfig<HttpClientEngineConfig>.() -> Unit = 
 
             is AppConfig.BypassSetting.Proxy -> (this as JavaHttpConfig).apply {
                 protocolVersion = HttpClient.Version.HTTP_2
-                proxy = Proxy(Proxy.Type.valueOf(config.type.toString()), InetSocketAddress.createUnresolved(config.host, config.port))
+                proxy = Proxy(Proxy.Type.valueOf(config.method.toString()), InetSocketAddress.createUnresolved(config.host, config.port))
                 config { followRedirects(HttpClient.Redirect.ALWAYS) }
             }
         }
