@@ -180,6 +180,7 @@
     <string name="jump_to_chapter">Jump to chapter %1$s</string>
     <string name="language_en">English</string>
     <string name="language_zh">简体中文</string>
+    <string name="language_zh_TW">繁體中文</string>
     <string name="latest">Latest</string>
     <string name="light_mode">Light</string>
     <string name="load_failed">Loading failed</string>
@@ -367,4 +368,8 @@
     <string name="select_path">Select</string>
     <string name="show_original_image">Show original image</string>
     <string name="show_original_image_hint">May slow down network speed. Enable with caution.</string>
+
+    <string name="illust_details_open_for">Illustration detail page swipe action</string>
+    <string name="switch_detail">Switch illustration</string>
+    <string name="expand_comment">Expand comments</string>
 </resources>

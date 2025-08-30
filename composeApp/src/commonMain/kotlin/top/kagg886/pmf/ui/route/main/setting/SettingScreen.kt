@@ -53,8 +53,6 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
 import org.koin.ext.getFullName
 import org.koin.mp.KoinPlatform.getKoin
-import top.kagg886.filepicker.FilePicker
-import top.kagg886.filepicker.openFilePicker
 import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
@@ -67,6 +65,7 @@ import top.kagg886.pmf.appearance
 import top.kagg886.pmf.auto_typography
 import top.kagg886.pmf.auto_typography_description
 import top.kagg886.pmf.backend.AppConfig
+import top.kagg886.pmf.backend.AppConfig.DetailSlideOpenFor
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.currentPlatform
@@ -102,6 +101,7 @@ import top.kagg886.pmf.doh_timeout
 import top.kagg886.pmf.doh_timeout_description
 import top.kagg886.pmf.doh_timeout_hint
 import top.kagg886.pmf.download_theme
+import top.kagg886.pmf.expand_comment
 import top.kagg886.pmf.export_all_logs
 import top.kagg886.pmf.export_all_logs_description
 import top.kagg886.pmf.export_login_session
@@ -134,6 +134,7 @@ import top.kagg886.pmf.gallery_settings
 import top.kagg886.pmf.history_records
 import top.kagg886.pmf.ignore_ssl_errors
 import top.kagg886.pmf.ignore_ssl_errors_description
+import top.kagg886.pmf.illust_details_open_for
 import top.kagg886.pmf.illust_details_show_all
 import top.kagg886.pmf.import_theme_fail
 import top.kagg886.pmf.ip_pool
@@ -182,6 +183,7 @@ import top.kagg886.pmf.show_toast_when_failed
 import top.kagg886.pmf.show_toast_when_latest
 import top.kagg886.pmf.single_column_width
 import top.kagg886.pmf.single_column_width_description
+import top.kagg886.pmf.switch_detail
 import top.kagg886.pmf.tag_max_length
 import top.kagg886.pmf.tag_max_length_description
 import top.kagg886.pmf.text_size
@@ -562,6 +564,29 @@ class SettingScreen : Screen {
                     title = { Text(stringResource(Res.string.illust_details_show_all)) },
                     onCheckedChange = { illustDetailsShowAll = it },
                 )
+
+                val platform = currentPlatform
+                var illustDetailOpenFor by remember { mutableStateOf(AppConfig.illustDetailOpenFor) }
+                LaunchedEffect(illustDetailOpenFor) {
+                    AppConfig.illustDetailOpenFor = illustDetailOpenFor
+                }
+
+                if (platform !is Platform.Desktop) {
+                    SettingsDropdownMenu<DetailSlideOpenFor>(
+                        title = { Text(stringResource(Res.string.illust_details_open_for)) },
+                        optionsFormat = {
+                            when (it) {
+                                DetailSlideOpenFor.SwitchDetail -> stringResource(Res.string.switch_detail)
+                                DetailSlideOpenFor.OpenComment -> stringResource(Res.string.expand_comment)
+                            }
+                        },
+                        current = illustDetailOpenFor,
+                        data = DetailSlideOpenFor.entries,
+                        onSelected = {
+                            illustDetailOpenFor = it
+                        },
+                    )
+                }
 
                 var showOriginalImage by remember { mutableStateOf(AppConfig.showOriginalImage) }
                 LaunchedEffect(showOriginalImage) {
