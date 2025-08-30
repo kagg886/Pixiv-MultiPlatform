@@ -295,7 +295,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                     onCommentPanelBtnClick = {},
                     onOriginImageRequest = {
                         model.toggleOrigin()
-                    }
+                    },
                 )
             },
         ) {
@@ -350,7 +350,7 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
                         },
                         onOriginImageRequest = {
                             model.toggleOrigin()
-                        }
+                        },
                     )
                 },
             ) {
