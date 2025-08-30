@@ -18,14 +18,20 @@ actual class SerializableWrapper<T : Any> : Externalizable {
     @OptIn(InternalSerializationApi::class)
     override fun writeExternal(out: ObjectOutput) {
         out.writeUTF(clazz!!.qualifiedName!!)
-        out.writeUTF(Json.encodeToString(clazz!!.serializer(), value!!))
+        val json = Json.encodeToString(clazz!!.serializer(), value!!).toByteArray()
+
+        out.writeInt(json.size)
+        out.write(json)
     }
 
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
     override fun readExternal(input: ObjectInput) {
         clazz = Class.forName(input.readUTF()).kotlin as KClass<T>
-        value = Json.decodeFromString(clazz!!.serializer(), input.readUTF())
+
+        val len = input.readInt()
+        val json = ByteArray(len).apply { input.read(this, 0, len) }.decodeToString()
+        value = Json.decodeFromString(clazz!!.serializer(), json)
     }
 
     override fun toString(): String = value.toString()

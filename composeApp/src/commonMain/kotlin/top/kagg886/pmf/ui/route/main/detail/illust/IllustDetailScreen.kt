@@ -1,24 +1,8 @@
 package top.kagg886.pmf.ui.route.main.detail.illust
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -28,31 +12,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboard
@@ -67,14 +28,12 @@ import cafe.adriel.voyager.koin.koinScreenModel
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
-import coil3.EventListener
 import coil3.compose.AsyncImagePainter.State
-import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
-import coil3.request.ImageRequest
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -84,34 +43,12 @@ import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.illust.getIllustDetail
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
-import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
+import top.kagg886.pmf.*
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.bookmark_extra_options
-import top.kagg886.pmf.cant_load_illust
-import top.kagg886.pmf.copy_pid
-import top.kagg886.pmf.copy_title_success
-import top.kagg886.pmf.download
-import top.kagg886.pmf.error
-import top.kagg886.pmf.expand_more
-import top.kagg886.pmf.find_similar_illust
-import top.kagg886.pmf.image_details
-import top.kagg886.pmf.no_description
-import top.kagg886.pmf.openBrowser
-import top.kagg886.pmf.open_in_browser
-import top.kagg886.pmf.publish_date
-import top.kagg886.pmf.show_original_image
-import top.kagg886.pmf.tags
-import top.kagg886.pmf.ui.component.ErrorPage
-import top.kagg886.pmf.ui.component.FavoriteButton
-import top.kagg886.pmf.ui.component.FavoriteState
-import top.kagg886.pmf.ui.component.ImagePreviewer
-import top.kagg886.pmf.ui.component.Loading
-import top.kagg886.pmf.ui.component.SupportListItem
-import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
+import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
 import top.kagg886.pmf.ui.component.icon.Download
 import top.kagg886.pmf.ui.component.icon.View
@@ -119,24 +56,14 @@ import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
 import top.kagg886.pmf.ui.route.main.download.DownloadScreenModel
 import top.kagg886.pmf.ui.route.main.search.v2.SearchResultScreen
-import top.kagg886.pmf.ui.util.AuthorCard
-import top.kagg886.pmf.ui.util.CommentPanel
-import top.kagg886.pmf.ui.util.HTMLRichText
-import top.kagg886.pmf.ui.util.KeyListenerFromGlobalPipe
-import top.kagg886.pmf.ui.util.RollingNumber
-import top.kagg886.pmf.ui.util.illustRouter
-import top.kagg886.pmf.ui.util.keyboardScrollerController
-import top.kagg886.pmf.ui.util.useWideScreenMode
-import top.kagg886.pmf.ui.util.withClickable
-import top.kagg886.pmf.util.SerializableWrapper
-import top.kagg886.pmf.util.getString
-import top.kagg886.pmf.util.logger
-import top.kagg886.pmf.util.setText
-import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.util.toReadableString
-import top.kagg886.pmf.util.wrap
+import top.kagg886.pmf.ui.util.*
+import top.kagg886.pmf.util.*
 
-class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: SerializableWrapper<List<Illust>>) :
+@Serializable
+data class IllustDetailArgs(val index: Int, val todos: List<Illust>)
+
+// 无奈之举，voyager迟早要换
+class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
     Screen,
     KoinComponent {
 
@@ -175,10 +102,16 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
         }
     }
 
-    constructor(illust: Illust, todos: List<Illust> = listOf(illust)) : this(wrap(illust), wrap(todos))
+    constructor(
+        illust: Illust,
+        todos: List<Illust> = listOf(illust),
+    ) : this(wrap(IllustDetailArgs(todos.indexOf(illust), todos)))
 
-    private val current by illust
-    private val todos by todos
+    private val args by args
+    private val current
+        get() = args.todos[this.args.index]
+    private val todos
+        get() = this.args.todos
 
     override val key: ScreenKey
         get() = "illust_detail_${current.id}"
@@ -237,7 +170,11 @@ class IllustDetailScreen(illust: SerializableWrapper<Illust>, todos: Serializabl
     }
 
     @Composable
-    private fun IllustTopAppBar(illust: Illust, onCommentPanelBtnClick: () -> Unit = {}, onOriginImageRequest: () -> Unit = {}) {
+    private fun IllustTopAppBar(
+        illust: Illust,
+        onCommentPanelBtnClick: () -> Unit = {},
+        onOriginImageRequest: () -> Unit = {},
+    ) {
         val nav = LocalNavigator.currentOrThrow
         TopAppBar(
             title = { Text(text = stringResource(Res.string.image_details)) },
