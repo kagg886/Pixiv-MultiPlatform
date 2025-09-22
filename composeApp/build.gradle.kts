@@ -125,7 +125,8 @@ kotlin {
 
             // storage
             implementation(libs.multiplatform.settings)
-            implementation(libs.multiplatform.settings.serialization)
+            implementation(project(":lib:multiplatform-serializer-fix"))
+//            implementation(libs.multiplatform.settings.serialization)
 
             // settings-ui
             implementation(project(":lib:compose-settings"))
