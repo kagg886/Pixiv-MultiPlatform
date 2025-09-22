@@ -10,11 +10,3 @@ plugins {
     alias(libs.plugins.benmanes.versions)
     alias(libs.plugins.version.catalog.update)
 }
-
-allprojects {
-    configurations.configureEach {
-        resolutionStrategy {
-            force("androidx.sqlite:sqlite:2.5.2")
-        }
-    }
-}
