@@ -105,7 +105,7 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
     constructor(
         illust: Illust,
         todos: List<Illust> = listOf(illust),
-    ) : this(wrap(IllustDetailArgs(todos.indexOf(illust), todos)))
+    ) : this(storage("illust_detail_${illust.id}", IllustDetailArgs(todos.indexOf(illust), todos)))
 
     private val args by args
     private val current

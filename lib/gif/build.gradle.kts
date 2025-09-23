@@ -152,8 +152,22 @@ for ((kotlinArch, rustArch) in kotlinArchToRustArch) {
         workingDir = project.file("src/rust")
         commandLine("zsh", "-c", "cargo build --release --target $rustArch")
     }
-    tasks.named("cinteropGif${kotlinArch.replaceFirstChar(Char::uppercaseChar)}") {
+    val capitalizedArch = kotlinArch.replaceFirstChar(Char::uppercaseChar)
+
+    // Ensure native cargo build runs before cinterop for both main and test compilations
+    tasks.named("cinteropGif$capitalizedArch") {
         dependsOn(iosNativeCargoTask)
+    }
+    tasks.named("cinteropTestGif$capitalizedArch") {
+        dependsOn(iosNativeCargoTask)
+    }
+
+    // Fix Gradle implicit dependency by wiring klib zip tasks to their cinterop producers
+    tasks.matching { it.name == "${kotlinArch}Cinterop-gifKlib" }.configureEach {
+        dependsOn("cinteropGif$capitalizedArch")
+    }
+    tasks.matching { it.name == "${kotlinArch}TestCinterop-gifKlib" }.configureEach {
+        dependsOn("cinteropTestGif$capitalizedArch")
     }
 }
 
