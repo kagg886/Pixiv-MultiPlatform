@@ -203,6 +203,16 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                         },
                     )
 
+                    val clip = LocalClipboard.current
+                    val scope = rememberCoroutineScope()
+                    DropdownMenuItem(
+                        text = { Text(stringResource(Res.string.open_in_clipboard)) },
+                        onClick = {
+                            scope.launch { clip.setText("https://pixiv.net/artworks/${illust.id}") }
+                            enabled = false
+                        },
+                    )
+
                     DropdownMenuItem(
                         text = { Text(stringResource(Res.string.show_original_image)) },
                         onClick = onOriginImageRequest,
