@@ -229,6 +229,7 @@
     <string name="novel_settings">小說設定</string>
     <string name="novel_works">小說作品</string>
     <string name="open_in_browser">在瀏覽器中開啟</string>
+    <string name="open_in_clipboard">複製作品鏈接</string>
     <string name="open_source">開放原始碼授權</string>
     <string name="page_is_empty">頁面為空</string>
     <string name="parse_novel_node">正在解析小說節點...%1$s/%2$s</string>
