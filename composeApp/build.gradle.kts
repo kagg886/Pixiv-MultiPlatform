@@ -27,7 +27,9 @@ val gitSha = run {
         getGitHeaderCommitIdShort().apply {
             println("APP_COMMIT_ID not set, use system default.($this)")
         }
-    } else origin
+    } else {
+        origin
+    }
 }
 
 val proguardEnable = (System.getenv("PROGUARD_ENABLE") ?: prop("PROGUARD_ENABLE")).toBooleanStrictOrNull() ?: true
@@ -66,7 +68,6 @@ buildConfig {
 
     buildConfigField("DATABASE_VERSION", 7)
     buildConfigField("APP_COMMIT_ID", gitSha)
-
 }
 
 kotlin {
