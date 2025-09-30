@@ -7,7 +7,7 @@ import java.util.zip.ZipOutputStream
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 
-fun prop(key: String) = project.findProperty(key) as String
+fun prop(key: String) = (project.findProperty(key) as String?) ?: ""
 
 val pkgName: String = "top.kagg886.pmf"
 
@@ -21,7 +21,19 @@ val pkgCode: Int = with(pkgVersion.split(".")) {
     x * 100 + y * 10 + z
 }
 
+val gitSha = run {
+    val origin = System.getenv("APP_COMMIT_ID") ?: prop("APP_COMMIT_ID")
+    if (origin.length != 6) {
+        getGitHeaderCommitIdShort().apply {
+            println("APP_COMMIT_ID not set, use system default.($this)")
+        }
+    } else origin
+}
+
+val proguardEnable = (System.getenv("PROGUARD_ENABLE") ?: prop("PROGUARD_ENABLE")).toBooleanStrictOrNull() ?: true
+
 println("APP_VERSION: $pkgVersion($pkgCode)")
+println("PROGUARD_ENABLE: $proguardEnable")
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -53,8 +65,10 @@ buildConfig {
     buildConfigField("APP_VERSION_CODE", pkgCode)
 
     buildConfigField("DATABASE_VERSION", 7)
-    buildConfigField("APP_COMMIT_ID", getGitSha())
+    buildConfigField("APP_COMMIT_ID", gitSha)
+
 }
+
 kotlin {
     jvmToolchain(17)
     androidTarget()
@@ -269,8 +283,8 @@ android {
         val signConfig = signingConfigs.getByName("test")
 
         getByName("release") {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = proguardEnable
+            isShrinkResources = proguardEnable
             proguardFiles("core-rules.pro")
             signingConfig = signConfig
         }
@@ -341,33 +355,39 @@ compose.desktop {
     }
 }
 
-tasks.withType(AbstractProguardTask::class.java) {
-    val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
-    proguardFile.deleteOnExit()
+if (proguardEnable) {
+    tasks.withType(AbstractProguardTask::class.java) {
+        val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
+        proguardFile.deleteOnExit()
 
-    compose.desktop.application.buildTypes.release.proguard {
-        configurationFiles.from(proguardFile, file("core-rules.pro"), file("desktop-rules.pro"))
-        optimize = false // fixme(tarsin): proguard internal error
-        obfuscate = true
-        joinOutputJars = true
-    }
+        compose.desktop.application.buildTypes.release.proguard {
+            configurationFiles.from(proguardFile, file("core-rules.pro"), file("desktop-rules.pro"))
+            optimize = false // fixme(tarsin): proguard internal error
+            obfuscate = true
+            joinOutputJars = true
+        }
 
-    doFirst {
-        proguardFile.bufferedWriter().use { proguardFileWriter ->
-            sourceSets["desktopMain"].runtimeClasspath.filter { it.extension == "jar" }.forEach { jar ->
-                val zip = zipTree(jar)
-                zip.matching { include("META-INF/**/proguard/*.pro") }.forEach {
-                    proguardFileWriter.appendLine("########   ${jar.name} ${it.name}")
-                    proguardFileWriter.appendLine(it.readText())
-                }
-                zip.matching { include("META-INF/services/*") }.forEach {
-                    it.readLines().forEach { cls ->
-                        val rule = "-keep class $cls"
-                        proguardFileWriter.appendLine(rule)
+        doFirst {
+            proguardFile.bufferedWriter().use { proguardFileWriter ->
+                sourceSets["desktopMain"].runtimeClasspath.filter { it.extension == "jar" }.forEach { jar ->
+                    val zip = zipTree(jar)
+                    zip.matching { include("META-INF/**/proguard/*.pro") }.forEach {
+                        proguardFileWriter.appendLine("########   ${jar.name} ${it.name}")
+                        proguardFileWriter.appendLine(it.readText())
+                    }
+                    zip.matching { include("META-INF/services/*") }.forEach {
+                        it.readLines().forEach { cls ->
+                            val rule = "-keep class $cls"
+                            proguardFileWriter.appendLine(rule)
+                        }
                     }
                 }
             }
         }
+    }
+} else {
+    compose.desktop.application.buildTypes.release.proguard {
+        isEnabled = false
     }
 }
 
@@ -392,7 +412,7 @@ spotless {
     }
 }
 
-fun getGitSha(): String {
+fun getGitHeaderCommitIdShort(): String {
     val process = ProcessBuilder("git", "rev-parse", "--short", "HEAD")
         .redirectErrorStream(true)
         .start()
