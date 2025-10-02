@@ -17,3 +17,11 @@
 -keepattributes LineNumberTable
 -allowaccessmodification
 -repackageclasses
+
+-keep class top.kagg886.pmf.String0_commonMainKt {
+    *;
+}
+
+-keep class androidx.activity.result.ActivityResultRegistry$$ExternalSyntheticLambda0 {
+    *;
+}
