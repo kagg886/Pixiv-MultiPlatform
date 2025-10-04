@@ -45,11 +45,8 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.module.novel.SeriesDetail
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.novel_count
-import top.kagg886.pmf.novel_series
 import top.kagg886.pmf.openBrowser
-import top.kagg886.pmf.open_in_browser
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
@@ -58,8 +55,6 @@ import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.NovelFetchViewModel
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.word_count
-
 class NovelSeriesScreen(private val id: Int) : Screen {
     override val key: ScreenKey = "novel_series_$id"
 

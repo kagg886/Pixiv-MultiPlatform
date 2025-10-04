@@ -65,7 +65,7 @@ class EpubTest {
     fun testEPUBExportKsoup() {
         fun buildHTML(chapter: Int): String = Document.createShell("")
             .apply {
-                selectFirst("html")?.attr("xmlns", "http://www.w3.org/1999/xhtml");
+                selectFirst("html")?.attr("xmlns", "http://www.w3.org/1999/xhtml")
 
                 with(body()) {
                     appendElement("h1").text(chapter.toString())
@@ -76,7 +76,7 @@ class EpubTest {
                 outputSettings().syntax(Document.OutputSettings.Syntax.xml) // XML/XHTML 语法
                 .escapeMode(Entities.EscapeMode.xhtml)      // 按 XHTML 实体转义
                 .charset("UTF-8")                           // 输出编码
-                .prettyPrint(true);                         // 美化排版（可选）
+                .prettyPrint(true)                         // 美化排版（可选）
             }
             .html()
             .apply(::println)

@@ -32,14 +32,12 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import org.orbitmvi.orbit.compose.collectAsState
 import top.kagg886.pixko.module.illust.get
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.database.dao.DownloadItemType
 import top.kagg886.pmf.backend.database.dao.illust
 import top.kagg886.pmf.backend.database.dao.novel
-import top.kagg886.pmf.download_success
-import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.icon.Download

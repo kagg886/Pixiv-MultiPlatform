@@ -30,11 +30,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
-import top.kagg886.pmf.bookmark_extra_options
-import top.kagg886.pmf.no_more_data
-import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.FavoriteButton

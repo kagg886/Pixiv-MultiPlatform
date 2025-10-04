@@ -59,7 +59,7 @@ import kotlin.jvm.JvmName
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.encodeValue(
+fun <T> Settings.encodeValue(
     serializer: KSerializer<T>,
     key: String,
     value: T,
@@ -87,7 +87,7 @@ public fun <T> Settings.encodeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.encodeValue(
+inline fun <reified T> Settings.encodeValue(
     key: String,
     value: T,
     serializersModule: SerializersModule = EmptySerializersModule()
@@ -129,7 +129,7 @@ public inline fun <reified T> Settings.encodeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.decodeValue(
+fun <T> Settings.decodeValue(
     serializer: KSerializer<T>,
     key: String,
     defaultValue: T,
@@ -157,7 +157,7 @@ public fun <T> Settings.decodeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.decodeValue(
+inline fun <reified T> Settings.decodeValue(
     key: String,
     defaultValue: T,
     serializersModule: SerializersModule = EmptySerializersModule()
@@ -199,7 +199,7 @@ public inline fun <reified T> Settings.decodeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.decodeValueOrNull(
+fun <T> Settings.decodeValueOrNull(
     serializer: KSerializer<T>,
     key: String,
     serializersModule: SerializersModule = EmptySerializersModule()
@@ -227,7 +227,7 @@ public fun <T> Settings.decodeValueOrNull(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.decodeValueOrNull(
+inline fun <reified T> Settings.decodeValueOrNull(
     key: String,
     serializersModule: SerializersModule = EmptySerializersModule()
 ): T? =
@@ -263,7 +263,7 @@ public inline fun <reified T> Settings.decodeValueOrNull(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.removeValue(
+fun <T> Settings.removeValue(
     serializer: KSerializer<T>,
     key: String,
     ignorePartial: Boolean = false,
@@ -299,7 +299,7 @@ public fun <T> Settings.removeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.removeValue(
+inline fun <reified T> Settings.removeValue(
     key: String,
     ignorePartial: Boolean = false,
     serializersModule: SerializersModule = EmptySerializersModule(),
@@ -335,7 +335,7 @@ public inline fun <reified T> Settings.removeValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.containsValue(
+fun <T> Settings.containsValue(
     serializer: KSerializer<T>,
     key: String,
     serializersModule: SerializersModule = EmptySerializersModule()
@@ -359,7 +359,7 @@ public fun <T> Settings.containsValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.containsValue(
+inline fun <reified T> Settings.containsValue(
     key: String,
     serializersModule: SerializersModule = EmptySerializersModule()
 ): Boolean = containsValue(serializer<T>(), key, serializersModule)

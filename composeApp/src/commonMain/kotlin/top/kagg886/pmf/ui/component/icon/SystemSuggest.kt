@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-public val SystemSuggest by lazy {
+val SystemSuggest by lazy {
     Builder(
         name = "SettingsSuggest24dp5f6368",
         defaultWidth =

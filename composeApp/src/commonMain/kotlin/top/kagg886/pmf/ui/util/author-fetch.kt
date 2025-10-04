@@ -18,14 +18,8 @@ import top.kagg886.pixko.User
 import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.unFollowUser
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.follow_fail
-import top.kagg886.pmf.follow_success
-import top.kagg886.pmf.follow_success_private
-import top.kagg886.pmf.un_bookmark_failed
-import top.kagg886.pmf.un_bookmark_success
-
+import top.kagg886.pmf.res.*
 abstract class AuthorFetchViewModel : ContainerHost<AuthorFetchViewState, AuthorFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()
     private val signal = MutableSharedFlow<Unit>()

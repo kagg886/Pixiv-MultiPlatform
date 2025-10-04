@@ -15,8 +15,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.find_similar_illust
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.IllustFetchScreen
 import top.kagg886.pmf.util.stringResource
 

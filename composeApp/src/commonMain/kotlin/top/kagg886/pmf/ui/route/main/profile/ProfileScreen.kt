@@ -47,13 +47,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.user.SimpleMeProfile
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.download_manager
-import top.kagg886.pmf.history
-import top.kagg886.pmf.my_bookmark
-import top.kagg886.pmf.personal_profile
-import top.kagg886.pmf.settings
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.route.main.bookmark.BookmarkScreen
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreenWithoutCollapse
 import top.kagg886.pmf.ui.route.main.download.DownloadScreen

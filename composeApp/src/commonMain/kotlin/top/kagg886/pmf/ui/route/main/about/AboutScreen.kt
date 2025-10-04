@@ -43,9 +43,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import org.jetbrains.compose.resources.painterResource
 import top.kagg886.pmf.BuildConfig
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.kotlin
-import top.kagg886.pmf.open_source
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.collapsable.v3.CollapsableTopAppBarScaffold
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Telegram

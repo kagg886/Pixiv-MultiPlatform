@@ -11,18 +11,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import okio.Path
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.dataPath
-import top.kagg886.pmf.browser_archive_should_be_tar_gz
-import top.kagg886.pmf.creating_install_lock
-import top.kagg886.pmf.downloading_browser
-import top.kagg886.pmf.init_browser
-import top.kagg886.pmf.installing_browser
-import top.kagg886.pmf.unknown_error
-import top.kagg886.pmf.unzipping_browser
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.util.absolutePath
 import top.kagg886.pmf.util.getString
-import top.kagg886.pmf.xattr_setting
 
 private val WEBVIEW_INSTALL_DIR = dataPath.resolve("web-view").toFile()
 private val WEBVIEW_INSTALL_LOCK_PATH = WEBVIEW_INSTALL_DIR.resolve("install.lock")

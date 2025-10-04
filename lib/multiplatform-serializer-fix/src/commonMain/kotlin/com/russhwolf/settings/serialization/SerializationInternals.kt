@@ -32,7 +32,7 @@ import kotlinx.serialization.modules.SerializersModule
 internal class SettingsEncoder(
     private val settings: Settings,
     private val key: String,
-    public override val serializersModule: SerializersModule
+    override val serializersModule: SerializersModule
 ) : AbstractEncoder() {
 
     // Stack of keys to track what we're encoding next
@@ -43,7 +43,7 @@ internal class SettingsEncoder(
     // This is important so we can tell whether the last key on the stack refers to the current parent or a sibling.
     private var depth = 0
 
-    public override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
         if (keyStack.size > depth) {
             keyStack.removeLast()
         }
@@ -52,12 +52,12 @@ internal class SettingsEncoder(
     }
 
 
-    public override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeEncoder {
         depth++
         return super.beginStructure(descriptor)
     }
 
-    public override fun endStructure(descriptor: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         depth--
         keyStack.removeLast()
         if (keyStack.isEmpty()) {
@@ -66,34 +66,34 @@ internal class SettingsEncoder(
         }
     }
 
-    public override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
+    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
         settings.putInt("${getKey()}.size", collectionSize)
         return super.beginCollection(descriptor, collectionSize)
     }
 
-    public override fun encodeNotNullMark() = settings.putBoolean("${getKey()}?", true)
-    public override fun encodeNull() {
+    override fun encodeNotNullMark() = settings.putBoolean("${getKey()}?", true)
+    override fun encodeNull() {
         settings.remove(getKey())
         settings.putBoolean("${getKey()}?", false)
     }
 
-    public override fun encodeBoolean(value: Boolean) = settings.putBoolean(getKey(), value)
-    public override fun encodeByte(value: Byte) = settings.putInt(getKey(), value.toInt())
-    public override fun encodeChar(value: Char) = settings.putInt(getKey(), value.code)
-    public override fun encodeDouble(value: Double) = settings.putDouble(getKey(), value)
-    public override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = settings.putInt(getKey(), index)
-    public override fun encodeFloat(value: Float) = settings.putFloat(getKey(), value)
-    public override fun encodeInt(value: Int) = settings.putInt(getKey(), value)
-    public override fun encodeLong(value: Long) = settings.putLong(getKey(), value)
-    public override fun encodeShort(value: Short) = settings.putInt(getKey(), value.toInt())
-    public override fun encodeString(value: String) = settings.putString(getKey(), value)
+    override fun encodeBoolean(value: Boolean) = settings.putBoolean(getKey(), value)
+    override fun encodeByte(value: Byte) = settings.putInt(getKey(), value.toInt())
+    override fun encodeChar(value: Char) = settings.putInt(getKey(), value.code)
+    override fun encodeDouble(value: Double) = settings.putDouble(getKey(), value)
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) = settings.putInt(getKey(), index)
+    override fun encodeFloat(value: Float) = settings.putFloat(getKey(), value)
+    override fun encodeInt(value: Int) = settings.putInt(getKey(), value)
+    override fun encodeLong(value: Long) = settings.putLong(getKey(), value)
+    override fun encodeShort(value: Short) = settings.putInt(getKey(), value.toInt())
+    override fun encodeString(value: String) = settings.putString(getKey(), value)
 }
 
 @ExperimentalSerializationApi
 internal abstract class AbstractSettingsDecoder(
     protected val settings: Settings,
     private val key: String,
-    public override val serializersModule: SerializersModule
+    override val serializersModule: SerializersModule
 ) : AbstractDecoder() {
 
     // Stacks of keys and indices so we can track index at arbitrary levels to know what we're decoding next
@@ -106,7 +106,7 @@ internal abstract class AbstractSettingsDecoder(
     private var depth = 0
 
 
-    public override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
+    override fun decodeElementIndex(descriptor: SerialDescriptor): Int {
         if (keyStack.size > depth) {
             keyStack.removeLast()
             indexStack.removeLast()
@@ -145,12 +145,12 @@ internal abstract class AbstractSettingsDecoder(
     }
 
 
-    public override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
+    override fun beginStructure(descriptor: SerialDescriptor): CompositeDecoder {
         depth++
         return super.beginStructure(descriptor)
     }
 
-    public override fun endStructure(descriptor: SerialDescriptor) {
+    override fun endStructure(descriptor: SerialDescriptor) {
         depth--
         keyStack.removeLast()
         indexStack.removeLast()
@@ -182,28 +182,28 @@ internal class SettingsDecoder(
     serializersModule
 ) {
 
-    public override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int =
         settings.getIntOrNull("${getKey()}.size") ?: deserializationError()
 
-    public override fun decodeNotNullMark(): Boolean =
+    override fun decodeNotNullMark(): Boolean =
         settings.getBooleanOrNull("${getKey()}?") ?: deserializationError()
 
-    public override fun decodeNull(): Nothing? = null
+    override fun decodeNull(): Nothing? = null
 
     // Unfortunately the only way we can interrupt serialization if data is missing is to throw here and catch elsewhere
-    public override fun decodeBoolean(): Boolean = settings.getBooleanOrNull(getKey()) ?: deserializationError()
-    public override fun decodeByte(): Byte = settings.getIntOrNull(getKey())?.toByte() ?: deserializationError()
-    public override fun decodeChar(): Char = settings.getIntOrNull(getKey())?.toChar() ?: deserializationError()
+    override fun decodeBoolean(): Boolean = settings.getBooleanOrNull(getKey()) ?: deserializationError()
+    override fun decodeByte(): Byte = settings.getIntOrNull(getKey())?.toByte() ?: deserializationError()
+    override fun decodeChar(): Char = settings.getIntOrNull(getKey())?.toChar() ?: deserializationError()
 
-    public override fun decodeDouble(): Double = settings.getDoubleOrNull(getKey()) ?: deserializationError()
-    public override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
+    override fun decodeDouble(): Double = settings.getDoubleOrNull(getKey()) ?: deserializationError()
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int =
         settings.getIntOrNull(getKey()) ?: deserializationError()
 
-    public override fun decodeFloat(): Float = settings.getFloatOrNull(getKey()) ?: deserializationError()
-    public override fun decodeInt(): Int = settings.getIntOrNull(getKey()) ?: deserializationError()
-    public override fun decodeLong(): Long = settings.getLongOrNull(getKey()) ?: deserializationError()
-    public override fun decodeShort(): Short = settings.getIntOrNull(getKey())?.toShort() ?: deserializationError()
-    public override fun decodeString(): String = settings.getStringOrNull(getKey()) ?: deserializationError()
+    override fun decodeFloat(): Float = settings.getFloatOrNull(getKey()) ?: deserializationError()
+    override fun decodeInt(): Int = settings.getIntOrNull(getKey()) ?: deserializationError()
+    override fun decodeLong(): Long = settings.getLongOrNull(getKey()) ?: deserializationError()
+    override fun decodeShort(): Short = settings.getIntOrNull(getKey())?.toShort() ?: deserializationError()
+    override fun decodeString(): String = settings.getStringOrNull(getKey()) ?: deserializationError()
 }
 
 // (Ab)uses Decoder machinery to enumerate all keys related to a serialized value, so they can be removed
@@ -224,66 +224,66 @@ internal class SettingsRemover(
         }
     }
 
-    public override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
+    override fun decodeCollectionSize(descriptor: SerialDescriptor): Int {
         val output = settings.getInt("${getKey()}.size", 0)
         keys.add("${getKey()}.size")
         return output
     }
 
-    public override fun decodeNotNullMark(): Boolean {
+    override fun decodeNotNullMark(): Boolean {
         val output = settings.getBoolean("${getKey()}?", false)
         keys.add("${getKey()}?")
         return output
     }
 
-    public override fun decodeNull(): Nothing? = null
+    override fun decodeNull(): Nothing? = null
 
-    public override fun decodeBoolean(): Boolean {
+    override fun decodeBoolean(): Boolean {
         keys.add(getKey())
         return false
     }
 
-    public override fun decodeByte(): Byte {
+    override fun decodeByte(): Byte {
         keys.add(getKey())
         return 0
     }
 
-    public override fun decodeChar(): Char {
+    override fun decodeChar(): Char {
         keys.add(getKey())
         return '0'
     }
 
-    public override fun decodeDouble(): Double {
+    override fun decodeDouble(): Double {
         keys.add(getKey())
         return 0.0
     }
 
-    public override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
+    override fun decodeEnum(enumDescriptor: SerialDescriptor): Int {
         keys.add(getKey())
         return 0
     }
 
-    public override fun decodeFloat(): Float {
+    override fun decodeFloat(): Float {
         keys.add(getKey())
         return 0f
     }
 
-    public override fun decodeInt(): Int {
+    override fun decodeInt(): Int {
         keys.add(getKey())
         return 0
     }
 
-    public override fun decodeLong(): Long {
+    override fun decodeLong(): Long {
         keys.add(getKey())
         return 0
     }
 
-    public override fun decodeShort(): Short {
+    override fun decodeShort(): Short {
         keys.add(getKey())
         return 0
     }
 
-    public override fun decodeString(): String {
+    override fun decodeString(): String {
         keys.add(getKey())
         return ""
     }

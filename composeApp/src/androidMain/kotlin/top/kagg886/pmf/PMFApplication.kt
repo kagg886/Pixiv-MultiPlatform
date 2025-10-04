@@ -57,7 +57,7 @@ class PMFApplication : Application(), SingletonImageLoader.Factory, Thread.Uncau
         thread {
             val i = Intent(this, CrashActivity::class.java)
             i.putExtra("exceptions", e.stackTraceToString())
-            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(i)
 //            android.os.Process.killProcess(android.os.Process.myPid())
         }

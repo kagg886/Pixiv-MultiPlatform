@@ -19,11 +19,7 @@ import androidx.compose.ui.unit.dp
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pixko.module.trending.TrendingTags
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.hot_tags
-import top.kagg886.pmf.load_failed
-import top.kagg886.pmf.search_mode
-import top.kagg886.pmf.sort_mode
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.SupportListItem
 import top.kagg886.pmf.ui.route.main.search.v2.toDisplayString
 import top.kagg886.pmf.util.stringResource

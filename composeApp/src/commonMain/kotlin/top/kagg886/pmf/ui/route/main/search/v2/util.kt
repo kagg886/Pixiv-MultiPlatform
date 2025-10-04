@@ -11,15 +11,7 @@ import top.kagg886.pixko.module.search.SearchTarget.KEYWORD
 import top.kagg886.pixko.module.search.SearchTarget.PARTIAL_MATCH_FOR_TAGS
 import top.kagg886.pixko.module.search.SearchTarget.TEXT
 import top.kagg886.pixko.module.search.SearchTarget.TITLE_AND_CAPTION
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.match_exact_tag
-import top.kagg886.pmf.match_fuzzy_tag
-import top.kagg886.pmf.match_keyword
-import top.kagg886.pmf.match_text
-import top.kagg886.pmf.match_title_caption
-import top.kagg886.pmf.sort_date_asc
-import top.kagg886.pmf.sort_date_desc
-import top.kagg886.pmf.sort_popular_desc
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.util.stringResource
 
 @Composable

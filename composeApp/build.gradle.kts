@@ -306,7 +306,7 @@ android {
 
 compose.resources {
     publicResClass = true
-    packageOfResClass = pkgName
+    packageOfResClass = "$pkgName.res"
     generateResClass = auto
 }
 

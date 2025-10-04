@@ -11,14 +11,9 @@ import top.kagg886.pixko.module.user.UserLikePublicity
 import top.kagg886.pixko.module.user.followUser
 import top.kagg886.pixko.module.user.getUserInfo
 import top.kagg886.pixko.module.user.unFollowUser
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.follow_fail
-import top.kagg886.pmf.follow_success
-import top.kagg886.pmf.follow_success_private
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.container
-import top.kagg886.pmf.unfollow_fail
-import top.kagg886.pmf.unfollow_success
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 

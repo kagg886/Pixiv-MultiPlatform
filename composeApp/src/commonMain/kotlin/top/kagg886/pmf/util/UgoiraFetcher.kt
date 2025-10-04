@@ -27,7 +27,7 @@ class UgoiraFetcher(
     private val diskCache: DiskCache,
     private val net: HttpClient,
 ) : Fetcher {
-    override suspend fun fetch(): FetchResult? {
+    override suspend fun fetch(): FetchResult {
         val metadata = Json.decodeFromString<UgoiraMetadata>(data.authority!!.decodeBase64String())
         val size = metadata.frames.size
         val diskCacheKey = data.toString()

@@ -15,28 +15,11 @@ import kotlinx.coroutines.launch
 import top.kagg886.pixko.module.profile.CountryCode
 import top.kagg886.pixko.module.user.UserInfo
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.account_info
-import top.kagg886.pmf.birthday
-import top.kagg886.pmf.copy_to_clipboard_success_args
-import top.kagg886.pmf.country
-import top.kagg886.pmf.homepage
-import top.kagg886.pmf.is_premium_member
-import top.kagg886.pmf.job
-import top.kagg886.pmf.no
-import top.kagg886.pmf.pawoo_link
-import top.kagg886.pmf.personal_profile
-import top.kagg886.pmf.region
-import top.kagg886.pmf.twitter_account
-import top.kagg886.pmf.twitter_link
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.withClickable
-import top.kagg886.pmf.unknown
-import top.kagg886.pmf.username
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.yes
-
 @Composable
 fun AuthorProfile(user: UserInfo) {
     val scroll = rememberScrollState()

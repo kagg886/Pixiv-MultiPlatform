@@ -21,24 +21,18 @@ import top.kagg886.filepicker.openFilePicker
 import top.kagg886.pixko.PixivVerification
 import top.kagg886.pixko.TokenType
 import top.kagg886.pixko.module.user.getCurrentUserSimpleProfile
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.account_verification_failed
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.backend.pixiv.PixivTokenStorage
 import top.kagg886.pmf.backend.useTempFile
-import top.kagg886.pmf.checking_token
-import top.kagg886.pmf.no_file_selected
-import top.kagg886.pmf.parsing_user_info
-import top.kagg886.pmf.token_verification_failed
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.route.login.v2.LoginType.BrowserLogin
 import top.kagg886.pmf.ui.route.login.v2.LoginType.InputTokenLogin
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
 import top.kagg886.pmf.util.sink
-import top.kagg886.pmf.welcome_user
 
 class LoginScreenViewModel :
     ContainerHost<LoginViewState, LoginSideEffect>,

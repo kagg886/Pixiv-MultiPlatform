@@ -3,23 +3,14 @@
 package top.kagg886.pmf.backend
 
 import androidx.compose.ui.text.intl.Locale
-import com.russhwolf.settings.ExperimentalSettingsApi
-import com.russhwolf.settings.Settings
-import com.russhwolf.settings.boolean
-import com.russhwolf.settings.int
-import com.russhwolf.settings.long
+import com.russhwolf.settings.*
 import com.russhwolf.settings.serialization.nullableSerializedValue
 import com.russhwolf.settings.serialization.serializedValue
-import com.russhwolf.settings.string
 import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.language_en
-import top.kagg886.pmf.language_zh
-import top.kagg886.pmf.language_zh_TW
-import top.kagg886.pmf.system_default
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.mb
 
