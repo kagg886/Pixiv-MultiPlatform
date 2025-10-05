@@ -31,7 +31,7 @@ private val tabTitleResources = mapOf(
     "day_male" to Res.string.rank_day_male,
     "day_female" to Res.string.rank_day_female,
     "week_original" to Res.string.rank_week_original,
-    "week_rookie" to Res.string.rank_week_rookie
+    "week_rookie" to Res.string.rank_week_rookie,
 )
 
 @Composable
@@ -48,13 +48,13 @@ private fun Screen.RankScreen() {
         tabTitle = {
             Text(
                 text =
-                    stringResource(
-                        it.content.let { c->
-                            tabTitleResources[c].apply {
-                                println("$c --> $this")
-                            }!!
-                        }
-                    )
+                stringResource(
+                    it.content.let { c ->
+                        tabTitleResources[c].apply {
+                            println("$c --> $this")
+                        }!!
+                    },
+                ),
             )
         },
         current = RankCategory.entries[index],
