@@ -200,8 +200,7 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
         }
     }
 
-    override fun list(dir: Path): List<Path> =
-        listOrNull(dir) ?: throw FileNotFoundException("Directory not found: $dir")
+    override fun list(dir: Path): List<Path> = listOrNull(dir) ?: throw FileNotFoundException("Directory not found: $dir")
 
     override fun listOrNull(dir: Path): List<Path>? {
         logger.v("Listing directory: $dir")
@@ -240,8 +239,7 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
         }
     }
 
-    override fun openReadOnly(file: Path): FileHandle =
-        throw UnsupportedOperationException("DocumentFile does not support FileHandle operations")
+    override fun openReadOnly(file: Path): FileHandle = throw UnsupportedOperationException("DocumentFile does not support FileHandle operations")
 
     override fun openReadWrite(
         file: Path,
@@ -539,6 +537,5 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
         logger.i("Successfully deleted: $path")
     }
 
-    override fun createSymlink(source: Path, target: Path): Unit =
-        throw UnsupportedOperationException("DocumentFile does not support symbolic links")
+    override fun createSymlink(source: Path, target: Path): Unit = throw UnsupportedOperationException("DocumentFile does not support symbolic links")
 }

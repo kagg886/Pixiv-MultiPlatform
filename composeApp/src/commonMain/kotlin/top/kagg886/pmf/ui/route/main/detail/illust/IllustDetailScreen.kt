@@ -336,7 +336,7 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
     private fun IllustPreview(
         state: IllustDetailViewState.Success,
         model: IllustDetailViewModel,
-        onOriginImageRequest: () -> Unit
+        onOriginImageRequest: () -> Unit,
     ) {
         val illust = state.illust
         Box(modifier = Modifier.fillMaxSize()) {
@@ -407,7 +407,7 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                                                             menuOffsetPx = with(density) {
                                                                 DpOffset(
                                                                     change.position.x.toDp(),
-                                                                    change.position.y.toDp()
+                                                                    change.position.y.toDp(),
                                                                 )
                                                             }
                                                             menuExpanded = true
@@ -440,8 +440,9 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                         }
 
                         DropdownMenu(
-                            expanded = menuExpanded, offset = menuOffsetPx,
-                            onDismissRequest = { menuExpanded = false }
+                            expanded = menuExpanded,
+                            offset = menuOffsetPx,
+                            onDismissRequest = { menuExpanded = false },
                         ) {
                             val scope = rememberCoroutineScope()
                             val snack = LocalSnackBarHost.current
@@ -538,7 +539,6 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                                 )
                             }
                         }
-
                     }
                 }
                 if (illust.contentImages.size > 3 && !expand) {
