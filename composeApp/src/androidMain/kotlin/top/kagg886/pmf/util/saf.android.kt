@@ -34,14 +34,18 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
     private val contentResolver: ContentResolver = context.contentResolver
 
     private val rootDocumentFile = DocumentFile.fromTreeUri(context, uri.toUri())
-        ?: throw IllegalArgumentException("Invalid tree URI: $uri")
 
     init {
+        if (rootDocumentFile == null) {
+            logger.e("Can't create document for uri $uri")
+        }
         logger.i("SAF FileSystem initialized with URI: $uri")
-        logger.d("Root document exists: ${rootDocumentFile.exists()}, canRead: ${rootDocumentFile.canRead()}, canWrite: ${rootDocumentFile.canWrite()}")
     }
 
     private fun pathToDocumentFile(path: Path): DocumentFile? {
+        if (rootDocumentFile == null) {
+            return null
+        }
         logger.v("Looking for document file at path: $path")
 
         if (path.toString() == "/" || path.toString().isEmpty()) {
@@ -51,7 +55,7 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
 
         val segments = path.toString().removePrefix("/").split("/").filter { it.isNotEmpty() }
         logger.v("Path segments: $segments")
-        var current = rootDocumentFile
+        var current: DocumentFile = rootDocumentFile
 
         for (segment in segments) {
             current = current.findFile(segment) ?: run {
@@ -66,6 +70,9 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
     }
 
     private fun createDocumentFile(path: Path, isDirectory: Boolean): DocumentFile? {
+        if (rootDocumentFile == null) {
+            return null
+        }
         logger.i("Creating ${if (isDirectory) "directory" else "file"} at path: $path")
 
         val segments = path.toString().removePrefix("/").split("/").filter { it.isNotEmpty() }
@@ -74,7 +81,7 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
             return rootDocumentFile
         }
 
-        var current = rootDocumentFile
+        var current: DocumentFile = rootDocumentFile
 
         // 创建所有父目录
         for (i in 0 until segments.size - 1) {
@@ -152,6 +159,9 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
         logger.v("Checking full file system permissions")
 
         return try {
+            if (rootDocumentFile == null) {
+                return false
+            }
             // 检查根目录是否可访问
             if (!rootDocumentFile.exists() || !rootDocumentFile.canRead()) {
                 logger.w("Root document file does not exist or cannot be read")
@@ -212,8 +222,8 @@ actual fun safFileSystem(uri: String): FileSystem = object : FileSystem() {
         }
 
         return try {
-            val files = documentFile.listFiles().mapNotNull { child ->
-                child.name?.let { name ->
+            val files = documentFile.listFiles().map { child ->
+                child.name.let { name ->
                     if (dir.toString() == "/") {
                         "/$name".toPath()
                     } else {

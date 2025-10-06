@@ -92,6 +92,24 @@ class DownloadScreenModel :
     }.toPath()
 
     fun startIllustDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
+        if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_not_set),
+                    false,
+                ),
+            )
+            return@intent
+        }
+        if (!system.exists("/".toPath())) {
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_permission_revoked),
+                    false,
+                ),
+            )
+            return@intent
+        }
         if (!system.exists(item.downloadRootPath())) {
             startIllustDownload(item.illust)?.join()
             return@intent
@@ -100,6 +118,25 @@ class DownloadScreenModel :
     }
 
     fun startNovelDownloadOr(item: DownloadItem, orElse: () -> Unit = {}) = intent {
+        if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_not_set),
+                    false,
+                ),
+            )
+            return@intent
+        }
+
+        if (!system.exists("/".toPath())) {
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_permission_revoked),
+                    false,
+                ),
+            )
+            return@intent
+        }
         if (!system.exists(item.downloadRootPath())) {
             startNovelDownload(item.novel)?.join()
             return@intent
@@ -155,7 +192,6 @@ class DownloadScreenModel :
                 jobs.remove(illust.id.toLong())
                 return@intent
             }
-
             runOn<DownloadScreenState.Loaded> {
                 postSideEffect(
                     DownloadScreenSideEffect.Toast(
@@ -503,6 +539,25 @@ class DownloadScreenModel :
     }
 
     fun saveToExternalFile(it: DownloadItem) = intent {
+        if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_not_set),
+                    false,
+                ),
+            )
+            return@intent
+        }
+
+        if (!system.exists("/".toPath())) {
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_permission_revoked),
+                    false,
+                ),
+            )
+            return@intent
+        }
         if (!system.metadata(it.downloadRootPath()).isDirectory) {
             val ext = when (it.meta) {
                 DownloadItemType.ILLUST -> "png"
@@ -555,6 +610,25 @@ class DownloadScreenModel :
     }
 
     fun shareFile(it: DownloadItem) = intent {
+        if (AppConfig.downloadUri.isEmpty() && currentPlatform !is Platform.Apple) { // 检查uri是否成功设置
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_not_set),
+                    false,
+                ),
+            )
+            return@intent
+        }
+
+        if (!system.exists("/".toPath())) {
+            postSideEffect(
+                DownloadScreenSideEffect.Toast(
+                    getString(Res.string.download_root_permission_revoked),
+                    false,
+                ),
+            )
+            return@intent
+        }
         if (!system.metadata(it.downloadRootPath()).isDirectory) {
             val ext = when (it.meta) {
                 DownloadItemType.ILLUST -> "png"

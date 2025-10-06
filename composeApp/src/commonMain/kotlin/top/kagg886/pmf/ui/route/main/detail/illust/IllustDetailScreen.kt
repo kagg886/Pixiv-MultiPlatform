@@ -10,15 +10,23 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import cafe.adriel.voyager.core.model.rememberScreenModel
@@ -29,14 +37,23 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.internal.BackHandler
 import coil3.compose.AsyncImagePainter.State
+import coil3.compose.LocalPlatformContext
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import com.alorma.compose.settings.ui.SettingsMenuLink
+import com.dokar.chiptextfield.util.runIf
+import kotlin.uuid.Uuid
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import okio.Buffer
+import okio.buffer
+import okio.use
 import org.koin.core.component.KoinComponent
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import top.kagg886.filepicker.FilePicker
+import top.kagg886.filepicker.openFileSaver
 import top.kagg886.pixko.module.illust.Illust
 import top.kagg886.pixko.module.illust.IllustImagesType
 import top.kagg886.pixko.module.illust.get
@@ -51,7 +68,9 @@ import top.kagg886.pmf.backend.pixiv.PixivConfig
 import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.*
 import top.kagg886.pmf.ui.component.dialog.TagFavoriteDialog
+import top.kagg886.pmf.ui.component.icon.Copy
 import top.kagg886.pmf.ui.component.icon.Download
+import top.kagg886.pmf.ui.component.icon.Save
 import top.kagg886.pmf.ui.component.icon.View
 import top.kagg886.pmf.ui.component.scroll.VerticalScrollbar
 import top.kagg886.pmf.ui.component.scroll.rememberScrollbarAdapter
@@ -78,7 +97,7 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
             val scope = rememberCoroutineScope()
             LaunchedEffect(Unit) {
                 scope.launch {
-                    val illust = kotlin.runCatching {
+                    val illust = runCatching {
                         client.getIllustDetail(id)
                     }
                     if (illust.isFailure) {
@@ -249,7 +268,9 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
         ) {
             Row(modifier = Modifier.fillMaxSize().padding(it)) {
                 Box(Modifier.fillMaxWidth(0.7f).fillMaxHeight()) {
-                    IllustPreview(state, model)
+                    IllustPreview(state, model) {
+                        model.toggleOrigin()
+                    }
                 }
                 Box(Modifier.weight(1f).fillMaxHeight()) {
                     IllustComment(state.illust)
@@ -303,14 +324,20 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                 },
             ) {
                 Row(modifier = Modifier.fillMaxSize().padding(it)) {
-                    IllustPreview(state, model)
+                    IllustPreview(state, model) {
+                        model.toggleOrigin()
+                    }
                 }
             }
         }
     }
 
     @Composable
-    private fun IllustPreview(state: IllustDetailViewState.Success, model: IllustDetailViewModel) {
+    private fun IllustPreview(
+        state: IllustDetailViewState.Success,
+        model: IllustDetailViewModel,
+        onOriginImageRequest: () -> Unit,
+    ) {
         val illust = state.illust
         Box(modifier = Modifier.fillMaxSize()) {
             val scroll = rememberLazyListState()
@@ -356,13 +383,44 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                         },
                         contentDescription = null,
                     ) {
+                        var menuOffsetPx by remember {
+                            mutableStateOf(DpOffset.Zero)
+                        }
+                        var menuExpanded by remember {
+                            mutableStateOf(false)
+                        }
+                        val density = LocalDensity.current
                         val state by painter.state.collectAsState()
                         when (val s = state) {
                             is State.Success -> SubcomposeAsyncImageContent(
-                                modifier = Modifier.clickable {
-                                    startIndex = i
-                                    preview = true
-                                },
+                                modifier = Modifier
+                                    .runIf(currentPlatform is Platform.Desktop) {
+                                        pointerInput(Unit) {
+                                            awaitPointerEventScope {
+                                                while (true) {
+                                                    val event = awaitPointerEvent()
+                                                    if (event.type == PointerEventType.Press) {
+                                                        val change = event.changes.firstOrNull() ?: continue
+                                                        if (event.buttons.isSecondaryPressed) {
+                                                            change.consume()
+                                                            // 保存鼠标位置（像素）
+                                                            menuOffsetPx = with(density) {
+                                                                DpOffset(
+                                                                    change.position.x.toDp(),
+                                                                    change.position.y.toDp(),
+                                                                )
+                                                            }
+                                                            menuExpanded = true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .clickable {
+                                        startIndex = i
+                                        preview = true
+                                    },
                             )
 
                             is State.Loading -> Box(
@@ -379,6 +437,107 @@ class IllustDetailScreen(args: SerializableWrapper<IllustDetailArgs>) :
                             )
 
                             else -> Unit
+                        }
+
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            offset = menuOffsetPx,
+                            onDismissRequest = { menuExpanded = false },
+                        ) {
+                            val scope = rememberCoroutineScope()
+                            val snack = LocalSnackBarHost.current
+                            val ctx = LocalPlatformContext.current
+                            if (currentPlatform is Platform.Desktop) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(stringResource(Res.string.copy_to_clipboard))
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Copy,
+                                            null,
+                                        )
+                                    },
+                                    onClick = {
+                                        scope.launch {
+                                            val bytes = ctx.readBytes(uri.toString())
+                                            if (bytes == null) {
+                                                snack.showSnackbar(getString(Res.string.file_was_downloading))
+                                            } else {
+                                                runCatching {
+                                                    copyImageToClipboard(bytes)
+                                                }.onSuccess {
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_success))
+                                                }.onFailure {
+                                                    logger.w("copy image to clipboard failed", it)
+                                                    snack.showSnackbar(getString(Res.string.copy_to_clipboard_failed))
+                                                }
+                                            }
+                                            menuExpanded = false
+                                        }
+                                    },
+                                )
+                            }
+                            DropdownMenuItem(
+                                text = {
+                                    Text(stringResource(Res.string.save))
+                                },
+                                leadingIcon = {
+                                    Icon(Save, null)
+                                },
+                                onClick = {
+                                    scope.launch {
+                                        val key = uri.toString()
+                                        val isGif = key.startsWith(UGOIRA_SCHEME)
+                                        val bytes = ctx.readBytes(key)
+                                        if (bytes == null) {
+                                            snack.showSnackbar(getString(Res.string.file_was_downloading))
+                                        } else {
+                                            val platformFile = FilePicker.openFileSaver(
+                                                suggestedName = Uuid.random().toHexString(),
+                                                extension = if (isGif) "gif" else "png",
+                                            )
+                                            platformFile?.buffer()?.use { buf -> buf.write(bytes) }
+                                        }
+                                        menuExpanded = false
+                                    }
+                                },
+                            )
+                            if (currentPlatform is Platform.Android) {
+                                SettingsMenuLink(
+                                    title = {
+                                        Text(stringResource(Res.string.share))
+                                    },
+                                    icon = {
+                                        Icon(Icons.Default.Share, null)
+                                    },
+                                    onClick = {
+                                        scope.launch {
+                                            val key = uri.toString()
+                                            val isGif = key.startsWith(UGOIRA_SCHEME)
+                                            val bytes = ctx.readBytes(key)
+                                            if (bytes == null) {
+                                                getString(Res.string.file_was_downloading)
+                                            } else {
+                                                val source = Buffer().write(bytes)
+                                                useTempFile { tmp ->
+                                                    tmp.sink().buffer().use { source.transfer(it) }
+                                                    if (isGif) {
+                                                        shareFile(
+                                                            tmp,
+                                                            name = "${Uuid.random().toHexString()}.gif",
+                                                            mime = "image/gif",
+                                                        )
+                                                    } else {
+                                                        shareFile(tmp, mime = "image/*")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        menuExpanded = false
+                                    },
+                                )
+                            }
                         }
                     }
                 }

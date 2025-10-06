@@ -29,6 +29,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -38,6 +41,7 @@ import coil3.Uri
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.alorma.compose.settings.ui.SettingsMenuLink
+import com.dokar.chiptextfield.util.runIf
 import kotlin.uuid.Uuid
 import kotlinx.coroutines.launch
 import me.saket.telephoto.zoomable.ZoomableContentLocation
@@ -205,15 +209,33 @@ fun ImagePreviewer(
                     val location = ZoomableContentLocation.scaledToFitAndCenterAligned(size)
                     state.setContentLocation(location)
                 },
-                modifier = Modifier.fillMaxSize().zoomable(
-                    state = state,
-                    onClick = { offset ->
-                        if (offset !in state.transformedContentBounds) onDismiss()
-                    },
-                    onLongClick = { offset ->
-                        if (offset in state.transformedContentBounds) showBottomDialog = true
-                    },
-                ),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .runIf(currentPlatform is Platform.Desktop) {
+                        pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    if (event.type == PointerEventType.Press) {
+                                        val change = event.changes.firstOrNull() ?: continue
+                                        if (event.buttons.isSecondaryPressed) {
+                                            change.consume()
+                                            showBottomDialog = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .zoomable(
+                        state = state,
+                        onClick = { offset ->
+                            if (offset !in state.transformedContentBounds) onDismiss()
+                        },
+                        onLongClick = { offset ->
+                            if (offset in state.transformedContentBounds) showBottomDialog = true
+                        },
+                    ),
             )
         }
 
@@ -262,7 +284,7 @@ fun ImagePreviewer(
     }
 }
 
-private fun PlatformContext.readBytes(key: String) = run {
+fun PlatformContext.readBytes(key: String) = run {
     val coil = SingletonImageLoader.get(this).diskCache!!
     coil.openSnapshot(key)?.use { snapshot ->
         snapshot.data.source().buffer().use { src ->
