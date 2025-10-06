@@ -14,4 +14,9 @@
 -ignorewarnings
 
 
--printmapping mappings-desktop-currentOS.txt
+# -printmapping mappings-desktop-currentOS.txt
+
+-printconfiguration build/compose/binaries/main-release/proguard/configuration.txt
+-printmapping build/compose/binaries/main-release/proguard/mapping.txt
+-printseeds build/compose/binaries/main-release/proguard/seeds.txt
+-printusage build/compose/binaries/main-release/proguard/usage.txt

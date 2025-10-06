@@ -357,6 +357,14 @@ compose.desktop {
 }
 
 if (proguardEnable) {
+    gradle.projectsEvaluated {
+        tasks.named("proguardReleaseJars").configure {
+            doFirst {
+                layout.buildDirectory.file("compose/binaries/main-release/proguard").get().asFile.mkdirs()
+            }
+        }
+    }
+
     tasks.withType(AbstractProguardTask::class.java) {
         val proguardFile = File.createTempFile("tmp", ".pro", temporaryDir)
         proguardFile.deleteOnExit()
