@@ -357,6 +357,16 @@ compose.desktop {
 }
 
 if (proguardEnable) {
+    /**
+     * | 文件名                 | 主要内容       | 主要作用          |
+     * | :------------------ | :--------- | :------------ |
+     * | `configuration.txt` | 最终使用的混淆配置  | 调试规则是否合并正确    |
+     * | `mapping.txt`       | 原名 → 混淆名映射 | 反混淆崩溃日志       |
+     * | `resources.txt`     | 资源混淆映射     | 调试资源重命名       |
+     * | `seeds.txt`         | 被保留的类      | 验证 `-keep` 结果 |
+     * | `usage.txt`         | 被删除的类      | 检查优化结果、瘦身效果   |
+     *
+     */
     gradle.projectsEvaluated {
         tasks.named("proguardReleaseJars").configure {
             doFirst {
