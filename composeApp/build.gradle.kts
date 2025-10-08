@@ -44,7 +44,6 @@ println("OS name:      ${System.getProperty("os.name")}")
 println("OS arch:      ${System.getProperty("os.arch")}")
 println("-------------------")
 
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
