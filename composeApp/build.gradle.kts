@@ -2,21 +2,6 @@
 
 import com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
 import com.mikepenz.aboutlibraries.plugin.DuplicateRule.GROUP
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
-import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import org.jetbrains.compose.internal.utils.uppercaseFirstChar
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -31,10 +16,25 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.withIndent
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
 import java.nio.file.Path
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import kotlin.io.path.invariantSeparatorsPathString
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.desktop.application.tasks.AbstractProguardTask
 import org.jetbrains.compose.internal.ideaIsInSyncProvider
+import org.jetbrains.compose.internal.utils.uppercaseFirstChar
 
 fun prop(key: String) = (project.findProperty(key) as String?) ?: ""
 
@@ -669,7 +669,7 @@ abstract class BuildIpaTask : DefaultTask() {
     }
 }
 
-//FIXME：修复可复现构建不一致的问题，CMP发版后删除后面的代码段
+// FIXME：修复可复现构建不一致的问题，CMP发版后删除后面的代码段
 
 internal fun Project.ideaIsInSyncProvider(): Provider<Boolean> = provider {
     System.getProperty("idea.sync.active", "false").toBoolean()
@@ -684,7 +684,7 @@ abstract class IdeaImportTask : DefaultTask() {
         try {
             safeAction()
         } catch (e: Exception) {
-            //message must contain two ':' symbols to be parsed by IDE UI!
+            // message must contain two ':' symbols to be parsed by IDE UI!
             logger.error("e: $name task was failed:", e)
             if (!ideaIsInSync.get()) throw e
         }
@@ -709,6 +709,7 @@ tasks.named<org.jetbrains.compose.resources.GenerateActualResourceCollectorsTask
         val funNames = inputFiles.mapNotNull { inputFile ->
             if (inputFile.nameWithoutExtension.contains('.')) {
                 val (fileName, suffix) = inputFile.nameWithoutExtension.split('.')
+                // https://github.com/JetBrains/compose-multiplatform/pull/5446
                 val type = ResourceType.values().sorted().firstOrNull { fileName.startsWith(it.accessorName, true) }
                 val name = "_collect${suffix.uppercaseFirstChar()}${fileName}Resources"
 
@@ -740,7 +741,7 @@ tasks.named<org.jetbrains.compose.resources.GenerateActualResourceCollectorsTask
             resClassName = resClassName,
             isPublic = isPublic,
             useActualModifier = useActual,
-            typeToCollectorFunctions = funNames
+            typeToCollectorFunctions = funNames,
         )
         spec.writeTo(kotlinDir)
     }
@@ -751,13 +752,13 @@ internal enum class ResourceType(val typeName: String, val accessorName: String)
     STRING("string", "string"),
     STRING_ARRAY("string-array", "array"),
     PLURAL_STRING("plurals", "plurals"),
-    FONT("font", "font");
+    FONT("font", "font"),
+    ;
 
     override fun toString(): String = typeName
 
     companion object {
-        fun fromString(str: String): ResourceType? =
-            ResourceType.values().firstOrNull { it.typeName.equals(str, true) }
+        fun fromString(str: String): ResourceType? = ResourceType.values().firstOrNull { it.typeName.equals(str, true) }
     }
 }
 
@@ -779,8 +780,7 @@ private fun ResourceType.getClassName(): ClassName = when (this) {
     ResourceType.PLURAL_STRING -> ClassName("org.jetbrains.compose.resources", "PluralStringResource")
 }
 
-private fun ResourceType.requiresKeyName() =
-    this in setOf(ResourceType.STRING, ResourceType.STRING_ARRAY, ResourceType.PLURAL_STRING)
+private fun ResourceType.requiresKeyName() = this in setOf(ResourceType.STRING, ResourceType.STRING_ARRAY, ResourceType.PLURAL_STRING)
 
 private val resourceItemClass = ClassName("org.jetbrains.compose.resources", "ResourceItem")
 private val internalAnnotationClass = ClassName("org.jetbrains.compose.resources", "InternalResourceApi")
@@ -809,7 +809,8 @@ private fun CodeBlock.Builder.addQualifiers(resourceItem: ResourceItem): CodeBlo
     resourceItem.qualifiers.forEach { q ->
         when (q) {
             "light",
-            "dark" -> {
+            "dark",
+            -> {
                 saveQualifier(themeQualifier, q)
             }
 
@@ -818,7 +819,8 @@ private fun CodeBlock.Builder.addQualifiers(resourceItem: ResourceItem): CodeBlo
             "xhdpi",
             "xxhdpi",
             "xxxhdpi",
-            "ldpi" -> {
+            "ldpi",
+            -> {
                 saveQualifier(densityQualifier, q)
             }
 
@@ -857,69 +859,71 @@ internal fun getResFileSpec(
     packageName: String,
     className: String,
     moduleDir: String,
-    isPublic: Boolean
+    isPublic: Boolean,
 ): FileSpec {
     val resModifier = if (isPublic) KModifier.PUBLIC else KModifier.INTERNAL
     return FileSpec.builder(packageName, className).also { file ->
         file.addAnnotation(
             AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
                 .addMember("%T::class", internalAnnotationClass)
-                .build()
+                .build(),
         )
         file.addAnnotation(
             AnnotationSpec.builder(ClassName("kotlin", "Suppress"))
                 .addMember("%S", "RedundantVisibilityModifier")
                 .addMember("%S", "REDUNDANT_VISIBILITY_MODIFIER")
-                .build()
+                .build(),
         )
-        file.addType(TypeSpec.objectBuilder(className).also { resObject ->
-            resObject.addModifiers(resModifier)
+        file.addType(
+            TypeSpec.objectBuilder(className).also { resObject ->
+                resObject.addModifiers(resModifier)
 
-            //readFileBytes
-            val readResourceBytes = MemberName("org.jetbrains.compose.resources", "readResourceBytes")
-            resObject.addFunction(
-                FunSpec.builder("readBytes")
-                    .addKdoc(
-                        """
+                // readFileBytes
+                val readResourceBytes = MemberName("org.jetbrains.compose.resources", "readResourceBytes")
+                resObject.addFunction(
+                    FunSpec.builder("readBytes")
+                        .addKdoc(
+                            """
                     Reads the content of the resource file at the specified path and returns it as a byte array.
                     
-                    Example: `val bytes = ${className}.readBytes("files/key.bin")`
+                    Example: `val bytes = $className.readBytes("files/key.bin")`
                     
                     @param path The path of the file to read in the compose resource's directory.
                     @return The content of the file as a byte array.
-                """.trimIndent()
-                    )
-                    .addParameter("path", String::class)
-                    .addModifiers(KModifier.SUSPEND)
-                    .returns(ByteArray::class)
-                    .addStatement("""return %M("$moduleDir" + path)""", readResourceBytes)
-                    .build()
-            )
+                            """.trimIndent(),
+                        )
+                        .addParameter("path", String::class)
+                        .addModifiers(KModifier.SUSPEND)
+                        .returns(ByteArray::class)
+                        .addStatement("""return %M("$moduleDir" + path)""", readResourceBytes)
+                        .build(),
+                )
 
-            //getUri
-            val getResourceUri = MemberName("org.jetbrains.compose.resources", "getResourceUri")
-            resObject.addFunction(
-                FunSpec.builder("getUri")
-                    .addKdoc(
-                        """
+                // getUri
+                val getResourceUri = MemberName("org.jetbrains.compose.resources", "getResourceUri")
+                resObject.addFunction(
+                    FunSpec.builder("getUri")
+                        .addKdoc(
+                            """
                     Returns the URI string of the resource file at the specified path.
                     
-                    Example: `val uri = ${className}.getUri("files/key.bin")`
+                    Example: `val uri = $className.getUri("files/key.bin")`
                     
                     @param path The path of the file in the compose resource's directory.
                     @return The URI string of the file.
-                """.trimIndent()
-                    )
-                    .addParameter("path", String::class)
-                    .returns(String::class)
-                    .addStatement("""return %M("$moduleDir" + path)""", getResourceUri)
-                    .build()
-            )
+                            """.trimIndent(),
+                        )
+                        .addParameter("path", String::class)
+                        .returns(String::class)
+                        .addStatement("""return %M("$moduleDir" + path)""", getResourceUri)
+                        .build(),
+                )
 
-            ResourceType.values().forEach { type ->
-                resObject.addType(TypeSpec.objectBuilder(type.accessorName).build())
-            }
-        }.build())
+                ResourceType.values().forEach { type ->
+                    resObject.addType(TypeSpec.objectBuilder(type.accessorName).build())
+                }
+            }.build(),
+        )
     }.build()
 }
 
@@ -933,19 +937,19 @@ internal fun getResFileSpec(
 // then a build may fail with: org.jetbrains.org.objectweb.asm.ClassTooLargeException: Class too large: Res$drawable
 private val ITEMS_PER_FILE_LIMIT = 100
 internal fun getAccessorsSpecs(
-    //type -> id -> items
+    // type -> id -> items
     resources: Map<ResourceType, Map<String, List<ResourceItem>>>,
     packageName: String,
     sourceSetName: String,
     moduleDir: String,
     resClassName: String,
     isPublic: Boolean,
-    generateResourceContentHashAnnotation: Boolean
+    generateResourceContentHashAnnotation: Boolean,
 ): List<FileSpec> {
     val resModifier = if (isPublic) KModifier.PUBLIC else KModifier.INTERNAL
     val files = mutableListOf<FileSpec>()
 
-    //we need to sort it to generate the same code on different platforms
+    // we need to sort it to generate the same code on different platforms
     sortResources(resources).forEach { (type, idToResources) ->
         val chunks = idToResources.keys.chunked(ITEMS_PER_FILE_LIMIT)
 
@@ -960,8 +964,8 @@ internal fun getAccessorsSpecs(
                     resClassName,
                     resModifier,
                     idToResources.subMap(ids.first(), true, ids.last(), true),
-                    generateResourceContentHashAnnotation
-                )
+                    generateResourceContentHashAnnotation,
+                ),
             )
         }
     }
@@ -978,88 +982,86 @@ private fun getChunkFileSpec(
     resClassName: String,
     resModifier: KModifier,
     idToResources: Map<String, List<ResourceItem>>,
-    generateResourceContentHashAnnotation: Boolean
-): FileSpec {
-    return FileSpec.builder(packageName, fileName).also { chunkFile ->
-        chunkFile.addAnnotation(
-            AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
-                .addMember("%T::class", internalAnnotationClass)
-                .build()
-        )
+    generateResourceContentHashAnnotation: Boolean,
+): FileSpec = FileSpec.builder(packageName, fileName).also { chunkFile ->
+    chunkFile.addAnnotation(
+        AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
+            .addMember("%T::class", internalAnnotationClass)
+            .build(),
+    )
 
-        chunkFile.addProperty(
-            PropertySpec.builder("MD", String::class)
-                .addModifiers(KModifier.PRIVATE, KModifier.CONST)
-                .initializer("%S", moduleDir)
-                .build()
-        )
+    chunkFile.addProperty(
+        PropertySpec.builder("MD", String::class)
+            .addModifiers(KModifier.PRIVATE, KModifier.CONST)
+            .initializer("%S", moduleDir)
+            .build(),
+    )
 
-        idToResources.forEach { (resName, items) ->
-            val initializer = CodeBlock.builder()
-                .beginControlFlow("lazy {")
-                .apply {
-                    if (type.requiresKeyName()) {
-                        add("%T(%S, %S, setOf(\n", type.getClassName(), "$type:$resName", resName)
-                    } else {
-                        add("%T(%S, setOf(\n", type.getClassName(), "$type:$resName")
-                    }
-                    items.forEach { item ->
-                        add("  %T(setOf(", resourceItemClass)
-                        addQualifiers(item)
-                        add("), ")
-                        //file separator should be '/' on all platforms
-                        add("\"${'$'}{MD}${item.path.invariantSeparatorsPathString}\", ${item.offset}, ${item.size}")
-                        add("),\n")
-                    }
-                    add("))\n")
+    idToResources.forEach { (resName, items) ->
+        val initializer = CodeBlock.builder()
+            .beginControlFlow("lazy {")
+            .apply {
+                if (type.requiresKeyName()) {
+                    add("%T(%S, %S, setOf(\n", type.getClassName(), "$type:$resName", resName)
+                } else {
+                    add("%T(%S, setOf(\n", type.getClassName(), "$type:$resName")
                 }
-                .endControlFlow()
-                .build()
-
-            val accessorBuilder = PropertySpec.builder(resName, type.getClassName(), resModifier)
-                .receiver(ClassName(packageName, resClassName, type.accessorName))
-                .delegate(initializer)
-            if (generateResourceContentHashAnnotation) {
-                accessorBuilder.addAnnotation(
-                    AnnotationSpec.builder(resourceContentHashAnnotationClass)
-                        .useSiteTarget(AnnotationSpec.UseSiteTarget.DELEGATE)
-                        .addMember("%L", items.fold(0) { acc, item -> ((acc * 31) + item.contentHash) })
-                        .build()
-                )
+                items.forEach { item ->
+                    add("  %T(setOf(", resourceItemClass)
+                    addQualifiers(item)
+                    add("), ")
+                    // file separator should be '/' on all platforms
+                    add("\"${'$'}{MD}${item.path.invariantSeparatorsPathString}\", ${item.offset}, ${item.size}")
+                    add("),\n")
+                }
+                add("))\n")
             }
-            chunkFile.addProperty(accessorBuilder.build())
-        }
+            .endControlFlow()
+            .build()
 
-        //__collect${chunkClassName}Resources function
-        chunkFile.addFunction(
-            FunSpec.builder("_collect${chunkClassName}Resources")
-                .addAnnotation(internalAnnotation)
-                .addModifiers(KModifier.INTERNAL)
-                .addParameter(
-                    "map",
-                    MUTABLE_MAP.parameterizedBy(String::class.asClassName(), type.getClassName())
-                )
-                .also { collectFun ->
-                    idToResources.keys.forEach { resName ->
-                        collectFun.addStatement(
-                            "map.put(%S, %N.%N.%N)",
-                            resName,
-                            resClassName,
-                            type.accessorName,
-                            resName
-                        )
-                    }
+        val accessorBuilder = PropertySpec.builder(resName, type.getClassName(), resModifier)
+            .receiver(ClassName(packageName, resClassName, type.accessorName))
+            .delegate(initializer)
+        if (generateResourceContentHashAnnotation) {
+            accessorBuilder.addAnnotation(
+                AnnotationSpec.builder(resourceContentHashAnnotationClass)
+                    .useSiteTarget(AnnotationSpec.UseSiteTarget.DELEGATE)
+                    .addMember("%L", items.fold(0) { acc, item -> ((acc * 31) + item.contentHash) })
+                    .build(),
+            )
+        }
+        chunkFile.addProperty(accessorBuilder.build())
+    }
+
+    // __collect${chunkClassName}Resources function
+    chunkFile.addFunction(
+        FunSpec.builder("_collect${chunkClassName}Resources")
+            .addAnnotation(internalAnnotation)
+            .addModifiers(KModifier.INTERNAL)
+            .addParameter(
+                "map",
+                MUTABLE_MAP.parameterizedBy(String::class.asClassName(), type.getClassName()),
+            )
+            .also { collectFun ->
+                idToResources.keys.forEach { resName ->
+                    collectFun.addStatement(
+                        "map.put(%S, %N.%N.%N)",
+                        resName,
+                        resClassName,
+                        type.accessorName,
+                        resName,
+                    )
                 }
-                .build()
-        )
-    }.build()
-}
+            }
+            .build(),
+    )
+}.build()
 
 internal fun getExpectResourceCollectorsFileSpec(
     packageName: String,
     fileName: String,
     resClassName: String,
-    isPublic: Boolean
+    isPublic: Boolean,
 ): FileSpec {
     val resModifier = if (isPublic) KModifier.PUBLIC else KModifier.INTERNAL
     return FileSpec.builder(packageName, fileName).also { file ->
@@ -1071,10 +1073,10 @@ internal fun getExpectResourceCollectorsFileSpec(
                         "all${typeClassName.simpleName}s",
                         MAP.parameterizedBy(String::class.asClassName(), typeClassName),
                         KModifier.EXPECT,
-                        resModifier
+                        resModifier,
                     )
                     .receiver(ClassName(packageName, resClassName))
-                    .build()
+                    .build(),
             )
         }
     }.build()
@@ -1085,15 +1087,15 @@ internal fun getActualResourceCollectorsFileSpec(
     fileName: String,
     resClassName: String,
     isPublic: Boolean,
-    useActualModifier: Boolean, //e.g. java only project doesn't need actual modifiers
-    typeToCollectorFunctions: Map<ResourceType, List<String>>
+    useActualModifier: Boolean, // e.g. java only project doesn't need actual modifiers
+    typeToCollectorFunctions: Map<ResourceType, List<String>>,
 ): FileSpec = FileSpec.builder(packageName, fileName).also { file ->
     val resModifier = if (isPublic) KModifier.PUBLIC else KModifier.INTERNAL
 
     file.addAnnotation(
         AnnotationSpec.builder(ClassName("kotlin", "OptIn"))
             .addMember("org.jetbrains.compose.resources.InternalResourceApi::class")
-            .build()
+            .build(),
     )
 
     ResourceType.values().forEach { type ->
@@ -1119,7 +1121,7 @@ internal fun getActualResourceCollectorsFileSpec(
             .builder(
                 "all${typeClassName.simpleName}s",
                 MAP.parameterizedBy(String::class.asClassName(), typeClassName),
-                mods
+                mods,
             )
             .receiver(ClassName(packageName, resClassName))
             .delegate(initBlock)
@@ -1129,7 +1131,7 @@ internal fun getActualResourceCollectorsFileSpec(
 }.build()
 
 private fun sortResources(
-    resources: Map<ResourceType, Map<String, List<ResourceItem>>>
+    resources: Map<ResourceType, Map<String, List<ResourceItem>>>,
 ): TreeMap<ResourceType, TreeMap<String, List<ResourceItem>>> {
     val result = TreeMap<ResourceType, TreeMap<String, List<ResourceItem>>>()
     resources
