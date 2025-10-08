@@ -19,7 +19,3 @@
 -repackageclasses
 
 -keep class top.kagg886.pmf.res.** { *; }
-
--assumenosideeffects class top.kagg886.pmf.res.ActualResourceCollectorsKt {
-    public static ** allStringResources_delegate$lambda$0(...);
-}

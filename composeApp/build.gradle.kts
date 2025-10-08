@@ -36,6 +36,14 @@ val proguardEnable = (System.getenv("PROGUARD_ENABLE") ?: prop("PROGUARD_ENABLE"
 
 println("APP_VERSION: $pkgVersion($pkgCode)")
 println("PROGUARD_ENABLE: $proguardEnable")
+println("---- Java Info ----")
+println("Java version: ${System.getProperty("java.version")}")
+println("Java vendor:  ${System.getProperty("java.vendor")}")
+println("Java home:    ${System.getProperty("java.home")}")
+println("OS name:      ${System.getProperty("os.name")}")
+println("OS arch:      ${System.getProperty("os.arch")}")
+println("-------------------")
+
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
