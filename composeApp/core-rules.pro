@@ -17,5 +17,3 @@
 -keepattributes LineNumberTable
 -allowaccessmodification
 -repackageclasses
-
--keep class top.kagg886.pmf.res.** { *; }
