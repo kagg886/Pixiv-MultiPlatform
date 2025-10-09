@@ -11,14 +11,7 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.follow
-import top.kagg886.pmf.illustration_bookmarks
-import top.kagg886.pmf.illustration_works
-import top.kagg886.pmf.load_failed
-import top.kagg886.pmf.novel_bookmarks
-import top.kagg886.pmf.novel_works
-import top.kagg886.pmf.personal_profile
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.TabContainer

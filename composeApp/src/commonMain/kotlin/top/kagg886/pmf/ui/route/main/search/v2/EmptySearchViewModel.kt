@@ -7,11 +7,9 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.SearchHistory
-import top.kagg886.pmf.clear_search_history
-import top.kagg886.pmf.delete_search_history
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.getString
 

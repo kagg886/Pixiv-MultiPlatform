@@ -20,13 +20,9 @@ import top.kagg886.pixko.module.illust.BookmarkVisibility
 import top.kagg886.pixko.module.novel.Novel
 import top.kagg886.pixko.module.novel.bookmarkNovel
 import top.kagg886.pixko.module.novel.deleteBookmarkNovel
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.bookmark_failed
-import top.kagg886.pmf.bookmark_success
-import top.kagg886.pmf.un_bookmark_failed
-import top.kagg886.pmf.un_bookmark_success
+import top.kagg886.pmf.res.*
 
 abstract class NovelFetchViewModel : ContainerHost<NovelFetchViewState, NovelFetchSideEffect>, ViewModel(), ScreenModel {
     protected val client = PixivConfig.newAccountFromConfig()

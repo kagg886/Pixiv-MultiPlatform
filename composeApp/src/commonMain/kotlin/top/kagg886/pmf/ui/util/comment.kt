@@ -17,10 +17,7 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pixko.module.illust.Comment
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.comment_failed
-import top.kagg886.pmf.comment_success
-
+import top.kagg886.pmf.res.*
 abstract class CommentViewModel(private val id: Long) : ContainerHost<CommentViewState, CommentSideEffect>, ViewModel(), KoinComponent, ScreenModel {
     override val container: Container<CommentViewState, CommentSideEffect> = container(CommentViewState.Success.Generic())
     abstract fun source(id: Long): Flow<PagingData<Comment>>

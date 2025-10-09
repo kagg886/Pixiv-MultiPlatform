@@ -30,14 +30,10 @@ import kotlin.time.Clock
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import top.kagg886.pmf.BuildConfig
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.app_crash
-import top.kagg886.pmf.app_crash_message
-import top.kagg886.pmf.app_crash_title
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.cachePath
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.confirm
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.shareFile
 import top.kagg886.pmf.ui.component.icon.Github
 import top.kagg886.pmf.ui.component.icon.Save

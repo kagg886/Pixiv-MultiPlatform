@@ -51,13 +51,7 @@ import top.kagg886.pixko.module.illust.get
 import top.kagg886.pixko.module.search.SearchSort
 import top.kagg886.pixko.module.search.SearchTarget
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.found_illust
-import top.kagg886.pmf.found_novel
-import top.kagg886.pmf.found_novel_series
-import top.kagg886.pmf.found_user
-import top.kagg886.pmf.please_bookmark_author_to_detail
-import top.kagg886.pmf.search_result_none
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen

@@ -39,14 +39,7 @@ import top.kagg886.pixko.module.user.FavoriteTagsType
 import top.kagg886.pixko.module.user.FavoriteTagsType.Illust
 import top.kagg886.pixko.module.user.FavoriteTagsType.Novel
 import top.kagg886.pixko.module.user.UserLikePublicity
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.bookmark
-import top.kagg886.pmf.bookmark_settings
-import top.kagg886.pmf.illust
-import top.kagg886.pmf.novel
-import top.kagg886.pmf.private
-import top.kagg886.pmf.public
-import top.kagg886.pmf.type
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.SupportRTLModalNavigationDrawer
 import top.kagg886.pmf.ui.util.IllustFetchScreen
@@ -54,7 +47,6 @@ import top.kagg886.pmf.ui.util.NovelFetchScreen
 import top.kagg886.pmf.ui.util.TagsFetchDrawerSheetContainer
 import top.kagg886.pmf.ui.util.TagsFetchViewModel
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.visibility
 
 class BookmarkScreen : Screen {
     @Composable

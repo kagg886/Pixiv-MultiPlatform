@@ -15,12 +15,8 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pmf.BuildConfig
 import top.kagg886.pmf.LocalSnackBarHost
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.currentPlatform
-import top.kagg886.pmf.download
-import top.kagg886.pmf.have_update
-import top.kagg886.pmf.not_check_in_this_version
-import top.kagg886.pmf.platform_not_support
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.UpdateCheckSideEffect
 import top.kagg886.pmf.ui.util.UpdateCheckState
 import top.kagg886.pmf.ui.util.UpdateCheckViewModel

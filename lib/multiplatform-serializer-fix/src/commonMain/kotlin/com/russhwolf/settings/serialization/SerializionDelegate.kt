@@ -38,7 +38,7 @@ import kotlin.reflect.KProperty
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T> Settings.serializedValue(
+fun <T> Settings.serializedValue(
     serializer: KSerializer<T>,
     key: String? = null,
     defaultValue: T,
@@ -54,7 +54,7 @@ public fun <T> Settings.serializedValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T> Settings.serializedValue(
+inline fun <reified T> Settings.serializedValue(
     key: String? = null,
     defaultValue: T,
     context: SerializersModule = EmptySerializersModule()
@@ -67,7 +67,7 @@ public inline fun <reified T> Settings.serializedValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public fun <T : Any> Settings.nullableSerializedValue(
+fun <T : Any> Settings.nullableSerializedValue(
     serializer: KSerializer<T>,
     key: String? = null,
     context: SerializersModule = EmptySerializersModule()
@@ -82,7 +82,7 @@ public fun <T : Any> Settings.nullableSerializedValue(
  */
 @ExperimentalSerializationApi
 @ExperimentalSettingsApi
-public inline fun <reified T : Any> Settings.nullableSerializedValue(
+inline fun <reified T : Any> Settings.nullableSerializedValue(
     key: String? = null,
     context: SerializersModule = EmptySerializersModule()
 ): ReadWriteProperty<Any?, T?> = nullableSerializedValue(serializer<T>(), key, context)

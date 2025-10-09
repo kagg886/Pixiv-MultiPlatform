@@ -142,7 +142,7 @@ internal fun generateXml(doc: Document, file: File) {
 
     // Instantiate the Transformer
     val transformerFactory = TransformerFactory.newInstance()
-    transformerFactory.setAttribute("indent-number", 4);
+    transformerFactory.setAttribute("indent-number", 4)
     val transformer = transformerFactory.newTransformer()
 
     // Enable indentation and set encoding

@@ -14,15 +14,11 @@ import androidx.compose.ui.platform.UriHandler
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.ktor.http.Url
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.jump_browser_tips
-import top.kagg886.pmf.jump_browser_tips_question
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.route.main.detail.author.AuthorScreen
 import top.kagg886.pmf.ui.route.main.detail.illust.IllustDetailScreen
 import top.kagg886.pmf.ui.route.main.detail.novel.NovelDetailScreen
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.yes
-
 @Composable
 fun rememberSupportPixivNavigateUriHandler(): UriHandler {
     val origin = LocalUriHandler.current

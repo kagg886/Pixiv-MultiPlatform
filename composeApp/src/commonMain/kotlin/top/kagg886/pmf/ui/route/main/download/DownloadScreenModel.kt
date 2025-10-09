@@ -56,7 +56,6 @@ import top.kagg886.pixko.module.novel.parser.v2.TextNode
 import top.kagg886.pixko.module.novel.parser.v2.TitleNode
 import top.kagg886.pixko.module.novel.parser.v2.UploadImageNode
 import top.kagg886.pixko.module.novel.parser.v2.content
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.*
 import top.kagg886.pmf.backend.database.AppDatabase
 import top.kagg886.pmf.backend.database.dao.DownloadItem
@@ -64,13 +63,7 @@ import top.kagg886.pmf.backend.database.dao.DownloadItemType
 import top.kagg886.pmf.backend.database.dao.illust
 import top.kagg886.pmf.backend.database.dao.novel
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.download_completed
-import top.kagg886.pmf.download_failed
-import top.kagg886.pmf.download_root_not_set
-import top.kagg886.pmf.download_root_permission_revoked
-import top.kagg886.pmf.download_started
-import top.kagg886.pmf.jump_to_chapter
-import top.kagg886.pmf.task_already_exists
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.util.container
 import top.kagg886.pmf.util.*
 

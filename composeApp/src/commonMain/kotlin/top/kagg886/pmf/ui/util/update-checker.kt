@@ -15,15 +15,12 @@ import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.annotation.OrbitExperimental
 import top.kagg886.pmf.BuildConfig
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.SystemConfig
-import top.kagg886.pmf.update_check_failed
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.logger
-import top.kagg886.pmf.version_latest
-import top.kagg886.pmf.you_can_still_check_update_on_setting
 
 @Serializable
 data class Asset(

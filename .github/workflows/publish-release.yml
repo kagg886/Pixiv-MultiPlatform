@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: proguard-windows.mapping
-          path: composeApp\mappings-desktop-currentOS.txt
+          path: composeApp\build\compose\binaries\main-release\proguard
           if-no-files-found: error
   build-linux:
     runs-on: ubuntu-latest
@@ -89,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: proguard-linux.mapping
-          path: composeApp/mappings-desktop-currentOS.txt
+          path: composeApp/build/compose/binaries/main-release/proguard
           if-no-files-found: error
   build-android:
     runs-on: ubuntu-latest
@@ -131,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: proguard-android.mapping
-          path: composeApp/build/outputs/mapping/release/mapping.txt
+          path: composeApp/build/outputs/mapping/release
           if-no-files-found: error
 
 
@@ -173,7 +173,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: proguard-macos.mapping
-          path: composeApp/mappings-desktop-currentOS.txt
+          path: composeApp/build/compose/binaries/main-release/proguard
           if-no-files-found: error
   build-ios:
     runs-on: macos-14

@@ -44,33 +44,15 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import top.kagg886.pixko.PixivAccountFactory
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
-import top.kagg886.pmf.Res
 import top.kagg886.pmf.backend.PlatformEngine
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.browser_init_failed
-import top.kagg886.pmf.browser_init_failed_msg_backend
-import top.kagg886.pmf.browser_init_failed_msg_clickable
-import top.kagg886.pmf.browser_init_failed_msg_fronted
-import top.kagg886.pmf.browser_init_failed_msg_this_link
-import top.kagg886.pmf.choose_zip_path
-import top.kagg886.pmf.confirm
-import top.kagg886.pmf.copy_to_clipboard
-import top.kagg886.pmf.error_details
-import top.kagg886.pmf.help
-import top.kagg886.pmf.input_token
-import top.kagg886.pmf.login_guide
-import top.kagg886.pmf.login_wizard
-import top.kagg886.pmf.retry
-import top.kagg886.pmf.token_login
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.Loading
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.util.withClickable
 import top.kagg886.pmf.ui.util.withLink
-import top.kagg886.pmf.use_browser_login
-import top.kagg886.pmf.use_token_login
 import top.kagg886.pmf.util.setText
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.warning
 
 class LoginScreen(clearOldSession: Boolean = false) : Screen {
     override val key: ScreenKey = uniqueScreenKey

@@ -21,11 +21,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.compose.collectAsState
 import top.kagg886.pixko.module.user.TagFilter
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.all
-import top.kagg886.pmf.no_filter
-import top.kagg886.pmf.no_more_data
-import top.kagg886.pmf.page_is_empty
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.BackToTopOrRefreshButton
 import top.kagg886.pmf.ui.component.ErrorPage
 import top.kagg886.pmf.ui.component.Loading

@@ -65,47 +65,11 @@ import top.kagg886.pmf.LocalColorScheme
 import top.kagg886.pmf.LocalDarkSettings
 import top.kagg886.pmf.LocalSnackBarHost
 import top.kagg886.pmf.NavigationItem
-import top.kagg886.pmf.Res
-import top.kagg886.pmf.ai_acceptance
-import top.kagg886.pmf.ai_allowed
-import top.kagg886.pmf.ai_blocked
-import top.kagg886.pmf.app_language
 import top.kagg886.pmf.backend.AppConfig
 import top.kagg886.pmf.backend.Platform
 import top.kagg886.pmf.backend.currentPlatform
 import top.kagg886.pmf.backend.pixiv.PixivConfig
-import top.kagg886.pmf.bypass_intro
-import top.kagg886.pmf.bypass_note
-import top.kagg886.pmf.day_mode
-import top.kagg886.pmf.download_path_current
-import top.kagg886.pmf.download_path_not_set
-import top.kagg886.pmf.follow_system
-import top.kagg886.pmf.import_theme_fail
-import top.kagg886.pmf.next_step
-import top.kagg886.pmf.night_mode
-import top.kagg886.pmf.no_bypass
-import top.kagg886.pmf.previous_step
-import top.kagg886.pmf.r18_acceptance
-import top.kagg886.pmf.r18_allowed
-import top.kagg886.pmf.r18_blocked
-import top.kagg886.pmf.r18g_acceptance
-import top.kagg886.pmf.select_path
-import top.kagg886.pmf.settings_download
-import top.kagg886.pmf.settings_download_path
-import top.kagg886.pmf.settings_download_path_desc
-import top.kagg886.pmf.setup_complete
-import top.kagg886.pmf.setup_finish_note
-import top.kagg886.pmf.setup_finish_note_simple
-import top.kagg886.pmf.shield_config
-import top.kagg886.pmf.shield_intro
-import top.kagg886.pmf.skip_setup
-import top.kagg886.pmf.sni_bypass
-import top.kagg886.pmf.step_number
-import top.kagg886.pmf.theme_info
-import top.kagg886.pmf.theme_info_after_url
-import top.kagg886.pmf.theme_info_url
-import top.kagg886.pmf.theme_intro
-import top.kagg886.pmf.theme_setting
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.component.SelectionCard
 import top.kagg886.pmf.ui.component.guide.GuideScaffold
 import top.kagg886.pmf.ui.component.icon.DarkMode
@@ -122,17 +86,10 @@ import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.THEME
 import top.kagg886.pmf.ui.route.welcome.WelcomeViewState.ConfigureSetting.WELCOME
 import top.kagg886.pmf.ui.util.useWideScreenMode
 import top.kagg886.pmf.ui.util.withLink
-import top.kagg886.pmf.unknown_error
-import top.kagg886.pmf.use_proxy
-import top.kagg886.pmf.use_sni_bypass
 import top.kagg886.pmf.util.ComposeI18N
 import top.kagg886.pmf.util.SerializedTheme
 import top.kagg886.pmf.util.getString
 import top.kagg886.pmf.util.stringResource
-import top.kagg886.pmf.welcome
-import top.kagg886.pmf.welcome_text
-import top.kagg886.pmf.welcome_text_after_pixko
-
 class WelcomeScreen : Screen {
     @Composable
     override fun Content() {

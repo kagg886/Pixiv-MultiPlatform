@@ -11,6 +11,7 @@ import kotlin.system.exitProcess
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import top.kagg886.pmf.res.*
 import top.kagg886.pmf.ui.route.crash.CrashApp
 import top.kagg886.pmf.ui.route.welcome.WelcomeScreen
 
