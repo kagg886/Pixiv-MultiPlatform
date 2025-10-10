@@ -10,6 +10,7 @@
 # dbus-java
 -keep interface org.freedesktop.dbus.spi.transport.ITransportProvider
 -keep interface org.freedesktop.dbus.interfaces.Properties { *; }
+-keep class androidx.sqlite.driver.bundled.** { *; }
 
 -ignorewarnings
 
