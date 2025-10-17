@@ -120,7 +120,7 @@ class AnimatedSkiaImage(val codec: Codec, val scope: CoroutineScope) : Image {
     }
 
     fun frameIndexToDraw(totalElapsedTimeMs: Long): Int {
-        if (codec.frameCount == 1) { //只有1帧的情况返回0
+        if (codec.frameCount == 1) { // 只有1帧的情况返回0
             return 0
         }
         val currentIterationElapsedTimeMs = totalElapsedTimeMs % wholeDuration
