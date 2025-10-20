@@ -439,7 +439,9 @@ class DownloadScreenModel :
                             }
 
                             is TextNode -> {
-                                doc.body().appendElement("p").text(i.text.toString().replace("\\n", "\n"))
+                                i.text.toString().replace("\\n","\n").lines().forEach {
+                                    doc.body().appendElement("p").text(it)
+                                }
                             }
 
                             is JumpPageNode -> {
