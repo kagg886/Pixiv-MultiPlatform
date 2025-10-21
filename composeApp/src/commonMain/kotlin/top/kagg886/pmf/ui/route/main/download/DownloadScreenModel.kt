@@ -439,7 +439,7 @@ class DownloadScreenModel :
                             }
 
                             is TextNode -> {
-                                i.text.toString().replace("\\n","\n").lines().forEach {
+                                i.text.toString().replace("\\n", "\n").lines().forEach {
                                     doc.body().appendElement("p").text(it)
                                 }
                             }
