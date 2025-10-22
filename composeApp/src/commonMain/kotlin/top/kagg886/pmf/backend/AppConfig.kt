@@ -46,7 +46,17 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
     var filterLongTag by boolean("filter_long_tag", false)
     var filterLongTagMinLength by int("filter_long_tag_min_len", 15)
 
+    @Deprecated("Use downloadPageSaveAction instead")
     var downloadUri by string("download_root_uri", "")
+
+    var downloadPageSaveAction: DownloadPageSaveAction by serializedValue(
+        key = "download_page_save_action",
+        defaultValue = when (currentPlatform) {
+            is Platform.Apple -> DownloadPageSaveAction.SaveToPhotoApp
+            is Platform.Desktop.Windows, is Platform.Desktop.Linux -> DownloadPageSaveAction.SaveToDownloadDir("")
+            is Platform.Desktop.MacOS, is Platform.Android.AndroidPhone, is Platform.Android.AndroidPad -> DownloadPageSaveAction.SaveToDownloadDir("")
+        },
+    )
 
     var recordIllustHistory by boolean("record_illust", true)
     var recordNovelHistory by boolean("record_novel", true)
@@ -99,6 +109,15 @@ object AppConfig : Settings by SystemConfig.getConfig("app") {
         NONE,
         PHONE,
         PC,
+    }
+
+    @Serializable
+    @Polymorphic
+    sealed interface DownloadPageSaveAction {
+        @Serializable
+        data object SaveToPhotoApp: DownloadPageSaveAction
+        @Serializable
+        data class SaveToDownloadDir(val uri: String): DownloadPageSaveAction
     }
 
     @Serializable

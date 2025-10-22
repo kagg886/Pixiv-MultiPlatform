@@ -7,15 +7,16 @@ sealed class Platform(open val name: String) {
         data class AndroidPad(override val version: Int) : Android(version)
     }
 
+
     sealed class Desktop(override val name: String) : Platform(name) {
         data object Linux : Desktop("linux")
         data object Windows : Desktop("windows")
-        data object MacOS : Desktop("macos")
+        data object MacOS : Desktop("macos"), Apple
     }
 
-    sealed class Apple(override val name: String) : Platform(name) {
-        data object IPhoneOS : Apple("ios")
-        data object IPadOS : Apple("ipados")
+    sealed interface Apple {
+        data object IPhoneOS : Platform("ios"), Apple
+        data object IPadOS : Platform("ipados"), Apple
     }
 }
 
